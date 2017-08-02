@@ -23,7 +23,9 @@
 #include "zodiacgraph/scene.h"
 #include "zodiacgraph/view.h"
 
-void createZodiacLogo(MainCtrl* mainCtrl);
+#include "graphstructures.h"
+
+//void createZodiacLogo(MainCtrl* mainCtrl);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -81,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     zodiacScene->updateStyle();
     zodiacView->updateStyle();
 
-    createZodiacLogo(m_mainCtrl);
+    //createZodiacLogo(m_mainCtrl);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -323,9 +325,9 @@ void MainWindow::writeSettings()
     settings.endGroup(); // zodiac
 }
 
-void createZodiacLogo(MainCtrl* mainCtrl)
+/*void createZodiacLogo(MainCtrl* mainCtrl)
 {
-   /* NodeCtrl* nodeCtrl12 = mainCtrl->createNode("Node 12");
+    NodeCtrl* nodeCtrl12 = mainCtrl->createNode("Node 12");
     nodeCtrl12->getNodeHandle().setPos(-1360.86, 265.708);
     nodeCtrl12->addOutgoingPlug("plug");
     nodeCtrl12->addIncomingPlug("plug_10");
@@ -877,5 +879,5 @@ void createZodiacLogo(MainCtrl* mainCtrl)
     nodeCtrl40->getNodeHandle().getPlug("plug").connectPlug(nodeCtrl39->getNodeHandle().getPlug("plug"));
     nodeCtrl40->getNodeHandle().getPlug("plug_5").connectPlug(nodeCtrl41->getNodeHandle().getPlug("plug_12"));
     nodeCtrl18->getNodeHandle().getPlug("plug").connectPlug(nodeCtrl19->getNodeHandle().getPlug("plug_6"));
-    nodeCtrl18->getNodeHandle().getPlug("plug_5").connectPlug(nodeCtrl17->getNodeHandle().getPlug("plug_2"));*/
-}
+    nodeCtrl18->getNodeHandle().getPlug("plug_5").connectPlug(nodeCtrl17->getNodeHandle().getPlug("plug_2"));
+}*/
