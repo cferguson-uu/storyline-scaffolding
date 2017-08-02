@@ -3,6 +3,8 @@
 
 #include <QDebug>
 
+//Story graph info begins
+
 static const QString kName_StoryName = "storyName";
 
 static const QString kName_Setting = "setting";
@@ -54,6 +56,49 @@ static const QString kPrefix_Outcome = "OUT";
 //resolution
 static const QString kPrefix_ResolutionEvent = "REVENT";
 static const QString kPrefix_ResolutionState = "RSTATE";
+
+struct SimpleNode
+{
+    QString id;
+    QString description;
+};
+
+struct SimpleNodeWithState
+{
+    QString id;
+    QString description;
+    QString stateID;
+    QString stateDescription;
+};
+
+struct SettingItem : public SimpleNode  //simple node with state child
+{
+    std::list<SimpleNodeWithState> details;
+};
+
+struct EventGoal : public SimpleNode  //simple node with nested children
+{
+    std::list<EventGoal> subItems;
+};
+
+struct Episode : public SimpleNodeWithState //id and subgoal
+{
+    std::list<SimpleNodeWithState> attempts;
+    std::list<SimpleNodeWithState> outcomes;
+
+    std::list<Episode> attemptSubEpisodes;
+    std::list<Episode> outcomeSubEpisodes;
+};
+
+struct Resolution
+{
+    std::list<EventGoal> events;
+    std::list<SimpleNode> states;
+};
+
+//Story graph info ends
+
+//command info begins
 
 enum ValueType
 {
@@ -128,43 +173,35 @@ struct Command
     std::list<Parameter> commandParams;
 };
 
-struct SimpleNode
+//command info ends
+
+//narrative graph info begins
+
+struct NarrativeCommand
 {
+    QString command;
+    std::list<QString> params;    //list of parameters associated with command
+};
+
+struct NarrativeRequirements
+{
+    QString type;
     QString id;
-    QString description;
+    std::list<NarrativeRequirements> children;
 };
 
-struct SimpleNodeWithState
+struct NarrativeNode
 {
+    QString comments;
     QString id;
-    QString description;
-    QString stateID;
-    QString stateDescription;
+
+    NarrativeRequirements requirements;
+
+    std::list<NarrativeCommand> onUnlockCommands;
+    std::list<NarrativeCommand> onFailCommands;
+    std::list<NarrativeCommand> onUnlockedCommands;
 };
 
-struct SettingItem : public SimpleNode  //simple node with state child
-{
-    std::list<SimpleNodeWithState> details;
-};
-
-struct EventGoal : public SimpleNode  //simple node with nested children
-{
-    std::list<EventGoal> subItems;
-};
-
-struct Episode : public SimpleNodeWithState //id and subgoal
-{
-    std::list<SimpleNodeWithState> attempts;
-    std::list<SimpleNodeWithState> outcomes;
-
-    std::list<Episode> attemptSubEpisodes;
-    std::list<Episode> outcomeSubEpisodes;
-};
-
-struct Resolution
-{
-    std::list<EventGoal> events;
-    std::list<SimpleNode> states;
-};
+//narrative graph info ends
 
 #endif // GRAPHSTRUCTURES_H

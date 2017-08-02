@@ -17,10 +17,17 @@ class saveandload
 {
 public:
     saveandload();
+
+    //story
     void LoadStoryFromFile(QWidget *widget);
     void SaveStoryToFile(QWidget *widget);
 
+    //commands
+    void LoadNarrativeParamsAndCommands();
+
 private:
+    //story
+
     //load functions
     void ReadCharacters(QJsonArray &jsonCharacters);
     void ReadLocations(QJsonArray &jsonLocations);
@@ -53,6 +60,26 @@ private:
     std::list<EventGoal> goals;
 
     Resolution resolution;
+
+    //commands
+    std::list<Command> commands;
+    std::list<Parameter> parameters;
+
+    void LoadParams(QJsonArray &jsonParams);
+    void LoadCommands(QJsonArray &jsonCommands);
+
+    //narrative
+    //load functions
+    void readNodeList(QJsonArray &jsonNodeList);
+    void readRequirements(QJsonObject &requirements, NarrativeNode &node);
+    void readRequirementsChildren(QJsonObject &children, NarrativeRequirements &req);
+    void readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarrativeCommand> &cmdList, int &numOfOnUnlockCmds);
+
+    //save
+    void WriteCommandBlock(std::list<NarrativeCommand> cmd, QJsonArray &block);
+    void WriteRequirements(NarrativeRequirements &req, QJsonObject &node, QString objectName);
+
+    std::list<NarrativeNode> narrativeNodes;
 };
 
 #endif // SAVEANDLOAD_H

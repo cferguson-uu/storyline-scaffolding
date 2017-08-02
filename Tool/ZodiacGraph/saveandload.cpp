@@ -622,3 +622,80 @@ void saveandload::WriteResolution(QJsonObject &jsonResolution)
         jsonResolution[kName_States] = jsonStates;
     }
 }
+
+void saveandload::LoadParams(QJsonArray &jsonParams)
+{
+    foreach (const QJsonValue & value, jsonParams)
+    {
+        QJsonObject obj = value.toObject();
+
+        parameters.push_back(Parameter(obj["label"].toString(), obj["id_name"].toString(), obj["type"].toString()));
+    }
+}
+
+void saveandload::LoadCommands(QJsonArray &jsonCommands)
+{
+    foreach (const QJsonValue & value, jsonCommands)
+    {
+        QJsonObject obj = value.toObject();
+        //qDebug() << obj["label"].toString();
+        //qDebug() << obj["id_name"].toString();
+        //qDebug() << obj["type"].toString();
+
+        QJsonArray jsonCommandParams = obj["params"].toArray();
+        std::list<Parameter> params;
+
+        foreach (const QJsonValue &value2, jsonCommandParams)
+        {
+            //qDebug() << value2.toString();
+            for(std::list<Parameter>::iterator it = parameters.begin(); it != parameters.end(); ++it)
+            {
+                if((*it).id == value2.toString())
+                {
+                    params.push_back((*it));
+                    break;
+                }
+            }
+        }
+
+        commands.push_back(Command(obj["label"].toString(), obj["id_name"].toString(), obj["type"].toString(), params));
+    }
+}
+
+void saveandload::LoadNarrativeParamsAndCommands()
+{
+    QString settings;
+    QFile file;
+    file.setFileName("loading_stuff.json");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    settings = file.readAll();
+    file.close();
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+    //qDebug() << jsonDoc.toJson();
+
+
+    if(jsonDoc.isNull()){
+        qDebug()<<"Failed to create JSON doc.";
+        exit(2);
+    }
+    if(!jsonDoc.isObject()){
+        qDebug()<<"JSON is not an object.";
+        exit(3);
+    }
+
+    QJsonObject jsonObject=jsonDoc.object();
+
+    if(jsonDoc.isEmpty()){
+        qDebug()<<"JSON object is empty.";
+        exit(4);
+    }
+
+    LoadParams(jsonObject["params"].toArray());
+    LoadCommands(jsonObject["commands"].toArray());
+
+    qDebug() << "Parameters: " << parameters.size() << " Commands: " << commands.size();
+
+    //Commands *userComms = parentWidget()->findChild<Commands *>("Commands");
+    //userComms->SetCommandsAndParams(parameters, commands);
+}
