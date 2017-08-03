@@ -18,6 +18,8 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
 {
     m_propertyEditor->setMainCtrl(this);
 
+   m_saveAndLoadManager.LoadNarrativeParamsAndCommands(qobject_cast<QWidget*>(parent));
+
     connect(&m_scene, SIGNAL(selectionChanged(QList<zodiac::NodeHandle>)),
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));
 }

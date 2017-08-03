@@ -13,6 +13,9 @@
 #include <QMessageBox>
 #include <QObject>
 
+#include <QApplication>
+#include <QTimer>
+
 class saveandload
 {
 public:
@@ -23,11 +26,11 @@ public:
     void SaveStoryToFile(QWidget *widget);
 
     //commands
-    void LoadNarrativeParamsAndCommands();
+    void LoadNarrativeParamsAndCommands(QWidget *widget);
 
     //narrative
     void ReadNarrativeFromFile(QWidget *widget);
-    void WriteNarrativeToFile(QWidget *widget);
+    void SaveNarrativeToFile(QWidget *widget);
 
 private:
     //story

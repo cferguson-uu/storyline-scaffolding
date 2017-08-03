@@ -1,0 +1,149 @@
+{
+	"params": [
+		{
+			"label": "Time",
+			"id_name": "time",
+			"type": "float"
+		},
+		{
+			"label": "name",
+			"id_name": "Name",
+			"type": "string"
+		},
+		{
+			"label": "param_name",
+			"id_name": "Parameter Name",
+			"type": "string"
+		},
+		{
+			"label": "From",
+			"id_name": "from",
+			"type": "float"
+		},
+		{
+			"label": "To",
+			"id_name": "to",
+			"type": "float"
+		},
+		{
+			"label": "Duration",
+			"id_name": "duration",
+			"type": "float"
+		},
+		{
+			"label": "Final Value",
+			"id_name": "final_value",
+			"type": "float"
+		},
+		{
+			"label": "Range Frequency",
+			"id_name": "range_freq",
+			"type": "float"
+		},
+		{
+			"label": "Range Speed",
+			"id_name": "range_speed",
+			"type": "float"
+		},
+		{
+			"label": "Range Scale",
+			"id_name": "range_scale",
+			"type": "float"
+		},
+		{
+			"label": "Range Bias",
+			"id_name": "range_bias",
+			"type": "float"
+		},
+		{
+			"label": "Flick Frequency",
+			"id_name": "flick_freq",
+			"type": "float"
+		},
+		{
+			"label": "Flick Speed",
+			"id_name": "flick_speed",
+			"type": "float"
+		},
+		{
+			"label": "Flick Scale",
+			"id_name": "flick_scale",
+			"type": "float"
+		},
+		{
+			"label": "Flick Bias",
+			"id_name": "flick_bias",
+			"type": "float"
+		},
+		{
+			"label": "ID",
+			"id_name": "id",
+			"type": "string"
+		},
+		{
+			"label": "Text",
+			"id_name": "text",
+			"type": "string"
+		},
+		{
+			"label": "Type",
+			"id_name": "type",
+			"type": "string"
+		},
+		{
+			"label": "Fade in",
+			"id_name": "fade_in",
+			"type": "float"
+		},
+		{
+			"label": "Fade out",
+			"id_name": "fade_out",
+			"type": "float"
+		}
+	],
+	"commands": [
+		{
+			"label": "Fade Light Parameter",
+			"id_name": "fade_light_param",
+			"type": "string",
+			"params": ["time", "name", "param_name", "from", "to", "duration"]
+		},
+		{
+			"label": "Noise Light Parameter",
+			"id_name": "noise_light_param",
+			"type": "string",
+			"params": ["time", "name", "final_value", "duration", "range_freq", "range_speed", "range_scale", "range_bias", "flick_freq", "flick_speed", "flick_scale", "flick_bias"]
+		},
+		{
+			"label": "Try Unlock Narrative",
+			"id_name": "try_unlock_narrative",
+			"type": "string",
+			"params": ["time", "id"]
+		},
+		{
+			"label": "Focus Screen",
+			"id_name": "focus_screen",
+			"type": "string",
+			"params": ["time"]
+		},
+		{
+			"label": "Add Subtitle",
+			"id_name": "add_subtitle",
+			"type": "string",
+			"params": ["time", "text"]
+		},
+		{
+			"label": "Story Tag",
+			"id_name": "story_tag",
+			"type": "string",
+			"params": ["time", "id"]
+		},
+		{
+			"label": "Add Trial Subtitle",
+			"id_name": "add_trial_subtitle",
+			"type": "string",
+			"params": ["time", "text", "duration", "fade_in", "fade_out"]
+		}
+	]
+
+}

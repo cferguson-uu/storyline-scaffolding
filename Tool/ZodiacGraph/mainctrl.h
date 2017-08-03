@@ -32,6 +32,8 @@
 #include "zodiacgraph/nodehandle.h"
 #include "zodiacgraph/scenehandle.h"
 
+#include "saveandload.h"
+
 class NodeCtrl;
 class PropertyEditor;
 namespace zodiac {
@@ -139,6 +141,8 @@ private: // members
     /// \brief Ever increasing index value for default names of the nodes in this manager.
     ///
     uint m_nodeIndex;
+
+    saveandload m_saveAndLoadManager;
 
 private: // static members
 

@@ -662,39 +662,51 @@ void saveandload::LoadCommands(QJsonArray &jsonCommands)
     }
 }
 
-void saveandload::LoadNarrativeParamsAndCommands()
+void saveandload::LoadNarrativeParamsAndCommands(QWidget *widget)
 {
     QString settings;
     QFile file;
     file.setFileName("commandsandparams.json");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    settings = file.readAll();
-    file.close();
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        settings = file.readAll();
+        file.close();
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
-    //qDebug() << jsonDoc.toJson();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+        //qDebug() << jsonDoc.toJson();
 
 
-    if(jsonDoc.isNull()){
-        qDebug()<<"Failed to create JSON doc.";
-        exit(2);
+        if(jsonDoc.isNull()){
+            qDebug()<<"Failed to create JSON doc.";
+            exit(2);
+        }
+        if(!jsonDoc.isObject()){
+            qDebug()<<"JSON is not an object.";
+            exit(3);
+        }
+
+        QJsonObject jsonObject=jsonDoc.object();
+
+        if(jsonDoc.isEmpty()){
+            qDebug()<<"JSON object is empty.";
+            exit(4);
+        }
+
+        LoadParams(jsonObject["params"].toArray());
+        LoadCommands(jsonObject["commands"].toArray());
+
+        //qDebug() << "Parameters: " << parameters.size() << " Commands: " << commands.size();
     }
-    if(!jsonDoc.isObject()){
-        qDebug()<<"JSON is not an object.";
-        exit(3);
+    else
+    {
+        QMessageBox messageBox;
+        messageBox.setFixedSize(500,200);
+        if(messageBox.critical(0,"Error","Command and parameters file could not be loaded, please ensure that it exists.\nApplication will now close.") == QMessageBox::Ok )
+            qApp->quit();
+
+        QTimer::singleShot(0, widget, SLOT(close()));
     }
 
-    QJsonObject jsonObject=jsonDoc.object();
-
-    if(jsonDoc.isEmpty()){
-        qDebug()<<"JSON object is empty.";
-        exit(4);
-    }
-
-    LoadParams(jsonObject["params"].toArray());
-    LoadCommands(jsonObject["commands"].toArray());
-
-    //qDebug() << "Parameters: " << parameters.size() << " Commands: " << commands.size();
 }
 
 void saveandload::ReadNarrativeFromFile(QWidget *widget)
@@ -750,9 +762,9 @@ void saveandload::ReadNarrativeFromFile(QWidget *widget)
         }
         else
         {
-                QMessageBox messageBox;
-                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
-                messageBox.setFixedSize(500,200);
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+            messageBox.setFixedSize(500,200);
         }
     }
     else
@@ -888,7 +900,7 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, std::list<Narra
     }
 }
 
-void saveandload::WriteNarrativeToFile(QWidget *widget)
+void saveandload::SaveNarrativeToFile(QWidget *widget)
 {
     QFile file(QFileDialog::getSaveFileName(widget,
                                                          QObject::tr("Load Story Graph"), "",
