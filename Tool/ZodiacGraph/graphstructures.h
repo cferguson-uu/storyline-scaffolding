@@ -180,7 +180,7 @@ struct Command
 struct NarrativeCommand
 {
     QString command;
-    std::list<QString> params;    //list of parameters associated with command
+    std::list<SimpleNode> params;    //list of parameters associated with command
 };
 
 struct NarrativeRequirements

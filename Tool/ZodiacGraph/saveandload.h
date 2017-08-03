@@ -25,6 +25,10 @@ public:
     //commands
     void LoadNarrativeParamsAndCommands();
 
+    //narrative
+    void ReadNarrativeFromFile(QWidget *widget);
+    void WriteNarrativeToFile(QWidget *widget);
+
 private:
     //story
 
@@ -73,7 +77,7 @@ private:
     void readNodeList(QJsonArray &jsonNodeList);
     void readRequirements(QJsonObject &requirements, NarrativeNode &node);
     void readRequirementsChildren(QJsonObject &children, NarrativeRequirements &req);
-    void readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarrativeCommand> &cmdList, int &numOfOnUnlockCmds);
+    void readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarrativeCommand> &cmdList);
 
     //save
     void WriteCommandBlock(std::list<NarrativeCommand> cmd, QJsonArray &block);
