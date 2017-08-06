@@ -32,6 +32,22 @@ public:
     void ReadNarrativeFromFile(QWidget *widget);
     void SaveNarrativeToFile(QWidget *widget);
 
+    //getter functions
+    const QString GetStoryName(){return m_storyName;}
+    const std::list<SettingItem> GetCharacters(){return m_characters;}
+    const std::list<SettingItem> GetLocations(){return m_locations;}
+    const std::list<SettingItem> GetTimes(){return m_times;}
+    const std::list<Episode> GetEpisodes(){return m_episodes;}
+    const std::list<EventGoal> GetEvents(){return m_events;}
+    const std::list<EventGoal> GetGoals(){return m_goals;}
+
+    const Resolution GetResolution(){return m_resolution;}
+
+    const std::list<Command> GetCommands(){return m_commands;}
+    const std::list<Parameter> GetParameters(){return m_parameters;}
+    const std::list<NarrativeNode> GetNarrativeNodes(){return m_narrativeNodes;}
+
+
 private:
     //story
 
@@ -56,21 +72,21 @@ private:
     void WriteEventGoal(QJsonArray &jsonEvents, const EventGoal &e, QString subItemId, const QString &prefix);
     void WriteResolution(QJsonObject &jsonResolution);
 
-    QString storyName;
+    QString m_storyName;
 
-    std::list<SettingItem> characters;
-    std::list<SettingItem> locations;
-    std::list<SettingItem> times;
+    std::list<SettingItem> m_characters;
+    std::list<SettingItem> m_locations;
+    std::list<SettingItem> m_times;
 
-    std::list<Episode> episodes;
-    std::list<EventGoal> events;
-    std::list<EventGoal> goals;
+    std::list<Episode> m_episodes;
+    std::list<EventGoal> m_events;
+    std::list<EventGoal> m_goals;
 
-    Resolution resolution;
+    Resolution m_resolution;
 
     //commands
-    std::list<Command> commands;
-    std::list<Parameter> parameters;
+    std::list<Command> m_commands;
+    std::list<Parameter> m_parameters;
 
     void LoadParams(QJsonArray &jsonParams);
     void LoadCommands(QJsonArray &jsonCommands);
@@ -86,7 +102,7 @@ private:
     void WriteCommandBlock(std::list<NarrativeCommand> cmd, QJsonArray &block);
     void WriteRequirements(NarrativeRequirements &req, QJsonObject &node, QString objectName);
 
-    std::list<NarrativeNode> narrativeNodes;
+    std::list<NarrativeNode> m_narrativeNodes;
 };
 
 #endif // SAVEANDLOAD_H

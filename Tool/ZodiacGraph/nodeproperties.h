@@ -102,6 +102,9 @@ private slots:
     ///
     void addPlugRow(zodiac::PlugHandle plug);
 
+    //for creating blocks for onunlock etc.
+    void createNewCommandBlock(QGridLayout *grid, QHash<QString, PlugRow*> &pRow);
+
 private: // members
 
     ///
@@ -135,6 +138,18 @@ private: // members
     /// This flag keeps track of what is next.
     ///
     bool m_nextPlugIsIncoming;
+
+    QGridLayout* m_onUnlockLayout;
+    QPushButton* m_addOnUnlockButton;
+    QHash<QString, PlugRow*> m_onUnlockRows;
+
+    QGridLayout* m_onFailLayout;
+    QPushButton* m_addOnFailButton;
+    QHash<QString, PlugRow*> m_onFailRows;
+
+    QGridLayout* m_onUnlockedLayout;
+    QPushButton* m_addOnUnlockedButton;
+    QHash<QString, PlugRow*> m_onUnlockedRows;
 
 private: // static members
 

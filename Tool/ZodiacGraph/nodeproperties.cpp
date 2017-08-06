@@ -34,6 +34,42 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent)
     nameLayout->setContentsMargins(0, 4, 0, 0);
     mainLayout->addLayout(nameLayout);
 
+    // define the on_unlock block
+    m_onUnlockLayout = new QGridLayout();
+    m_onUnlockLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+    m_onUnlockLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
+    m_addOnUnlockButton = new QPushButton(this);
+    m_addOnUnlockButton->setIconSize(QSize(8, 8));
+    m_addOnUnlockButton->setIcon(QIcon(":/icons/plus.svg"));
+    m_addOnUnlockButton->setFlat(true);
+    m_onUnlockLayout->addWidget(new QLabel("OnUnlock", this), 0, 0, 1, 2, Qt::AlignLeft);
+    m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
+    connect(m_addOnUnlockButton, SIGNAL(pressed()), this, SLOT(createNewCommandBlock(m_onUnlockLayout)));
+
+    // define the on_fail block
+    m_onFailLayout = new QGridLayout();
+    m_onFailLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+    m_onFailLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
+    m_addOnFailButton = new QPushButton(this);
+    m_addOnFailButton->setIconSize(QSize(8, 8));
+    m_addOnFailButton->setIcon(QIcon(":/icons/plus.svg"));
+    m_addOnFailButton->setFlat(true);
+    m_onFailLayout->addWidget(new QLabel("OnFail", this), 0, 0, 1, 2, Qt::AlignLeft);
+    m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
+    connect(m_addOnFailButton, SIGNAL(pressed()), this, SLOT(createNewCommandBlock(m_onUnlockLayout)));
+
+    // define the on_unlocked block
+    m_onUnlockedLayout = new QGridLayout();
+    m_onUnlockedLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+    m_onUnlockedLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
+    m_addOnUnlockedButton = new QPushButton(this);
+    m_addOnUnlockedButton->setIconSize(QSize(8, 8));
+    m_addOnUnlockedButton->setIcon(QIcon(":/icons/plus.svg"));
+    m_addOnUnlockedButton->setFlat(true);
+    m_onUnlockedLayout->addWidget(new QLabel("OnUnlocked", this), 0, 0, 1, 2, Qt::AlignLeft);
+    m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
+    connect(m_addOnUnlockedButton, SIGNAL(pressed()), this, SLOT(createNewCommandBlock(m_onUnlockLayout)));
+
     // define the add plug button
     m_plugLayout = new QGridLayout();
     m_plugLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
@@ -50,6 +86,9 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent)
     for(zodiac::PlugHandle& plug : m_node->getPlugHandles()){
         addPlugRow(plug);
     }
+    mainLayout->addLayout(m_onUnlockLayout);
+    mainLayout->addLayout(m_onFailLayout);
+    mainLayout->addLayout(m_onUnlockedLayout);
     mainLayout->addLayout(m_plugLayout);
 }
 
@@ -61,6 +100,29 @@ void NodeProperties::renameNode()
     }
     m_node->rename(newName);
     qobject_cast<Collapsible*>(parent())->updateTitle(newName);
+}
+
+void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, PlugRow*> &pRow)
+{
+    int row = grid->rowCount();
+
+    QPushButton* directionButton = new QPushButton(this);
+    directionButton->setIconSize(QSize(16, 16));
+    directionButton->setFlat(true);
+    directionButton->setStatusTip("Toggle the direction of the Plug from 'incoming' to 'outoing' and vice versa.");
+    grid->addWidget(directionButton, row, 0);
+
+    QLineEdit* plugNameEdit = new QLineEdit(plug.getName(), this);
+    grid->addWidget(plugNameEdit, row, 1);
+
+    QPushButton* removalButton = new QPushButton(this);
+    removalButton->setIcon(QIcon(":/icons/minus.svg"));
+    removalButton->setIconSize(QSize(8, 8));
+    removalButton->setFlat(true);
+    removalButton->setStatusTip("Delete the Plug from its Node");
+    grid->addWidget(removalButton, row, 2);
+
+    pRow.insert(plug.getName(), new PlugRow(this, plug, plugNameEdit, directionButton, removalButton));
 }
 
 void NodeProperties::createNewPlug()
