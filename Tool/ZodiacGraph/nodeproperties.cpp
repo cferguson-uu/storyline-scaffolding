@@ -5,16 +5,18 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QComboBox>
 
 #include "collapsible.h"
 #include "nodectrl.h"
 
 QString NodeProperties::s_defaultPlugName = "plug";
 
-NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent)
+NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Command> *commands)
     : QWidget(parent)
     , m_node(node)
     , m_nextPlugIsIncoming(true)
+    , m_pCommands(commands)
 {
     // define the main layout
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -44,7 +46,7 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent)
     m_addOnUnlockButton->setFlat(true);
     m_onUnlockLayout->addWidget(new QLabel("OnUnlock", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
-    connect(m_addOnUnlockButton, SIGNAL(pressed()), this, SLOT(createNewCommandBlock(m_onUnlockLayout)));
+    connect(m_addOnUnlockButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows);});
 
     // define the on_fail block
     m_onFailLayout = new QGridLayout();
@@ -56,7 +58,7 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent)
     m_addOnFailButton->setFlat(true);
     m_onFailLayout->addWidget(new QLabel("OnFail", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
-    connect(m_addOnFailButton, SIGNAL(pressed()), this, SLOT(createNewCommandBlock(m_onUnlockLayout)));
+    connect(m_addOnFailButton, &QPushButton::released, [=]{createNewCommandBlock(m_onFailLayout, m_onFailRows);});
 
     // define the on_unlocked block
     m_onUnlockedLayout = new QGridLayout();
@@ -68,7 +70,7 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent)
     m_addOnUnlockedButton->setFlat(true);
     m_onUnlockedLayout->addWidget(new QLabel("OnUnlocked", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
-    connect(m_addOnUnlockedButton, SIGNAL(pressed()), this, SLOT(createNewCommandBlock(m_onUnlockLayout)));
+    connect(m_addOnUnlockedButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows);});
 
     // define the add plug button
     m_plugLayout = new QGridLayout();
@@ -102,18 +104,34 @@ void NodeProperties::renameNode()
     qobject_cast<Collapsible*>(parent())->updateTitle(newName);
 }
 
-void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, PlugRow*> &pRow)
+static const char alphanum[] =
+"0123456789"
+"!@#$%^&*"
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+"abcdefghijklmnopqrstuvwxyz";
+
+int stringLength = sizeof(alphanum) - 1;
+
+QString genRandom()
+{
+    return alphanum[rand() % stringLength];
+}
+
+void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow)
 {
     int row = grid->rowCount();
 
-    QPushButton* directionButton = new QPushButton(this);
-    directionButton->setIconSize(QSize(16, 16));
-    directionButton->setFlat(true);
-    directionButton->setStatusTip("Toggle the direction of the Plug from 'incoming' to 'outoing' and vice versa.");
-    grid->addWidget(directionButton, row, 0);
+    QComboBox* commandBox = new QComboBox();
 
-    QLineEdit* plugNameEdit = new QLineEdit(plug.getName(), this);
-    grid->addWidget(plugNameEdit, row, 1);
+    for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
+        commandBox->addItem((*it).label, (*it).id);
+
+    grid->addWidget(commandBox, row, 1);
+    connect(commandBox, SIGNAL(currentIndexChanged(const QString&)), SLOT(switchCall(const QString&)));
+
+
+    //QLineEdit* plugNameEdit = new QLineEdit("", this);
+    //grid->addWidget(plugNameEdit, row, 1);
 
     QPushButton* removalButton = new QPushButton(this);
     removalButton->setIcon(QIcon(":/icons/minus.svg"));
@@ -122,7 +140,14 @@ void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, Plu
     removalButton->setStatusTip("Delete the Plug from its Node");
     grid->addWidget(removalButton, row, 2);
 
-    pRow.insert(plug.getName(), new PlugRow(this, plug, plugNameEdit, directionButton, removalButton));
+    QString test = genRandom();
+
+    commandRow.insert(test, new CommandRow(this, commandBox, removalButton, test, commandRow, grid));
+}
+
+void NodeProperties::switchCall(const QString& test)
+{
+    qDebug() << test;
 }
 
 void NodeProperties::createNewPlug()
@@ -165,6 +190,11 @@ void NodeProperties::removePlugRow(const QString& plugName)
     m_plugRows.remove(plugName);
 }
 
+void NodeProperties::removeCommandRow(const QString& commandName, QHash<QString, CommandRow*> &commandRows)
+{
+    Q_ASSERT(commandRows.contains(commandName));
+    commandRows.remove(commandName);
+}
 
 PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug,
                  QLineEdit* nameEdit, QPushButton* directionToggle, QPushButton* removalButton)
@@ -186,7 +216,6 @@ void PlugRow::renamePlug()
 {
     m_nameEdit->setText(m_editor->getNode()->renamePlug(m_plug.getName(), m_nameEdit->text()));
 }
-
 
 void PlugRow::updateDirectionIcon()
 {
@@ -228,4 +257,37 @@ void PlugRow::removePlug()
 
     // finally, remove the plug from the logical node
     m_editor->getNode()->removePlug(m_plug.getName());
+}
+
+CommandRow::CommandRow(NodeProperties* editor, QComboBox* nameEdit,
+                       QPushButton* removalButton, QString &name, QHash<QString, CommandRow*> &commandRows, QGridLayout* commandLayout)
+    : QObject(editor)
+    , m_editor(editor)
+    , m_nameEdit(nameEdit)
+    , m_removalButton(removalButton)
+    , m_commandName(name)
+    , m_rowPointer(&commandRows)
+    , m_commandLayout(commandLayout)
+{
+    //connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renamePlug()));
+    connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removePlug()));
+}
+
+void CommandRow::renamePlug()
+{
+
+}
+
+void CommandRow::removePlug()
+{
+    // unregister from the editor
+    //m_editor->removeCommandRow(m_commandName, *m_rowPointer);
+
+    // remove widgets from the editor
+    m_commandLayout->removeWidget(m_nameEdit);
+    m_commandLayout->removeWidget(m_removalButton);
+
+    // delete the widgets, they are no longer needed
+    m_nameEdit->deleteLater();
+    m_removalButton->deleteLater();
 }

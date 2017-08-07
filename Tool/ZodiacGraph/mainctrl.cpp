@@ -16,9 +16,10 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
     , m_nodes(QHash<zodiac::NodeHandle, NodeCtrl*>())
     , m_nodeIndex(1)            // name suffixes start at 1
 {
-    m_propertyEditor->setMainCtrl(this);
+    m_saveAndLoadManager.LoadNarrativeParamsAndCommands(qobject_cast<QWidget*>(parent));
 
-   m_saveAndLoadManager.LoadNarrativeParamsAndCommands(qobject_cast<QWidget*>(parent));
+    m_propertyEditor->setMainCtrl(this);
+    m_propertyEditor->setCommandList(m_saveAndLoadManager.GetCommandListPointer());
 
     connect(&m_scene, SIGNAL(selectionChanged(QList<zodiac::NodeHandle>)),
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));

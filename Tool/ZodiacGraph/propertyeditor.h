@@ -30,6 +30,7 @@
 #include <QHash>
 
 #include "zodiacgraph/nodehandle.h"
+#include "saveandload.h"
 
 class Collapsible;
 class MainCtrl;
@@ -58,6 +59,9 @@ public: // methods
     ///
     void setMainCtrl(MainCtrl* mainCtrl) {Q_ASSERT(!m_mainCtrl); m_mainCtrl = mainCtrl;}
 
+    //the list of commands and parameters for editing the command block
+    void setCommandList(std::list<Command> *cmds) { m_pCommands = cmds;}
+
     ///
     /// \brief Shows 0-n NodeProperty%s in the PropertyEditor.
     ///
@@ -71,6 +75,9 @@ private: // members
     /// \brief The main controller managing this PropertyEditor.
     ///
     MainCtrl* m_mainCtrl;
+
+    //holds a pointer to the command list from the save and load class
+    std::list<Command> *m_pCommands;
 
     ///
     /// \brief Layout of the widget displayed in the scroll area, manages the individual Collapsible%s.

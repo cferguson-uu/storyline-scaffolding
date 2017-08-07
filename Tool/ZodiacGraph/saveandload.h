@@ -47,6 +47,8 @@ public:
     const std::list<Parameter> GetParameters(){return m_parameters;}
     const std::list<NarrativeNode> GetNarrativeNodes(){return m_narrativeNodes;}
 
+    std::list<Command> *GetCommandListPointer(){return &m_commands;}
+
 
 private:
     //story

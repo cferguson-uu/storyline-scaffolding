@@ -28,9 +28,12 @@
 
 #include <QHash>
 #include <QWidget>
+#include <QComboBox>
 
 #include "zodiacgraph/nodehandle.h"
 #include "zodiacgraph/plughandle.h"
+
+#include "saveandload.h"
 
 class QGridLayout;
 class QLineEdit;
@@ -39,6 +42,7 @@ class QPushButton;
 class Collapsible;
 class NodeCtrl;
 class PlugRow;
+class CommandRow;
 
 ///
 /// \brief Node Property widget, is a display widget of a Collapsible.
@@ -52,6 +56,8 @@ class NodeProperties : public QWidget
     ///
     friend class PlugRow;
 
+    friend class CommandRow;
+
 public: // methods
 
     ///
@@ -60,7 +66,7 @@ public: // methods
     /// \param [in] node    Node whose properties to display.
     /// \param [in] parent  Collapsible parent object.
     ///
-    explicit NodeProperties(NodeCtrl* node, Collapsible *parent);
+    explicit NodeProperties(NodeCtrl* node, Collapsible *parent, std::list<Command> *commands);
 
 private: // for friend
 
@@ -85,7 +91,13 @@ private: // for friend
     ///
     void removePlugRow(const QString& plugName);
 
+    //same for command block
+    void removeCommandRow(const QString& commandName, QHash<QString, CommandRow*> &commandRows);
+
 private slots:
+
+    //for creating blocks for onunlock etc.
+    void createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow);
 
     ///
     /// \brief Called by the name edit, when the name of the node was changed through user input.
@@ -102,8 +114,8 @@ private slots:
     ///
     void addPlugRow(zodiac::PlugHandle plug);
 
-    //for creating blocks for onunlock etc.
-    void createNewCommandBlock(QGridLayout *grid, QHash<QString, PlugRow*> &pRow);
+    //for changing parameters along with command
+    void switchCall(const QString& test);
 
 private: // members
 
@@ -141,15 +153,17 @@ private: // members
 
     QGridLayout* m_onUnlockLayout;
     QPushButton* m_addOnUnlockButton;
-    QHash<QString, PlugRow*> m_onUnlockRows;
+    QHash<QString, CommandRow*> m_onUnlockRows;
 
     QGridLayout* m_onFailLayout;
     QPushButton* m_addOnFailButton;
-    QHash<QString, PlugRow*> m_onFailRows;
+    QHash<QString, CommandRow*> m_onFailRows;
 
     QGridLayout* m_onUnlockedLayout;
     QPushButton* m_addOnUnlockedButton;
-    QHash<QString, PlugRow*> m_onUnlockedRows;
+    QHash<QString, CommandRow*> m_onUnlockedRows;
+
+    std::list<Command> *m_pCommands;
 
 private: // static members
 
@@ -232,6 +246,60 @@ private: // members
     /// \brief Plug-removal button.
     ///
     QPushButton* m_removalButton;
+};
+
+class CommandRow : public QObject
+{
+    Q_OBJECT
+
+public: // methods
+
+    ///
+    /// \brief Constructor.
+    ///
+    /// \param [in] editor          NodeProperties that this CommandRow is part of.
+    /// \param [in] nameEdit        Plug name edit.
+    /// \param [in] removalButton   Plug-removal button.
+    ///
+    CommandRow(NodeProperties *editor, QComboBox *nameEdit, QPushButton *removalButton, QString &name,
+               QHash<QString, CommandRow*> &commandRows, QGridLayout* commandLayout); //NEED PARAMETERS
+
+private slots:
+
+    ///
+    /// \brief Called when the name of the plug was changed through user input.
+    ///
+    void renamePlug();
+
+    ///
+    /// \brief Called when the Plug-removal button is pressed.
+    ///
+    void removePlug();
+
+private: // members
+
+    ///
+    /// \brief Controller of the edited node.
+    ///
+    NodeProperties* m_editor;
+
+    ///
+    /// \brief Plug name edit.
+    ///
+    QComboBox* m_nameEdit;
+
+    ///
+    /// \brief Plug-removal button.
+    ///
+    QPushButton* m_removalButton;
+
+    //save the name
+    QString m_commandName;
+
+    QHash<QString, CommandRow*> *m_rowPointer;
+
+    QGridLayout *m_commandLayout;
+
 };
 
 #endif // NODEPROPERTIES_H
