@@ -80,6 +80,75 @@ public: // methods
     void changeDescription(const QString& description);
 
     ///
+        /// \brief The command blocks part of the node.
+        ///
+        /// \return QHashes of command blocks.
+        ///
+        QHash<QString, zodiac::NodeCommand> getOnUnlockList();
+        QHash<QString, zodiac::NodeCommand> getOnFailList();
+        QHash<QString, zodiac::NodeCommand> getOnUnlockedList();
+
+        ///
+        /// \brief Adds new element to command block
+        ///
+        ///
+        /// \param [in] key command name
+        ///
+        void addOnUnlockCommand(const QString& key);
+        void addOnFailCommand(const QString& key);
+        void addOnUnlockedCommand(const QString& key);
+
+        ///
+        /// \brief Removes new element from command block
+        ///
+        ///
+        /// \param [in] key command name
+        ///
+        void removeOnUnlockCommand(const QString& key);
+        void removeOnFailCommand(const QString& key);
+        void removeOnUnlockedCommand(const QString& key);
+
+        ///
+        /// \brief Add parameter element to command block
+        ///
+        ///
+        /// \param [in] key parameter name
+        /// \param [in] value parameter value
+        ///
+        void addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+        void addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+        void addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+
+        ///
+        /// \brief Delete parameter element to command block
+        ///
+        ///
+        /// \param [in] key parameter name
+        ///
+        void removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey);
+        void removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey);
+        void removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey);
+
+        ///
+        /// \brief Delete all parameter elements from command block
+        ///
+        ///
+        void removeAllParametersFromOnUnlockCommand(const QString& cmdKey);
+        void removeAllParametersFromOnFailCommand(const QString& cmdKey);
+        void removeAllParametersFromOnUnlockedCommand(const QString& cmdKey);
+
+        ///
+        /// \brief edit parameter element in command block
+        ///
+        ///
+        /// \param [in] key parameter name
+        /// \param [in] value new parameter value
+        ///
+        void editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+        void editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+        void editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+
+    ///
     /// \brief Direct access to the zodiac::NodeHandle of this NodeCtrl.
     ///
     /// \return The managed zodiac::NodeHandle.

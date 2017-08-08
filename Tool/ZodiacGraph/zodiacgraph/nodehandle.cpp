@@ -115,6 +115,257 @@ void NodeHandle::changeDescription(const QString& description)
     m_node->setDisplayDescription(description);
 }
 
+QHash<QString, NodeCommand> NodeHandle::getOnUnlockList()
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return QHash<QString, NodeCommand>();
+    }
+#endif
+    return m_node->getOnUnlockList();
+}
+
+QHash<QString, NodeCommand> NodeHandle::getOnFailList()
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return QHash<QString, NodeCommand>();
+    }
+#endif
+    return m_node->getOnFailList();
+}
+
+QHash<QString, NodeCommand> NodeHandle::getOnUnlockedList()
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return QHash<QString, NodeCommand>();
+    }
+#endif
+    return m_node->getOnUnlockedList();
+}
+
+void NodeHandle::addOnUnlockCommand(const QString& key)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->addOnUnlockCommand(key);
+}
+
+void NodeHandle::addOnFailCommand(const QString& key)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->addOnFailCommand(key);
+}
+
+void NodeHandle::addOnUnlockedCommand(const QString& key)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+     m_node->addOnUnlockedCommand(key);
+}
+
+void NodeHandle::removeOnUnlockCommand(const QString& key)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeOnUnlockCommand(key);
+}
+void NodeHandle::removeOnFailCommand(const QString& key)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeOnFailCommand(key);
+}
+
+void NodeHandle::removeOnUnlockedCommand(const QString& key)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeOnUnlockedCommand(key);
+}
+
+void NodeHandle::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->addParameterToOnUnlockCommand(cmdKey, paramKey, value);
+}
+
+void NodeHandle::addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->addParameterToOnFailCommand(cmdKey, paramKey, value);
+}
+
+void NodeHandle::addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->addParameterToOnUnlockedCommand(cmdKey, paramKey, value);
+}
+
+void NodeHandle::removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeParameterFromOnUnlockCommand(cmdKey, paramKey);
+}
+
+void NodeHandle::removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeParameterFromOnFailCommand(cmdKey, paramKey);
+}
+
+void NodeHandle::removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeParameterFromOnUnlockedCommand(cmdKey, paramKey);
+}
+
+void NodeHandle::removeAllParametersFromOnUnlockCommand(const QString& cmdKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeAllParametersFromOnUnlockCommand(cmdKey);
+}
+
+void NodeHandle::removeAllParametersFromOnFailCommand(const QString& cmdKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeAllParametersFromOnFailCommand(cmdKey);
+}
+
+void NodeHandle::removeAllParametersFromOnUnlockedCommand(const QString& cmdKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->removeAllParametersFromOnUnlockedCommand(cmdKey);
+}
+
+void NodeHandle::editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->editParameterInOnUnlockCommand(cmdKey, paramKey, value);
+}
+
+void NodeHandle::editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->editParameterInOnFailCommand(cmdKey, paramKey, value);
+}
+
+void NodeHandle::editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->editParameterInOnUnlockedCommand(cmdKey, paramKey, value);
+}
+
 PlugHandle NodeHandle::createIncomingPlug(const QString& name)
 {
 #ifdef QT_DEBUG

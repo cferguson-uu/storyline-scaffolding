@@ -55,7 +55,7 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     m_addOnUnlockButton->setFlat(true);
     m_onUnlockLayout->addWidget(new QLabel("OnUnlock", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
-    connect(m_addOnUnlockButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows);});
+    connect(m_addOnUnlockButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK);});
 
     // define the on_fail block
     m_onFailLayout = new QGridLayout();
@@ -67,7 +67,7 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     m_addOnFailButton->setFlat(true);
     m_onFailLayout->addWidget(new QLabel("OnFail", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
-    connect(m_addOnFailButton, &QPushButton::released, [=]{createNewCommandBlock(m_onFailLayout, m_onFailRows);});
+    connect(m_addOnFailButton, &QPushButton::released, [=]{createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL);});
 
     // define the on_unlocked block
     m_onUnlockedLayout = new QGridLayout();
@@ -79,7 +79,7 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     m_addOnUnlockedButton->setFlat(true);
     m_onUnlockedLayout->addWidget(new QLabel("OnUnlocked", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
-    connect(m_addOnUnlockedButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows);});
+    connect(m_addOnUnlockedButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED);});
 
     // define the add plug button
     m_plugLayout = new QGridLayout();
@@ -136,16 +136,34 @@ QString genRandom()
     return alphanum[rand() % stringLength];
 }
 
-void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow)
+void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type)
 {
     int row = grid->rowCount();
+
+    QGridLayout *commandBlockGrid = new QGridLayout();
 
     QComboBox* commandBox = new QComboBox();
 
     for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
         commandBox->addItem((*it).label, (*it).id);
 
-    grid->addWidget(commandBox, row, 1);
+    qDebug() << commandBox->itemData(commandBox->currentIndex()).toString();
+
+    switch(type)
+    {
+    case CMD_UNLOCK:
+        m_node->addOnUnlockCommand(commandBox->itemData(commandBox->currentIndex()).toString());
+        break;
+    case CMD_FAIL:
+        m_node->addOnFailCommand(commandBox->itemData(commandBox->currentIndex()).toString());
+        break;
+    case CMD_UNLOCKED:
+        m_node->addOnUnlockedCommand(commandBox->itemData(commandBox->currentIndex()).toString());
+        break;
+    }
+
+    //grid->addWidget(commandBox, row, 1);
+    commandBlockGrid->addWidget(commandBox);
     connect(commandBox, SIGNAL(currentIndexChanged(const QString&)), SLOT(switchCall(const QString&)));
 
 
@@ -157,11 +175,37 @@ void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, Com
     removalButton->setIconSize(QSize(8, 8));
     removalButton->setFlat(true);
     removalButton->setStatusTip("Delete the Plug from its Node");
-    grid->addWidget(removalButton, row, 2);
+    //grid->addWidget(removalButton, row, 2);
+    commandBlockGrid->addWidget(removalButton, 0, 1);
+
+    grid->addLayout(commandBlockGrid, row, 0);
 
     QString test = genRandom();
 
-    commandRow.insert(test, new CommandRow(this, commandBox, removalButton, test, commandRow, grid));
+    commandRow.insert(test, new CommandRow(this, commandBox, removalButton, test, commandRow, grid, commandBlockGrid));
+}
+
+void NodeProperties::AddParametersToCommand(CommandBlockTypes type)
+{
+    //get parameters from the command pointer
+    for(std::list<Command>::iterator cmdIt = m_pCommands->begin(); cmdIt != m_pCommands->end(); ++cmdIt)
+        for(std::list<Parameter>::iterator paramIt = (*cmdIt).commandParams.begin(); paramIt != (*cmdIt).commandParams.end(); ++paramIt)
+        {
+            //create fields and labels
+            QLabel *label = new QLabel((*paramIt).label);
+            QLineEdit *edit = new QLineEdit();
+            //make fields auto-update the stored info in the node
+            connect(label, SIGNAL(editingFinished()), this, SLOT(updateParam()));
+            //add fields and labels to the correct grid
+            //store fields and labels as part of the command row
+        }
+}
+
+void NodeProperties::DeleteParametersFromCommand(CommandBlockTypes type)
+{
+    //delete parameters from node
+    //delete fields and labels from the correct grid
+    //delete references from command row
 }
 
 void NodeProperties::switchCall(const QString& test)
@@ -279,7 +323,7 @@ void PlugRow::removePlug()
 }
 
 CommandRow::CommandRow(NodeProperties* editor, QComboBox* nameEdit,
-                       QPushButton* removalButton, QString &name, QHash<QString, CommandRow*> &commandRows, QGridLayout* commandLayout)
+                       QPushButton* removalButton, QString &name, QHash<QString, CommandRow*> &commandRows, QGridLayout* blockLayout, QGridLayout* commandLayout)
     : QObject(editor)
     , m_editor(editor)
     , m_nameEdit(nameEdit)
@@ -287,6 +331,7 @@ CommandRow::CommandRow(NodeProperties* editor, QComboBox* nameEdit,
     , m_commandName(name)
     , m_rowPointer(&commandRows)
     , m_commandLayout(commandLayout)
+    , m_blockLayout(blockLayout)
 {
     //connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renamePlug()));
     connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removePlug()));
@@ -306,7 +351,11 @@ void CommandRow::removePlug()
     m_commandLayout->removeWidget(m_nameEdit);
     m_commandLayout->removeWidget(m_removalButton);
 
+    //also remove layout
+    m_blockLayout->removeItem(m_commandLayout);
+
     // delete the widgets, they are no longer needed
     m_nameEdit->deleteLater();
     m_removalButton->deleteLater();
+    m_commandLayout->deleteLater();
 }

@@ -46,6 +46,17 @@ class Scene;
 enum class PlugDirection;
 
 ///
+/// \brief a block of commands
+///
+/// A Node manages its commands that are fired when unlocked, failed or already unlocked.
+///
+struct NodeCommand
+{
+    QString id;
+    QHash<QString, QString> parameters;
+};
+
+///
 /// \enum NodeExpansion
 ///
 /// Describes, whether the incoming or the outgoing Plug%s of a Node are displayed -- or both or none.
@@ -240,9 +251,78 @@ public: // methods
     /// \brief Sets s new description for this Node.
     ///
     ///
-    /// \param [in] displayName New description of this Node.
+    /// \param [in] displayDescription New description of this Node.
     ///
     void setDisplayDescription(const QString& displayDescription);
+
+    ///
+    /// \brief The command blocks part of the node.
+    ///
+    /// \return QHashes of command blocks.
+    ///
+    inline QHash<QString, NodeCommand> getOnUnlockList() const {return m_onUnlock;}
+    inline QHash<QString, NodeCommand> getOnFailList() const {return m_onFail;}
+    inline QHash<QString, NodeCommand> getOnUnlockedList() const {return m_onUnlocked;}
+
+    ///
+    /// \brief Adds new element to command block
+    ///
+    ///
+    /// \param [in] key command name
+    ///
+    void addOnUnlockCommand(const QString& key);
+    void addOnFailCommand(const QString& key);
+    void addOnUnlockedCommand(const QString& key);
+
+    ///
+    /// \brief Removes new element from command block
+    ///
+    ///
+    /// \param [in] key command name
+    ///
+    void removeOnUnlockCommand(const QString& key);
+    void removeOnFailCommand(const QString& key);
+    void removeOnUnlockedCommand(const QString& key);
+
+    ///
+    /// \brief Add parameter element to command block
+    ///
+    ///
+    /// \param [in] key parameter name
+    /// \param [in] value parameter value
+    ///
+    void addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+    void addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+    void addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+
+    ///
+    /// \brief Delete parameter element to command block
+    ///
+    ///
+    /// \param [in] key parameter name
+    ///
+    void removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey);
+    void removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey);
+    void removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey);
+
+    ///
+    /// \brief Delete all parameter elements from command block
+    ///
+    ///
+    void removeAllParametersFromOnUnlockCommand(const QString& cmdKey);
+    void removeAllParametersFromOnFailCommand(const QString& cmdKey);
+    void removeAllParametersFromOnUnlockedCommand(const QString& cmdKey);
+
+    ///
+    /// \brief edit parameter element in command block
+    ///
+    ///
+    /// \param [in] key parameter name
+    /// \param [in] value new parameter value
+    ///
+    void editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+    void editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+    void editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
 
     ///
     /// \brief Renames an existing Plug of this Node.
@@ -859,6 +939,19 @@ private: // members
     /// Is owned by the QGraphisScene and deleted automatically with this Node.
     ///
     NodeLabel* m_label;
+
+    ///
+    /// \brief The various command blocks that are attached to the node
+    ///
+    /// When the node is unlocked
+    ///
+    QHash<QString, NodeCommand> m_onUnlock;
+    /// When the node is not unlockable yet
+    ///
+    QHash<QString, NodeCommand> m_onFail;
+    /// When the node is already unlocked
+    ///
+    QHash<QString, NodeCommand> m_onUnlocked;
 
     ///
     /// \brief Bounding rectangle of the Node core.

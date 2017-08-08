@@ -217,6 +217,96 @@ void Node::setDisplayDescription(const QString& displayDescription)
     m_displayDescription = displayDescription;
 }
 
+void Node::addOnUnlockCommand(const QString& key)
+{
+    m_onUnlock.insert(key, NodeCommand());
+}
+
+void Node::addOnFailCommand(const QString& key)
+{
+    m_onFail.insert(key, NodeCommand());
+}
+
+void Node::addOnUnlockedCommand(const QString& key)
+{
+    m_onUnlocked.insert(key, NodeCommand());
+}
+
+void Node::removeOnUnlockCommand(const QString& key)
+{
+    m_onUnlock.remove(key);
+}
+void Node::removeOnFailCommand(const QString& key)
+{
+
+    m_onFail.remove(key);
+}
+
+void Node::removeOnUnlockedCommand(const QString& key)
+{
+    m_onUnlocked.remove(key);
+}
+
+void Node::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_onUnlock[cmdKey].parameters.insert(paramKey, value);
+}
+
+void Node::addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_onFail[cmdKey].parameters.insert(paramKey, value);
+}
+
+void Node::addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_onUnlocked[cmdKey].parameters.insert(paramKey, value);
+}
+
+void Node::removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+{
+    m_onUnlock[cmdKey].parameters.remove(paramKey);
+}
+
+void Node::removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+{
+    m_onFail[cmdKey].parameters.remove(paramKey);
+}
+
+void Node::removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+{
+    m_onUnlocked[cmdKey].parameters.remove(paramKey);
+}
+
+void Node::removeAllParametersFromOnUnlockCommand(const QString& cmdKey)
+{
+    m_onUnlock[cmdKey].parameters.clear();
+}
+
+void Node::removeAllParametersFromOnFailCommand(const QString& cmdKey)
+{
+    m_onFail[cmdKey].parameters.clear();
+}
+
+void Node::removeAllParametersFromOnUnlockedCommand(const QString& cmdKey)
+{
+    m_onUnlocked[cmdKey].parameters.clear();
+}
+
+void Node::editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_onUnlock[cmdKey].parameters[paramKey] = value;
+}
+
+void Node::editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_onFail[cmdKey].parameters[paramKey] = value;
+}
+
+void Node::editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_onUnlocked[cmdKey].parameters[paramKey] = value;
+}
+
 QString Node::renamePlug(Plug *plug, const QString& newName)
 {
     // make sure that the Plug is actually of this Node

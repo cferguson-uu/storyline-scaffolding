@@ -44,6 +44,13 @@ class NodeCtrl;
 class PlugRow;
 class CommandRow;
 
+enum CommandBlockTypes
+{
+    CMD_UNLOCK,
+    CMD_FAIL,
+    CMD_UNLOCKED
+};
+
 ///
 /// \brief Node Property widget, is a display widget of a Collapsible.
 ///
@@ -97,7 +104,10 @@ private: // for friend
 private slots:
 
     //for creating blocks for onunlock etc.
-    void createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow);
+    void createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type);
+
+    void AddParametersToCommand(CommandBlockTypes type);
+    void DeleteParametersFromCommand(CommandBlockTypes type);
 
     ///
     /// \brief Called by the name edit, when the name of the node was changed through user input.
@@ -272,7 +282,7 @@ public: // methods
     /// \param [in] removalButton   Plug-removal button.
     ///
     CommandRow(NodeProperties *editor, QComboBox *nameEdit, QPushButton *removalButton, QString &name,
-               QHash<QString, CommandRow*> &commandRows, QGridLayout* commandLayout); //NEED PARAMETERS
+               QHash<QString, CommandRow*> &commandRows, QGridLayout* blockLayout, QGridLayout* commandLayout); //NEED PARAMETERS
 
 private slots:
 
@@ -309,6 +319,8 @@ private: // members
     QHash<QString, CommandRow*> *m_rowPointer;
 
     QGridLayout *m_commandLayout;
+
+    QGridLayout *m_blockLayout;
 
 };
 

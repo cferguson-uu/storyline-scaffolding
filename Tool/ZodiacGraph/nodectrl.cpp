@@ -32,6 +32,110 @@ void NodeCtrl::changeDescription(const QString& description)
     m_node.changeDescription(description);
 }
 
+QHash<QString, zodiac::NodeCommand> NodeCtrl::getOnUnlockList()
+{
+    return m_node.getOnUnlockList();
+}
+
+QHash<QString, zodiac::NodeCommand> NodeCtrl::getOnFailList()
+{
+    return m_node.getOnFailList();
+}
+
+QHash<QString, zodiac::NodeCommand> NodeCtrl::getOnUnlockedList()
+{
+    return m_node.getOnUnlockedList();
+}
+
+void NodeCtrl::addOnUnlockCommand(const QString& key)
+{
+    m_node.addOnUnlockCommand(key);
+}
+
+void NodeCtrl::addOnFailCommand(const QString& key)
+{
+    m_node.addOnFailCommand(key);
+}
+
+void NodeCtrl::addOnUnlockedCommand(const QString& key)
+{
+     m_node.addOnUnlockedCommand(key);
+}
+
+void NodeCtrl::removeOnUnlockCommand(const QString& key)
+{
+    m_node.removeOnUnlockCommand(key);
+}
+void NodeCtrl::removeOnFailCommand(const QString& key)
+{
+    m_node.removeOnFailCommand(key);
+}
+
+void NodeCtrl::removeOnUnlockedCommand(const QString& key)
+{
+    m_node.removeOnUnlockedCommand(key);
+}
+
+void NodeCtrl::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_node.addParameterToOnUnlockCommand(cmdKey, paramKey, value);
+}
+
+void NodeCtrl::addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_node.addParameterToOnFailCommand(cmdKey, paramKey, value);
+}
+
+void NodeCtrl::addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_node.addParameterToOnUnlockedCommand(cmdKey, paramKey, value);
+}
+
+void NodeCtrl::removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+{
+    m_node.removeParameterFromOnUnlockCommand(cmdKey, paramKey);
+}
+
+void NodeCtrl::removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+{
+    m_node.removeParameterFromOnFailCommand(cmdKey, paramKey);
+}
+
+void NodeCtrl::removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+{
+    m_node.removeParameterFromOnUnlockedCommand(cmdKey, paramKey);
+}
+
+void NodeCtrl::removeAllParametersFromOnUnlockCommand(const QString& cmdKey)
+{
+    m_node.removeAllParametersFromOnUnlockCommand(cmdKey);
+}
+
+void NodeCtrl::removeAllParametersFromOnFailCommand(const QString& cmdKey)
+{
+    m_node.removeAllParametersFromOnFailCommand(cmdKey);
+}
+
+void NodeCtrl::removeAllParametersFromOnUnlockedCommand(const QString& cmdKey)
+{
+    m_node.removeAllParametersFromOnUnlockedCommand(cmdKey);
+}
+
+void NodeCtrl::editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_node.editParameterInOnUnlockCommand(cmdKey, paramKey, value);
+}
+
+void NodeCtrl::editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_node.editParameterInOnFailCommand(cmdKey, paramKey, value);
+}
+
+void NodeCtrl::editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+{
+    m_node.editParameterInOnUnlockedCommand(cmdKey, paramKey, value);
+}
+
 QString NodeCtrl::renamePlug(const QString& oldName, const QString& newName)
 {
     if(newName == oldName){
