@@ -105,6 +105,11 @@ private slots:
     void renameNode();
 
     ///
+    /// \brief Called by the description edit, when the description of the node was changed through user input.
+    ///
+    void changeNodeDescription();
+
+    ///
     /// \brief Called by pressing the add-plug button.
     ///
     void createNewPlug();
@@ -128,6 +133,11 @@ private: // members
     /// \brief Node name edit.
     ///
     QLineEdit* m_nameEdit;
+
+    ///
+    /// \brief Node description edit.
+    ///
+    QLineEdit* m_descriptionEdit;
 
     ///
     /// \brief Layout of the widgets related to the plugs of the node.

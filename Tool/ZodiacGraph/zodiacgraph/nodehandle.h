@@ -139,6 +139,20 @@ public: // methods
     void rename(const QString& name);
 
     ///
+    /// \brief Queries and returns the description of the Node.
+    ///
+    /// \return Description of the Node.
+    ///
+    QString getDescription() const;
+
+    ///
+    /// \brief Sets a new description for the managed Node.
+    ///
+    /// \param [in] description    New description of this Node.
+    ///
+    void changeDescription(const QString& description);
+
+    ///
     /// \brief Creates a new incoming Plug for the managed Node.
     ///
     /// \param [in] name        The proposed name of the plug.

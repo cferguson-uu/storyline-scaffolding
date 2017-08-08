@@ -32,9 +32,18 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     m_nameEdit = new QLineEdit(m_node->getName(), this);
     connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renameNode()));
     nameLayout->addWidget(new QLabel("Name", this));
-    nameLayout->addWidget(m_nameEdit);
+    nameLayout->addWidget(m_nameEdit);    
     nameLayout->setContentsMargins(0, 4, 0, 0);
     mainLayout->addLayout(nameLayout);
+
+    QHBoxLayout* descriptionLayout = new QHBoxLayout();
+    m_descriptionEdit = new QLineEdit(m_node->getDescription(), this);
+    connect(m_descriptionEdit, SIGNAL(editingFinished()), this, SLOT(changeNodeDescription()));
+    descriptionLayout->addWidget(new QLabel("Description", this));
+    descriptionLayout->addWidget(m_descriptionEdit);
+    descriptionLayout->setContentsMargins(0, 4, 0, 0);
+    mainLayout->addLayout(descriptionLayout);
+
 
     // define the on_unlock block
     m_onUnlockLayout = new QGridLayout();
@@ -102,6 +111,16 @@ void NodeProperties::renameNode()
     }
     m_node->rename(newName);
     qobject_cast<Collapsible*>(parent())->updateTitle(newName);
+}
+
+void NodeProperties::changeNodeDescription()
+{
+    QString newDescription = m_descriptionEdit->text();
+    if(m_node->getDescription() == newDescription){
+        return;
+    }
+    m_node->changeDescription(newDescription);
+    //qobject_cast<Collapsible*>(parent())->updateTitle(newName);
 }
 
 static const char alphanum[] =

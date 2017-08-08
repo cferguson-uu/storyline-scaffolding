@@ -91,6 +91,30 @@ void NodeHandle::rename(const QString& name)
     m_node->setDisplayName(name);
 }
 
+QString NodeHandle::getDescription() const
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return "";
+    }
+#endif
+    return m_node->getDisplayDescription();
+}
+
+void NodeHandle::changeDescription(const QString& description)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return;
+    }
+#endif
+    m_node->setDisplayDescription(description);
+}
+
 PlugHandle NodeHandle::createIncomingPlug(const QString& name)
 {
 #ifdef QT_DEBUG

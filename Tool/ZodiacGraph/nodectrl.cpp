@@ -27,6 +27,11 @@ void NodeCtrl::rename(const QString& name)
     m_node.rename(name);
 }
 
+void NodeCtrl::changeDescription(const QString& description)
+{
+    m_node.changeDescription(description);
+}
+
 QString NodeCtrl::renamePlug(const QString& oldName, const QString& newName)
 {
     if(newName == oldName){

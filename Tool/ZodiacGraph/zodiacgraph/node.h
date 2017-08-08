@@ -230,6 +230,21 @@ public: // methods
     void setDisplayName(const QString& displayName);
 
     ///
+    /// \brief The description of this Node.
+    ///
+    /// \return Display description of this Node.
+    ///
+    inline QString getDisplayDescription() const {return m_displayDescription;}
+
+    ///
+    /// \brief Sets s new description for this Node.
+    ///
+    ///
+    /// \param [in] displayName New description of this Node.
+    ///
+    void setDisplayDescription(const QString& displayDescription);
+
+    ///
     /// \brief Renames an existing Plug of this Node.
     ///
     /// Make sure that this Node actually contains the given Plug.
@@ -770,6 +785,11 @@ private: // members
     /// \brief The name of this Node.
     ///
     QString m_displayName;
+
+    ///
+    /// \brief The description of this Node.
+    ///
+    QString m_displayDescription;
 
     ///
     /// \brief Unique ID of this Node used for serialization.

@@ -209,6 +209,14 @@ void Node::setDisplayName(const QString& displayName)
     emit nodeRenamed(m_displayName);
 }
 
+void Node::setDisplayDescription(const QString& displayDescription)
+{
+    if(m_displayDescription == displayDescription){
+        return;
+    }
+    m_displayDescription = displayDescription;
+}
+
 QString Node::renamePlug(Plug *plug, const QString& newName)
 {
     // make sure that the Plug is actually of this Node

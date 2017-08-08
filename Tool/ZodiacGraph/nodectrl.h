@@ -54,16 +54,30 @@ public: // methods
     ///
     /// \brief Returns the name of the controlled node.
     ///
-    /// \return The name of the controlled node.
+    /// \return The description of the controlled node.
     ///
     inline QString getName() const {return m_node.getName();}
 
     ///
-    /// \brief Sets s new name for this NodeCtrl.
+    /// \brief Sets a new name for this NodeCtrl.
     ///
-    /// \param [in] name    New name of this NodeCtrl.
+    /// \param [in] name    New description of this NodeCtrl.
     ///
     void rename(const QString& name);
+
+    ///
+    /// \brief Returns the description of the controlled node.
+    ///
+    /// \return The description of the controlled node.
+    ///
+    inline QString getDescription() const {return m_node.getDescription();}
+
+    ///
+    /// \brief Sets s new description for this NodeCtrl.
+    ///
+    /// \param [in] description    New description of this NodeCtrl.
+    ///
+    void changeDescription(const QString& description);
 
     ///
     /// \brief Direct access to the zodiac::NodeHandle of this NodeCtrl.
