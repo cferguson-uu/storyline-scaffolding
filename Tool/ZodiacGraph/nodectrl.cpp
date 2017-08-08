@@ -47,19 +47,19 @@ QHash<QString, zodiac::NodeCommand> NodeCtrl::getOnUnlockedList()
     return m_node.getOnUnlockedList();
 }
 
-void NodeCtrl::addOnUnlockCommand(const QString& key)
+void NodeCtrl::addOnUnlockCommand(const QString& key, const QString& description)
 {
-    m_node.addOnUnlockCommand(key);
+    m_node.addOnUnlockCommand(key, description);
 }
 
-void NodeCtrl::addOnFailCommand(const QString& key)
+void NodeCtrl::addOnFailCommand(const QString& key, const QString& description)
 {
-    m_node.addOnFailCommand(key);
+    m_node.addOnFailCommand(key, description);
 }
 
-void NodeCtrl::addOnUnlockedCommand(const QString& key)
+void NodeCtrl::addOnUnlockedCommand(const QString& key, const QString& description)
 {
-     m_node.addOnUnlockedCommand(key);
+     m_node.addOnUnlockedCommand(key, description);
 }
 
 void NodeCtrl::removeOnUnlockCommand(const QString& key)

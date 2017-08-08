@@ -151,7 +151,7 @@ QHash<QString, NodeCommand> NodeHandle::getOnUnlockedList()
     return m_node->getOnUnlockedList();
 }
 
-void NodeHandle::addOnUnlockCommand(const QString& key)
+void NodeHandle::addOnUnlockCommand(const QString& key, const QString& description)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
@@ -160,10 +160,10 @@ void NodeHandle::addOnUnlockCommand(const QString& key)
         return;
     }
 #endif
-    m_node->addOnUnlockCommand(key);
+    m_node->addOnUnlockCommand(key, description);
 }
 
-void NodeHandle::addOnFailCommand(const QString& key)
+void NodeHandle::addOnFailCommand(const QString& key, const QString& description)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
@@ -172,10 +172,10 @@ void NodeHandle::addOnFailCommand(const QString& key)
         return;
     }
 #endif
-    m_node->addOnFailCommand(key);
+    m_node->addOnFailCommand(key, description);
 }
 
-void NodeHandle::addOnUnlockedCommand(const QString& key)
+void NodeHandle::addOnUnlockedCommand(const QString& key, const QString& description)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
@@ -184,7 +184,7 @@ void NodeHandle::addOnUnlockedCommand(const QString& key)
         return;
     }
 #endif
-     m_node->addOnUnlockedCommand(key);
+     m_node->addOnUnlockedCommand(key, description);
 }
 
 void NodeHandle::removeOnUnlockCommand(const QString& key)

@@ -105,9 +105,12 @@ private slots:
 
     //for creating blocks for onunlock etc.
     void createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type);
+    void LoadCommandBlocks(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type);
 
-    void AddParametersToCommand(CommandBlockTypes type);
-    void DeleteParametersFromCommand(CommandBlockTypes type);
+    void AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
+    void DeleteParametersFromCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
+
+    void updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, const QString &paramValue);
 
     ///
     /// \brief Called by the name edit, when the name of the node was changed through user input.
@@ -130,7 +133,7 @@ private slots:
     void addPlugRow(zodiac::PlugHandle plug);
 
     //for changing parameters along with command
-    void switchCall(const QString& test);
+    void changeCommand(CommandBlockTypes type, CommandRow *cmd, const QString& cmdKey, const QString& description);
 
 private: // members
 
@@ -284,6 +287,13 @@ public: // methods
     CommandRow(NodeProperties *editor, QComboBox *nameEdit, QPushButton *removalButton, QString &name,
                QHash<QString, CommandRow*> &commandRows, QGridLayout* blockLayout, QGridLayout* commandLayout); //NEED PARAMETERS
 
+    void addParameterToList(QLabel *label, QLineEdit *text);
+    void addParameterToGrid(QLabel *label, QLineEdit *text);
+    void DeleteParameters(CommandBlockTypes type, const QString &cmdKey);
+
+    QString GetName(){return m_commandName;}
+    void SetName(const QString &name){m_commandName = name;}
+
 private slots:
 
     ///
@@ -321,6 +331,8 @@ private: // members
     QGridLayout *m_commandLayout;
 
     QGridLayout *m_blockLayout;
+
+    std::vector<std::pair<QLabel*,QLineEdit*>> params;
 
 };
 

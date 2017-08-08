@@ -52,7 +52,10 @@ enum class PlugDirection;
 ///
 struct NodeCommand
 {
-    QString id;
+    NodeCommand(){}
+    NodeCommand(const QString &des){description = des;}
+
+    QString description;
     QHash<QString, QString> parameters;
 };
 
@@ -270,9 +273,9 @@ public: // methods
     ///
     /// \param [in] key command name
     ///
-    void addOnUnlockCommand(const QString& key);
-    void addOnFailCommand(const QString& key);
-    void addOnUnlockedCommand(const QString& key);
+    void addOnUnlockCommand(const QString& key, const QString& description);
+    void addOnFailCommand(const QString& key, const QString& description);
+    void addOnUnlockedCommand(const QString& key, const QString& description);
 
     ///
     /// \brief Removes new element from command block

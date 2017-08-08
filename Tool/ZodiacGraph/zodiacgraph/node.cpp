@@ -59,6 +59,9 @@ Node::Node(Scene* scene, const QString &displayName, const QUuid &uuid)
     , m_label(nullptr)
     , m_expansionState(NodeExpansion::NONE)
     , m_lastExpansionState(NodeExpansion::NONE)
+    , m_onUnlock(QHash<QString, NodeCommand>())
+    , m_onFail(QHash<QString, NodeCommand>())
+    , m_onUnlocked(QHash<QString, NodeCommand>())
 {
     // set QGraphicsObject flags
     setFlag(ItemIsMovable);
@@ -217,19 +220,19 @@ void Node::setDisplayDescription(const QString& displayDescription)
     m_displayDescription = displayDescription;
 }
 
-void Node::addOnUnlockCommand(const QString& key)
+void Node::addOnUnlockCommand(const QString& key, const QString& description)
 {
-    m_onUnlock.insert(key, NodeCommand());
+    m_onUnlock.insert(key, NodeCommand(description));
 }
 
-void Node::addOnFailCommand(const QString& key)
+void Node::addOnFailCommand(const QString& key, const QString& description)
 {
-    m_onFail.insert(key, NodeCommand());
+    m_onFail.insert(key, NodeCommand(description));
 }
 
-void Node::addOnUnlockedCommand(const QString& key)
+void Node::addOnUnlockedCommand(const QString& key, const QString& description)
 {
-    m_onUnlocked.insert(key, NodeCommand());
+    m_onUnlocked.insert(key, NodeCommand(description));
 }
 
 void Node::removeOnUnlockCommand(const QString& key)

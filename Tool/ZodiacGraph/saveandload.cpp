@@ -701,9 +701,7 @@ void saveandload::LoadNarrativeParamsAndCommands(QWidget *widget)
     {
         QMessageBox messageBox;
         messageBox.setFixedSize(500,200);
-        if(messageBox.critical(0,"Error","Command and parameters file could not be loaded, please ensure that it exists.\nApplication will now close.") == QMessageBox::Ok )
-            qApp->quit();
-
+        messageBox.critical(0,"Error","Command and parameters file could not be loaded, please ensure that it exists.\nApplication will now close.");
         QTimer::singleShot(0, widget, SLOT(close()));
     }
 

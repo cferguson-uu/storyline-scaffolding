@@ -57,6 +57,13 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
     connect(m_addOnUnlockButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK);});
 
+    if(!m_node->getOnUnlockList().empty())
+    {
+        //need to load command list
+        LoadCommandBlocks(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK);
+
+    }
+
     // define the on_fail block
     m_onFailLayout = new QGridLayout();
     m_onFailLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
@@ -69,6 +76,12 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
     connect(m_addOnFailButton, &QPushButton::released, [=]{createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL);});
 
+    if(!m_node->getOnFailList().empty())
+    {
+        //need to load command list
+        LoadCommandBlocks(m_onFailLayout, m_onFailRows, CMD_FAIL);
+    }
+
     // define the on_unlocked block
     m_onUnlockedLayout = new QGridLayout();
     m_onUnlockedLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
@@ -80,6 +93,12 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     m_onUnlockedLayout->addWidget(new QLabel("OnUnlocked", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
     connect(m_addOnUnlockedButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED);});
+
+    if(!m_node->getOnUnlockedList().empty())
+    {
+        //need to load command list
+        LoadCommandBlocks(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED);
+    }
 
     // define the add plug button
     m_plugLayout = new QGridLayout();
@@ -147,28 +166,23 @@ void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, Com
     for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
         commandBox->addItem((*it).label, (*it).id);
 
-    qDebug() << commandBox->itemData(commandBox->currentIndex()).toString();
-
     switch(type)
     {
     case CMD_UNLOCK:
-        m_node->addOnUnlockCommand(commandBox->itemData(commandBox->currentIndex()).toString());
+        m_node->addOnUnlockCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
         break;
     case CMD_FAIL:
-        m_node->addOnFailCommand(commandBox->itemData(commandBox->currentIndex()).toString());
+        m_node->addOnFailCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
         break;
     case CMD_UNLOCKED:
-        m_node->addOnUnlockedCommand(commandBox->itemData(commandBox->currentIndex()).toString());
+        m_node->addOnUnlockedCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
         break;
     }
 
     //grid->addWidget(commandBox, row, 1);
     commandBlockGrid->addWidget(commandBox);
-    connect(commandBox, SIGNAL(currentIndexChanged(const QString&)), SLOT(switchCall(const QString&)));
+   // connect(commandBox, SIGNAL(currentIndexChanged(const QString&)), SLOT(switchCall(const QString&)));
 
-
-    //QLineEdit* plugNameEdit = new QLineEdit("", this);
-    //grid->addWidget(plugNameEdit, row, 1);
 
     QPushButton* removalButton = new QPushButton(this);
     removalButton->setIcon(QIcon(":/icons/minus.svg"));
@@ -182,35 +196,205 @@ void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, Com
 
     QString test = genRandom();
 
-    commandRow.insert(test, new CommandRow(this, commandBox, removalButton, test, commandRow, grid, commandBlockGrid));
+    commandRow.insert(test, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, grid, commandBlockGrid));
+
+    switch(type)
+    {
+    case CMD_UNLOCK:
+
+        AddParametersToCommand(CMD_UNLOCK, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(CMD_UNLOCK, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+        break;
+    case CMD_FAIL:
+        AddParametersToCommand(CMD_FAIL, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(CMD_FAIL, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+        break;
+    case CMD_UNLOCKED:
+        AddParametersToCommand(CMD_UNLOCKED, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(CMD_UNLOCKED, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+        break;
+    }
 }
 
-void NodeProperties::AddParametersToCommand(CommandBlockTypes type)
+void NodeProperties::LoadCommandBlocks(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type)
 {
+    QHash<QString,zodiac::NodeCommand> *hashPointer;
+
+    switch(type)
+    {
+    case CMD_UNLOCK:
+        hashPointer = &m_node->getOnUnlockList();
+        break;
+    case CMD_FAIL:
+        hashPointer = &m_node->getOnFailList();
+        break;
+    case CMD_UNLOCKED:
+        hashPointer = &m_node->getOnUnlockedList();
+        break;
+    }
+
+    for(QHash<QString,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
+    {
+        int row = grid->rowCount();
+        QGridLayout *commandBlockGrid = new QGridLayout();
+
+        QComboBox* commandBox = new QComboBox();
+
+        for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
+            commandBox->addItem((*it).label, (*it).id);
+
+        qDebug() << (*cmdIt).parameters.size();
+        qDebug() << (*cmdIt).description;
+
+        commandBox->setCurrentText((*cmdIt).description);
+        commandBlockGrid->addWidget(commandBox);
+
+        QPushButton* removalButton = new QPushButton(this);
+        removalButton->setIcon(QIcon(":/icons/minus.svg"));
+        removalButton->setIconSize(QSize(8, 8));
+        removalButton->setFlat(true);
+        removalButton->setStatusTip("Delete the Plug from its Node");
+        //grid->addWidget(removalButton, row, 2);
+        commandBlockGrid->addWidget(removalButton, 0, 1);
+
+        grid->addLayout(commandBlockGrid, row, 0);
+
+        QString test = genRandom();
+
+        commandRow.insert(test, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, grid, commandBlockGrid));
+
+        switch(type)
+        {
+        case CMD_UNLOCK:
+
+            AddParametersToCommand(CMD_UNLOCK, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(CMD_UNLOCK, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+            break;
+        case CMD_FAIL:
+            AddParametersToCommand(CMD_FAIL, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(CMD_FAIL, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+            break;
+        case CMD_UNLOCKED:
+            AddParametersToCommand(CMD_UNLOCKED, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(CMD_UNLOCKED, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+            break;
+        }
+
+    }
+}
+
+void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey)
+{
+    bool load;
+
+    switch(type)
+    {
+    case CMD_UNLOCK:
+        load = m_node->getOnUnlockList().empty();
+        break;
+    case CMD_FAIL:
+        load = m_node->getOnFailList().empty();
+        break;
+    case CMD_UNLOCKED:
+        load = m_node->getOnUnlockedList().empty();
+        break;
+    }
+
     //get parameters from the command pointer
     for(std::list<Command>::iterator cmdIt = m_pCommands->begin(); cmdIt != m_pCommands->end(); ++cmdIt)
-        for(std::list<Parameter>::iterator paramIt = (*cmdIt).commandParams.begin(); paramIt != (*cmdIt).commandParams.end(); ++paramIt)
-        {
-            //create fields and labels
-            QLabel *label = new QLabel((*paramIt).label);
-            QLineEdit *edit = new QLineEdit();
-            //make fields auto-update the stored info in the node
-            connect(label, SIGNAL(editingFinished()), this, SLOT(updateParam()));
-            //add fields and labels to the correct grid
-            //store fields and labels as part of the command row
-        }
+        if((*cmdIt).id == cmdKey)
+            for(std::list<Parameter>::iterator paramIt = (*cmdIt).commandParams.begin(); paramIt != (*cmdIt).commandParams.end(); ++paramIt)
+            {
+                //create fields and labels
+                QLabel *label = new QLabel((*paramIt).label);
+                QLineEdit *text;
+
+                //load params if possible
+                if(load)
+                    text = new QLineEdit();
+                else
+                    switch(type)
+                    {
+                        case CMD_UNLOCK:
+                            text = new QLineEdit(m_node->getOnUnlockList()[cmdKey].parameters[(*paramIt).label]);
+                            break;
+                        case CMD_FAIL:
+                        text = new QLineEdit(m_node->getOnFailList()[cmdKey].parameters[(*paramIt).label]);
+                            break;
+                        case CMD_UNLOCKED:
+                        text = new QLineEdit(m_node->getOnUnlockedList()[cmdKey].parameters[(*paramIt).label]);
+                            break;
+                    }
+
+                //make fields auto-update the stored info in the node
+                //connect(text, SIGNAL(editingFinished()), this, SLOT(updateParam()));
+                connect(text, &QLineEdit::editingFinished, [=]{updateParam(type, cmdKey, (*paramIt).label, text->text()); });
+
+                //add fields and labels to the correct grid
+                cmd->addParameterToGrid(label, text);
+                //store fields and labels as part of the command row
+                cmd->addParameterToList(label, text);
+                if(load)
+                    //add parameters to node
+                    switch(type)
+                    {
+                        case CMD_UNLOCK:
+                            m_node->addParameterToOnUnlockCommand(cmdKey, (*paramIt).label, "");
+                            break;
+                        case CMD_FAIL:
+                            m_node->addParameterToOnFailCommand(cmdKey, (*paramIt).label, "");
+                            break;
+                        case CMD_UNLOCKED:
+                            m_node->addParameterToOnUnlockedCommand(cmdKey, (*paramIt).label, "");
+                            break;
+                    }
+            }
 }
 
-void NodeProperties::DeleteParametersFromCommand(CommandBlockTypes type)
+void NodeProperties::updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, const QString &paramValue)
 {
-    //delete parameters from node
-    //delete fields and labels from the correct grid
-    //delete references from command row
+    switch(type)
+    {
+        case CMD_UNLOCK:
+        m_node->addParameterToOnUnlockCommand(cmdKey, paramKey, paramValue);
+            break;
+        case CMD_FAIL:
+        m_node->addParameterToOnFailCommand(cmdKey, paramKey, paramValue);
+            break;
+        case CMD_UNLOCKED:
+        m_node->addParameterToOnUnlockedCommand(cmdKey, paramKey, paramValue);
+            break;
+    }
 }
 
-void NodeProperties::switchCall(const QString& test)
+void NodeProperties::DeleteParametersFromCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey)
 {
-    qDebug() << test;
+    cmd->DeleteParameters(type, cmdKey);
+}
+
+void NodeProperties::changeCommand(CommandBlockTypes type, CommandRow *cmd, const QString& cmdKey, const QString& description)
+{
+    switch(type)
+    {
+        case CMD_UNLOCK:
+            m_node->removeOnUnlockCommand(cmd->GetName());
+            m_node->addOnUnlockCommand(cmdKey, description);
+            cmd->SetName(description);
+            break;
+        case CMD_FAIL:
+            m_node->removeOnFailCommand(cmd->GetName());
+            m_node->addOnFailCommand(cmdKey, description);
+            cmd->SetName(description);
+            break;
+        case CMD_UNLOCKED:
+            m_node->removeOnUnlockedCommand(cmd->GetName());
+            m_node->addOnUnlockedCommand(cmdKey, description);
+            cmd->SetName(description);
+            break;
+    }
+
+    DeleteParametersFromCommand(type, cmd, cmdKey);
+    AddParametersToCommand(type, cmd, cmdKey);
 }
 
 void NodeProperties::createNewPlug()
@@ -358,4 +542,46 @@ void CommandRow::removePlug()
     m_nameEdit->deleteLater();
     m_removalButton->deleteLater();
     m_commandLayout->deleteLater();
+}
+
+void CommandRow::addParameterToList(QLabel *label, QLineEdit *text)
+{
+    params.push_back(std::make_pair(label,text));
+}
+
+void CommandRow::addParameterToGrid(QLabel *label, QLineEdit *text)
+{
+    int row = m_commandLayout->rowCount();
+    m_commandLayout->addWidget(label, row, 0);
+    m_commandLayout->addWidget(text, row, 1);
+}
+
+
+void CommandRow::DeleteParameters(CommandBlockTypes type, const QString &cmdKey)
+{
+    for(std::vector<std::pair<QLabel*,QLineEdit*>>::iterator paramIt = params.begin(); paramIt != params.end(); ++paramIt)
+    {
+        switch(type)
+        {
+            case CMD_UNLOCK:
+                m_editor->m_node->removeParameterFromOnUnlockCommand(cmdKey, std::get<0>((*paramIt))->text());
+                break;
+            case CMD_FAIL:
+                m_editor->m_node->removeParameterFromOnFailCommand(cmdKey, std::get<0>((*paramIt))->text());
+                break;
+            case CMD_UNLOCKED:
+                m_editor->m_node->removeParameterFromOnUnlockedCommand(cmdKey, std::get<0>((*paramIt))->text());
+                break;
+        }
+
+        //delete fields and labels from the correct grid
+        std::get<0>((*paramIt))->deleteLater();
+        std::get<1>((*paramIt))->deleteLater();
+
+        m_commandLayout->removeWidget(std::get<0>((*paramIt)));
+        m_commandLayout->removeWidget(std::get<1>((*paramIt)));
+    }
+
+    //delete references from command row
+    params.clear();
 }
