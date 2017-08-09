@@ -33,6 +33,7 @@
 ///
 
 #include <QMainWindow>
+#include <QUndoStack>
 
 class MainCtrl;
 class PropertyEditor;
@@ -100,6 +101,10 @@ private: // members
     /// \brief Main splitter between the Zodiac Graph and the Property editor.
     ///
     QSplitter* m_mainSplitter;
+
+    QUndoStack *m_pUndoStack;
+    QAction *m_pUndoAction;
+    QAction *m_pRedoAction;
 
 };
 

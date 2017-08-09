@@ -25,13 +25,28 @@
 
 #include "graphstructures.h"
 
+#include <QMenuBar>
+
 //void createZodiacLogo(MainCtrl* mainCtrl);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , m_pUndoStack(new QUndoStack())
 {
     setWindowTitle("ZodiacGraph - Showcase Application");
     setWindowIcon(QIcon(":/icons/zodiac_logo.png"));
+
+    //set up the undo functions
+    m_pUndoAction = m_pUndoStack->createUndoAction(this, tr("&Undo"));
+    m_pUndoAction->setShortcuts(QKeySequence::Undo);
+
+    m_pRedoAction = m_pUndoStack->createRedoAction(this, tr("&Redo"));
+    m_pRedoAction->setShortcuts(QKeySequence::Redo);
+    //https://stackoverflow.com/questions/14998836/implementing-undo-redo-functionality-in-qt
+
+    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu->addAction(m_pUndoAction);
+    editMenu->addAction(m_pRedoAction);
 
     // create the main toolbar
     QToolBar* mainToolBar = new QToolBar(this);

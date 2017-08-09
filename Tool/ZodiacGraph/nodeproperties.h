@@ -29,6 +29,7 @@
 #include <QHash>
 #include <QWidget>
 #include <QComboBox>
+#include <QUndoStack>
 
 #include "zodiacgraph/nodehandle.h"
 #include "zodiacgraph/plughandle.h"
