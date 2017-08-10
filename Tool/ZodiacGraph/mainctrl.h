@@ -28,6 +28,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QUndoStack>
 
 #include "zodiacgraph/nodehandle.h"
 #include "zodiacgraph/scenehandle.h"
@@ -57,8 +58,9 @@ public: // methods
     /// \param [in] parent          Qt parent.
     /// \param [in] scene           Handle of a zodiac::Scene.
     /// \param [in] propertyEditor  Property editor.
+    /// \param [in] undoStack       Undo stack for undo and redo.
     ///
-    explicit MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor);
+    explicit MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, QUndoStack *undoStack);
 
     ///
     /// \brief Creates a new node in the graph.
@@ -143,6 +145,9 @@ private: // members
     uint m_nodeIndex;
 
     saveandload m_saveAndLoadManager;
+
+    //pointer to carry out undo functions
+    QUndoStack *m_pUndoStack;
 
 private: // static members
 

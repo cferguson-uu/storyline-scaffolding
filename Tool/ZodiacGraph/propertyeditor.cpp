@@ -46,7 +46,7 @@ void PropertyEditor::showNodes(const QList<zodiac::NodeHandle>& selection)
     for(zodiac::NodeHandle node : selection){
         if(!m_nodes.contains(node)){
             Collapsible* collapsible = new Collapsible(this);
-            collapsible->setWidget(new NodeProperties(m_mainCtrl->getCtrlForHandle(node), collapsible, m_pCommands));
+            collapsible->setWidget(new NodeProperties(m_mainCtrl->getCtrlForHandle(node), collapsible, m_pCommands, m_pUndoStack));
             m_layout->insertWidget(0, collapsible); // insert the new Collapsible at the top
             m_nodes.insert(node, collapsible);
         }

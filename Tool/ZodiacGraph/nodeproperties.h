@@ -35,6 +35,7 @@
 #include "zodiacgraph/plughandle.h"
 
 #include "saveandload.h"
+#include "undoedits.h"
 
 class QGridLayout;
 class QLineEdit;
@@ -73,8 +74,9 @@ public: // methods
     ///
     /// \param [in] node    Node whose properties to display.
     /// \param [in] parent  Collapsible parent object.
+    /// \param [in] undoStack       Undo stack for undo and redo.
     ///
-    explicit NodeProperties(NodeCtrl* node, Collapsible *parent, std::list<Command> *commands);
+    explicit NodeProperties(NodeCtrl* node, Collapsible *parent, std::list<Command> *commands, QUndoStack *undoStack);
 
 private: // for friend
 
@@ -188,6 +190,9 @@ private: // members
     QHash<QString, CommandRow*> m_onUnlockedRows;
 
     std::list<Command> *m_pCommands;
+
+    //pointer to carry out undo functions
+    QUndoStack *m_pUndoStack;
 
 private: // static members
 

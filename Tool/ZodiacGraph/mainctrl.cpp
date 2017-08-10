@@ -9,17 +9,19 @@
 
 QString MainCtrl::s_defaultName = "Node ";
 
-MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor)
+MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, QUndoStack *undoStack)
     : QObject(parent)
     , m_scene(zodiac::SceneHandle(scene))
     , m_propertyEditor(propertyEditor)
     , m_nodes(QHash<zodiac::NodeHandle, NodeCtrl*>())
     , m_nodeIndex(1)            // name suffixes start at 1
+    , m_pUndoStack(undoStack)
 {
     m_saveAndLoadManager.LoadNarrativeParamsAndCommands(qobject_cast<QWidget*>(parent));
 
     m_propertyEditor->setMainCtrl(this);
     m_propertyEditor->setCommandList(m_saveAndLoadManager.GetCommandListPointer());
+    m_propertyEditor->setUndoStack(undoStack);
 
     connect(&m_scene, SIGNAL(selectionChanged(QList<zodiac::NodeHandle>)),
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));

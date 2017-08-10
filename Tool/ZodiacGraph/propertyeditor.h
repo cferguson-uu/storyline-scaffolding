@@ -28,6 +28,7 @@
 
 #include <QScrollArea>
 #include <QHash>
+#include <QUndoStack>
 
 #include "zodiacgraph/nodehandle.h"
 #include "saveandload.h"
@@ -62,6 +63,11 @@ public: // methods
     //the list of commands and parameters for editing the command block
     void setCommandList(std::list<Command> *cmds) { m_pCommands = cmds;}
 
+    //undo stack for undo and redo
+    void setUndoStack(QUndoStack *undoStack) { m_pUndoStack = undoStack;}
+
+    //undso stack for undo and redo
+
     ///
     /// \brief Shows 0-n NodeProperty%s in the PropertyEditor.
     ///
@@ -88,6 +94,9 @@ private: // members
     /// \brief All Collapsible%s representing NodeCtrl%s, identified by their NodeHandle.
     ///
     QHash<zodiac::NodeHandle, Collapsible*> m_nodes;
+
+    //pointer to carry out undo functions
+    QUndoStack *m_pUndoStack;
 };
 
 #endif // NODEPROPERTYEDITOR_H

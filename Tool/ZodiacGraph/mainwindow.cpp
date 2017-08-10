@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_pRedoAction = m_pUndoStack->createRedoAction(this, tr("&Redo"));
     m_pRedoAction->setShortcuts(QKeySequence::Redo);
-    //https://stackoverflow.com/questions/14998836/implementing-undo-redo-functionality-in-qt
 
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(m_pUndoAction);
@@ -68,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
     PropertyEditor* propertyEditor = new PropertyEditor(this);
 
     // create the Main Controller
-    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor);
+    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, m_pUndoStack);
 
     // setup the main splitter
     m_mainSplitter = new QSplitter(Qt::Horizontal, this);

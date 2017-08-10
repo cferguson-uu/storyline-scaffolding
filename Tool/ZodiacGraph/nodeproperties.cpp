@@ -12,11 +12,12 @@
 
 QString NodeProperties::s_defaultPlugName = "plug";
 
-NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Command> *commands)
+NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Command> *commands, QUndoStack *undoStack)
     : QWidget(parent)
     , m_node(node)
     , m_nextPlugIsIncoming(true)
     , m_pCommands(commands)
+    , m_pUndoStack(undoStack)
 {
     // define the main layout
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -125,11 +126,21 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
 void NodeProperties::renameNode()
 {
     QString newName = m_nameEdit->text();
+    if(m_node->getName() == newName)
+    {
+        return;
+    }
+
+    m_pUndoStack->push(new TextEditCommand(m_nameEdit, m_node->getName(), m_node, qobject_cast<Collapsible*>(parent())));
+
+    //qobject_cast<Collapsible*>(parent())->updateTitle(newName)
+
+    /*QString newName = m_nameEdit->text();
     if(m_node->getName() == newName){
         return;
     }
     m_node->rename(newName);
-    qobject_cast<Collapsible*>(parent())->updateTitle(newName);
+    qobject_cast<Collapsible*>(parent())->updateTitle(newName);*/
 }
 
 void NodeProperties::changeNodeDescription()
@@ -356,13 +367,13 @@ void NodeProperties::updateParam(CommandBlockTypes type, const QString &cmdKey, 
     switch(type)
     {
         case CMD_UNLOCK:
-        m_node->addParameterToOnUnlockCommand(cmdKey, paramKey, paramValue);
+        m_node->editParameterInOnUnlockCommand(cmdKey, paramKey, paramValue);
             break;
         case CMD_FAIL:
-        m_node->addParameterToOnFailCommand(cmdKey, paramKey, paramValue);
+        m_node->editParameterInOnFailCommand(cmdKey, paramKey, paramValue);
             break;
         case CMD_UNLOCKED:
-        m_node->addParameterToOnUnlockedCommand(cmdKey, paramKey, paramValue);
+        m_node->editParameterInOnUnlockedCommand(cmdKey, paramKey, paramValue);
             break;
     }
 }
