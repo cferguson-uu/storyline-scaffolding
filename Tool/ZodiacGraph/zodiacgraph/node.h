@@ -272,6 +272,7 @@ public: // methods
     ///
     ///
     /// \param [in] key command name
+    /// \param [in] description command label
     ///
     void addOnUnlockCommand(const QString& key, const QString& description);
     void addOnFailCommand(const QString& key, const QString& description);
@@ -286,6 +287,17 @@ public: // methods
     void removeOnUnlockCommand(const QString& key);
     void removeOnFailCommand(const QString& key);
     void removeOnUnlockedCommand(const QString& key);
+
+    ///
+    /// \brief get parameter element from command block
+    ///
+    ///
+    /// \param [in] cmdKey command name
+    /// \param [in] paramKey parameter name
+    ///
+    QString getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey);
+    QString getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey);
+    QString getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey);
 
     ///
     /// \brief Add parameter element to command block

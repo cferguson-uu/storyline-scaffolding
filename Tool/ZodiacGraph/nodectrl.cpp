@@ -76,6 +76,21 @@ void NodeCtrl::removeOnUnlockedCommand(const QString& key)
     m_node.removeOnUnlockedCommand(key);
 }
 
+QString NodeCtrl::getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+{
+    return m_node.getParameterFromOnUnlockCommand(cmdKey, paramKey);
+}
+
+QString NodeCtrl::getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+{
+    return m_node.getParameterFromOnFailCommand(cmdKey, paramKey);
+}
+
+QString NodeCtrl::getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+{
+    return m_node.getParameterFromOnUnlockedCommand(cmdKey, paramKey);
+}
+
 void NodeCtrl::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
 {
     m_node.addParameterToOnUnlockCommand(cmdKey, paramKey, value);

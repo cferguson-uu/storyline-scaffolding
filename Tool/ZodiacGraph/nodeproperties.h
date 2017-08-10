@@ -113,7 +113,7 @@ private slots:
     void AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
     void DeleteParametersFromCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
 
-    void updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, const QString &paramValue);
+    void updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, QLineEdit* paramField);
 
     ///
     /// \brief Called by the name edit, when the name of the node was changed through user input.

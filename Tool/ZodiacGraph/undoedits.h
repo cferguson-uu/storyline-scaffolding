@@ -36,4 +36,27 @@ private:
     void (NodeCtrl::*m_pNameChangeFunc) (const QString&);
 };
 
+class ParamEditCommand : public QUndoCommand
+{
+public:
+    enum { Id = 2345 };
+
+    ParamEditCommand(QLineEdit *textItem, const QString &oldText, const QString &cmdKey, const QString &paramKey, NodeCtrl* node, void (NodeCtrl::*paramChangeFunc)(const QString &, const QString &, const QString &),
+                QUndoCommand *parent = 0);
+
+    void undo() override;
+    void redo() override;
+    bool mergeWith(const QUndoCommand *command) override;
+    int id() const override { return Id; }
+
+private:
+    QLineEdit *m_TextItem;
+    QString m_OldText;
+    QString m_NewText;
+    NodeCtrl *m_Node;
+    QString m_cmdKey;
+    QString m_paramKey;
+    void (NodeCtrl::*m_pParamChangeFunc) (const QString&, const QString&, const QString&);
+};
+
 #endif // UNDOEDITS_H

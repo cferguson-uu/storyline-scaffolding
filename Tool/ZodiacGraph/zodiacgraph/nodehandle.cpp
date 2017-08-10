@@ -222,6 +222,42 @@ void NodeHandle::removeOnUnlockedCommand(const QString& key)
     m_node->removeOnUnlockedCommand(key);
 }
 
+QString NodeHandle::getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return "";
+    }
+#endif
+    return m_node->getParameterFromOnUnlockCommand(cmdKey, paramKey);
+}
+
+QString NodeHandle::getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return "";
+    }
+#endif
+    return m_node->getParameterFromOnFailCommand(cmdKey, paramKey);
+}
+
+QString NodeHandle::getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return "";
+    }
+#endif
+    return m_node->getParameterFromOnUnlockedCommand(cmdKey, paramKey);
+}
+
 void NodeHandle::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
 {
 #ifdef QT_DEBUG

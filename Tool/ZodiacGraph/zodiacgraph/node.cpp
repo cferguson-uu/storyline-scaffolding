@@ -250,6 +250,21 @@ void Node::removeOnUnlockedCommand(const QString& key)
     m_onUnlocked.remove(key);
 }
 
+QString Node::getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+{
+    return m_onUnlock[cmdKey].parameters[paramKey];
+}
+
+QString Node::getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+{
+    return m_onFail[cmdKey].parameters[paramKey];
+}
+
+QString Node::getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+{
+    return m_onUnlocked[cmdKey].parameters[paramKey];
+}
+
 void Node::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
 {
     m_onUnlock[cmdKey].parameters.insert(paramKey, value);

@@ -343,7 +343,7 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
 
                 //make fields auto-update the stored info in the node
                 //connect(text, SIGNAL(editingFinished()), this, SLOT(updateParam()));
-                connect(text, &QLineEdit::editingFinished, [=]{updateParam(type, cmdKey, (*paramIt).label, text->text()); });
+                connect(text, &QLineEdit::editingFinished, [=]{updateParam(type, cmdKey, (*paramIt).label, text); });
 
                 //add fields and labels to the correct grid
                 cmd->addParameterToGrid(label, text);
@@ -366,18 +366,45 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
             }
 }
 
-void NodeProperties::updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, const QString &paramValue)
-{
+void NodeProperties::updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, QLineEdit* paramField)
+{ 
+    QString newName;
+    QString oldName;
+
     switch(type)
     {
         case CMD_UNLOCK:
-        m_node->editParameterInOnUnlockCommand(cmdKey, paramKey, paramValue);
+            newName = paramField->text();
+            oldName = m_node->getParameterFromOnUnlockCommand(cmdKey, paramKey);
+            if(oldName == newName)
+            {
+                return;
+            }
+
+            m_pUndoStack->push(new ParamEditCommand(paramField, oldName, cmdKey, paramKey, m_node, &NodeCtrl::editParameterInOnUnlockCommand));
+        //m_node->editParameterInOnUnlockCommand(cmdKey, paramKey, paramValue);
             break;
         case CMD_FAIL:
-        m_node->editParameterInOnFailCommand(cmdKey, paramKey, paramValue);
+            newName = paramField->text();
+            oldName = m_node->getParameterFromOnFailCommand(cmdKey, paramKey);
+            if(oldName == newName)
+            {
+                return;
+            }
+
+            m_pUndoStack->push(new ParamEditCommand(paramField, oldName, cmdKey, paramKey, m_node, &NodeCtrl::editParameterInOnFailCommand));
+            //m_node->editParameterInOnFailCommand(cmdKey, paramKey, paramValue);
             break;
         case CMD_UNLOCKED:
-        m_node->editParameterInOnUnlockedCommand(cmdKey, paramKey, paramValue);
+            newName = paramField->text();
+            oldName = m_node->getParameterFromOnUnlockedCommand(cmdKey, paramKey);
+            if(oldName == newName)
+            {
+                return;
+            }
+
+            m_pUndoStack->push(new ParamEditCommand(paramField, oldName, cmdKey, paramKey, m_node, &NodeCtrl::editParameterInOnUnlockedCommand));
+            //m_node->editParameterInOnUnlockedCommand(cmdKey, paramKey, paramValue);
             break;
     }
 }
