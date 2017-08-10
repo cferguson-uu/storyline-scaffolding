@@ -17,7 +17,7 @@ class TextEditCommand : public QUndoCommand
 public:
     enum { Id = 1234 };
 
-    TextEditCommand(QLineEdit *textItem, const QString &oldText, NodeCtrl* node, Collapsible *propEdit,
+    TextEditCommand(QLineEdit *textItem, const QString &oldText, NodeCtrl* node, void (NodeCtrl::*nameChangeFunc)(const QString &), Collapsible *propEdit = 0,
                 QUndoCommand *parent = 0);
 
     void undo() override;
@@ -30,7 +30,10 @@ private:
     QString m_OldText;
     QString m_NewText;
     NodeCtrl *m_Node;
-    Collapsible *m_PropEdit;
+    Collapsible *m_PropEdit = nullptr;
+
+    //void (*m_pNameChangeFunc)(const QString &);
+    void (NodeCtrl::*m_pNameChangeFunc) (const QString&);
 };
 
 #endif // UNDOEDITS_H

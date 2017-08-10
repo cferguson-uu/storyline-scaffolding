@@ -131,7 +131,7 @@ void NodeProperties::renameNode()
         return;
     }
 
-    m_pUndoStack->push(new TextEditCommand(m_nameEdit, m_node->getName(), m_node, qobject_cast<Collapsible*>(parent())));
+    m_pUndoStack->push(new TextEditCommand(m_nameEdit, m_node->getName(), m_node, &NodeCtrl::rename, qobject_cast<Collapsible*>(parent())));
 
     //qobject_cast<Collapsible*>(parent())->updateTitle(newName)
 
@@ -149,7 +149,11 @@ void NodeProperties::changeNodeDescription()
     if(m_node->getDescription() == newDescription){
         return;
     }
-    m_node->changeDescription(newDescription);
+
+    m_pUndoStack->push(new TextEditCommand(m_descriptionEdit, m_node->getDescription(), m_node, &NodeCtrl::changeDescription));
+
+
+    //m_node->changeDescription(newDescription);
     //qobject_cast<Collapsible*>(parent())->updateTitle(newName);
 }
 
