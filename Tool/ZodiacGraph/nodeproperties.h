@@ -111,7 +111,7 @@ private slots:
     void LoadCommandBlocks(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type);
 
     void AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
-    void DeleteParametersFromCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
+    void DeleteParametersFromCommand(CommandRow *cmd);
 
     void updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, QLineEdit* paramField);
 
@@ -136,7 +136,7 @@ private slots:
     void addPlugRow(zodiac::PlugHandle plug);
 
     //for changing parameters along with command
-    void changeCommand(CommandBlockTypes type, CommandRow *cmd, const QString& cmdKey, const QString& description);
+    void changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd, const QString& cmdKey, const QString& description);
 
 private: // members
 
@@ -295,10 +295,13 @@ public: // methods
 
     void addParameterToList(QLabel *label, QLineEdit *text);
     void addParameterToGrid(QLabel *label, QLineEdit *text);
-    void DeleteParameters(CommandBlockTypes type, const QString &cmdKey);
+    void DeleteParameters();
 
     QString GetName(){return m_commandName;}
     void SetName(const QString &name){m_commandName = name;}
+
+    bool GetUndo(){return m_undo;}
+    void SetUndo(bool undo){m_undo = undo;}
 
 private slots:
 
@@ -339,6 +342,8 @@ private: // members
     QGridLayout *m_blockLayout;
 
     std::vector<std::pair<QLabel*,QLineEdit*>> params;
+
+    bool m_undo = false;
 
 };
 

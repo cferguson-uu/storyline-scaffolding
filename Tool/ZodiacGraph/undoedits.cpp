@@ -1,4 +1,5 @@
 #include "undoedits.h"
+#include "nodeproperties.h"
 
 #include <QDebug>
 
@@ -106,6 +107,96 @@ bool ParamEditCommand::mergeWith(const QUndoCommand *command)
     return false;
 
     m_NewText = item->text();
+
+    //setText(QObject::tr("Edit %1").arg(createCommandString(m_TextItem, m_NewText)));
+
+    return true;
+}
+
+CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QString&),
+                                       void (NodeCtrl::*CmdAddFunc)(const QString&, const QString&), NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
+                                       void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow *, const QString&), const QString &oldText,
+                                       CommandRow *cmd, CommandBlockTypes type, QHash<QString, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUndoCommand *parent)
+    : QUndoCommand(parent)
+{
+    m_CmdItem = cmdItem;
+    m_OldValue = oldValue;
+    m_NewValue = cmdItem->itemData(cmdItem->currentIndex()).toString();
+    m_OldText = oldText;
+    m_NewText = cmdItem->currentText();
+
+    m_Node = node;
+
+    m_Type = type;
+    m_pCmd = cmd;
+    m_pNodeProperties = nodeProperties;
+
+    m_pCmdDeleteFunc = cmdDeleteFunc;
+    m_pCmdAddFunc = CmdAddFunc;
+    m_pAddParams = addParams;
+    m_pDeleteParams = deleteParams;
+
+    m_pGetCmdTable = getCmdTable;
+
+    m_OldParameters = (m_Node->*m_pGetCmdTable)()[m_OldValue].parameters;
+
+    m_CurrentValue = m_NewValue;
+    m_CurrentText = m_NewText;
+}
+
+void CommandEditCommand::undo()
+{
+    m_pCmd->SetUndo(true);
+
+    m_CmdItem->setCurrentText(m_OldText);
+
+    (m_Node->*m_pCmdDeleteFunc)(m_OldValue);
+    (m_Node->*m_pCmdAddFunc)(m_OldValue, m_OldText);
+
+    (m_pNodeProperties->*m_pDeleteParams)(m_pCmd);
+    (m_Node->*m_pGetCmdTable)()[m_OldValue].parameters = m_OldParameters;
+    (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_OldValue);
+
+    m_pCmd->SetName(m_OldValue);
+}
+
+void CommandEditCommand::redo()
+{
+    qDebug() << "old " << m_OldValue;
+    qDebug() << "new " << m_NewValue;
+
+    if(m_NewText != m_CmdItem->currentText())
+    {
+        m_pCmd->SetUndo(true);
+        m_CmdItem->setCurrentText(m_NewText);
+    }
+
+    (m_Node->*m_pCmdDeleteFunc)(m_OldValue);
+    (m_Node->*m_pCmdAddFunc)(m_NewValue, m_NewText);
+
+    (m_pNodeProperties->*m_pDeleteParams)(m_pCmd);
+
+    (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_NewValue);
+
+     m_NewParameters = (m_Node->*m_pGetCmdTable)()[m_NewValue].parameters;
+
+     m_pCmd->SetName(m_NewValue);
+
+    /*
+
+    (m_Node->*m_pGetCmdTable)()[m_NewValue].parameters = m_NewParameters;
+    (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_OldValue);*/
+}
+
+bool CommandEditCommand::mergeWith(const QUndoCommand *command)
+{
+    const CommandEditCommand *cmdEditCommand = static_cast<const CommandEditCommand *>(command);
+    QComboBox *item = cmdEditCommand->m_CmdItem;
+
+    if (m_CmdItem != item)
+        return false;
+
+    m_NewValue = item->itemData(item->currentIndex()).toString();
 
     //setText(QObject::tr("Edit %1").arg(createCommandString(m_TextItem, m_NewText)));
 
