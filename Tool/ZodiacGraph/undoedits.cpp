@@ -18,11 +18,6 @@ TextEditCommand::TextEditCommand(QLineEdit *textItem, const QString &oldText, No
     m_PropEdit = propEdit;
     m_pNameChangeFunc = nameChangeFunc;
     m_Node = node;
-
-    (m_Node->*m_pNameChangeFunc)(m_NewText);
-
-    if(propEdit)
-        m_PropEdit->updateTitle(m_NewText);
 }
 
 void TextEditCommand::undo()
@@ -42,10 +37,9 @@ void TextEditCommand::redo()
     m_TextItem->setText(m_NewText);
 
     (m_Node->*m_pNameChangeFunc)(m_NewText);
+
     if(m_PropEdit)
         m_PropEdit->updateTitle(m_NewText);
-
-    //setText(QObject::tr("Edit %1").arg(createCommandString(m_TextItem, m_NewText)));
 }
 
 bool TextEditCommand::mergeWith(const QUndoCommand *command)
@@ -76,8 +70,6 @@ ParamEditCommand::ParamEditCommand(QLineEdit *textItem, const QString &oldText, 
     m_Node = node;
     m_cmdKey = cmdKey;
     m_paramKey = paramKey;
-
-    (m_Node->*m_pParamChangeFunc)(m_cmdKey, m_paramKey ,m_NewText);
 }
 
 void ParamEditCommand::undo()
@@ -85,8 +77,6 @@ void ParamEditCommand::undo()
     m_TextItem->setText(m_OldText);
 
     (m_Node->*m_pParamChangeFunc)(m_cmdKey, m_paramKey, m_OldText);
-
-    //setText(QObject::tr("Edit %1").arg(createCommandString(m_TextItem, m_OldText)));
 }
 
 void ParamEditCommand::redo()
@@ -94,8 +84,6 @@ void ParamEditCommand::redo()
     m_TextItem->setText(m_NewText);
 
     (m_Node->*m_pParamChangeFunc)(m_cmdKey, m_paramKey ,m_NewText);
-
-    //setText(QObject::tr("Edit %1").arg(createCommandString(m_TextItem, m_NewText)));
 }
 
 bool ParamEditCommand::mergeWith(const QUndoCommand *command)
@@ -114,7 +102,7 @@ bool ParamEditCommand::mergeWith(const QUndoCommand *command)
 }
 
 CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QString&),
-                                       void (NodeCtrl::*CmdAddFunc)(const QString&, const QString&), NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
+                                       void (NodeCtrl::*CmdAddFunc)(const QString&, const QString&), void (NodeCtrl::*ParamAddFunc)(const QString&, const QString&, const QString&), NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
                                        void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow *, const QString&), const QString &oldText,
                                        CommandRow *cmd, CommandBlockTypes type, QHash<QString, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUndoCommand *parent)
     : QUndoCommand(parent)
@@ -133,6 +121,7 @@ CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldVal
 
     m_pCmdDeleteFunc = cmdDeleteFunc;
     m_pCmdAddFunc = CmdAddFunc;
+    m_pParamAddFunc = ParamAddFunc;
     m_pAddParams = addParams;
     m_pDeleteParams = deleteParams;
 
@@ -150,11 +139,16 @@ void CommandEditCommand::undo()
 
     m_CmdItem->setCurrentText(m_OldText);
 
-    (m_Node->*m_pCmdDeleteFunc)(m_OldValue);
+    m_NewParameters = (m_Node->*m_pGetCmdTable)()[m_NewValue].parameters;
+
+    (m_Node->*m_pCmdDeleteFunc)(m_NewValue);
     (m_Node->*m_pCmdAddFunc)(m_OldValue, m_OldText);
 
     (m_pNodeProperties->*m_pDeleteParams)(m_pCmd);
-    (m_Node->*m_pGetCmdTable)()[m_OldValue].parameters = m_OldParameters;
+
+    for (QHash<QString, QString>::iterator i = m_OldParameters.begin(); i != m_OldParameters.end(); ++i)
+        (m_Node->*m_pParamAddFunc)(m_OldValue, i.key(), i.value());
+
     (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_OldValue);
 
     m_pCmd->SetName(m_OldValue);
@@ -171,21 +165,20 @@ void CommandEditCommand::redo()
         m_CmdItem->setCurrentText(m_NewText);
     }
 
+    m_OldParameters = (m_Node->*m_pGetCmdTable)()[m_OldValue].parameters;
+
+
     (m_Node->*m_pCmdDeleteFunc)(m_OldValue);
     (m_Node->*m_pCmdAddFunc)(m_NewValue, m_NewText);
 
     (m_pNodeProperties->*m_pDeleteParams)(m_pCmd);
 
+    for (QHash<QString, QString>::iterator i = m_NewParameters.begin(); i != m_NewParameters.end(); ++i)
+        (m_Node->*m_pParamAddFunc)(m_NewValue, i.key(), i.value());
+
     (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_NewValue);
 
-     m_NewParameters = (m_Node->*m_pGetCmdTable)()[m_NewValue].parameters;
-
      m_pCmd->SetName(m_NewValue);
-
-    /*
-
-    (m_Node->*m_pGetCmdTable)()[m_NewValue].parameters = m_NewParameters;
-    (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_OldValue);*/
 }
 
 bool CommandEditCommand::mergeWith(const QUndoCommand *command)

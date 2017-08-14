@@ -71,7 +71,7 @@ public:
     enum { Id = 3456 };
 
     CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QString&),
-                       void (NodeCtrl::*CmdAddFunc)(const QString&, const QString&), NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
+                       void (NodeCtrl::*CmdAddFunc)(const QString&, const QString&), void (NodeCtrl::*ParamAddFunc)(const QString&, const QString&, const QString&), NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
                        void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow*, const QString&), const QString &oldText,
                        CommandRow *cmd, CommandBlockTypes type, QHash<QString, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUndoCommand *parent = 0);
 
@@ -102,6 +102,7 @@ private:
 
     void (NodeCtrl::*m_pCmdDeleteFunc) (const QString&);
     void (NodeCtrl::*m_pCmdAddFunc) (const QString&, const QString&);
+    void (NodeCtrl::*m_pParamAddFunc) (const QString&, const QString&, const QString&);
     QHash<QString, zodiac::NodeCommand> (NodeCtrl::*m_pGetCmdTable)();
 
     void (NodeProperties::*m_pDeleteParams) (CommandRow *cmd);

@@ -306,16 +306,18 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
 
     switch(type)
     {
-    case CMD_UNLOCK:
-        load = m_node->getOnUnlockList().empty();
-        break;
-    case CMD_FAIL:
-        load = m_node->getOnFailList().empty();
-        break;
-    case CMD_UNLOCKED:
-        load = m_node->getOnUnlockedList().empty();
-        break;
+        case CMD_UNLOCK:
+            load = m_node->getOnUnlockList()[cmdKey].parameters.empty();
+            break;
+        case CMD_FAIL:
+            load = m_node->getOnFailList()[cmdKey].parameters.empty();
+            break;
+        case CMD_UNLOCKED:
+            load = m_node->getOnUnlockedList()[cmdKey].parameters.empty();
+            break;
     }
+
+    qDebug() << "size: " << m_node->getOnUnlockList()[cmdKey].parameters.size();
 
     //get parameters from the command pointer
     for(std::list<Command>::iterator cmdIt = m_pCommands->begin(); cmdIt != m_pCommands->end(); ++cmdIt)
@@ -433,17 +435,17 @@ void NodeProperties::changeCommand(QComboBox *commandField, CommandBlockTypes ty
     {
         case CMD_UNLOCK:
             m_pUndoStack->push(new CommandEditCommand(commandField, cmd->GetName(), m_node, &NodeCtrl::removeOnUnlockCommand, &NodeCtrl::addOnUnlockCommand,
-                                                      this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
+                                                      &NodeCtrl::addParameterToOnUnlockCommand, this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
                                                       m_node->getOnUnlockList()[cmd->GetName()].description, cmd, CMD_UNLOCK, &NodeCtrl::getOnUnlockList));
             break;
         case CMD_FAIL:
             m_pUndoStack->push(new CommandEditCommand(commandField, cmd->GetName(), m_node, &NodeCtrl::removeOnFailCommand, &NodeCtrl::addOnFailCommand,
-                                                  this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
+                                                  &NodeCtrl::addParameterToOnFailCommand, this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
                                                   m_node->getOnFailList()[cmd->GetName()].description, cmd, CMD_FAIL, &NodeCtrl::getOnFailList));
             break;
         case CMD_UNLOCKED:
             m_pUndoStack->push(new CommandEditCommand(commandField, cmd->GetName(), m_node, &NodeCtrl::removeOnUnlockedCommand, &NodeCtrl::addOnUnlockedCommand,
-                                                  this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
+                                                  &NodeCtrl::addParameterToOnUnlockedCommand, this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
                                                   m_node->getOnUnlockedList()[cmd->GetName()].description, cmd, CMD_UNLOCKED, &NodeCtrl::getOnUnlockedList));
             break;
      }
