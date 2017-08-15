@@ -136,7 +136,7 @@ private slots:
     void addPlugRow(zodiac::PlugHandle plug);
 
     //for changing parameters along with command
-    void changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd, const QString& cmdKey, const QString& description);
+    void changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd);
 
 private: // members
 

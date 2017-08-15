@@ -218,15 +218,15 @@ void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, Com
     case CMD_UNLOCK:
 
         AddParametersToCommand(CMD_UNLOCK, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(commandBox, CMD_UNLOCK, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCK, commandRow[test]); });
         break;
     case CMD_FAIL:
         AddParametersToCommand(CMD_FAIL, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(commandBox, CMD_FAIL, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_FAIL, commandRow[test]); });
         break;
     case CMD_UNLOCKED:
         AddParametersToCommand(CMD_UNLOCKED, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(commandBox, CMD_UNLOCKED, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCKED, commandRow[test]); });
         break;
     }
 }
@@ -283,15 +283,15 @@ void NodeProperties::LoadCommandBlocks(QGridLayout *grid, QHash<QString, Command
         case CMD_UNLOCK:
 
             AddParametersToCommand(CMD_UNLOCK, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(commandBox, CMD_UNLOCK, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCK, commandRow[test]); });
             break;
         case CMD_FAIL:
             AddParametersToCommand(CMD_FAIL, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(commandBox, CMD_FAIL, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_FAIL, commandRow[test]); });
             break;
         case CMD_UNLOCKED:
             AddParametersToCommand(CMD_UNLOCKED, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]( int ix ) { changeCommand(commandBox, CMD_UNLOCKED, commandRow[test], commandBox->itemData(ix).toString(), commandBox->currentText()); });
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCKED, commandRow[test]); });
             break;
         }
 
@@ -316,8 +316,6 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
             load = m_node->getOnUnlockedList()[cmdKey].parameters.empty();
             break;
     }
-
-    qDebug() << "size: " << m_node->getOnUnlockList()[cmdKey].parameters.size();
 
     //get parameters from the command pointer
     for(std::list<Command>::iterator cmdIt = m_pCommands->begin(); cmdIt != m_pCommands->end(); ++cmdIt)
@@ -346,7 +344,6 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
                     }
 
                 //make fields auto-update the stored info in the node
-                //connect(text, SIGNAL(editingFinished()), this, SLOT(updateParam()));
                 connect(text, &QLineEdit::editingFinished, [=]{updateParam(type, cmdKey, (*paramIt).label, text); });
 
                 //add fields and labels to the correct grid
@@ -381,34 +378,22 @@ void NodeProperties::updateParam(CommandBlockTypes type, const QString &cmdKey, 
             newName = paramField->text();
             oldName = m_node->getParameterFromOnUnlockCommand(cmdKey, paramKey);
             if(oldName == newName)
-            {
                 return;
-            }
-
             m_pUndoStack->push(new ParamEditCommand(paramField, oldName, cmdKey, paramKey, m_node, &NodeCtrl::editParameterInOnUnlockCommand));
-        //m_node->editParameterInOnUnlockCommand(cmdKey, paramKey, paramValue);
             break;
         case CMD_FAIL:
             newName = paramField->text();
             oldName = m_node->getParameterFromOnFailCommand(cmdKey, paramKey);
             if(oldName == newName)
-            {
                 return;
-            }
-
             m_pUndoStack->push(new ParamEditCommand(paramField, oldName, cmdKey, paramKey, m_node, &NodeCtrl::editParameterInOnFailCommand));
-            //m_node->editParameterInOnFailCommand(cmdKey, paramKey, paramValue);
             break;
         case CMD_UNLOCKED:
             newName = paramField->text();
             oldName = m_node->getParameterFromOnUnlockedCommand(cmdKey, paramKey);
             if(oldName == newName)
-            {
                 return;
-            }
-
             m_pUndoStack->push(new ParamEditCommand(paramField, oldName, cmdKey, paramKey, m_node, &NodeCtrl::editParameterInOnUnlockedCommand));
-            //m_node->editParameterInOnUnlockedCommand(cmdKey, paramKey, paramValue);
             break;
     }
 }
@@ -418,18 +403,13 @@ void NodeProperties::DeleteParametersFromCommand(CommandRow *cmd)
     cmd->DeleteParameters();
 }
 
-void NodeProperties::changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd, const QString& cmdKey, const QString& description)
+void NodeProperties::changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd)
 {
-    //qDebug() << "cc old " << cmd->GetName();
-    //qDebug() << "cc new " << commandField->itemData(commandField->currentIndex()).toString();
-
     if(cmd->GetUndo())
     {
         cmd->SetUndo(false);
         return;
     }
-
-    qDebug() << cmdKey;
 
     switch(type)
     {

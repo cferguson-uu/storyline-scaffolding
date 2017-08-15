@@ -12,12 +12,6 @@ class NodeProperties;
 class CommandRow;
 enum CommandBlockTypes;
 
-class undoedits
-{
-public:
-    undoedits();
-};
-
 class TextEditCommand : public QUndoCommand
 {
 public:
@@ -38,7 +32,6 @@ private:
     NodeCtrl *m_Node;
     Collapsible *m_PropEdit = nullptr;
 
-    //void (*m_pNameChangeFunc)(const QString &);
     void (NodeCtrl::*m_pNameChangeFunc) (const QString&);
 };
 
@@ -87,9 +80,6 @@ private:
     QString m_NewValue;
     QString m_OldText;
     QString m_NewText;
-
-    QString m_CurrentValue;
-    QString m_CurrentText;
 
     NodeCtrl* m_Node;
 
