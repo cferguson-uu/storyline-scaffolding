@@ -32,6 +32,11 @@ void NodeCtrl::changeDescription(const QString& description)
     m_node.changeDescription(description);
 }
 
+zodiac::NodeType NodeCtrl::getType() const
+{
+    return m_node.getType();
+}
+
 QHash<QString, zodiac::NodeCommand> NodeCtrl::getOnUnlockList()
 {
     return m_node.getOnUnlockList();

@@ -46,6 +46,18 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     mainLayout->addLayout(descriptionLayout);
 
 
+    if(m_node->getType() == zodiac::NODE_NARRATIVE)
+        constructNarrativeNodeProperties(mainLayout);
+
+    // define the plugs
+    for(zodiac::PlugHandle& plug : m_node->getPlugHandles()){
+        addPlugRow(plug);
+    }
+    mainLayout->addLayout(m_plugLayout);
+}
+
+void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
+{
     // define the on_unlock block
     m_onUnlockLayout = new QGridLayout();
     m_onUnlockLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
@@ -62,7 +74,6 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     {
         //need to load command list
         LoadCommandBlocks(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK);
-
     }
 
     // define the on_fail block
@@ -113,14 +124,9 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     m_plugLayout->addWidget(m_addPlugButton, 0, 2);
     connect(m_addPlugButton, SIGNAL(pressed()), this, SLOT(createNewPlug()));
 
-    // define the plugs
-    for(zodiac::PlugHandle& plug : m_node->getPlugHandles()){
-        addPlugRow(plug);
-    }
     mainLayout->addLayout(m_onUnlockLayout);
     mainLayout->addLayout(m_onFailLayout);
     mainLayout->addLayout(m_onUnlockedLayout);
-    mainLayout->addLayout(m_plugLayout);
 }
 
 void NodeProperties::renameNode()
@@ -132,15 +138,6 @@ void NodeProperties::renameNode()
     }
 
     m_pUndoStack->push(new TextEditCommand(m_nameEdit, m_node->getName(), m_node, &NodeCtrl::rename, qobject_cast<Collapsible*>(parent())));
-
-    //qobject_cast<Collapsible*>(parent())->updateTitle(newName)
-
-    /*QString newName = m_nameEdit->text();
-    if(m_node->getName() == newName){
-        return;
-    }
-    m_node->rename(newName);
-    qobject_cast<Collapsible*>(parent())->updateTitle(newName);*/
 }
 
 void NodeProperties::changeNodeDescription()
@@ -151,26 +148,9 @@ void NodeProperties::changeNodeDescription()
     }
 
     m_pUndoStack->push(new TextEditCommand(m_descriptionEdit, m_node->getDescription(), m_node, &NodeCtrl::changeDescription));
-
-
-    //m_node->changeDescription(newDescription);
-    //qobject_cast<Collapsible*>(parent())->updateTitle(newName);
 }
 
-static const char alphanum[] =
-"0123456789"
-"!@#$%^&*"
-"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-"abcdefghijklmnopqrstuvwxyz";
-
-int stringLength = sizeof(alphanum) - 1;
-
-QString genRandom()
-{
-    return alphanum[rand() % stringLength];
-}
-
-void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type)
+void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type)
 {
     int row = grid->rowCount();
 
@@ -194,44 +174,40 @@ void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QString, Com
         break;
     }
 
-    //grid->addWidget(commandBox, row, 1);
     commandBlockGrid->addWidget(commandBox);
-   // connect(commandBox, SIGNAL(currentIndexChanged(const QString&)), SLOT(switchCall(const QString&)));
-
 
     QPushButton* removalButton = new QPushButton(this);
     removalButton->setIcon(QIcon(":/icons/minus.svg"));
     removalButton->setIconSize(QSize(8, 8));
     removalButton->setFlat(true);
     removalButton->setStatusTip("Delete the Plug from its Node");
-    //grid->addWidget(removalButton, row, 2);
     commandBlockGrid->addWidget(removalButton, 0, 1);
 
     grid->addLayout(commandBlockGrid, row, 0);
 
-    QString test = genRandom();
+    QUuid u = QUuid::createUuid();
 
-    commandRow.insert(test, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, grid, commandBlockGrid));
+    commandRow.insert(u, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, u, grid, commandBlockGrid));
 
     switch(type)
     {
     case CMD_UNLOCK:
 
-        AddParametersToCommand(CMD_UNLOCK, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCK, commandRow[test]); });
+        AddParametersToCommand(CMD_UNLOCK, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCK, commandRow[u]); });
         break;
     case CMD_FAIL:
-        AddParametersToCommand(CMD_FAIL, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_FAIL, commandRow[test]); });
+        AddParametersToCommand(CMD_FAIL, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_FAIL, commandRow[u]); });
         break;
     case CMD_UNLOCKED:
-        AddParametersToCommand(CMD_UNLOCKED, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCKED, commandRow[test]); });
+        AddParametersToCommand(CMD_UNLOCKED, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
+        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCKED, commandRow[u]); });
         break;
     }
 }
 
-void NodeProperties::LoadCommandBlocks(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type)
+void NodeProperties::LoadCommandBlocks(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type)
 {
     QHash<QString,zodiac::NodeCommand> *hashPointer;
 
@@ -258,9 +234,6 @@ void NodeProperties::LoadCommandBlocks(QGridLayout *grid, QHash<QString, Command
         for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
             commandBox->addItem((*it).label, (*it).id);
 
-        //qDebug() << (*cmdIt).parameters.size();
-        //qDebug() << (*cmdIt).description;
-
         commandBox->setCurrentText((*cmdIt).description);
         commandBlockGrid->addWidget(commandBox);
 
@@ -269,29 +242,28 @@ void NodeProperties::LoadCommandBlocks(QGridLayout *grid, QHash<QString, Command
         removalButton->setIconSize(QSize(8, 8));
         removalButton->setFlat(true);
         removalButton->setStatusTip("Delete the Plug from its Node");
-        //grid->addWidget(removalButton, row, 2);
         commandBlockGrid->addWidget(removalButton, 0, 1);
 
         grid->addLayout(commandBlockGrid, row, 0);
 
-        QString test = genRandom();
+        QUuid u = QUuid::createUuid();
 
-        commandRow.insert(test, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, grid, commandBlockGrid));
+        commandRow.insert(u, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, u, grid, commandBlockGrid));
 
         switch(type)
         {
         case CMD_UNLOCK:
 
-            AddParametersToCommand(CMD_UNLOCK, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCK, commandRow[test]); });
+            AddParametersToCommand(CMD_UNLOCK, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCK, commandRow[u]); });
             break;
         case CMD_FAIL:
-            AddParametersToCommand(CMD_FAIL, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_FAIL, commandRow[test]); });
+            AddParametersToCommand(CMD_FAIL, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_FAIL, commandRow[u]); });
             break;
         case CMD_UNLOCKED:
-            AddParametersToCommand(CMD_UNLOCKED, commandRow[test], commandBox->itemData(commandBox->currentIndex()).toString());
-            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCKED, commandRow[test]); });
+            AddParametersToCommand(CMD_UNLOCKED, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
+            connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, CMD_UNLOCKED, commandRow[u]); });
             break;
         }
 
@@ -300,8 +272,6 @@ void NodeProperties::LoadCommandBlocks(QGridLayout *grid, QHash<QString, Command
 
 void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey)
 {
-    //qDebug() << cmdKey;
-
     bool load;
 
     switch(type)
@@ -429,28 +399,6 @@ void NodeProperties::changeCommand(QComboBox *commandField, CommandBlockTypes ty
                                                   m_node->getOnUnlockedList()[cmd->GetName()].description, cmd, CMD_UNLOCKED, &NodeCtrl::getOnUnlockedList));
             break;
      }
-
-    /*switch(type)
-    {
-        case CMD_UNLOCK:
-            m_node->removeOnUnlockCommand(cmd->GetName());
-            m_node->addOnUnlockCommand(cmdKey, description);
-            cmd->SetName(cmdKey);
-            break;
-        case CMD_FAIL:
-            m_node->removeOnFailCommand(cmd->GetName());
-            m_node->addOnFailCommand(cmdKey, description);
-            cmd->SetName(cmdKey);
-            break;
-        case CMD_UNLOCKED:
-            m_node->removeOnUnlockedCommand(cmd->GetName());
-            m_node->addOnUnlockedCommand(cmdKey, description);
-            cmd->SetName(cmdKey);
-            break;
-    }
-
-    DeleteParametersFromCommand(cmd);
-    AddParametersToCommand(type, cmd, cmdKey);*/
 }
 
 void NodeProperties::createNewPlug()
@@ -493,10 +441,10 @@ void NodeProperties::removePlugRow(const QString& plugName)
     m_plugRows.remove(plugName);
 }
 
-void NodeProperties::removeCommandRow(const QString& commandName, QHash<QString, CommandRow*> &commandRows)
+void NodeProperties::removeCommandRow(const QUuid& commandId, QHash<QUuid, CommandRow*> *commandRows)
 {
-    Q_ASSERT(commandRows.contains(commandName));
-    commandRows.remove(commandName);
+    Q_ASSERT(commandRows->contains(commandId));
+    commandRows->remove(commandId);
 }
 
 PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug,
@@ -563,29 +511,24 @@ void PlugRow::removePlug()
 }
 
 CommandRow::CommandRow(NodeProperties* editor, QComboBox* nameEdit,
-                       QPushButton* removalButton, QString &name, QHash<QString, CommandRow*> &commandRows, QGridLayout* blockLayout, QGridLayout* commandLayout)
+                       QPushButton* removalButton, QString &name, QHash<QUuid, CommandRow*> &commandRows, QUuid &uniqueId, QGridLayout* blockLayout, QGridLayout* commandLayout)
     : QObject(editor)
     , m_editor(editor)
     , m_nameEdit(nameEdit)
     , m_removalButton(removalButton)
     , m_commandName(name)
     , m_rowPointer(&commandRows)
+    , m_identifier(uniqueId)
     , m_commandLayout(commandLayout)
     , m_blockLayout(blockLayout)
 {
-    //connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renamePlug()));
-    connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removePlug()));
+    connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removeCommand()));
 }
 
-void CommandRow::renamePlug()
-{
-
-}
-
-void CommandRow::removePlug()
+void CommandRow::removeCommand()
 {
     // unregister from the editor
-    //m_editor->removeCommandRow(m_commandName, *m_rowPointer);
+    m_editor->removeCommandRow(m_identifier, m_rowPointer);
 
     // remove widgets from the editor
     m_commandLayout->removeWidget(m_nameEdit);
@@ -593,9 +536,6 @@ void CommandRow::removePlug()
 
     //remove params
     DeleteParameters();
-
-    //also remove layout
-    //m_blockLayout->removeItem(m_commandLayout);
 
     // delete the widgets, they are no longer needed
     m_nameEdit->deleteLater();
@@ -615,23 +555,10 @@ void CommandRow::addParameterToGrid(QLabel *label, QLineEdit *text)
     m_commandLayout->addWidget(text, row, 1);
 }
 
-
-void CommandRow::DeleteParameters(/*CommandBlockTypes type, const QString &cmdKey*/)
+void CommandRow::DeleteParameters()
 {
     for(std::vector<std::pair<QLabel*,QLineEdit*>>::iterator paramIt = params.begin(); paramIt != params.end(); ++paramIt)
     {
-        /*switch(type)
-        {
-            case CMD_UNLOCK:
-                m_editor->m_node->removeParameterFromOnUnlockCommand(cmdKey, std::get<0>((*paramIt))->text());
-                break;
-            case CMD_FAIL:
-                m_editor->m_node->removeParameterFromOnFailCommand(cmdKey, std::get<0>((*paramIt))->text());
-                break;
-            case CMD_UNLOCKED:
-                m_editor->m_node->removeParameterFromOnUnlockedCommand(cmdKey, std::get<0>((*paramIt))->text());
-                break;
-        }*/
 
         //delete fields and labels from the correct grid
         std::get<0>((*paramIt))->deleteLater();

@@ -39,12 +39,23 @@ Scene::~Scene()
     m_edgeGroupPairs.clear();
 }
 
-Node* Scene::createNode(const QString &name, const QUuid& uuid)
+Node* Scene::createNode(const QString &name, bool story, const QUuid& uuid)
 {
-    Node* newNode = new Node(this, name, uuid);
-    m_nodes.insert(newNode);
-    addItem(newNode);
-    return newNode;
+    //Node* newNode = new Node(this, name, uuid);
+    if(story)
+    {
+        StoryNode* newNode = new StoryNode(this, name, NODE_STORY, uuid);
+        m_nodes.insert(newNode);
+        addItem(newNode);
+        return newNode;
+    }
+    else
+    {
+        NarrativeNode* newNode = new NarrativeNode(this, name, NODE_NARRATIVE, uuid);
+        m_nodes.insert(newNode);
+        addItem(newNode);
+        return newNode;
+    }
 }
 
 bool Scene::removeNode(Node* node)

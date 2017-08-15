@@ -127,6 +127,13 @@ public: // methods
     const QUuid &getId() const;
 
     ///
+    /// \brief Queries and returns the type of the Node.
+    ///
+    /// \return Type of the Node.
+    ///
+    const NodeType getType() const;
+
+    ///
     /// \brief Queries and returns the name of the Node.
     ///
     /// \return Name of the Node.

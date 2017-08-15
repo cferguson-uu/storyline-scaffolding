@@ -81,11 +81,12 @@ public: // methods
     /// \brief Creates and adds a new Node to the graph.
     ///
     /// \param [in] name    Name of the new Node.
+    /// \param [in] story   Creates a story node if true, otherwise narrative
     /// \param [in] uuid    (optional) The unique identifier of this Node.
     ///
     /// \return             The new Node.
     ///
-    Node* createNode(const QString& name, const QUuid& uuid = QUuid());
+    Node* createNode(const QString& name, bool story, const QUuid& uuid = QUuid());
 
     ///
     /// \brief Removes an existing Node from this Scene.

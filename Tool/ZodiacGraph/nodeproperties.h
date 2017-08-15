@@ -30,6 +30,7 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QUndoStack>
+#include <QUuid>
 
 #include "zodiacgraph/nodehandle.h"
 #include "zodiacgraph/plughandle.h"
@@ -102,13 +103,15 @@ private: // for friend
     void removePlugRow(const QString& plugName);
 
     //same for command block
-    void removeCommandRow(const QString& commandName, QHash<QString, CommandRow*> &commandRows);
+    void removeCommandRow(const QUuid& commandId, QHash<QUuid, CommandRow*> *commandRows);
+
+    void constructNarrativeNodeProperties(QVBoxLayout* mainLayout);
 
 private slots:
 
     //for creating blocks for onunlock etc.
-    void createNewCommandBlock(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type);
-    void LoadCommandBlocks(QGridLayout *grid, QHash<QString, CommandRow*> &commandRow, CommandBlockTypes type);
+    void createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type);
+    void LoadCommandBlocks(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type);
 
     void AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
     void DeleteParametersFromCommand(CommandRow *cmd);
@@ -179,15 +182,15 @@ private: // members
 
     QGridLayout* m_onUnlockLayout;
     QPushButton* m_addOnUnlockButton;
-    QHash<QString, CommandRow*> m_onUnlockRows;
+    QHash<QUuid, CommandRow*> m_onUnlockRows;
 
     QGridLayout* m_onFailLayout;
     QPushButton* m_addOnFailButton;
-    QHash<QString, CommandRow*> m_onFailRows;
+    QHash<QUuid, CommandRow*> m_onFailRows;
 
     QGridLayout* m_onUnlockedLayout;
     QPushButton* m_addOnUnlockedButton;
-    QHash<QString, CommandRow*> m_onUnlockedRows;
+    QHash<QUuid, CommandRow*> m_onUnlockedRows;
 
     std::list<Command> *m_pCommands;
 
@@ -291,7 +294,7 @@ public: // methods
     /// \param [in] removalButton   Plug-removal button.
     ///
     CommandRow(NodeProperties *editor, QComboBox *nameEdit, QPushButton *removalButton, QString &name,
-               QHash<QString, CommandRow*> &commandRows, QGridLayout* blockLayout, QGridLayout* commandLayout); //NEED PARAMETERS
+               QHash<QUuid, CommandRow*> &commandRows, QUuid &uniqueId, QGridLayout* blockLayout, QGridLayout* commandLayout); //NEED PARAMETERS
 
     void addParameterToList(QLabel *label, QLineEdit *text);
     void addParameterToGrid(QLabel *label, QLineEdit *text);
@@ -306,14 +309,9 @@ public: // methods
 private slots:
 
     ///
-    /// \brief Called when the name of the plug was changed through user input.
+    /// \brief Called when the command-removal button is pressed.
     ///
-    void renamePlug();
-
-    ///
-    /// \brief Called when the Plug-removal button is pressed.
-    ///
-    void removePlug();
+    void removeCommand();
 
 private: // members
 
@@ -323,19 +321,19 @@ private: // members
     NodeProperties* m_editor;
 
     ///
-    /// \brief Plug name edit.
+    /// \brief Command name edit.
     ///
     QComboBox* m_nameEdit;
 
     ///
-    /// \brief Plug-removal button.
+    /// \brief command-removal button.
     ///
     QPushButton* m_removalButton;
 
     //save the name
     QString m_commandName;
 
-    QHash<QString, CommandRow*> *m_rowPointer;
+    QHash<QUuid, CommandRow*> *m_rowPointer;
 
     QGridLayout *m_commandLayout;
 
@@ -344,6 +342,8 @@ private: // members
     std::vector<std::pair<QLabel*,QLineEdit*>> params;
 
     bool m_undo = false;
+
+    QUuid m_identifier;
 
 };
 

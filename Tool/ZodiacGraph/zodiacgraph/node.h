@@ -60,6 +60,16 @@ struct NodeCommand
 };
 
 ///
+/// \enum type of node
+///
+/// A Node is either a narrative or stry node.
+///
+enum NodeType{
+    NODE_STORY,
+    NODE_NARRATIVE
+};
+
+///
 /// \enum NodeExpansion
 ///
 /// Describes, whether the incoming or the outgoing Plug%s of a Node are displayed -- or both or none.
@@ -120,9 +130,10 @@ public: // methods
     ///
     /// \param [in] scene       Scene managing this Node.
     /// \param [in] displayName Display name of this Node, does not have to be unique.
+    /// \param [in] nodeType     Type name of this Node.
     /// \param [in] uuid        (optional) The unique identifier of this Node.
     ///
-    explicit Node(Scene* scene, const QString& displayName, const QUuid& uuid = QUuid());
+    explicit Node(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid());
 
     ///
     /// \brief The unique identifier of this Node.
@@ -134,6 +145,15 @@ public: // methods
     /// \return Uuid of this Node.
     ///
     const QUuid& getUniqueId() const {return m_uniqueId;}
+
+    ///
+    /// \brief The type of this Node.
+    ///
+    /// The type is generated at construction and never changes.
+    ///
+    /// \return type of this Node.
+    ///
+    const NodeType getType() const {return m_nodeType;}
 
     ///
     /// \brief Creates and adds a new Plug to this Node.
@@ -257,87 +277,6 @@ public: // methods
     /// \param [in] displayDescription New description of this Node.
     ///
     void setDisplayDescription(const QString& displayDescription);
-
-    ///
-    /// \brief The command blocks part of the node.
-    ///
-    /// \return QHashes of command blocks.
-    ///
-    inline QHash<QString, NodeCommand> getOnUnlockList() const {return m_onUnlock;}
-    inline QHash<QString, NodeCommand> getOnFailList() const {return m_onFail;}
-    inline QHash<QString, NodeCommand> getOnUnlockedList() const {return m_onUnlocked;}
-
-    ///
-    /// \brief Adds new element to command block
-    ///
-    ///
-    /// \param [in] key command name
-    /// \param [in] description command label
-    ///
-    void addOnUnlockCommand(const QString& key, const QString& description);
-    void addOnFailCommand(const QString& key, const QString& description);
-    void addOnUnlockedCommand(const QString& key, const QString& description);
-
-    ///
-    /// \brief Removes new element from command block
-    ///
-    ///
-    /// \param [in] key command name
-    ///
-    void removeOnUnlockCommand(const QString& key);
-    void removeOnFailCommand(const QString& key);
-    void removeOnUnlockedCommand(const QString& key);
-
-    ///
-    /// \brief get parameter element from command block
-    ///
-    ///
-    /// \param [in] cmdKey command name
-    /// \param [in] paramKey parameter name
-    ///
-    QString getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey);
-    QString getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey);
-    QString getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey);
-
-    ///
-    /// \brief Add parameter element to command block
-    ///
-    ///
-    /// \param [in] key parameter name
-    /// \param [in] value parameter value
-    ///
-    void addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
-    void addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
-    void addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
-
-    ///
-    /// \brief Delete parameter element to command block
-    ///
-    ///
-    /// \param [in] key parameter name
-    ///
-    void removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey);
-    void removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey);
-    void removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey);
-
-    ///
-    /// \brief Delete all parameter elements from command block
-    ///
-    ///
-    void removeAllParametersFromOnUnlockCommand(const QString& cmdKey);
-    void removeAllParametersFromOnFailCommand(const QString& cmdKey);
-    void removeAllParametersFromOnUnlockedCommand(const QString& cmdKey);
-
-    ///
-    /// \brief edit parameter element in command block
-    ///
-    ///
-    /// \param [in] key parameter name
-    /// \param [in] value new parameter value
-    ///
-    void editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
-    void editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
-    void editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
 
     ///
     /// \brief Renames an existing Plug of this Node.
@@ -956,19 +895,6 @@ private: // members
     NodeLabel* m_label;
 
     ///
-    /// \brief The various command blocks that are attached to the node
-    ///
-    /// When the node is unlocked
-    ///
-    QHash<QString, NodeCommand> m_onUnlock;
-    /// When the node is not unlockable yet
-    ///
-    QHash<QString, NodeCommand> m_onFail;
-    /// When the node is already unlocked
-    ///
-    QHash<QString, NodeCommand> m_onUnlocked;
-
-    ///
     /// \brief Bounding rectangle of the Node core.
     ///
     QRectF m_boundingRect;
@@ -982,6 +908,11 @@ private: // members
     /// \brief The last expansion state (to return to from \ref zodiac::NodeExpansion::BOTH "NodeExpansion::BOTH").
     ///
     NodeExpansion m_lastExpansionState;
+
+    ///
+    /// \brief The type of node (story or narrative)
+    ///
+    NodeType m_nodeType;
 
 private: // static members
 
@@ -1054,6 +985,115 @@ private: // static members
     /// \brief Used to determine, whether a mouse clicked on the Node was a click or a drag.
     ///
     static bool s_mouseWasDragged;
+
+};
+
+class NarrativeNode: public Node
+{
+public:
+    NarrativeNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid()) : Node(scene, displayName, nodeType, uuid){}
+
+    ///
+    /// \brief The command blocks part of the node.
+    ///
+    /// \return QHashes of command blocks.
+    ///
+    inline QHash<QString, NodeCommand> getOnUnlockList() const {return m_onUnlock;}
+    inline QHash<QString, NodeCommand> getOnFailList() const {return m_onFail;}
+    inline QHash<QString, NodeCommand> getOnUnlockedList() const {return m_onUnlocked;}
+
+    ///
+    /// \brief Adds new element to command block
+    ///
+    ///
+    /// \param [in] key command name
+    /// \param [in] description command label
+    ///
+    void addOnUnlockCommand(const QString& key, const QString& description);
+    void addOnFailCommand(const QString& key, const QString& description);
+    void addOnUnlockedCommand(const QString& key, const QString& description);
+
+    ///
+    /// \brief Removes new element from command block
+    ///
+    ///
+    /// \param [in] key command name
+    ///
+    void removeOnUnlockCommand(const QString& key);
+    void removeOnFailCommand(const QString& key);
+    void removeOnUnlockedCommand(const QString& key);
+
+    ///
+    /// \brief get parameter element from command block
+    ///
+    ///
+    /// \param [in] cmdKey command name
+    /// \param [in] paramKey parameter name
+    ///
+    QString getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey);
+    QString getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey);
+    QString getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey);
+
+    ///
+    /// \brief Add parameter element to command block
+    ///
+    ///
+    /// \param [in] key parameter name
+    /// \param [in] value parameter value
+    ///
+    void addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+    void addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+    void addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+
+    ///
+    /// \brief Delete parameter element to command block
+    ///
+    ///
+    /// \param [in] key parameter name
+    ///
+    void removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey);
+    void removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey);
+    void removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey);
+
+    ///
+    /// \brief Delete all parameter elements from command block
+    ///
+    ///
+    void removeAllParametersFromOnUnlockCommand(const QString& cmdKey);
+    void removeAllParametersFromOnFailCommand(const QString& cmdKey);
+    void removeAllParametersFromOnUnlockedCommand(const QString& cmdKey);
+
+    ///
+    /// \brief edit parameter element in command block
+    ///
+    ///
+    /// \param [in] key parameter name
+    /// \param [in] value new parameter value
+    ///
+    void editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+    void editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+    void editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value);
+
+private:
+    ///
+    /// \brief The various command blocks that are attached to the node
+    ///
+    /// When the node is unlocked
+    ///
+    QHash<QString, NodeCommand> m_onUnlock;
+    /// When the node is not unlockable yet
+    ///
+    QHash<QString, NodeCommand> m_onFail;
+    /// When the node is already unlocked
+    ///
+    QHash<QString, NodeCommand> m_onUnlocked;
+
+};
+
+class StoryNode: public Node
+{
+public:
+    StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid()) : Node(scene, displayName, nodeType, uuid){}
 
 };
 

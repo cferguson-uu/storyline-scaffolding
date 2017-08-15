@@ -39,7 +39,7 @@ NodeCtrl* MainCtrl::createNode(const QString& name)
     }
 
     // create the node
-    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName));
+    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, false));   //true means create a story node
     m_nodes.insert(nodeCtrl->getNodeHandle(), nodeCtrl);
 
     return nodeCtrl;
