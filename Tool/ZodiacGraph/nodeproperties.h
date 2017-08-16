@@ -110,7 +110,7 @@ private: // for friend
 private slots:
 
     //for creating blocks for onunlock etc.
-    void createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, zodiac::NodeCommand *cmd = nullptr);
+    CommandRow *createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, zodiac::NodeCommand *cmd = nullptr);
 
     void AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
     void DeleteParametersFromCommand(CommandRow *cmd);

@@ -109,7 +109,29 @@ class CommandAddCommand : public QUndoCommand
 public:
     enum { Id = 4567 };
 
-    CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, void (NodeCtrl::*addCommand) (const QString&, const QString&),
+    CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, zodiac::NodeCommand*),
+                      NodeProperties *nodeProperties, QUndoCommand *parent = 0);
+
+    void undo() override;
+    void redo() override;
+    int id() const override { return Id; }
+
+private:
+
+    QGridLayout *m_pGrid;
+    QHash<QUuid, CommandRow*> *m_pCommandRow;
+    CommandBlockTypes m_type;
+    NodeProperties *m_pNodeProperties;
+    CommandRow* (NodeProperties::*m_pAddCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, zodiac::NodeCommand*);
+    CommandRow *m_pCmd;
+};
+
+class CommandDeleteCommand : public QUndoCommand
+{
+public:
+    enum { Id = 5678 };
+
+    CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, void (NodeCtrl::*addCommand) (const QString&, const QString&),
                       std::list<Command> *commands, NodeCtrl* node, QWidget *widget, NodeProperties *nodeProperties,  void (NodeProperties::*paramAddFunc) (CommandBlockTypes, CommandRow*, const QString&),
                       void (NodeProperties::*cmdChangeFunc) (QComboBox*, CommandBlockTypes, CommandRow*), QUndoCommand *parent = 0);
 
@@ -130,30 +152,6 @@ private:
     void (NodeProperties::*m_pCmdChangeFunc) (QComboBox*, CommandBlockTypes, CommandRow*);
     void (NodeCtrl::*m_pAddCommand) (const QString&, const QString&);
     CommandRow *m_pCmd;
-
-
-
-//changeCommand(commandBox, CMD_FAIL, commandRow[u]);
-    /*QComboBox *m_CmdItem;
-
-    QString m_Text;
-    QString m_Value;
-
-    NodeCtrl* m_Node;
-
-    CommandBlockTypes m_Type;
-    CommandRow *m_pCmd;
-    NodeProperties *m_pNodeProperties;
-
-    QHash<QString, QString> m_Parameters;
-
-    void (CommandRow::*m_pCmdDeleteFunc) ();
-    void (NodeProperties::*m_pCmdAddFunc) (const QString&, const QString&);
-    void (NodeCtrl::*m_pParamAddFunc) (const QString&, const QString&, const QString&);
-    QHash<QString, zodiac::NodeCommand> (NodeCtrl::*m_pGetCmdTable)();
-
-    void (NodeProperties::*m_pDeleteParams) (CommandRow *cmd);
-    void (NodeProperties::*m_pAddParams) (CommandBlockTypes, CommandRow*, const QString&);*/
 };
 
 #endif // UNDOEDITS_H

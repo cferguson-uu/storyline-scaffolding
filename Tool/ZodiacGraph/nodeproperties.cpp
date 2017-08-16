@@ -68,7 +68,8 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
     m_addOnUnlockButton->setFlat(true);
     m_onUnlockLayout->addWidget(new QLabel("OnUnlock", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
-    connect(m_addOnUnlockButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK);});
+    //connect(m_addOnUnlockButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK);});
+    connect(m_addOnUnlockButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockLayout, &m_onUnlockRows, CMD_UNLOCK, &NodeProperties::createNewCommandBlock, this));});
 
     if(!m_node->getOnUnlockList().empty())
     {
@@ -88,7 +89,8 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
     m_addOnFailButton->setFlat(true);
     m_onFailLayout->addWidget(new QLabel("OnFail", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
-    connect(m_addOnFailButton, &QPushButton::released, [=]{createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL);});
+    //connect(m_addOnFailButton, &QPushButton::released, [=]{createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL);});
+     connect(m_addOnFailButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onFailLayout, &m_onFailRows, CMD_FAIL, &NodeProperties::createNewCommandBlock, this));});
 
     if(!m_node->getOnFailList().empty())
     {
@@ -108,7 +110,8 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
     m_addOnUnlockedButton->setFlat(true);
     m_onUnlockedLayout->addWidget(new QLabel("OnUnlocked", this), 0, 0, 1, 2, Qt::AlignLeft);
     m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
-    connect(m_addOnUnlockedButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED);});
+    //connect(m_addOnUnlockedButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED);});
+    connect(m_addOnUnlockedButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockedLayout, &m_onUnlockedRows, CMD_UNLOCKED, &NodeProperties::createNewCommandBlock, this));});
 
     if(!m_node->getOnUnlockedList().empty())
     {
@@ -156,56 +159,54 @@ void NodeProperties::changeNodeDescription()
     m_pUndoStack->push(new TextEditCommand(m_descriptionEdit, m_node->getDescription(), m_node, &NodeCtrl::changeDescription));
 }
 
-void NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, zodiac::NodeCommand *cmd)
+CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, zodiac::NodeCommand *cmd)
 {
+    int row = grid->rowCount();
+
+    QGridLayout *commandBlockGrid = new QGridLayout();
+
+    QComboBox* commandBox = new QComboBox();
+
+    for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
+        commandBox->addItem((*it).label, (*it).id);
+
     if(cmd == nullptr)
     {
         switch(type)
         {
-             case CMD_UNLOCK:
-                m_pUndoStack->push(new CommandAddCommand(grid, &m_onUnlockRows, type, &NodeCtrl::addOnUnlockCommand, m_pCommands, m_node, this, this, &NodeProperties::AddParametersToCommand, &NodeProperties::changeCommand));
+            case CMD_UNLOCK:
+                m_node->addOnUnlockCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
                 break;
-             case CMD_FAIL:
-                m_pUndoStack->push(new CommandAddCommand(grid, &m_onFailRows, type, &NodeCtrl::addOnUnlockCommand, m_pCommands, m_node, this, this, &NodeProperties::AddParametersToCommand, &NodeProperties::changeCommand));
+            case CMD_FAIL:
+                m_node->addOnFailCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
                 break;
-             case CMD_UNLOCKED:
-                m_pUndoStack->push(new CommandAddCommand(grid, &m_onUnlockedRows, type, &NodeCtrl::addOnUnlockCommand, m_pCommands, m_node, this, this, &NodeProperties::AddParametersToCommand, &NodeProperties::changeCommand));
+            case CMD_UNLOCKED:
+                m_node->addOnUnlockedCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
                 break;
         }
     }
     else
-    {
-        int row = grid->rowCount();
-
-        QGridLayout *commandBlockGrid = new QGridLayout();
-
-        QComboBox* commandBox = new QComboBox();
-
-        for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
-            commandBox->addItem((*it).label, (*it).id);
-
         commandBox->setCurrentText(cmd->description);
 
-        commandBlockGrid->addWidget(commandBox);
+    commandBlockGrid->addWidget(commandBox);
 
-        QPushButton* removalButton = new QPushButton(this);
-        removalButton->setIcon(QIcon(":/icons/minus.svg"));
-        removalButton->setIconSize(QSize(8, 8));
-        removalButton->setFlat(true);
-        removalButton->setStatusTip("Delete the Plug from its Node");
-        commandBlockGrid->addWidget(removalButton, 0, 1);
+    QPushButton* removalButton = new QPushButton(this);
+    removalButton->setIcon(QIcon(":/icons/minus.svg"));
+    removalButton->setIconSize(QSize(8, 8));
+    removalButton->setFlat(true);
+    removalButton->setStatusTip("Delete the Plug from its Node");
+    commandBlockGrid->addWidget(removalButton, 0, 1);
 
-        grid->addLayout(commandBlockGrid, row, 0);
+    grid->addLayout(commandBlockGrid, row, 0);
 
-        QUuid u = QUuid::createUuid();
+    QUuid u = QUuid::createUuid();
 
-        commandRow.insert(u, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, u, grid, commandBlockGrid));
+    commandRow.insert(u, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, u, grid, commandBlockGrid));
 
+    AddParametersToCommand(type, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
+    connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, type, commandRow[u]); });
 
-        AddParametersToCommand(type, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
-        connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, type, commandRow[u]); });
-
-    }
+    return commandRow[u];
 }
 
 void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey)
