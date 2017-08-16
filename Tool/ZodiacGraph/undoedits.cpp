@@ -194,3 +194,75 @@ bool CommandEditCommand::mergeWith(const QUndoCommand *command)
 
     return true;
 }
+
+///
+CommandAddCommand:: CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, void (NodeCtrl::*addCommand) (const QString&, const QString&),
+                                      std::list<Command> *commands, NodeCtrl* node, QWidget *widget, NodeProperties *nodeProperties,  void (NodeProperties::*paramAddFunc) (CommandBlockTypes, CommandRow*, const QString&),
+                                      void (NodeProperties::*cmdChangeFunc) (QComboBox*, CommandBlockTypes, CommandRow*), QUndoCommand *parent)
+    : QUndoCommand(parent)
+{
+
+    m_pGrid = grid;
+    m_pCommandRow = commandRow;
+    m_pCommands = commands;
+    m_node = node;
+    m_pWidget = widget;
+    m_pNodeProperties = nodeProperties;
+    m_pParamAddFunc = paramAddFunc;
+    m_pCmdChangeFunc = cmdChangeFunc;
+    m_pAddCommand = addCommand;
+    m_type = type;
+}
+
+void CommandAddCommand::undo()
+{
+    m_pCmd->removeCommand();
+}
+
+void CommandAddCommand::redo()
+{
+    int row = m_pGrid->rowCount();
+
+    QGridLayout *commandBlockGrid = new QGridLayout();
+
+    QComboBox* commandBox = new QComboBox();
+
+    for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
+        commandBox->addItem((*it).label, (*it).id);
+
+    (m_node->*m_pAddCommand)(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText()); //replace with func pointer
+
+    commandBlockGrid->addWidget(commandBox);
+
+    QPushButton* removalButton = new QPushButton(m_pWidget);
+    removalButton->setIcon(QIcon(":/icons/minus.svg"));
+    removalButton->setIconSize(QSize(8, 8));
+    removalButton->setFlat(true);
+    removalButton->setStatusTip("Delete the Plug from its Node");
+    commandBlockGrid->addWidget(removalButton, 0, 1);
+
+    m_pGrid->addLayout(commandBlockGrid, row, 0);
+
+    QUuid u = QUuid::createUuid();
+
+    m_pCommandRow->insert(u, new CommandRow(m_pNodeProperties, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), *m_pCommandRow, u, m_pGrid, commandBlockGrid));
+    m_pCmd = (*m_pCommandRow)[u];
+
+    switch(m_type)
+    {
+        case CMD_UNLOCK:
+
+            (m_pNodeProperties->*m_pParamAddFunc)(CMD_UNLOCK, (*m_pCommandRow)[u], commandBox->itemData(commandBox->currentIndex()).toString());
+            QObject::connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { (m_pNodeProperties->*m_pCmdChangeFunc)(commandBox, CMD_UNLOCK, m_pCmd); });
+            break;
+        case CMD_FAIL:
+            (m_pNodeProperties->*m_pParamAddFunc)(CMD_FAIL, (*m_pCommandRow)[u], commandBox->itemData(commandBox->currentIndex()).toString());
+            QObject::connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { (m_pNodeProperties->*m_pCmdChangeFunc)(commandBox, CMD_FAIL, m_pCmd); });
+            break;
+        case CMD_UNLOCKED:
+            (m_pNodeProperties->*m_pParamAddFunc)(CMD_UNLOCKED, (*m_pCommandRow)[u], commandBox->itemData(commandBox->currentIndex()).toString());
+            QObject::connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { (m_pNodeProperties->*m_pCmdChangeFunc)(commandBox, CMD_UNLOCKED, m_pCmd); });
+            break;
+    }
+}
+

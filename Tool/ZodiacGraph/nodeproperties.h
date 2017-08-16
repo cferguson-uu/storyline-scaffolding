@@ -305,7 +305,7 @@ public: // methods
     bool GetUndo(){return m_undo;}
     void SetUndo(bool undo){m_undo = undo;}
 
-private slots:
+public slots:
 
     ///
     /// \brief Called when the command-removal button is pressed.
