@@ -164,6 +164,8 @@ CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid
     int row = grid->rowCount();
 
     QGridLayout *commandBlockGrid = new QGridLayout();
+    commandBlockGrid->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+    commandBlockGrid->setColumnStretch(1,1); // so the add-plug button always stays on the far right
 
     QComboBox* commandBox = new QComboBox();
 
@@ -195,7 +197,7 @@ CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid
     removalButton->setIconSize(QSize(8, 8));
     removalButton->setFlat(true);
     removalButton->setStatusTip("Delete the Plug from its Node");
-    commandBlockGrid->addWidget(removalButton, 0, 1);
+    commandBlockGrid->addWidget(removalButton, 0, 2);
 
     grid->addLayout(commandBlockGrid, row, 0);
 

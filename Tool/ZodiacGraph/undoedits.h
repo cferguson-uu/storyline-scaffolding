@@ -131,9 +131,8 @@ class CommandDeleteCommand : public QUndoCommand
 public:
     enum { Id = 5678 };
 
-    CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, void (NodeCtrl::*addCommand) (const QString&, const QString&),
-                      std::list<Command> *commands, NodeCtrl* node, QWidget *widget, NodeProperties *nodeProperties,  void (NodeProperties::*paramAddFunc) (CommandBlockTypes, CommandRow*, const QString&),
-                      void (NodeProperties::*cmdChangeFunc) (QComboBox*, CommandBlockTypes, CommandRow*), QUndoCommand *parent = 0);
+    CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, zodiac::NodeCommand*),
+                         NodeProperties *nodeProperties, CommandRow *cmd, QUndoCommand *parent = 0);
 
     void undo() override;
     void redo() override;
@@ -150,7 +149,7 @@ private:
     NodeProperties *m_pNodeProperties;
     void (NodeProperties::*m_pParamAddFunc) (CommandBlockTypes, CommandRow*, const QString&);
     void (NodeProperties::*m_pCmdChangeFunc) (QComboBox*, CommandBlockTypes, CommandRow*);
-    void (NodeCtrl::*m_pAddCommand) (const QString&, const QString&);
+    CommandRow* (NodeProperties::*m_pAddCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, zodiac::NodeCommand*);
     CommandRow *m_pCmd;
 };
 
