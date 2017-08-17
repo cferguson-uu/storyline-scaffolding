@@ -203,7 +203,7 @@ CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid
 
     QUuid u = QUuid::createUuid();
 
-    commandRow.insert(u, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), commandRow, u, grid, commandBlockGrid));
+    commandRow.insert(u, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), &commandRow, u, grid, commandBlockGrid, type));
 
     AddParametersToCommand(type, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
     connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, type, commandRow[u]); });
@@ -219,6 +219,7 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
     {
         case CMD_UNLOCK:
             load = m_node->getOnUnlockList()[cmdKey].parameters.empty();
+            qDebug() << m_node->getOnUnlockList()[cmdKey].parameters.size();
             break;
         case CMD_FAIL:
             load = m_node->getOnFailList()[cmdKey].parameters.empty();
@@ -452,18 +453,37 @@ void PlugRow::removePlug()
 }
 
 CommandRow::CommandRow(NodeProperties* editor, QComboBox* nameEdit,
-                       QPushButton* removalButton, QString &name, QHash<QUuid, CommandRow*> &commandRows, QUuid &uniqueId, QGridLayout* blockLayout, QGridLayout* commandLayout)
+                       QPushButton* removalButton, QString &name, QHash<QUuid, CommandRow*> *commandRows, QUuid &uniqueId, QGridLayout* blockLayout,
+                       QGridLayout* commandLayout, CommandBlockTypes type)
     : QObject(editor)
     , m_editor(editor)
     , m_nameEdit(nameEdit)
     , m_removalButton(removalButton)
     , m_commandName(name)
-    , m_rowPointer(&commandRows)
+    , m_rowPointer(commandRows)
     , m_identifier(uniqueId)
     , m_commandLayout(commandLayout)
     , m_blockLayout(blockLayout)
 {
-    connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removeCommand()));
+    //connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removeCommand()));
+    switch(type)
+    {
+        case CMD_UNLOCK:
+            connect(m_removalButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new CommandDeleteCommand(m_blockLayout, m_rowPointer, CMD_UNLOCK, &NodeProperties::createNewCommandBlock, m_editor, this, m_nameEdit->itemData(m_nameEdit->currentIndex()).toString(), m_nameEdit->currentText(),
+                                                                                                                           &CommandRow::DeleteParameters, m_editor->getNode(), &NodeCtrl::addOnUnlockCommand, &NodeCtrl::addParameterToOnUnlockCommand,
+                                                                                                                           &NodeCtrl::getOnUnlockList));});
+            break;
+        case CMD_FAIL:
+            connect(m_removalButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new CommandDeleteCommand(m_blockLayout, m_rowPointer, CMD_FAIL, &NodeProperties::createNewCommandBlock, m_editor, this, m_nameEdit->itemData(m_nameEdit->currentIndex()).toString(), m_nameEdit->currentText(),
+                                                                                                                           &CommandRow::DeleteParameters, m_editor->getNode(), &NodeCtrl::addOnFailCommand, &NodeCtrl::addParameterToOnFailCommand,
+                                                                                                                           &NodeCtrl::getOnFailList));});
+            break;
+        case CMD_UNLOCKED:
+            connect(m_removalButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new CommandDeleteCommand(m_blockLayout, m_rowPointer, CMD_UNLOCKED, &NodeProperties::createNewCommandBlock, m_editor, this, m_nameEdit->itemData(m_nameEdit->currentIndex()).toString(), m_nameEdit->currentText(),
+                                                                                                                           &CommandRow::DeleteParameters, m_editor->getNode(), &NodeCtrl::addOnUnlockedCommand, &NodeCtrl::addParameterToOnUnlockedCommand,
+                                                                                                                           &NodeCtrl::getOnUnlockedList));});
+            break;
+    }
 }
 
 void CommandRow::removeCommand()

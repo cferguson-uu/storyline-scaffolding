@@ -33,8 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_pUndoStack(new QUndoStack())
 {
-    setWindowTitle("ZodiacGraph - Showcase Application");
-    setWindowIcon(QIcon(":/icons/zodiac_logo.png"));
+    setWindowTitle("REVEAL VR - Storyline Scaffolding Tool");
+    setWindowIcon(QIcon(":/icons/reveal_logo.png"));
 
     //set up the undo functions
     m_pUndoAction = m_pUndoStack->createUndoAction(this, tr("&Undo"));

@@ -14,9 +14,9 @@ int main(int argc, char *argv[])
 {
     // create application
     QApplication app(argc, argv);
-    app.setOrganizationName("clemens-sielaff");
-    app.setOrganizationDomain("www.clemens-sielaff.com");
-    app.setApplicationName("ZodiacGraph_ExampleApp");
+    app.setOrganizationName("Reveal VR Consortium");
+    app.setOrganizationDomain("http://revealvr.eu/");
+    app.setApplicationName("Reveal_StoryScaffolding");
 
     // create the main window and enter the main execution loop
     MainWindow window;

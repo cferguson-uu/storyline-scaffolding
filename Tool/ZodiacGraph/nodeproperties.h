@@ -105,11 +105,12 @@ private: // for friend
     //same for command block
     void removeCommandRow(const QUuid& commandId, QHash<QUuid, CommandRow*> *commandRows);
 
-    void constructNarrativeNodeProperties(QVBoxLayout* mainLayout);
+    QUndoStack *getUndoStack(){return m_pUndoStack;}
 
 private slots:
 
     //for creating blocks for onunlock etc.
+    void constructNarrativeNodeProperties(QVBoxLayout* mainLayout);
     CommandRow *createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, zodiac::NodeCommand *cmd = nullptr);
 
     void AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
@@ -293,7 +294,7 @@ public: // methods
     /// \param [in] removalButton   Plug-removal button.
     ///
     CommandRow(NodeProperties *editor, QComboBox *nameEdit, QPushButton *removalButton, QString &name,
-               QHash<QUuid, CommandRow*> &commandRows, QUuid &uniqueId, QGridLayout* blockLayout, QGridLayout* commandLayout); //NEED PARAMETERS
+               QHash<QUuid, CommandRow*> *commandRows, QUuid &uniqueId, QGridLayout* blockLayout, QGridLayout* commandLayout, CommandBlockTypes type);
 
     void addParameterToList(QLabel *label, QLineEdit *text);
     void addParameterToGrid(QLabel *label, QLineEdit *text);

@@ -223,7 +223,8 @@ void CommandAddCommand::redo()
 
 ///
 CommandDeleteCommand::CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, zodiac::NodeCommand*),
-                                           NodeProperties *nodeProperties, CommandRow *cmd, QUndoCommand *parent)
+                                           NodeProperties *nodeProperties, CommandRow *cmd, const QString &value, const QString &text, void (CommandRow::*deleteParams)(), NodeCtrl *node, void (NodeCtrl::*cmdAddFunc) (const QString&, const QString&),
+                                           void (NodeCtrl::*paramAddFunc) (const QString&, const QString&, const QString&), QHash<QString, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUndoCommand *parent)
     : QUndoCommand(parent)
 {
 
@@ -232,29 +233,37 @@ CommandDeleteCommand::CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, Comma
     m_pNodeProperties = nodeProperties;
     m_pAddCommand = addCommand;
     m_type = type;
-    m_pCmd = cmd;
+    m_pCmd = cmd;  
 
-    //parameters
+   m_CommandValue = value;
+   m_CommandText = text;
+
+   m_pDeleteParams = deleteParams;
+
+   m_pNode = node;
+   m_pCmdAddFunc = cmdAddFunc;
+   m_pParamAddFunc = paramAddFunc;
+   m_pGetCmdTable = getCmdTable;
 }
 
 void CommandDeleteCommand::undo()
 {
-    /*(m_Node->*m_pCmdAddFunc)(m_NewValue, m_NewText);
+    //add new command
+    (m_pNode->*m_pCmdAddFunc)(m_CommandValue, m_CommandText);
 
     //delete the old parameter fields from the layout, load the saved ones and add them to the layout
-    (m_pNodeProperties->*m_pDeleteParams)(m_pCmd);
+    //(m_pCmd->*m_pDeleteParams)();
 
-    for (QHash<QString, QString>::iterator i = m_NewParameters.begin(); i != m_NewParameters.end(); ++i)
-        (m_Node->*m_pParamAddFunc)(m_NewValue, i.key(), i.value());
+    for (QHash<QString, QString>::iterator i = m_SavedParameters.begin(); i != m_SavedParameters.end(); ++i)
+        (m_pNode->*m_pParamAddFunc)(m_CommandValue, i.key(), i.value());
 
-
-
-    m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, nullptr);*/
+    m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, &(m_pNode->*m_pGetCmdTable)()[m_CommandValue]);
 }
 
 void CommandDeleteCommand::redo()
 {
-
+    //save parameters
+    m_SavedParameters = (m_pNode->*m_pGetCmdTable)()[m_CommandValue].parameters;
     m_pCmd->removeCommand();
 }
 
