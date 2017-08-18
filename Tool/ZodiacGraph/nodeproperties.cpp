@@ -68,6 +68,14 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
         addPlugRow(plug);
     }
     mainLayout->addLayout(m_plugLayout);
+
+    QPushButton* removalButton = new QPushButton(" Delete Node", this);
+    removalButton->setIcon(QIcon(":/icons/minus.svg"));
+    removalButton->setIconSize(QSize(8, 8));
+    removalButton->setFlat(true);
+    removalButton->setStatusTip("Delete the Node");
+    mainLayout->addWidget(removalButton);
+    connect(removalButton, &QPushButton::released, [=]{m_node->remove();});
 }
 
 void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
