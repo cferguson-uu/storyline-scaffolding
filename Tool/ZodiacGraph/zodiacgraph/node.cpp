@@ -30,9 +30,9 @@ static qreal angularDistance(qreal alpha, qreal beta);
 namespace zodiac {
 
 qreal Node::s_coreRadius = 25.;
-QColor Node::s_idleColor = QColor("#4b77a7");
-QColor Node::s_selectedColor = QColor("#62abfa");
-QColor Node::s_outlineColor = QColor("#cdcdcd");
+//QColor Node::s_idleColor = QColor("#4b77a7");
+//QColor Node::s_selectedColor = QColor("#62abfa");
+//QColor Node::s_outlineColor = QColor("#cdcdcd");
 qreal Node::s_outlineWidth = 3.;
 QString Node::s_plugSuffix = "_";
 qreal Node::s_plugSweep = s_coreRadius*1.3;
@@ -41,10 +41,12 @@ int Node::s_expandDuration = 400;
 int Node::s_collapseDuration = 400;
 QEasingCurve Node::s_expandCurve = QEasingCurve::OutQuad;
 QEasingCurve Node::s_collapseCurve = QEasingCurve::OutQuad;
-QPen Node::s_linePen = QPen(QBrush(s_outlineColor), s_outlineWidth);
+//QPen Node::s_linePen = QPen(QBrush(s_outlineColor), s_outlineWidth);
 bool Node::s_mouseWasDragged = false;
 
-Node::Node(Scene* scene, const QString &displayName, NodeType nodeType, const QUuid &uuid)
+Node::Node(Scene* scene, const QString &displayName, NodeType nodeType, const QUuid &uuid,
+           QColor idleColor, QColor selectedColor, QColor outlineColor,
+           QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
     : QGraphicsObject(nullptr)
     , m_scene(scene)
     , m_displayName(displayName)
@@ -60,7 +62,17 @@ Node::Node(Scene* scene, const QString &displayName, NodeType nodeType, const QU
     , m_label(nullptr)
     , m_expansionState(NodeExpansion::NONE)
     , m_lastExpansionState(NodeExpansion::NONE)
-{
+    , m_idleColor(idleColor)
+    , m_selectedColor(selectedColor)
+    , m_outlineColor(outlineColor)
+{    
+    setIdleColor(QColor("#4b77a7"));
+    setSelectedColor(QColor("#62abfa"));
+    setOutlineColor(QColor("#cdcdcd"));
+    setOutlineWidth(3);
+    m_linePen = QPen(QBrush("#cdcdcd"), s_outlineWidth);
+
+
     // set QGraphicsObject flags
     setFlag(ItemIsMovable);
     setFlag(ItemIsSelectable);
@@ -70,7 +82,7 @@ Node::Node(Scene* scene, const QString &displayName, NodeType nodeType, const QU
 
     // create secondary items
     m_perimeter = new Perimeter(this);
-    m_label = new NodeLabel(this);
+    m_label = new NodeLabel(this, labelBackgroundColor, labelTextColor, labelLineColor);
 
     // initiate members influenced by styling
     updateStyle();
@@ -314,14 +326,20 @@ void Node::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     painter->setClipRect(option->exposedRect);
 
     // draw the node a different color, if it is selected
-    if(isSelected()){
+    /*if(isSelected()){
         painter->setBrush(s_selectedColor);
     } else {
         painter->setBrush(s_idleColor);
+    }*/
+    if(isSelected()){
+        painter->setBrush(m_selectedColor);
+    } else {
+        painter->setBrush(m_idleColor);
     }
 
     // draw core
-    painter->setPen(s_linePen);
+    //painter->setPen(s_linePen);
+    painter->setPen(m_linePen);
     painter->drawEllipse(quadrat(s_coreRadius));
 }
 
@@ -730,7 +748,8 @@ void Node::adjustRadius()
 
 void Node::updateOutlinePen()
 {
-    s_linePen = QPen(QBrush(s_outlineColor), s_outlineWidth);
+    //s_linePen = QPen(QBrush(s_outlineColor), s_outlineWidth);
+    m_linePen = QPen(QBrush(m_outlineColor), s_outlineWidth);
 }
 
 void NarrativeNode::addOnUnlockCommand(const QString& key, const QString& description)

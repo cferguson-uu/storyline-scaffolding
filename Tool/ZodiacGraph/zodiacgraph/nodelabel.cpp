@@ -9,19 +9,28 @@
 
 namespace zodiac {
 
-QColor NodeLabel::s_textColor = QColor("#ffffff");
-QColor NodeLabel::s_backgroundColor = QColor("#426998");
-QColor NodeLabel::s_lineColor = QColor("#cdcdcd");
+//QColor NodeLabel::s_textColor = QColor("#ffffff");
+//QColor NodeLabel::s_backgroundColor = QColor("#426998");
+//QColor NodeLabel::s_lineColor = QColor("#cdcdcd");
 qreal NodeLabel::s_outlineWidth = 1.5;
 uint NodeLabel::s_roundEdgeRadius = 8;
 qreal NodeLabel::s_verticalMargin = 2.;
 qreal NodeLabel::s_horizontalMargin = 4.;
 QFont NodeLabel::s_font = QFont("DejaVu Sans Mono", 9, QFont::DemiBold);
-QPen NodeLabel::s_linePen = QPen(QBrush(s_lineColor), s_outlineWidth);
+//QPen NodeLabel::s_linePen = QPen(QBrush(s_lineColor), s_outlineWidth);
 
-NodeLabel::NodeLabel(Node* parent)
+NodeLabel::NodeLabel(Node* parent, QColor backgroundColor, QColor textColor, QColor lineColor)
     : QGraphicsObject(parent)
+    , m_backgroundColor(backgroundColor)
+    , m_textColor(textColor)
+    , m_lineColor(lineColor)
 {
+    /*m_textColor = QColor("#ffffff");
+    m_backgroundColor = QColor("#426998");
+    m_lineColor = QColor("#cdcdcd");*/
+    setLineWidth(1.5);
+    m_linePen = QPen(QBrush(m_lineColor), s_outlineWidth);
+
     // core only expands if you hover above it, not above the label
     setAcceptHoverEvents(false);
 
@@ -74,13 +83,16 @@ void NodeLabel::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
     painter->setClipRect(option->exposedRect);
 
     // draw the background
-    painter->setPen(s_linePen);
-    painter->setBrush(s_backgroundColor);
+    //painter->setPen(s_linePen);
+    //painter->setBrush(s_backgroundColor);
+    painter->setPen(m_linePen);
+    painter->setBrush(m_backgroundColor);
     painter->drawRoundedRect(m_outlineRect, s_roundEdgeRadius, s_roundEdgeRadius, Qt::AbsoluteSize);
 
     // draw the text
     painter->setFont(s_font);
-    painter->setPen(s_textColor);
+    //painter->setPen(s_textColor);
+    painter->setPen(m_textColor);
     painter->drawStaticText(m_textPos, m_text);
 }
 

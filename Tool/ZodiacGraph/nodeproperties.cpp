@@ -142,7 +142,7 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
 
 void NodeProperties::constructStoryNodeProperties(QVBoxLayout* mainLayout)
 {
-
+    //zodiac::StoryNode::setIdleColor(QColor("#2864F8"));
 }
 
 void NodeProperties::renameNode()

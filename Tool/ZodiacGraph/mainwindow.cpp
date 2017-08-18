@@ -199,19 +199,19 @@ void MainWindow::readSettings()
 
     settings.beginGroup("node");
     zodiac::Node::setCoreRadius(settings.value("coreRadius", 25).toReal());
-    zodiac::Node::setIdleColor(settings.value("idleColor", "#4b77a7").toString());
+    /*zodiac::Node::setIdleColor(settings.value("idleColor", "#4b77a7").toString());
     zodiac::Node::setSelectedColor(settings.value("selectedColor", "#62abfa").toString());
     zodiac::Node::setOutlineColor(settings.value("outlineColor", "#cdcdcd").toString());
-    zodiac::Node::setOutlineWidth(settings.value("outlineWidth", 3).toReal());
+    zodiac::Node::setOutlineWidth(settings.value("outlineWidth", 3).toReal());*/
     zodiac::Node::setPlugSweep(settings.value("plugSweep", 32.5).toReal());
     zodiac::Node::setGapSweep(settings.value("gapSweep", 8.125).toReal());
     settings.endGroup();
 
     settings.beginGroup("nodeLabel");
-    zodiac::NodeLabel::setTextColor(settings.value("textColor", "#ffffff").toString());
-    zodiac::NodeLabel::setBackgroundColor(settings.value("backgroundColor", "#426998").toString());
-    zodiac::NodeLabel::setLineColor(settings.value("lineColor", "#cdcdcd").toString());
-    zodiac::NodeLabel::setLineWidth(settings.value("lineWidth", 1.5).toReal());
+    //zodiac::NodeLabel::setTextColor(settings.value("textColor", "#ffffff").toString());
+    //zodiac::NodeLabel::setBackgroundColor(settings.value("backgroundColor", "#426998").toString());
+    //zodiac::NodeLabel::setLineColor(settings.value("lineColor", "#cdcdcd").toString());
+    //zodiac::NodeLabel::setLineWidth(settings.value("lineWidth", 1.5).toReal());
     zodiac::NodeLabel::setCornerRadius(settings.value("cornerRadius", 8).toReal());
     zodiac::NodeLabel::setVerticalMargin(settings.value("verticalMargin", 2).toReal());
     zodiac::NodeLabel::setHorizontalMargin(settings.value("horizontalMargin", 4).toReal());
@@ -300,18 +300,18 @@ void MainWindow::writeSettings()
 
     settings.beginGroup("node");
     settings.setValue("coreRadius", zodiac::Node::getCoreRadius());
-    settings.setValue("idleColor", zodiac::Node::getIdleColor().name());
+    /*settings.setValue("idleColor", zodiac::Node::getIdleColor().name());
     settings.setValue("selectedColor", zodiac::Node::getSelectedColor().name());
     settings.setValue("outlineColor", zodiac::Node::getOutlineColor().name());
-    settings.setValue("outlineWidth", zodiac::Node::getOutlineWidth());
+    settings.setValue("outlineWidth", zodiac::Node::getOutlineWidth());*/
     settings.setValue("plugSweep", zodiac::Node::getPlugSweep());
     settings.setValue("gapSweep", zodiac::Node::getGapSweep());
     settings.endGroup();
 
     settings.beginGroup("nodeLabel");
-    settings.setValue("textColor", zodiac::NodeLabel::getTextColor().name());
-    settings.setValue("backgroundColor", zodiac::NodeLabel::getBackgroundColor().name());
-    settings.setValue("lineColor", zodiac::NodeLabel::getLineColor().name());
+    //settings.setValue("textColor", zodiac::NodeLabel::getTextColor().name());
+    //settings.setValue("backgroundColor", zodiac::NodeLabel::getBackgroundColor().name());
+    //settings.setValue("lineColor", zodiac::NodeLabel::getLineColor().name());
     settings.setValue("lineWidth", zodiac::NodeLabel::getLineWidth());
     settings.setValue("cornerRadius", zodiac::NodeLabel::getCornerRadius());
     settings.setValue("verticalMargin", zodiac::NodeLabel::getVerticalMargin());

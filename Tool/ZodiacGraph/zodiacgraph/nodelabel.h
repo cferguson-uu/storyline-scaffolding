@@ -57,7 +57,7 @@ public: // methods
     ///
     /// \param [in] parent  Node that this label belongs to.
     ///
-    explicit NodeLabel(Node* parent);
+    explicit NodeLabel(Node* parent, QColor backgroundColor = QColor("#426998"), QColor textColor = QColor("#ffffff"), QColor lineColor = QColor("#cdcdcd"));
 
     ///
     /// \brief Defines a new label text to display.
@@ -82,49 +82,56 @@ public: // methods
     ///
     void updateStyle();
 
-public: // static methods
-
     ///
     /// \brief Color used to draw the label text.
     ///
     /// \return Label text color.
     ///
-    static inline QColor getTextColor() {return s_textColor;}
+    inline QColor getTextColor() {return m_textColor;}
 
     ///
     /// \brief Define a new color used to draw the label text.
     ///
     /// \param [in] color    New color used to draw the label text.
     ///
-    static inline void setTextColor(const QColor& color) {s_textColor=color;}
+    inline void setTextColor(const QColor& color) {m_textColor=color;}
 
     ///
     /// \brief Color used to fill the label background.
     ///
     /// \return Background color.
     ///
-    static inline QColor getBackgroundColor() {return s_backgroundColor;}
+    inline QColor getBackgroundColor() {return m_backgroundColor;}
 
     ///
     /// \brief Define a new color used to fill the label background.
     ///
     /// \param [in] color    New color used to fill the label background.
     ///
-    static inline void setBackgroundColor(const QColor& color) {s_backgroundColor=color;}
+    inline void setBackgroundColor(const QColor& color) {m_backgroundColor=color;}
 
     ///
     /// \brief Color used to draw the label outline.
     ///
     /// \return Label outline color.
     ///
-    static inline QColor getLineColor() {return s_lineColor;}
+    inline QColor getLineColor() {return m_lineColor;}
 
     ///
     /// \brief Define a new color used to draw the label outline.
     ///
     /// \param [in] color    New color used to draw the label outline.
     ///
-    static inline void setLineColor(const QColor& color) {s_lineColor=color; s_linePen.setColor(color);}
+    inline void setLineColor(const QColor& color) {m_lineColor=color; m_linePen.setColor(color);}
+
+    ///
+    /// \brief Define a new width of the outline in pixels.
+    ///
+    /// \param [in] width   New width of the outline in pixels.
+    ///
+    inline void setLineWidth(qreal width) {s_outlineWidth=qMax(0., width); m_linePen.setWidthF(width);}
+
+public: // static methods
 
     ///
     /// \brief Width of the label's outline in pixels.
@@ -132,13 +139,6 @@ public: // static methods
     /// \return Label outline width in pixels.
     ///
     static inline qreal getLineWidth() {return s_outlineWidth;}
-
-    ///
-    /// \brief Define a new width of the outline in pixels.
-    ///
-    /// \param [in] width   New width of the outline in pixels.
-    ///
-    static inline void setLineWidth(qreal width) {s_outlineWidth=qMax(0., width); s_linePen.setWidthF(width);}
 
     ///
     /// \brief Radius of the label's round edges in pixels.
@@ -281,22 +281,27 @@ private: // members
     ///
     QPointF m_textPos;
 
-private: // static members
-
     ///
     /// \brief Color used to draw the label text.
     ///
-    static QColor s_textColor;
+    QColor m_textColor;
 
     ///
     /// \brief Color used to fill the label's background.
     ///
-    static QColor s_backgroundColor;
+    QColor m_backgroundColor;
 
     ///
     /// \brief Color used to draw the label outline.
     ///
-    static QColor s_lineColor;
+    QColor m_lineColor;
+
+    ///
+    /// \brief Pen used to draw the outline.
+    ///
+    QPen m_linePen;
+
+private: // static members
 
     ///
     /// \brief Width of the outline.
@@ -322,11 +327,6 @@ private: // static members
     /// \brief Font used to render the label text.
     ///
     static QFont s_font;
-
-    ///
-    /// \brief Pen used to draw the outline.
-    ///
-    static QPen s_linePen;
 };
 
 } // namespace zodiac

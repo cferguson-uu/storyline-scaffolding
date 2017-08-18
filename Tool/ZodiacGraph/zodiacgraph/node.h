@@ -35,6 +35,7 @@
 #include <QPropertyAnimation>
 #include <QSet>
 #include <QUuid>
+#include <QPen>
 
 namespace zodiac {
 
@@ -153,7 +154,9 @@ public: // methods
     /// \param [in] nodeType     Type name of this Node.
     /// \param [in] uuid        (optional) The unique identifier of this Node.
     ///
-    explicit Node(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid());
+    explicit Node(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid(),
+                  QColor idleColor = QColor("#4b77a7"),QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
+                  QColor labelBackgroundColor = QColor("#426998"), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"));
 
     ///
     /// \brief The unique identifier of this Node.
@@ -417,6 +420,55 @@ public: // methods
     ///
     void updateStyle();
 
+    ///
+    /// \brief Fill color of an idle Node core.
+    ///
+    /// \return Idle fill color.
+    ///
+    inline const QColor& getIdleColor() {return m_idleColor;}
+
+    ///
+    /// \brief Sets a new fill color of idle Node cores.
+    ///
+    /// \param [in] color   New idle color of the node core.
+    ///
+    inline void setIdleColor(const QColor& color) {m_idleColor = color;}
+
+    ///
+    /// \brief Fill color of a selected Node core.
+    ///
+    /// \return Selected fill color.
+    ///
+    inline const QColor& getSelectedColor() {return m_selectedColor;}
+
+    ///
+    /// \brief Sets a new fill color of selected Node cores.
+    ///
+    /// \param [in] color   New selected color of the node core.
+    ///
+    inline void setSelectedColor(const QColor& color) {m_selectedColor = color;}
+
+    ///
+    /// \brief The color used to draw the outline around the node core.
+    ///
+    /// \return Core outline color.
+    ///
+    inline const QColor& getOutlineColor() {return m_outlineColor;}
+
+    ///
+    /// \brief Sets a new color used to draw the outline around the node core.
+    ///
+    /// \param [in] color   New core outline color.
+    ///
+    inline void setOutlineColor(const QColor& color) {m_outlineColor = color; updateOutlinePen();}
+
+    ///
+    /// \brief Sets a new width of the outline around the node core in pixels.
+    ///
+    /// \param [in] width   New core outline width;
+    ///
+    inline void setOutlineWidth(qreal width) {s_outlineWidth = qMax(0.,width); updateOutlinePen();}
+
 signals:
 
     ///
@@ -486,60 +538,11 @@ public: // static methods
     static inline void setCoreRadius(qreal radius) {s_coreRadius = qMax(0.,radius);}
 
     ///
-    /// \brief Fill color of an idle Node core.
-    ///
-    /// \return Idle fill color.
-    ///
-    static inline const QColor& getIdleColor() {return s_idleColor;}
-
-    ///
-    /// \brief Sets a new fill color of idle Node cores.
-    ///
-    /// \param [in] color   New idle color of the node core.
-    ///
-    static inline void setIdleColor(const QColor& color) {s_idleColor = color;}
-
-    ///
-    /// \brief Fill color of a selected Node core.
-    ///
-    /// \return Selected fill color.
-    ///
-    static inline const QColor& getSelectedColor() {return s_selectedColor;}
-
-    ///
-    /// \brief Sets a new fill color of selected Node cores.
-    ///
-    /// \param [in] color   New selected color of the node core.
-    ///
-    static inline void setSelectedColor(const QColor& color) {s_selectedColor = color;}
-
-    ///
-    /// \brief The color used to draw the outline around the node core.
-    ///
-    /// \return Core outline color.
-    ///
-    static inline const QColor& getOutlineColor() {return s_outlineColor;}
-
-    ///
-    /// \brief Sets a new color used to draw the outline around the node core.
-    ///
-    /// \param [in] color   New core outline color.
-    ///
-    static inline void setOutlineColor(const QColor& color) {s_outlineColor = color; updateOutlinePen();}
-
-    ///
     /// \brief Width of the outline around the node core in pixels.
     ///
     /// \return Core outline width;
     ///
     static inline qreal getOutlineWidth() {return s_outlineWidth;}
-
-    ///
-    /// \brief Sets a new width of the outline around the node core in pixels.
-    ///
-    /// \param [in] width   New core outline width;
-    ///
-    static inline void setOutlineWidth(qreal width) {s_outlineWidth = qMax(0.,width); updateOutlinePen();}
 
     ///
     /// \brief First part of the suffix used to make duplicate plug names unique.
@@ -821,12 +824,12 @@ private: // methods
     ///
     void adjustRadius();
 
-private: // static methods
-
     ///
     /// \brief Updates the pen used to outline the node after its parameters have changed.
     ///
-    static void updateOutlinePen();
+    void updateOutlinePen();
+
+//private: // static methods
 
 private: // members
 
@@ -934,27 +937,32 @@ private: // members
     ///
     NodeType m_nodeType;
 
+    ///
+    /// \brief Color used to fill the Node core when it is idle (not selected).
+    ///
+    QColor m_idleColor;
+
+    ///
+    /// \brief Color used to fill the Node core when it is selected.
+    ///
+    QColor m_selectedColor;
+
+    ///
+    /// \brief Color to draw the Node outline with.
+    ///
+    QColor m_outlineColor;
+
+    ///
+    /// \brief Pen used to draw the Node outline.
+    ///
+    QPen m_linePen;
+
 private: // static members
 
     ///
     /// \brief Radius of the core for all Node%s in pixels.
     ///
     static qreal s_coreRadius;
-
-    ///
-    /// \brief Color used to fill the Node core when it is idle (not selected).
-    ///
-    static QColor s_idleColor;
-
-    ///
-    /// \brief Color used to fill the Node core when it is selected.
-    ///
-    static QColor s_selectedColor;
-
-    ///
-    /// \brief Color to draw the Node outline with.
-    ///
-    static QColor s_outlineColor;
 
     ///
     /// \brief Width of the Node outline in pixels.
@@ -997,11 +1005,6 @@ private: // static members
     static QEasingCurve s_collapseCurve;
 
     ///
-    /// \brief Pen used to draw the Node outline.
-    ///
-    static QPen s_linePen;
-
-    ///
     /// \brief Used to determine, whether a mouse clicked on the Node was a click or a drag.
     ///
     static bool s_mouseWasDragged;
@@ -1011,7 +1014,9 @@ private: // static members
 class NarrativeNode: public Node
 {
 public:
-    NarrativeNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid()) : Node(scene, displayName, nodeType, uuid){}
+    NarrativeNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid(), QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
+                  QColor labelBackgroundColor = QColor("#426998"), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"))
+            : Node(scene, displayName, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor){}
 
     ///
     /// \brief The command blocks part of the node.
@@ -1113,7 +1118,10 @@ private:
 class StoryNode: public Node
 {
 public:
-    StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid()) : Node(scene, displayName, nodeType, uuid){}
+    StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid(),
+              QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
+              QColor labelBackgroundColor = QColor("#F84B28"/*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"))
+        : Node(scene, displayName, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor){}
 private:
     StoryNodeType m_storyNodeType;
 
