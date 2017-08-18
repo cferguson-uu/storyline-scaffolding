@@ -45,9 +45,23 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     descriptionLayout->setContentsMargins(0, 4, 0, 0);
     mainLayout->addLayout(descriptionLayout);
 
-
     if(m_node->getType() == zodiac::NODE_NARRATIVE)
         constructNarrativeNodeProperties(mainLayout);
+
+    if(m_node->getType() == zodiac::NODE_STORY)
+        constructStoryNodeProperties(mainLayout);
+
+    // define the add plug button
+    m_plugLayout = new QGridLayout();
+    m_plugLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+    m_plugLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
+    m_addPlugButton = new QPushButton(this);
+    m_addPlugButton->setIconSize(QSize(8, 8));
+    m_addPlugButton->setIcon(QIcon(":/icons/plus.svg"));
+    m_addPlugButton->setFlat(true);
+    m_plugLayout->addWidget(new QLabel("Plugs", this), 0, 0, 1, 2, Qt::AlignLeft);
+    m_plugLayout->addWidget(m_addPlugButton, 0, 2);
+    connect(m_addPlugButton, SIGNAL(pressed()), this, SLOT(createNewPlug()));
 
     // define the plugs
     for(zodiac::PlugHandle& plug : m_node->getPlugHandles()){
@@ -121,21 +135,14 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
             createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED, &(*cmdIt));
     }
 
-    // define the add plug button
-    m_plugLayout = new QGridLayout();
-    m_plugLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
-    m_plugLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
-    m_addPlugButton = new QPushButton(this);
-    m_addPlugButton->setIconSize(QSize(8, 8));
-    m_addPlugButton->setIcon(QIcon(":/icons/plus.svg"));
-    m_addPlugButton->setFlat(true);
-    m_plugLayout->addWidget(new QLabel("Plugs", this), 0, 0, 1, 2, Qt::AlignLeft);
-    m_plugLayout->addWidget(m_addPlugButton, 0, 2);
-    connect(m_addPlugButton, SIGNAL(pressed()), this, SLOT(createNewPlug()));
-
     mainLayout->addLayout(m_onUnlockLayout);
     mainLayout->addLayout(m_onFailLayout);
     mainLayout->addLayout(m_onUnlockedLayout);
+}
+
+void NodeProperties::constructStoryNodeProperties(QVBoxLayout* mainLayout)
+{
+
 }
 
 void NodeProperties::renameNode()

@@ -27,7 +27,7 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));
 }
 
-NodeCtrl* MainCtrl::createNode(const QString& name)
+NodeCtrl* MainCtrl::createNode(bool createStoryNode, const QString& name)
 {
     // the newly created Node is the only selected one to avoid confusion
     m_scene.deselectAll();
@@ -39,7 +39,7 @@ NodeCtrl* MainCtrl::createNode(const QString& name)
     }
 
     // create the node
-    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, false));   //true means create a story node
+    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, createStoryNode));   //create story node is true
     m_nodes.insert(nodeCtrl->getNodeHandle(), nodeCtrl);
 
     return nodeCtrl;
@@ -114,9 +114,9 @@ bool MainCtrl::shutdown()
 }
 
 
-void MainCtrl::createDefaultNode()
+void MainCtrl::createDefaultNode(bool createStoryNode)
 {
-    NodeCtrl* newNode = createNode();
+    NodeCtrl* newNode = createNode(createStoryNode);
 
 //    int plugCount = (qreal(qrand())/qreal(RAND_MAX))*12;
 //    for(int i = 0; i < plugCount + 4; ++i){

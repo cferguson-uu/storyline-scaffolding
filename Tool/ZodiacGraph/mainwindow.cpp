@@ -76,11 +76,19 @@ MainWindow::MainWindow(QWidget *parent)
     m_mainSplitter->setSizes({100, 900});
 
     // create global actions
-    QAction* newNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Node"), this);
-    newNodeAction->setShortcuts(QKeySequence::New);
-    newNodeAction->setStatusTip(tr("Create a new Node"));
-    mainToolBar->addAction(newNodeAction);
-    connect(newNodeAction, SIGNAL(triggered()), m_mainCtrl, SLOT(createDefaultNode()));
+    QAction* newNarrativeNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Narrative Node"), this);
+    newNarrativeNodeAction->setShortcuts(QKeySequence::New);
+    newNarrativeNodeAction->setStatusTip(tr("Create a new Narrative Node"));
+    mainToolBar->addAction(newNarrativeNodeAction);
+    //connect(newNarrativeNodeAction, SIGNAL(triggered()), m_mainCtrl, SLOT(createDefaultNode()));
+    connect(newNarrativeNodeAction, &QAction::triggered, [=]{m_mainCtrl->createDefaultNode(false); });
+
+    QAction* newStoryNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Story Node"), this);
+    newStoryNodeAction->setShortcuts(QKeySequence::New);
+    newStoryNodeAction->setStatusTip(tr("Create a new Story Node"));
+    mainToolBar->addAction(newStoryNodeAction);
+    //connect(newStoryNodeAction, SIGNAL(triggered()), m_mainCtrl, SLOT(createDefaultNode()));
+    connect(newStoryNodeAction, &QAction::triggered, [=]{m_mainCtrl->createDefaultNode(true); });
 
     QWidget* emptySpacer = new QWidget();
     emptySpacer->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);

@@ -64,9 +64,29 @@ struct NodeCommand
 ///
 /// A Node is either a narrative or stry node.
 ///
-enum NodeType{
+enum NodeType
+{
     NODE_STORY,
     NODE_NARRATIVE
+};
+
+enum StoryNodeType
+{
+    STORY_SETTING,
+    STORY_SETTING_CHARACTER,
+    STORY_SETTING_LOCATION,
+    STORY_SETTING_TIME,
+    STORY_ITEM_DETAILS,
+    STORY_THEME,
+    STORY_THEME_EVENT,
+    STORY_THEME_GOAL,
+    STORY_PLOT,
+    STORY_PLOT_EPISODE,
+    STORY_PLOT_EPISODE_ATTEMPT,
+    STORY_PLOT_EPISODE_OUTCOME,
+    STORY_RESOLUTION,
+    STORY_RESOLUTION_EVENT,
+    STORY_RESOLUTION_STATE
 };
 
 ///
@@ -1094,6 +1114,8 @@ class StoryNode: public Node
 {
 public:
     StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid()) : Node(scene, displayName, nodeType, uuid){}
+private:
+    StoryNodeType m_storyNodeType;
 
 };
 

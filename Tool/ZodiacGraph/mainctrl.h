@@ -69,7 +69,7 @@ public: // methods
     ///
     /// \return Control for new node.
     ///
-    NodeCtrl* createNode(const QString& name = "");
+    NodeCtrl* createNode(bool createStoryNode, const QString& name = "");
 
     ///
     /// \brief Deletes an existing node from the graph.
@@ -111,7 +111,7 @@ public slots:
     ///
     /// \brief Creates a new node in the graph selects and activates it.
     ///
-    void createDefaultNode();
+    void createDefaultNode(bool createStoryNode);
 
 private slots:
 

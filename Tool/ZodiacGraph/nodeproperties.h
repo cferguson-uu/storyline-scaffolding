@@ -118,6 +118,9 @@ private slots:
 
     void updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, QLineEdit* paramField);
 
+    //story
+    void constructStoryNodeProperties(QVBoxLayout* mainLayout);
+
     ///
     /// \brief Called by the name edit, when the name of the node was changed through user input.
     ///
