@@ -52,7 +52,7 @@ bool TextEditCommand::mergeWith(const QUndoCommand *command)
 
 ///
 
-ParamEditCommand::ParamEditCommand(QLineEdit *textItem, const QString &oldText, const QString &cmdKey, const QString &paramKey, NodeCtrl* node, void (NodeCtrl::*paramChangeFunc)(const QString &, const QString &, const QString &),
+ParamEditCommand::ParamEditCommand(QLineEdit *textItem, const QString &oldText, const QUuid &cmdKey, const QString &paramKey, NodeCtrl* node, void (NodeCtrl::*paramChangeFunc)(const QUuid &, const QString &, const QString &),
                                  QUndoCommand *parent)
     : QUndoCommand(parent)
 {
@@ -97,10 +97,10 @@ bool ParamEditCommand::mergeWith(const QUndoCommand *command)
 
 ///
 
-CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QString&),
-                                       void (NodeCtrl::*CmdAddFunc)(const QString&, const QString&), void (NodeCtrl::*ParamAddFunc)(const QString&, const QString&, const QString&), NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
-                                       void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow *, const QString&), const QString &oldText,
-                                       CommandRow *cmd, CommandBlockTypes type, QHash<QString, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUndoCommand *parent)
+CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QUuid&),
+                                       void (NodeCtrl::*CmdAddFunc)(const QUuid&, const QString&, const QString&), void (NodeCtrl::*ParamAddFunc)(const QUuid&, const QString&, const QString&), NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
+                                       void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow*, const QUuid&), const QString &oldText,
+                                       CommandRow *cmd, CommandBlockTypes type, QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, QUndoCommand *parent)
     : QUndoCommand(parent)
 {
     //store command key and label value
@@ -109,6 +109,7 @@ CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldVal
     m_NewValue = cmdItem->itemData(cmdItem->currentIndex()).toString();
     m_OldText = oldText;
     m_NewText = cmdItem->currentText();
+    m_uniqueIdentifier = uniqueIdentifier,
 
     m_Type = type;
 
@@ -140,7 +141,7 @@ void CommandEditCommand::undo()
 
     //delete the previous command and add the new one
     (m_Node->*m_pCmdDeleteFunc)(m_NewValue);
-    (m_Node->*m_pCmdAddFunc)(m_OldValue, m_OldText);
+    (m_Node->*m_pCmdAddFunc)(m_uniqueIdentifier, m_OldValue, m_OldText);
 
     //delete the old parameter fields from the layout, load the saved ones and add them to the layout
     (m_pNodeProperties->*m_pDeleteParams)(m_pCmd);
@@ -168,7 +169,7 @@ void CommandEditCommand::redo()
 
     //delete the previous command and add the new one
     (m_Node->*m_pCmdDeleteFunc)(m_OldValue);
-    (m_Node->*m_pCmdAddFunc)(m_NewValue, m_NewText);
+    (m_Node->*m_pCmdAddFunc)(m_uniqueIdentifier, m_NewValue, m_NewText);
 
     //delete the old parameter fields from the layout, load the saved ones and add them to the layout
     (m_pNodeProperties->*m_pDeleteParams)(m_pCmd);
@@ -196,7 +197,7 @@ bool CommandEditCommand::mergeWith(const QUndoCommand *command)
 }
 
 ///
-CommandAddCommand:: CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, zodiac::NodeCommand*),
+CommandAddCommand:: CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
                                       NodeProperties *nodeProperties,  QUndoCommand *parent)
     : QUndoCommand(parent)
 {
@@ -218,13 +219,13 @@ void CommandAddCommand::undo()
 
 void CommandAddCommand::redo()
 {
-     m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, nullptr);
+     m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, {00000000-0000-0000-0000-000000000000}, nullptr);
 }
 
 ///
-CommandDeleteCommand::CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, zodiac::NodeCommand*),
-                                           NodeProperties *nodeProperties, CommandRow *cmd, const QString &value, const QString &text, void (CommandRow::*deleteParams)(), NodeCtrl *node, void (NodeCtrl::*cmdAddFunc) (const QString&, const QString&),
-                                           void (NodeCtrl::*paramAddFunc) (const QString&, const QString&, const QString&), QHash<QString, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUndoCommand *parent)
+CommandDeleteCommand::CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
+                                           NodeProperties *nodeProperties, CommandRow *cmd, const QString &value, const QString &text, void (CommandRow::*deleteParams)(), NodeCtrl *node, void (NodeCtrl::*cmdAddFunc) (const QUuid &, const QString&, const QString&),
+                                           void (NodeCtrl::*paramAddFunc) (const QUuid&, const QString&, const QString&), QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, QUndoCommand *parent)
     : QUndoCommand(parent)
 {
 
@@ -237,6 +238,7 @@ CommandDeleteCommand::CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, Comma
 
    m_CommandValue = value;
    m_CommandText = text;
+   m_uniqueIdentifier = uniqueIdentifier;
 
    m_pDeleteParams = deleteParams;
 
@@ -249,7 +251,7 @@ CommandDeleteCommand::CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, Comma
 void CommandDeleteCommand::undo()
 {
     //add new command
-    (m_pNode->*m_pCmdAddFunc)(m_CommandValue, m_CommandText);
+    (m_pNode->*m_pCmdAddFunc)(m_uniqueIdentifier, m_CommandValue, m_CommandText);
 
     //delete the old parameter fields from the layout, load the saved ones and add them to the layout
     //(m_pCmd->*m_pDeleteParams)();
@@ -257,7 +259,7 @@ void CommandDeleteCommand::undo()
     for (QHash<QString, QString>::iterator i = m_SavedParameters.begin(); i != m_SavedParameters.end(); ++i)
         (m_pNode->*m_pParamAddFunc)(m_CommandValue, i.key(), i.value());
 
-    m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, &(m_pNode->*m_pGetCmdTable)()[m_CommandValue]);
+    m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, m_uniqueIdentifier, &(m_pNode->*m_pGetCmdTable)()[m_CommandValue]);
 }
 
 void CommandDeleteCommand::redo()

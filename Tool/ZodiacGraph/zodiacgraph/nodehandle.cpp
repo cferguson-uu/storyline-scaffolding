@@ -127,7 +127,7 @@ void NodeHandle::changeDescription(const QString& description)
     m_node->setDisplayDescription(description);
 }
 
-QHash<QString, NodeCommand> NodeHandle::getOnUnlockList()
+QHash<QUuid, NodeCommand> NodeHandle::getOnUnlockList()
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -135,14 +135,14 @@ QHash<QString, NodeCommand> NodeHandle::getOnUnlockList()
     Q_ASSERT(nNode);
 #else
     if(!m_isValid || !nNode){
-        return QHash<QString, NodeCommand>();
+        return QHash<QUuid, NodeCommand>();
     }
 #endif
 
     return nNode->getOnUnlockList();
 }
 
-QHash<QString, NodeCommand> NodeHandle::getOnFailList()
+QHash<QUuid, NodeCommand> NodeHandle::getOnFailList()
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -150,13 +150,13 @@ QHash<QString, NodeCommand> NodeHandle::getOnFailList()
     Q_ASSERT(nNode);
 #else
     if(!m_isValid || !nNode){
-        return QHash<QString, NodeCommand>();
+        return QHash<QUuid, NodeCommand>();
     }
 #endif
     return nNode->getOnFailList();
 }
 
-QHash<QString, NodeCommand> NodeHandle::getOnUnlockedList()
+QHash<QUuid, NodeCommand> NodeHandle::getOnUnlockedList()
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -164,13 +164,13 @@ QHash<QString, NodeCommand> NodeHandle::getOnUnlockedList()
     Q_ASSERT(nNode);
 #else
     if(!m_isValid || !nNode){
-        return QHash<QString, NodeCommand>();
+        return QHash<QUuid, NodeCommand>();
     }
 #endif
     return nNode->getOnUnlockedList();
 }
 
-void NodeHandle::addOnUnlockCommand(const QString& key, const QString& description)
+void NodeHandle::addOnUnlockCommand(const QUuid& key, const QString& value, const QString& description)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -181,10 +181,10 @@ void NodeHandle::addOnUnlockCommand(const QString& key, const QString& descripti
         return;
     }
 #endif
-    nNode->addOnUnlockCommand(key, description);
+    nNode->addOnUnlockCommand(key, value, description);
 }
 
-void NodeHandle::addOnFailCommand(const QString& key, const QString& description)
+void NodeHandle::addOnFailCommand(const QUuid& key, const QString& value, const QString& description)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -195,10 +195,10 @@ void NodeHandle::addOnFailCommand(const QString& key, const QString& description
         return;
     }
 #endif
-    nNode->addOnFailCommand(key, description);
+    nNode->addOnFailCommand(key, value, description);
 }
 
-void NodeHandle::addOnUnlockedCommand(const QString& key, const QString& description)
+void NodeHandle::addOnUnlockedCommand(const QUuid& key, const QString& value, const QString& description)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -209,10 +209,10 @@ void NodeHandle::addOnUnlockedCommand(const QString& key, const QString& descrip
         return;
     }
 #endif
-     nNode->addOnUnlockedCommand(key, description);
+     nNode->addOnUnlockedCommand(key, value, description);
 }
 
-void NodeHandle::removeOnUnlockCommand(const QString& key)
+void NodeHandle::removeOnUnlockCommand(const QUuid& key)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -225,7 +225,7 @@ void NodeHandle::removeOnUnlockCommand(const QString& key)
 #endif
     nNode->removeOnUnlockCommand(key);
 }
-void NodeHandle::removeOnFailCommand(const QString& key)
+void NodeHandle::removeOnFailCommand(const QUuid& key)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -239,7 +239,7 @@ void NodeHandle::removeOnFailCommand(const QString& key)
     nNode->removeOnFailCommand(key);
 }
 
-void NodeHandle::removeOnUnlockedCommand(const QString& key)
+void NodeHandle::removeOnUnlockedCommand(const QUuid& key)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -253,7 +253,7 @@ void NodeHandle::removeOnUnlockedCommand(const QString& key)
     nNode->removeOnUnlockedCommand(key);
 }
 
-QString NodeHandle::getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+QString NodeHandle::getParameterFromOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -267,7 +267,7 @@ QString NodeHandle::getParameterFromOnUnlockCommand(const QString& cmdKey, const
     return nNode->getParameterFromOnUnlockCommand(cmdKey, paramKey);
 }
 
-QString NodeHandle::getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+QString NodeHandle::getParameterFromOnFailCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -281,7 +281,7 @@ QString NodeHandle::getParameterFromOnFailCommand(const QString& cmdKey, const Q
     return nNode->getParameterFromOnFailCommand(cmdKey, paramKey);
 }
 
-QString NodeHandle::getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+QString NodeHandle::getParameterFromOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -295,7 +295,7 @@ QString NodeHandle::getParameterFromOnUnlockedCommand(const QString& cmdKey, con
     return nNode->getParameterFromOnUnlockedCommand(cmdKey, paramKey);
 }
 
-void NodeHandle::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeHandle::addParameterToOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -309,7 +309,7 @@ void NodeHandle::addParameterToOnUnlockCommand(const QString& cmdKey, const QStr
     nNode->addParameterToOnUnlockCommand(cmdKey, paramKey, value);
 }
 
-void NodeHandle::addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeHandle::addParameterToOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -323,7 +323,7 @@ void NodeHandle::addParameterToOnFailCommand(const QString& cmdKey, const QStrin
     nNode->addParameterToOnFailCommand(cmdKey, paramKey, value);
 }
 
-void NodeHandle::addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeHandle::addParameterToOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -337,7 +337,7 @@ void NodeHandle::addParameterToOnUnlockedCommand(const QString& cmdKey, const QS
     nNode->addParameterToOnUnlockedCommand(cmdKey, paramKey, value);
 }
 
-void NodeHandle::removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+void NodeHandle::removeParameterFromOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -351,7 +351,7 @@ void NodeHandle::removeParameterFromOnUnlockCommand(const QString& cmdKey, const
     nNode->removeParameterFromOnUnlockCommand(cmdKey, paramKey);
 }
 
-void NodeHandle::removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+void NodeHandle::removeParameterFromOnFailCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -365,7 +365,7 @@ void NodeHandle::removeParameterFromOnFailCommand(const QString& cmdKey, const Q
     nNode->removeParameterFromOnFailCommand(cmdKey, paramKey);
 }
 
-void NodeHandle::removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+void NodeHandle::removeParameterFromOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -379,7 +379,7 @@ void NodeHandle::removeParameterFromOnUnlockedCommand(const QString& cmdKey, con
     nNode->removeParameterFromOnUnlockedCommand(cmdKey, paramKey);
 }
 
-void NodeHandle::removeAllParametersFromOnUnlockCommand(const QString& cmdKey)
+void NodeHandle::removeAllParametersFromOnUnlockCommand(const QUuid& cmdKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -393,7 +393,7 @@ void NodeHandle::removeAllParametersFromOnUnlockCommand(const QString& cmdKey)
     nNode->removeAllParametersFromOnUnlockCommand(cmdKey);
 }
 
-void NodeHandle::removeAllParametersFromOnFailCommand(const QString& cmdKey)
+void NodeHandle::removeAllParametersFromOnFailCommand(const QUuid& cmdKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -407,7 +407,7 @@ void NodeHandle::removeAllParametersFromOnFailCommand(const QString& cmdKey)
     nNode->removeAllParametersFromOnFailCommand(cmdKey);
 }
 
-void NodeHandle::removeAllParametersFromOnUnlockedCommand(const QString& cmdKey)
+void NodeHandle::removeAllParametersFromOnUnlockedCommand(const QUuid& cmdKey)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -421,7 +421,7 @@ void NodeHandle::removeAllParametersFromOnUnlockedCommand(const QString& cmdKey)
     nNode->removeAllParametersFromOnUnlockedCommand(cmdKey);
 }
 
-void NodeHandle::editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeHandle::editParameterInOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -435,7 +435,7 @@ void NodeHandle::editParameterInOnUnlockCommand(const QString& cmdKey, const QSt
     nNode->editParameterInOnUnlockCommand(cmdKey, paramKey, value);
 }
 
-void NodeHandle::editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeHandle::editParameterInOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG
@@ -449,7 +449,7 @@ void NodeHandle::editParameterInOnFailCommand(const QString& cmdKey, const QStri
     nNode->editParameterInOnFailCommand(cmdKey, paramKey, value);
 }
 
-void NodeHandle::editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeHandle::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG

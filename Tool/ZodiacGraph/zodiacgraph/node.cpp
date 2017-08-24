@@ -752,106 +752,106 @@ void Node::updateOutlinePen()
     m_linePen = QPen(QBrush(m_outlineColor), s_outlineWidth);
 }
 
-void NarrativeNode::addOnUnlockCommand(const QString& key, const QString& description)
+void NarrativeNode::addOnUnlockCommand(const QUuid& key, const QString& value, const QString& description)
 {
-    m_onUnlock.insert(key, NodeCommand(description));
+    m_onUnlock.insert(key, NodeCommand(value, description));
 }
 
-void NarrativeNode::addOnFailCommand(const QString& key, const QString& description)
+void NarrativeNode::addOnFailCommand(const QUuid& key, const QString& value, const QString& description)
 {
-    m_onFail.insert(key, NodeCommand(description));
+    m_onFail.insert(key, NodeCommand(value, description));
 }
 
-void NarrativeNode::addOnUnlockedCommand(const QString& key, const QString& description)
+void NarrativeNode::addOnUnlockedCommand(const QUuid& key, const QString& value, const QString& description)
 {
-    m_onUnlocked.insert(key, NodeCommand(description));
+    m_onUnlocked.insert(key, NodeCommand(value, description));
 }
 
-void NarrativeNode::removeOnUnlockCommand(const QString& key)
+void NarrativeNode::removeOnUnlockCommand(const QUuid& key)
 {
     m_onUnlock.remove(key);
 }
-void NarrativeNode::removeOnFailCommand(const QString& key)
+void NarrativeNode::removeOnFailCommand(const QUuid& key)
 {
     m_onFail.remove(key);
 }
 
-void NarrativeNode::removeOnUnlockedCommand(const QString& key)
+void NarrativeNode::removeOnUnlockedCommand(const QUuid& key)
 {
     m_onUnlocked.remove(key);
 }
 
-QString NarrativeNode::getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+QString NarrativeNode::getParameterFromOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     return m_onUnlock[cmdKey].parameters[paramKey];
 }
 
-QString NarrativeNode::getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+QString NarrativeNode::getParameterFromOnFailCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     return m_onFail[cmdKey].parameters[paramKey];
 }
 
-QString NarrativeNode::getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+QString NarrativeNode::getParameterFromOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     return m_onUnlocked[cmdKey].parameters[paramKey];
 }
 
-void NarrativeNode::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NarrativeNode::addParameterToOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_onUnlock[cmdKey].parameters.insert(paramKey, value);
 }
 
-void NarrativeNode::addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NarrativeNode::addParameterToOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_onFail[cmdKey].parameters.insert(paramKey, value);
 }
 
-void NarrativeNode::addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NarrativeNode::addParameterToOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_onUnlocked[cmdKey].parameters.insert(paramKey, value);
 }
 
-void NarrativeNode::removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+void NarrativeNode::removeParameterFromOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     m_onUnlock[cmdKey].parameters.remove(paramKey);
 }
 
-void NarrativeNode::removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+void NarrativeNode::removeParameterFromOnFailCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     m_onFail[cmdKey].parameters.remove(paramKey);
 }
 
-void NarrativeNode::removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+void NarrativeNode::removeParameterFromOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     m_onUnlocked[cmdKey].parameters.remove(paramKey);
 }
 
-void NarrativeNode::removeAllParametersFromOnUnlockCommand(const QString& cmdKey)
+void NarrativeNode::removeAllParametersFromOnUnlockCommand(const QUuid& cmdKey)
 {
     m_onUnlock[cmdKey].parameters.clear();
 }
 
-void NarrativeNode::removeAllParametersFromOnFailCommand(const QString& cmdKey)
+void NarrativeNode::removeAllParametersFromOnFailCommand(const QUuid& cmdKey)
 {
     m_onFail[cmdKey].parameters.clear();
 }
 
-void NarrativeNode::removeAllParametersFromOnUnlockedCommand(const QString& cmdKey)
+void NarrativeNode::removeAllParametersFromOnUnlockedCommand(const QUuid& cmdKey)
 {
     m_onUnlocked[cmdKey].parameters.clear();
 }
 
-void NarrativeNode::editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NarrativeNode::editParameterInOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_onUnlock[cmdKey].parameters[paramKey] = value;
 }
 
-void NarrativeNode::editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NarrativeNode::editParameterInOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_onFail[cmdKey].parameters[paramKey] = value;
 }
 
-void NarrativeNode::editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NarrativeNode::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_onUnlocked[cmdKey].parameters[paramKey] = value;
 }

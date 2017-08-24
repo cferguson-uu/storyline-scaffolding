@@ -37,121 +37,121 @@ zodiac::NodeType NodeCtrl::getType() const
     return m_node.getType();
 }
 
-QHash<QString, zodiac::NodeCommand> NodeCtrl::getOnUnlockList()
+QHash<QUuid, zodiac::NodeCommand> NodeCtrl::getOnUnlockList()
 {
     return m_node.getOnUnlockList();
 }
 
-QHash<QString, zodiac::NodeCommand> NodeCtrl::getOnFailList()
+QHash<QUuid, zodiac::NodeCommand> NodeCtrl::getOnFailList()
 {
     return m_node.getOnFailList();
 }
 
-QHash<QString, zodiac::NodeCommand> NodeCtrl::getOnUnlockedList()
+QHash<QUuid, zodiac::NodeCommand> NodeCtrl::getOnUnlockedList()
 {
     return m_node.getOnUnlockedList();
 }
 
-void NodeCtrl::addOnUnlockCommand(const QString& key, const QString& description)
+void NodeCtrl::addOnUnlockCommand(const QUuid& key, const QString& value, const QString& description)
 {
-    m_node.addOnUnlockCommand(key, description);
+    m_node.addOnUnlockCommand(key, value, description);
 }
 
-void NodeCtrl::addOnFailCommand(const QString& key, const QString& description)
+void NodeCtrl::addOnFailCommand(const QUuid& key, const QString& value, const QString& description)
 {
-    m_node.addOnFailCommand(key, description);
+    m_node.addOnFailCommand(key, value, description);
 }
 
-void NodeCtrl::addOnUnlockedCommand(const QString& key, const QString& description)
+void NodeCtrl::addOnUnlockedCommand(const QUuid& key, const QString& value, const QString& description)
 {
-     m_node.addOnUnlockedCommand(key, description);
+     m_node.addOnUnlockedCommand(key, value, description);
 }
 
-void NodeCtrl::removeOnUnlockCommand(const QString& key)
+void NodeCtrl::removeOnUnlockCommand(const QUuid& key)
 {
     m_node.removeOnUnlockCommand(key);
 }
-void NodeCtrl::removeOnFailCommand(const QString& key)
+void NodeCtrl::removeOnFailCommand(const QUuid& key)
 {
     m_node.removeOnFailCommand(key);
 }
 
-void NodeCtrl::removeOnUnlockedCommand(const QString& key)
+void NodeCtrl::removeOnUnlockedCommand(const QUuid& key)
 {
     m_node.removeOnUnlockedCommand(key);
 }
 
-QString NodeCtrl::getParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+QString NodeCtrl::getParameterFromOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     return m_node.getParameterFromOnUnlockCommand(cmdKey, paramKey);
 }
 
-QString NodeCtrl::getParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+QString NodeCtrl::getParameterFromOnFailCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     return m_node.getParameterFromOnFailCommand(cmdKey, paramKey);
 }
 
-QString NodeCtrl::getParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+QString NodeCtrl::getParameterFromOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     return m_node.getParameterFromOnUnlockedCommand(cmdKey, paramKey);
 }
 
-void NodeCtrl::addParameterToOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeCtrl::addParameterToOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_node.addParameterToOnUnlockCommand(cmdKey, paramKey, value);
 }
 
-void NodeCtrl::addParameterToOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeCtrl::addParameterToOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_node.addParameterToOnFailCommand(cmdKey, paramKey, value);
 }
 
-void NodeCtrl::addParameterToOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeCtrl::addParameterToOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_node.addParameterToOnUnlockedCommand(cmdKey, paramKey, value);
 }
 
-void NodeCtrl::removeParameterFromOnUnlockCommand(const QString& cmdKey, const QString& paramKey)
+void NodeCtrl::removeParameterFromOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     m_node.removeParameterFromOnUnlockCommand(cmdKey, paramKey);
 }
 
-void NodeCtrl::removeParameterFromOnFailCommand(const QString& cmdKey, const QString& paramKey)
+void NodeCtrl::removeParameterFromOnFailCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     m_node.removeParameterFromOnFailCommand(cmdKey, paramKey);
 }
 
-void NodeCtrl::removeParameterFromOnUnlockedCommand(const QString& cmdKey, const QString& paramKey)
+void NodeCtrl::removeParameterFromOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey)
 {
     m_node.removeParameterFromOnUnlockedCommand(cmdKey, paramKey);
 }
 
-void NodeCtrl::removeAllParametersFromOnUnlockCommand(const QString& cmdKey)
+void NodeCtrl::removeAllParametersFromOnUnlockCommand(const QUuid& cmdKey)
 {
     m_node.removeAllParametersFromOnUnlockCommand(cmdKey);
 }
 
-void NodeCtrl::removeAllParametersFromOnFailCommand(const QString& cmdKey)
+void NodeCtrl::removeAllParametersFromOnFailCommand(const QUuid& cmdKey)
 {
     m_node.removeAllParametersFromOnFailCommand(cmdKey);
 }
 
-void NodeCtrl::removeAllParametersFromOnUnlockedCommand(const QString& cmdKey)
+void NodeCtrl::removeAllParametersFromOnUnlockedCommand(const QUuid& cmdKey)
 {
     m_node.removeAllParametersFromOnUnlockedCommand(cmdKey);
 }
 
-void NodeCtrl::editParameterInOnUnlockCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeCtrl::editParameterInOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_node.editParameterInOnUnlockCommand(cmdKey, paramKey, value);
 }
 
-void NodeCtrl::editParameterInOnFailCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeCtrl::editParameterInOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_node.editParameterInOnFailCommand(cmdKey, paramKey, value);
 }
 
-void NodeCtrl::editParameterInOnUnlockedCommand(const QString& cmdKey, const QString& paramKey, const QString& value)
+void NodeCtrl::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_node.editParameterInOnUnlockedCommand(cmdKey, paramKey, value);
 }

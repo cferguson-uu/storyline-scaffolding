@@ -111,12 +111,12 @@ private slots:
 
     //for creating blocks for onunlock etc.
     void constructNarrativeNodeProperties(QVBoxLayout* mainLayout);
-    CommandRow *createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, zodiac::NodeCommand *cmd = nullptr);
+    CommandRow *createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, const QUuid &id = {00000000-0000-0000-0000-000000000000}, zodiac::NodeCommand *cmd = nullptr);
 
-    void AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey);
+    void AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QUuid &cmdKey);
     void DeleteParametersFromCommand(CommandRow *cmd);
 
-    void updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, QLineEdit* paramField);
+    void updateParam(CommandBlockTypes type, const QUuid &cmdKey, const QString &paramKey, QLineEdit* paramField);
 
     //story
     void constructStoryNodeProperties(QVBoxLayout* mainLayout);
@@ -142,7 +142,7 @@ private slots:
     void addPlugRow(zodiac::PlugHandle plug);
 
     //for changing parameters along with command
-    void changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd);
+    void changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd, const QUuid &uniqueId);
 
 private: // members
 
@@ -309,6 +309,8 @@ public: // methods
     bool GetUndo(){return m_undo;}
     void SetUndo(bool undo){m_undo = undo;}
 
+    QUuid getId(){return m_identifier;}
+
 public slots:
 
     ///
@@ -347,6 +349,11 @@ private: // members
     bool m_undo = false;
 
     QUuid m_identifier;
+
+
+
+    //on unlock, fail or unlocked
+    CommandBlockTypes m_commandType;
 
 };
 

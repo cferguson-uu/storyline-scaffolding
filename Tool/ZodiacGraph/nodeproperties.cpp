@@ -95,10 +95,11 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
 
     if(!m_node->getOnUnlockList().empty())
     {
-        QHash<QString,zodiac::NodeCommand> *hashPointer = &m_node->getOnUnlockList();
+        QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnUnlockList();
         //need to load command list
-        for(QHash<QString,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
-            createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK, &(*cmdIt));
+        for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
+            if(!cmdIt.key().isNull())
+                createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK, cmdIt.key(), &(*cmdIt));
     }
 
     // define the on_fail block
@@ -116,10 +117,11 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
 
     if(!m_node->getOnFailList().empty())
     {
-        QHash<QString,zodiac::NodeCommand> *hashPointer = &m_node->getOnFailList();
+        QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnFailList();
         //need to load command list
-        for(QHash<QString,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
-            createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL, &(*cmdIt));
+        for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
+            if(!cmdIt.key().isNull())
+                createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL, cmdIt.key(), &(*cmdIt));
     }
 
     // define the on_unlocked block
@@ -137,10 +139,11 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
 
     if(!m_node->getOnUnlockedList().empty())
     {
-        QHash<QString,zodiac::NodeCommand> *hashPointer = &m_node->getOnUnlockedList();
+        QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnUnlockedList();
         //need to load command list
-        for(QHash<QString,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
-            createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED, &(*cmdIt));
+        for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
+            if(!cmdIt.key().isNull())
+                createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED, cmdIt.key(), &(*cmdIt));
     }
 
     mainLayout->addLayout(m_onUnlockLayout);
@@ -174,7 +177,7 @@ void NodeProperties::changeNodeDescription()
     m_pUndoStack->push(new TextEditCommand(m_descriptionEdit, m_node->getDescription(), m_node, &NodeCtrl::changeDescription));
 }
 
-CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, zodiac::NodeCommand *cmd)
+CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, const QUuid &id, zodiac::NodeCommand *cmd)
 {
     int row = grid->rowCount();
 
@@ -187,23 +190,30 @@ CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid
     for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
         commandBox->addItem((*it).label, (*it).id);
 
+    QUuid u;
+
     if(cmd == nullptr)
     {
+        u = QUuid::createUuid();
+
         switch(type)
         {
             case CMD_UNLOCK:
-                m_node->addOnUnlockCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
+                m_node->addOnUnlockCommand(u, commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
                 break;
             case CMD_FAIL:
-                m_node->addOnFailCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
+                m_node->addOnFailCommand(u, commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
                 break;
             case CMD_UNLOCKED:
-                m_node->addOnUnlockedCommand(commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
+                m_node->addOnUnlockedCommand(u, commandBox->itemData(commandBox->currentIndex()).toString(), commandBox->currentText());
                 break;
         }
     }
     else
+    {
+        u = id;
         commandBox->setCurrentText(cmd->description);
+    }
 
     commandBlockGrid->addWidget(commandBox);
 
@@ -216,37 +226,42 @@ CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid
 
     grid->addLayout(commandBlockGrid, row, 0);
 
-    QUuid u = QUuid::createUuid();
-
     commandRow.insert(u, new CommandRow(this, commandBox, removalButton, commandBox->itemData(commandBox->currentIndex()).toString(), &commandRow, u, grid, commandBlockGrid, type));
 
-    AddParametersToCommand(type, commandRow[u], commandBox->itemData(commandBox->currentIndex()).toString());
-    connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, type, commandRow[u]); });
+    AddParametersToCommand(type, commandRow[u], u);
+    connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, type, commandRow[u], u); });
 
     return commandRow[u];
 }
 
-void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QString &cmdKey)
+void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *cmd, const QUuid &cmdKey)
 {
     bool load;
+
+    QHash<QUuid,zodiac::NodeCommand> *hashPointer;
 
     switch(type)
     {
         case CMD_UNLOCK:
             load = m_node->getOnUnlockList()[cmdKey].parameters.empty();
-            qDebug() << m_node->getOnUnlockList()[cmdKey].parameters.size();
+            hashPointer = &m_node->getOnUnlockList();
             break;
         case CMD_FAIL:
             load = m_node->getOnFailList()[cmdKey].parameters.empty();
+            hashPointer = &m_node->getOnFailList();
             break;
         case CMD_UNLOCKED:
             load = m_node->getOnUnlockedList()[cmdKey].parameters.empty();
+            hashPointer = &m_node->getOnUnlockedList();
             break;
     }
-
     //get parameters from the command pointer
     for(std::list<Command>::iterator cmdIt = m_pCommands->begin(); cmdIt != m_pCommands->end(); ++cmdIt)
-        if((*cmdIt).id == cmdKey)
+    {
+        qDebug() << "(*cmdIt).id " << (*cmdIt).id;
+        qDebug() << "hashPointer->value(cmdKey).id " << hashPointer->value(cmdKey).id;
+
+        if((*cmdIt).id == hashPointer->value(cmdKey).id)
             for(std::list<Parameter>::iterator paramIt = (*cmdIt).commandParams.begin(); paramIt != (*cmdIt).commandParams.end(); ++paramIt)
             {
                 //create fields and labels
@@ -292,9 +307,10 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
                             break;
                     }
             }
+    }
 }
 
-void NodeProperties::updateParam(CommandBlockTypes type, const QString &cmdKey, const QString &paramKey, QLineEdit* paramField)
+void NodeProperties::updateParam(CommandBlockTypes type, const QUuid &cmdKey, const QString &paramKey, QLineEdit* paramField)
 { 
     QString newName;
     QString oldName;
@@ -330,7 +346,7 @@ void NodeProperties::DeleteParametersFromCommand(CommandRow *cmd)
     cmd->DeleteParameters();
 }
 
-void NodeProperties::changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd)
+void NodeProperties::changeCommand(QComboBox *commandField, CommandBlockTypes type, CommandRow *cmd, const QUuid &uniqueId)
 {
     if(cmd->GetUndo())
     {
@@ -343,17 +359,17 @@ void NodeProperties::changeCommand(QComboBox *commandField, CommandBlockTypes ty
         case CMD_UNLOCK:
             m_pUndoStack->push(new CommandEditCommand(commandField, cmd->GetName(), m_node, &NodeCtrl::removeOnUnlockCommand, &NodeCtrl::addOnUnlockCommand,
                                                       &NodeCtrl::addParameterToOnUnlockCommand, this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
-                                                      m_node->getOnUnlockList()[cmd->GetName()].description, cmd, CMD_UNLOCK, &NodeCtrl::getOnUnlockList));
+                                                      m_node->getOnUnlockList()[cmd->GetName()].description, cmd, CMD_UNLOCK, &NodeCtrl::getOnUnlockList, uniqueId));
             break;
         case CMD_FAIL:
             m_pUndoStack->push(new CommandEditCommand(commandField, cmd->GetName(), m_node, &NodeCtrl::removeOnFailCommand, &NodeCtrl::addOnFailCommand,
                                                   &NodeCtrl::addParameterToOnFailCommand, this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
-                                                  m_node->getOnFailList()[cmd->GetName()].description, cmd, CMD_FAIL, &NodeCtrl::getOnFailList));
+                                                  m_node->getOnFailList()[cmd->GetName()].description, cmd, CMD_FAIL, &NodeCtrl::getOnFailList, uniqueId));
             break;
         case CMD_UNLOCKED:
             m_pUndoStack->push(new CommandEditCommand(commandField, cmd->GetName(), m_node, &NodeCtrl::removeOnUnlockedCommand, &NodeCtrl::addOnUnlockedCommand,
                                                   &NodeCtrl::addParameterToOnUnlockedCommand, this, &NodeProperties::DeleteParametersFromCommand, &NodeProperties::AddParametersToCommand,
-                                                  m_node->getOnUnlockedList()[cmd->GetName()].description, cmd, CMD_UNLOCKED, &NodeCtrl::getOnUnlockedList));
+                                                  m_node->getOnUnlockedList()[cmd->GetName()].description, cmd, CMD_UNLOCKED, &NodeCtrl::getOnUnlockedList, uniqueId));
             break;
      }
 }
@@ -479,6 +495,7 @@ CommandRow::CommandRow(NodeProperties* editor, QComboBox* nameEdit,
     , m_identifier(uniqueId)
     , m_commandLayout(commandLayout)
     , m_blockLayout(blockLayout)
+    , m_commandType(type)
 {
     //connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removeCommand()));
     switch(type)
@@ -486,17 +503,17 @@ CommandRow::CommandRow(NodeProperties* editor, QComboBox* nameEdit,
         case CMD_UNLOCK:
             connect(m_removalButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new CommandDeleteCommand(m_blockLayout, m_rowPointer, CMD_UNLOCK, &NodeProperties::createNewCommandBlock, m_editor, this, m_nameEdit->itemData(m_nameEdit->currentIndex()).toString(), m_nameEdit->currentText(),
                                                                                                                            &CommandRow::DeleteParameters, m_editor->getNode(), &NodeCtrl::addOnUnlockCommand, &NodeCtrl::addParameterToOnUnlockCommand,
-                                                                                                                           &NodeCtrl::getOnUnlockList));});
+                                                                                                                           &NodeCtrl::getOnUnlockList, uniqueId));});
             break;
         case CMD_FAIL:
             connect(m_removalButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new CommandDeleteCommand(m_blockLayout, m_rowPointer, CMD_FAIL, &NodeProperties::createNewCommandBlock, m_editor, this, m_nameEdit->itemData(m_nameEdit->currentIndex()).toString(), m_nameEdit->currentText(),
                                                                                                                            &CommandRow::DeleteParameters, m_editor->getNode(), &NodeCtrl::addOnFailCommand, &NodeCtrl::addParameterToOnFailCommand,
-                                                                                                                           &NodeCtrl::getOnFailList));});
+                                                                                                                           &NodeCtrl::getOnFailList, uniqueId));});
             break;
         case CMD_UNLOCKED:
             connect(m_removalButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new CommandDeleteCommand(m_blockLayout, m_rowPointer, CMD_UNLOCKED, &NodeProperties::createNewCommandBlock, m_editor, this, m_nameEdit->itemData(m_nameEdit->currentIndex()).toString(), m_nameEdit->currentText(),
                                                                                                                            &CommandRow::DeleteParameters, m_editor->getNode(), &NodeCtrl::addOnUnlockedCommand, &NodeCtrl::addParameterToOnUnlockedCommand,
-                                                                                                                           &NodeCtrl::getOnUnlockedList));});
+                                                                                                                           &NodeCtrl::getOnUnlockedList, uniqueId));});
             break;
     }
 }
@@ -517,6 +534,20 @@ void CommandRow::removeCommand()
     m_nameEdit->deleteLater();
     m_removalButton->deleteLater();
     m_commandLayout->deleteLater();
+
+    //remove from the logical node
+    switch(m_commandType)
+    {
+        case CMD_UNLOCK:
+            m_editor->getNode()->removeOnUnlockCommand(m_identifier);
+            break;
+        case CMD_FAIL:
+            m_editor->getNode()->removeOnFailCommand(m_identifier);
+            break;
+        case CMD_UNLOCKED:
+            m_editor->getNode()->removeOnUnlockedCommand(m_identifier);
+            break;
+    }
 }
 
 void CommandRow::addParameterToList(QLabel *label, QLineEdit *text)
