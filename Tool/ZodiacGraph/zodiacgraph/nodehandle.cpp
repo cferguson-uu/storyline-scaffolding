@@ -464,6 +464,18 @@ void NodeHandle::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QSt
     nNode->editParameterInOnUnlockedCommand(cmdKey, paramKey, value);
 }
 
+void NodeHandle::softSetExpansion(NodeExpansion newState)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return
+    }
+#endif
+    m_node->softSetExpansion(newState);
+}
+
 PlugHandle NodeHandle::createIncomingPlug(const QString& name)
 {
 #ifdef QT_DEBUG

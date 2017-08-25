@@ -240,8 +240,12 @@ public: // methods
     void editParameterInOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
     void editParameterInOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
-
-
+    ///
+    /// \brief Sets the expansion of the node only if it is not currently forced open.
+    ///
+    /// \param [in] newState New state to expand.
+    ///
+    void softSetExpansion(NodeExpansion newState);
     ///
     /// \brief Creates a new incoming Plug for the managed Node.
     ///

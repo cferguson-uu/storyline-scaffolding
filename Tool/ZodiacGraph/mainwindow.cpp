@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowIcon(QIcon(":/icons/reveal_logo.png"));
 
     //set up the undo functions
+    m_pUndoStack->setUndoLimit(10); //don't allow too many undos
     m_pUndoAction = m_pUndoStack->createUndoAction(this, tr("&Undo"));
     m_pUndoAction->setShortcuts(QKeySequence::Undo);
 

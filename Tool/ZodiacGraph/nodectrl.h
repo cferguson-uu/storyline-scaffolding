@@ -167,6 +167,13 @@ public: // methods
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
 
     ///
+    /// \brief Sets the expansion of the node only if it is not currently forced open.
+    ///
+    /// \param [in] newState New state to expand.
+    ///
+    inline void softSetExpansion(zodiac::NodeExpansion newState){m_node.softSetExpansion(newState);}
+
+    ///
     /// \brief Direct access to the zodiac::NodeHandle of this NodeCtrl.
     ///
     /// \return The managed zodiac::NodeHandle.
