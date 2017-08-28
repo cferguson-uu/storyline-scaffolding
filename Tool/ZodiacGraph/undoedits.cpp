@@ -1,40 +1,66 @@
 #include "undoedits.h"
 #include "nodeproperties.h"
+#include "propertyeditor.h"
 
 #include <QDebug>
 
-TextEditCommand::TextEditCommand(QLineEdit *textItem, const QString &oldText, NodeCtrl* node, void (NodeCtrl::*nameChangeFunc)(const QString &), Collapsible *propEdit,
+TextEditCommand::TextEditCommand(bool isDescription, const QString &oldText, const QString &newText, NodeCtrl* node, void (NodeCtrl::*nameChangeFunc)(const QString &), Collapsible *collapsible,
                                  QUndoCommand *parent)
     : QUndoCommand(parent)
 {
-    m_TextItem = textItem;
-    m_NewText = textItem->text();
+    m_NewText = newText;
     m_OldText = oldText;
-    m_PropEdit = propEdit;
+    m_isDescription = isDescription;
+
+    if(collapsible)
+    {
+        m_Collapsible = collapsible;
+        m_PropEdit = collapsible->getParent();
+    }
+
     m_pNameChangeFunc = nameChangeFunc;
     m_Node = node;
 }
 
 void TextEditCommand::undo()
 {
-    //revert to old text in the field and store in node
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_Node->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
+
+    //ensure the correct field is selected
+    if(m_isDescription)
+        m_TextItem = m_Collapsible->getNodeProperties()->getDescriptionEdit();
+    else
+    {
+        m_TextItem = m_Collapsible->getNodeProperties()->getNameEdit();
+        //update name in the property editor if necessary
+        m_Collapsible->updateTitle(m_OldText);
+    }
+
     m_TextItem->setText(m_OldText);
     (m_Node->*m_pNameChangeFunc)(m_OldText);
-
-    //update name in the property editor if necessary
-    if(m_PropEdit)
-        m_PropEdit->updateTitle(m_OldText);
 }
 
 void TextEditCommand::redo()
 {
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_Node->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
+
+    //ensure the correct field is selected
+    if(m_isDescription)
+        m_TextItem = m_Collapsible->getNodeProperties()->getDescriptionEdit();
+    else
+    {
+        m_TextItem = m_Collapsible->getNodeProperties()->getNameEdit();
+        //update name in the property editor if necessary
+        m_Collapsible->updateTitle(m_OldText);
+    }
+
     //store new text in the field (only has an effect on actual redo) and store in node
     m_TextItem->setText(m_NewText);
     (m_Node->*m_pNameChangeFunc)(m_NewText);
-
-    //update name in the property editor if necessary
-    if(m_PropEdit)
-        m_PropEdit->updateTitle(m_NewText);
 }
 
 bool TextEditCommand::mergeWith(const QUndoCommand *command)
@@ -52,21 +78,79 @@ bool TextEditCommand::mergeWith(const QUndoCommand *command)
 
 ///
 
-ParamEditCommand::ParamEditCommand(QLineEdit *textItem, const QString &oldText, const QUuid &cmdKey, const QString &paramKey, NodeCtrl* node, void (NodeCtrl::*paramChangeFunc)(const QUuid &, const QString &, const QString &),
-                                 QUndoCommand *parent)
+ParamEditCommand::ParamEditCommand(const QString &newText, const QString &oldText, const QUuid &cmdKey, const QString &paramKey, NodeCtrl* node, void (NodeCtrl::*paramChangeFunc)(const QUuid &, const QString &, const QString &),
+                                 Collapsible *collapsible, CommandBlockTypes type, QUndoCommand *parent)
     : QUndoCommand(parent)
 {
-    m_TextItem = textItem;
-    m_NewText = textItem->text();
+    m_NewText = newText;
     m_OldText = oldText;
     m_pParamChangeFunc = paramChangeFunc;   //different for each command block so pointer needed
     m_Node = node;
     m_cmdKey = cmdKey;
     m_paramKey = paramKey;
+
+    m_Collapsible = collapsible;
+    m_PropEdit = collapsible->getParent();
+    m_type = type;
 }
 
 void ParamEditCommand::undo()
 {
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_Node->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
+
+    std::vector<std::pair<QLabel*,QLineEdit*>> paramsList;
+
+    switch(m_type)
+    {
+        case CMD_UNLOCK:
+            paramsList = m_Collapsible->getNodeProperties()->getOnUnlockCmds()[m_cmdKey]->getParams();
+
+            for(std::vector<std::pair<QLabel*,QLineEdit*>>::iterator paramIt = paramsList.begin(); paramIt != paramsList.end(); ++paramIt)
+            {
+                //make sure label text matches parameter key
+                QLabel *label = std::get<0>((*paramIt));
+
+                if(label->text() == m_paramKey)
+                {
+                    m_TextItem = std::get<1>((*paramIt));
+                    break;
+                }
+            }
+            break;
+        case CMD_FAIL:
+            paramsList = m_Collapsible->getNodeProperties()->getOnFailCmds()[m_cmdKey]->getParams();
+
+            for(std::vector<std::pair<QLabel*,QLineEdit*>>::iterator paramIt = paramsList.begin(); paramIt != paramsList.end(); ++paramIt)
+            {
+                //make sure label text matches parameter key
+                QLabel *label = std::get<0>((*paramIt));
+
+                if(label->text() == m_paramKey)
+                {
+                    m_TextItem = std::get<1>((*paramIt));
+                    break;
+                }
+            }
+        break;
+        case CMD_UNLOCKED:
+            paramsList = m_Collapsible->getNodeProperties()->getOnUnlockedCmds()[m_cmdKey]->getParams();
+
+            for(std::vector<std::pair<QLabel*,QLineEdit*>>::iterator paramIt = paramsList.begin(); paramIt != paramsList.end(); ++paramIt)
+            {
+                //make sure label text matches parameter key
+                QLabel *label = std::get<0>((*paramIt));
+
+                if(label->text() == m_paramKey)
+                {
+                    m_TextItem = std::get<1>((*paramIt));
+                    break;
+                }
+            }
+            break;
+    }
+
     //revert text in field and use command and parameter keys to store the parameter value in the node using function pointer
     m_TextItem->setText(m_OldText);
 
@@ -75,11 +159,66 @@ void ParamEditCommand::undo()
 
 void ParamEditCommand::redo()
 {
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_Node->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
+
+    std::vector<std::pair<QLabel*,QLineEdit*>> paramsList;
+
+    switch(m_type)
+    {
+        case CMD_UNLOCK:
+            paramsList = m_Collapsible->getNodeProperties()->getOnUnlockCmds()[m_cmdKey]->getParams();
+
+            for(std::vector<std::pair<QLabel*,QLineEdit*>>::iterator paramIt = paramsList.begin(); paramIt != paramsList.end(); ++paramIt)
+            {
+                //make sure label text matches parameter key
+                QLabel *label = std::get<0>((*paramIt));
+
+                if(label->text() == m_paramKey)
+                {
+                    m_TextItem = std::get<1>((*paramIt));
+                    break;
+                }
+            }
+            break;
+        case CMD_FAIL:
+            paramsList = m_Collapsible->getNodeProperties()->getOnFailCmds()[m_cmdKey]->getParams();
+
+            for(std::vector<std::pair<QLabel*,QLineEdit*>>::iterator paramIt = paramsList.begin(); paramIt != paramsList.end(); ++paramIt)
+            {
+                //make sure label text matches parameter key
+                QLabel *label = std::get<0>((*paramIt));
+
+                if(label->text() == m_paramKey)
+                {
+                    m_TextItem = std::get<1>((*paramIt));
+                    break;
+                }
+            }
+        break;
+        case CMD_UNLOCKED:
+            paramsList = m_Collapsible->getNodeProperties()->getOnUnlockedCmds()[m_cmdKey]->getParams();
+
+            for(std::vector<std::pair<QLabel*,QLineEdit*>>::iterator paramIt = paramsList.begin(); paramIt != paramsList.end(); ++paramIt)
+            {
+                //make sure label text matches parameter key
+                QLabel *label = std::get<0>((*paramIt));
+
+                if(label->text() == m_paramKey)
+                {
+                    m_TextItem = std::get<1>((*paramIt));
+                    break;
+                }
+            }
+            break;
+    }
+
     //store new text in the field (only has an effect on actual redo) and
     //use command and parameter keys to store the parameter value in the node using function pointer
     m_TextItem->setText(m_NewText);
 
-    (m_Node->*m_pParamChangeFunc)(m_cmdKey, m_paramKey ,m_NewText);
+    (m_Node->*m_pParamChangeFunc)(m_cmdKey, m_paramKey, m_NewText);
 }
 
 bool ParamEditCommand::mergeWith(const QUndoCommand *command)
@@ -97,26 +236,27 @@ bool ParamEditCommand::mergeWith(const QUndoCommand *command)
 
 ///
 
-CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QUuid&),
+CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, const QString &oldText, const QString &newValue, const QString &newText, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QUuid&),
                                        void (NodeCtrl::*CmdAddFunc)(const QUuid&, const QString&, const QString&), void (NodeCtrl::*ParamAddFunc)(const QUuid&, const QString&, const QString&), NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
-                                       void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow*, const QUuid&), const QString &oldText,
-                                       CommandRow *cmd, CommandBlockTypes type, QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, QUndoCommand *parent)
+                                       void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow*, const QUuid&),
+                                       CommandRow *cmd, CommandBlockTypes type, QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, Collapsible *collapsible, QUndoCommand *parent)
     : QUndoCommand(parent)
 {
     //store command key and label value
     m_CmdItem = cmdItem;
     m_OldValue = oldValue;
-    m_NewValue = cmdItem->itemData(cmdItem->currentIndex()).toString();
+    m_NewValue = newValue;
     m_OldText = oldText;
-    m_NewText = cmdItem->currentText();
-    m_uniqueIdentifier = uniqueIdentifier,
-
+    m_NewText = newText;
+    m_uniqueIdentifier = uniqueIdentifier;
     m_Type = type;
 
     //store pointers to instances needed to carry out update operations
     m_Node = node;
     m_pCmd = cmd;
     m_pNodeProperties = nodeProperties;
+    m_Collapsible = collapsible;
+    m_PropEdit = collapsible->getParent();
 
     //function pointers
     m_pCmdDeleteFunc = cmdDeleteFunc;
@@ -132,12 +272,19 @@ CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldVal
 
 void CommandEditCommand::undo()
 {
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_Node->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
+    m_pNodeProperties = m_Collapsible->getNodeProperties();
+    m_pCmd = m_pNodeProperties->getOnUnlockCmds()[m_uniqueIdentifier];
+    m_CmdItem = m_pCmd->getCommandBox();
+
     //changing the value of the combo box triggers a new command, set bool to avoid
     m_pCmd->SetUndo(true);
 
     //set the new value and save the parameters of the previous command
     m_CmdItem->setCurrentText(m_OldText);
-    m_NewParameters = (m_Node->*m_pGetCmdTable)()[m_NewValue].parameters;
+    m_NewParameters = (m_Node->*m_pGetCmdTable)()[m_uniqueIdentifier].parameters;
 
     //delete the previous command and add the new one
     (m_Node->*m_pCmdDeleteFunc)(m_NewValue);
@@ -149,7 +296,7 @@ void CommandEditCommand::undo()
     for (QHash<QString, QString>::iterator i = m_OldParameters.begin(); i != m_OldParameters.end(); ++i)
         (m_Node->*m_pParamAddFunc)(m_OldValue, i.key(), i.value());
 
-    (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_OldValue);
+    (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_uniqueIdentifier);
 
     //set the name in the command
     m_pCmd->SetName(m_OldValue);
@@ -157,6 +304,13 @@ void CommandEditCommand::undo()
 
 void CommandEditCommand::redo()
 {
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_Node->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
+    m_pNodeProperties = m_Collapsible->getNodeProperties();
+    m_pCmd = m_pNodeProperties->getOnUnlockCmds()[m_uniqueIdentifier];
+    m_CmdItem = m_pCmd->getCommandBox();
+
     //only update the name if it is different (only on actual redo)
     if(m_NewText != m_CmdItem->currentText())
     {
@@ -165,7 +319,7 @@ void CommandEditCommand::redo()
     }
 
     //save old parameters for undo
-    m_OldParameters = (m_Node->*m_pGetCmdTable)()[m_OldValue].parameters;
+    m_OldParameters = (m_Node->*m_pGetCmdTable)()[m_uniqueIdentifier].parameters;
 
     //delete the previous command and add the new one
     (m_Node->*m_pCmdDeleteFunc)(m_OldValue);
@@ -177,7 +331,7 @@ void CommandEditCommand::redo()
     for (QHash<QString, QString>::iterator i = m_NewParameters.begin(); i != m_NewParameters.end(); ++i)
         (m_Node->*m_pParamAddFunc)(m_NewValue, i.key(), i.value());
 
-    (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_NewValue);
+    (m_pNodeProperties->*m_pAddParams)(m_Type, m_pCmd, m_uniqueIdentifier);
 
     //set the name in the command
      m_pCmd->SetName(m_NewValue);
@@ -198,7 +352,7 @@ bool CommandEditCommand::mergeWith(const QUndoCommand *command)
 
 ///
 CommandAddCommand:: CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
-                                      NodeProperties *nodeProperties,  QUndoCommand *parent)
+                                      NodeProperties *nodeProperties, Collapsible *collapsible, NodeCtrl *node, QUndoCommand *parent)
     : QUndoCommand(parent)
 {
 
@@ -209,27 +363,72 @@ CommandAddCommand:: CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow
     m_pAddCommand = addCommand;
     m_type = type;
     m_pCmd = nullptr;
+    m_Collapsible = collapsible;
+    m_PropEdit = collapsible->getParent();
+    m_Node = node;
 }
 
 void CommandAddCommand::undo()
 {
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_Node->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
+    m_pNodeProperties = m_Collapsible->getNodeProperties();
+
+    switch(m_type)
+    {
+        case CMD_UNLOCK:
+            if(m_pNodeProperties->getOnUnlockCmds().contains(m_uniqueIdentifier))
+                m_pCmd = m_pNodeProperties->getOnUnlockCmds()[m_uniqueIdentifier];
+            break;
+        case CMD_FAIL:
+            if(m_pNodeProperties->getOnFailCmds().contains(m_uniqueIdentifier))
+                m_pCmd = m_pNodeProperties->getOnFailCmds()[m_uniqueIdentifier];
+            break;
+        case CMD_UNLOCKED:
+            if(m_pNodeProperties->getOnUnlockedCmds().contains(m_uniqueIdentifier))
+                m_pCmd = m_pNodeProperties->getOnUnlockedCmds()[m_uniqueIdentifier];
+            break;
+    }
+
     if(m_pCmd != nullptr)
+    {
         m_pCmd->removeCommand();
+        m_pCmd = nullptr;
+    }
 }
 
 void CommandAddCommand::redo()
 {
-     m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, {00000000-0000-0000-0000-000000000000}, nullptr);
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_Node->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
+    m_pNodeProperties = m_Collapsible->getNodeProperties();
+
+    switch(m_type)
+    {
+        case CMD_UNLOCK:
+            m_pGrid = m_pNodeProperties->getOnUnlockGrid();
+            break;
+        case CMD_FAIL:
+            m_pGrid = m_pNodeProperties->getOnFailGrid();
+            break;
+        case CMD_UNLOCKED:
+            m_pGrid = m_pNodeProperties->getOnUnlockedGrid();
+            break;
+    }
+
+    m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, {00000000-0000-0000-0000-000000000000}, nullptr);
+    m_uniqueIdentifier = m_pCmd->getId();
 }
 
 ///
-CommandDeleteCommand::CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
+CommandDeleteCommand::CommandDeleteCommand(QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
                                            NodeProperties *nodeProperties, CommandRow *cmd, const QString &value, const QString &text, void (CommandRow::*deleteParams)(), NodeCtrl *node, void (NodeCtrl::*cmdAddFunc) (const QUuid &, const QString&, const QString&),
-                                           void (NodeCtrl::*paramAddFunc) (const QUuid&, const QString&, const QString&), QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, QUndoCommand *parent)
+                                           void (NodeCtrl::*paramAddFunc) (const QUuid&, const QString&, const QString&), QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, Collapsible *collapsible, QUndoCommand *parent)
     : QUndoCommand(parent)
 {
 
-    m_pGrid = grid;
     m_pCommandRow = commandRow;
     m_pNodeProperties = nodeProperties;
     m_pAddCommand = addCommand;
@@ -246,10 +445,18 @@ CommandDeleteCommand::CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, Comma
    m_pCmdAddFunc = cmdAddFunc;
    m_pParamAddFunc = paramAddFunc;
    m_pGetCmdTable = getCmdTable;
+
+   m_Collapsible = collapsible;
+   m_PropEdit = collapsible->getParent();
 }
 
 void CommandDeleteCommand::undo()
 {
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_pNode->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_pNode->getNodeHandle());
+    m_pNodeProperties = m_Collapsible->getNodeProperties();
+
     //add new command
     (m_pNode->*m_pCmdAddFunc)(m_uniqueIdentifier, m_CommandValue, m_CommandText);
 
@@ -259,11 +466,45 @@ void CommandDeleteCommand::undo()
     for (QHash<QString, QString>::iterator i = m_SavedParameters.begin(); i != m_SavedParameters.end(); ++i)
         (m_pNode->*m_pParamAddFunc)(m_CommandValue, i.key(), i.value());
 
+    switch(m_type)
+    {
+        case CMD_UNLOCK:
+            m_pGrid = m_pNodeProperties->getOnUnlockGrid();
+            m_pCommandRow = &m_pNodeProperties->getOnUnlockCmds();
+            break;
+        case CMD_FAIL:
+            m_pGrid = m_pNodeProperties->getOnFailGrid();
+            m_pCommandRow = &m_pNodeProperties->getOnFailCmds();
+            break;
+        case CMD_UNLOCKED:
+            m_pGrid = m_pNodeProperties->getOnUnlockedGrid();
+            m_pCommandRow = &m_pNodeProperties->getOnUnlockedCmds();
+            break;
+    }
+
     m_pCmd = (m_pNodeProperties->*m_pAddCommand)(m_pGrid, *m_pCommandRow, m_type, m_uniqueIdentifier, &(m_pNode->*m_pGetCmdTable)()[m_CommandValue]);
 }
 
 void CommandDeleteCommand::redo()
 {
+    //used to avoid incorrect memory access when a node is closed, this re-opens it
+    m_pNode->setSelected(true);
+    m_Collapsible = m_PropEdit->getCollapsible(m_pNode->getNodeHandle());
+    m_pNodeProperties = m_Collapsible->getNodeProperties();
+
+    switch(m_type)
+    {
+        case CMD_UNLOCK:
+            m_pCmd = m_pNodeProperties->getOnUnlockCmds()[m_uniqueIdentifier];
+            break;
+        case CMD_FAIL:
+            m_pCmd = m_pNodeProperties->getOnFailCmds()[m_uniqueIdentifier];
+            break;
+        case CMD_UNLOCKED:
+            m_pCmd = m_pNodeProperties->getOnUnlockedCmds()[m_uniqueIdentifier];
+            break;
+    }
+
     //save parameters
     m_SavedParameters = (m_pNode->*m_pGetCmdTable)()[m_CommandValue].parameters;
     m_pCmd->removeCommand();

@@ -6,6 +6,7 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QPushButton>
+#include <QLabel>
 
 #include "nodectrl.h"
 #include "collapsible.h"
@@ -20,7 +21,7 @@ class TextEditCommand : public QUndoCommand
 public:
     enum { Id = 1234 };
 
-    TextEditCommand(QLineEdit *textItem, const QString &oldText, NodeCtrl* node, void (NodeCtrl::*nameChangeFunc)(const QString &), Collapsible *propEdit = 0,
+    TextEditCommand(bool isDescription, const QString &oldText, const QString &newText, NodeCtrl* node, void (NodeCtrl::*nameChangeFunc)(const QString &), Collapsible *collapsible,
                 QUndoCommand *parent = 0);
 
     void undo() override;
@@ -33,7 +34,9 @@ private:
     QString m_OldText;
     QString m_NewText;
     NodeCtrl *m_Node;
-    Collapsible *m_PropEdit = nullptr;
+    Collapsible *m_Collapsible = nullptr;
+    PropertyEditor *m_PropEdit = nullptr;
+    bool m_isDescription;
 
     void (NodeCtrl::*m_pNameChangeFunc) (const QString&);
 };
@@ -43,8 +46,8 @@ class ParamEditCommand : public QUndoCommand
 public:
     enum { Id = 2345 };
 
-    ParamEditCommand(QLineEdit *textItem, const QString &oldText, const QUuid &cmdKey, const QString &paramKey, NodeCtrl* node, void (NodeCtrl::*paramChangeFunc)(const QUuid &, const QString &, const QString &),
-                QUndoCommand *parent = 0);
+    ParamEditCommand(const QString &newText, const QString &oldText, const QUuid &cmdKey, const QString &paramKey, NodeCtrl* node, void (NodeCtrl::*paramChangeFunc)(const QUuid &, const QString &, const QString &),
+                Collapsible *collapsible, CommandBlockTypes type, QUndoCommand *parent = 0);
 
     void undo() override;
     void redo() override;
@@ -59,6 +62,9 @@ private:
     QUuid m_cmdKey;
     QString m_paramKey;
     void (NodeCtrl::*m_pParamChangeFunc) (const QUuid&, const QString&, const QString&);
+    Collapsible *m_Collapsible = nullptr;
+    PropertyEditor *m_PropEdit = nullptr;
+    CommandBlockTypes m_type;
 };
 
 class CommandEditCommand : public QUndoCommand
@@ -66,11 +72,11 @@ class CommandEditCommand : public QUndoCommand
 public:
     enum { Id = 3456 };
 
-    CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QUuid&),
+    CommandEditCommand(QComboBox *cmdItem, const QString &oldValue, const QString &oldText, const QString &newValue, const QString &newText, NodeCtrl* node, void (NodeCtrl::*cmdDeleteFunc)(const QUuid&),
                        void (NodeCtrl::*CmdAddFunc)(const QUuid&, const QString&, const QString&), void (NodeCtrl::*ParamAddFunc)(const QUuid&, const QString&, const QString&),
                        NodeProperties *nodeProperties, void (NodeProperties::*deleteParams) (CommandRow *cmd),
-                       void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow*, const QUuid&), const QString &oldText,
-                       CommandRow *cmd, CommandBlockTypes type, QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, QUndoCommand *parent = 0);
+                       void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow*, const QUuid&),
+                       CommandRow *cmd, CommandBlockTypes type, QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, Collapsible *collapsible, QUndoCommand *parent = 0);
 
     void undo() override;
     void redo() override;
@@ -104,6 +110,9 @@ private:
 
     QUuid m_uniqueIdentifier;
 
+    Collapsible *m_Collapsible = nullptr;
+    PropertyEditor *m_PropEdit = nullptr;
+
 
 };
 
@@ -113,7 +122,7 @@ public:
     enum { Id = 4567 };
 
     CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
-                      NodeProperties *nodeProperties, QUndoCommand *parent = 0);
+                      NodeProperties *nodeProperties, Collapsible *collapsible, NodeCtrl *node, QUndoCommand *parent = 0);
 
     void undo() override;
     void redo() override;
@@ -127,6 +136,12 @@ private:
     NodeProperties *m_pNodeProperties;
     CommandRow* (NodeProperties::*m_pAddCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*);
     CommandRow *m_pCmd;
+
+    Collapsible *m_Collapsible = nullptr;
+    PropertyEditor *m_PropEdit = nullptr;
+    NodeCtrl *m_Node;
+
+    QUuid m_uniqueIdentifier;
 };
 
 class CommandDeleteCommand : public QUndoCommand
@@ -134,9 +149,9 @@ class CommandDeleteCommand : public QUndoCommand
 public:
     enum { Id = 5678 };
 
-    CommandDeleteCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
+    CommandDeleteCommand(QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
                          NodeProperties *nodeProperties, CommandRow *cmd, const QString &value, const QString &text, void (CommandRow::*deleteParams)(), NodeCtrl *node, void (NodeCtrl::*cmdAddFunc) (const QUuid &, const QString&, const QString&),
-                         void (NodeCtrl::*paramAddFunc) (const QUuid&, const QString&, const QString&), QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, QUndoCommand *parent = 0);
+                         void (NodeCtrl::*paramAddFunc) (const QUuid&, const QString&, const QString&), QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, Collapsible *collapsible, QUndoCommand *parent = 0);
 
     void undo() override;
     void redo() override;
@@ -162,6 +177,8 @@ private:
     QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*m_pGetCmdTable)();
 
     QUuid m_uniqueIdentifier;
+    Collapsible *m_Collapsible = nullptr;
+    PropertyEditor *m_PropEdit = nullptr;
 };
 
 #endif // UNDOEDITS_H

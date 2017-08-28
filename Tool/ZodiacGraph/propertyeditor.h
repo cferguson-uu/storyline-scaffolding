@@ -75,6 +75,13 @@ public: // methods
     ///
     void showNodes(const QList<zodiac::NodeHandle>& selection);
 
+    ///
+    /// \brief Gets collapsible based on node.
+    ///
+    /// \param [in] selection   Handles of nodes to grab correct properties%s.
+    ///
+    Collapsible *getCollapsible(zodiac::NodeHandle node);
+
 private: // members
 
     ///

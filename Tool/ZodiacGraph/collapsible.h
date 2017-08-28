@@ -29,7 +29,8 @@
 
 class QPushButton;
 class QVBoxLayout;
-
+class PropertyEditor;
+class NodeProperties;
 ///
 /// \brief Container class for a collapsible display widget and a title button.
 ///
@@ -44,7 +45,7 @@ public: // methods
     ///
     /// \param [in] parent      Qt parent widget.
     ///
-    Collapsible(QWidget *parent);
+    Collapsible(QWidget *parent, PropertyEditor *editor);
 
     ///
     /// \brief Defines a new widget to contain in this Collapsible.
@@ -52,9 +53,20 @@ public: // methods
     /// Takes possession of the widget and resets its parent to this.
     /// If the Collapsible already contains a widget,
     ///
-    /// \param [in] displayWidget   The widget to display / hide in this Collapsible.
+    /// \param [in] displayWidget   The widget to display / hide in this Collapsible.///
+    /// \param [in] nodeProps       The actual node properties to access.
     ///
-    void setWidget(QWidget* displayWidget);
+    void setWidget(QWidget* displayWidget, NodeProperties *nodeProps);
+
+    ///
+    /// \brief Returns the parent
+    ///
+    PropertyEditor* getParent();
+
+    ///
+    /// \brief Returns the node properties
+    ///
+    NodeProperties* getNodeProperties();
 
 public slots:
 
@@ -102,6 +114,13 @@ private: // members
     /// \brief Title of this Collapsible widget.
     ///
     QString m_title;
+
+    ///
+    /// \brief PropertyEditor, needed for undo
+    ///
+    PropertyEditor *m_editor;
+
+    NodeProperties *m_nodeProperties;
 
 private : // static members
 

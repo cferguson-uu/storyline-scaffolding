@@ -79,6 +79,17 @@ public: // methods
     ///
     explicit NodeProperties(NodeCtrl* node, Collapsible *parent, std::list<Command> *commands, QUndoStack *undoStack);
 
+    QLineEdit *getNameEdit(){return m_nameEdit;}
+    QLineEdit *getDescriptionEdit(){return m_descriptionEdit;}
+    QHash<QUuid, CommandRow*> getOnUnlockCmds(){return m_onUnlockRows;}
+    QHash<QUuid, CommandRow*> getOnFailCmds(){return m_onFailRows;}
+    QHash<QUuid, CommandRow*> getOnUnlockedCmds(){return m_onUnlockedRows;}
+    QGridLayout *getOnUnlockGrid(){return m_onUnlockLayout;}
+    QGridLayout *getOnFailGrid(){return m_onFailLayout;}
+    QGridLayout *getOnUnlockedGrid(){return m_onUnlockedLayout;}
+    Collapsible* getParent(){return qobject_cast<Collapsible*>(parent());}
+
+
 private: // for friend
 
     ///
@@ -311,6 +322,10 @@ public: // methods
 
     QUuid getId(){return m_identifier;}
 
+    QComboBox *getCommandBox(){return m_nameEdit;}
+
+    std::vector<std::pair<QLabel*,QLineEdit*>> getParams(){return m_params;}
+
 public slots:
 
     ///
@@ -344,13 +359,11 @@ private: // members
 
     QGridLayout *m_blockLayout;
 
-    std::vector<std::pair<QLabel*,QLineEdit*>> params;
+    std::vector<std::pair<QLabel*,QLineEdit*>> m_params;
 
     bool m_undo = false;
 
     QUuid m_identifier;
-
-
 
     //on unlock, fail or unlocked
     CommandBlockTypes m_commandType;

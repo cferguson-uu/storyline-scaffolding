@@ -4,17 +4,20 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include "propertyeditor.h"
+#include "nodeproperties.h"
 
 const QString Collapsible::s_downArrow = QString::fromUtf8(" \xE2\x96\xBC   ");
 const QString Collapsible::s_upArrow = QString::fromUtf8(" \xE2\x96\xB2   ");
 const int Collapsible::s_maxWidth = 400;
 
-Collapsible::Collapsible(QWidget *parent)
+Collapsible::Collapsible(QWidget *parent, PropertyEditor *editor)
     : QFrame(parent)
     , m_mainLayout(new QVBoxLayout(this))
     , m_displayWidget(nullptr)
     , m_titleButton(new QPushButton(this))
     , m_title(QString())
+    , m_editor(editor)
 {
     setFrameShape(QFrame::NoFrame);
     setMaximumWidth(s_maxWidth);
@@ -30,7 +33,12 @@ Collapsible::Collapsible(QWidget *parent)
     setLayout(m_mainLayout);
 }
 
-void Collapsible::setWidget(QWidget* displayWidget)
+PropertyEditor* Collapsible::getParent()
+{
+    return m_editor;
+}
+
+void Collapsible::setWidget(QWidget* displayWidget, NodeProperties *nodeProps)
 {
     // remove any existing widget
     if(m_displayWidget){
@@ -45,6 +53,12 @@ void Collapsible::setWidget(QWidget* displayWidget)
     }
     m_displayWidget = displayWidget;
     m_mainLayout->addWidget(m_displayWidget);
+    m_nodeProperties = nodeProps;
+}
+
+NodeProperties* Collapsible::getNodeProperties()
+{
+    return m_nodeProperties;
 }
 
 void Collapsible::toggleCollapse()
