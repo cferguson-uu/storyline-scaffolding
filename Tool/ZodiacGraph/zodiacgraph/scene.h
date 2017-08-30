@@ -46,6 +46,7 @@ class Node;
 class Plug;
 class EdgeGroup;
 class EdgeGroupPair;
+enum StoryNodeType;
 
 ///
 /// \brief Scene class for the ZodiacGraph.
@@ -86,7 +87,7 @@ public: // methods
     ///
     /// \return             The new Node.
     ///
-    Node* createNode(const QString& name, bool story, const QUuid& uuid = QUuid());
+    Node* createNode(const QString& name, StoryNodeType storyType, const QUuid& uuid = QUuid());
 
     ///
     /// \brief Removes an existing Node from this Scene.

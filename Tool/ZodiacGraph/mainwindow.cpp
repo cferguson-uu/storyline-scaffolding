@@ -44,9 +44,19 @@ MainWindow::MainWindow(QWidget *parent)
     m_pRedoAction = m_pUndoStack->createRedoAction(this, tr("&Redo"));
     m_pRedoAction->setShortcuts(QKeySequence::Redo);
 
+    //create menu for undo functions
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(m_pUndoAction);
     editMenu->addAction(m_pRedoAction);
+
+    //create menu for story graph functions
+    QMenu *storyMenu = menuBar()->addMenu(tr("&Story Graph"));
+    QAction* saveStory = new QAction(tr("&Save Story"), this);
+    QAction* loadStory = new QAction(tr("&Load Story"), this);
+    storyMenu->addAction(saveStory);
+    storyMenu->addAction(loadStory);
+    connect(saveStory, &QAction::triggered, [=]{m_mainCtrl->saveStoryGraph();});
+    connect(loadStory, &QAction::triggered, [=]{m_mainCtrl->loadStoryGraph();});
 
     // create the main toolbar
     QToolBar* mainToolBar = new QToolBar(this);
@@ -81,15 +91,13 @@ MainWindow::MainWindow(QWidget *parent)
     newNarrativeNodeAction->setShortcuts(QKeySequence::New);
     newNarrativeNodeAction->setStatusTip(tr("Create a new Narrative Node"));
     mainToolBar->addAction(newNarrativeNodeAction);
-    //connect(newNarrativeNodeAction, SIGNAL(triggered()), m_mainCtrl, SLOT(createDefaultNode()));
-    connect(newNarrativeNodeAction, &QAction::triggered, [=]{m_mainCtrl->createDefaultNode(false); });
+    connect(newNarrativeNodeAction, &QAction::triggered, [=]{m_mainCtrl->createDefaultNode(); });
 
-    QAction* newStoryNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Story Node"), this);
+    QAction* newStoryNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Story Graph"), this);
     newStoryNodeAction->setShortcuts(QKeySequence::New);
     newStoryNodeAction->setStatusTip(tr("Create a new Story Node"));
     mainToolBar->addAction(newStoryNodeAction);
-    //connect(newStoryNodeAction, SIGNAL(triggered()), m_mainCtrl, SLOT(createDefaultNode()));
-    connect(newStoryNodeAction, &QAction::triggered, [=]{m_mainCtrl->createDefaultNode(true); });
+    connect(newStoryNodeAction, &QAction::triggered, [=]{m_mainCtrl->createStoryGraph();});
 
     QWidget* emptySpacer = new QWidget();
     emptySpacer->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);

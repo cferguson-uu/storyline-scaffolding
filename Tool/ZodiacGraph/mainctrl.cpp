@@ -27,7 +27,7 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));
 }
 
-NodeCtrl* MainCtrl::createNode(bool createStoryNode, const QString& name)
+NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name)
 {
     // the newly created Node is the only selected one to avoid confusion
     m_scene.deselectAll();
@@ -39,7 +39,7 @@ NodeCtrl* MainCtrl::createNode(bool createStoryNode, const QString& name)
     }
 
     // create the node
-    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, createStoryNode));   //create story node is true
+    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, storyType));
     m_nodes.insert(nodeCtrl->getNodeHandle(), nodeCtrl);
 
     return nodeCtrl;
@@ -113,10 +113,9 @@ bool MainCtrl::shutdown()
     return true;
 }
 
-
-void MainCtrl::createDefaultNode(bool createStoryNode)
+void MainCtrl::createDefaultNode()
 {
-    NodeCtrl* newNode = createNode(createStoryNode);
+    NodeCtrl* newNode = createNode(zodiac::STORY_NONE);
 
 //    int plugCount = (qreal(qrand())/qreal(RAND_MAX))*12;
 //    for(int i = 0; i < plugCount + 4; ++i){
@@ -133,4 +132,54 @@ void MainCtrl::createDefaultNode(bool createStoryNode)
 void MainCtrl::selectionChanged(QList<zodiac::NodeHandle> selection)
 {
     m_propertyEditor->showNodes(selection);
+}
+
+void MainCtrl::createStoryGraph()
+{
+    NodeCtrl* nameNode = createNode(zodiac::STORY_NAME, "Story"); //create story name
+
+    NodeCtrl* settingNode = createNode(zodiac::STORY_SETTING, "Setting"); //create setting
+    NodeCtrl* themeNode = createNode(zodiac::STORY_THEME, "Theme"); //create theme
+    NodeCtrl* plotNode = createNode(zodiac::STORY_PLOT, "Plot"); //create plot
+    NodeCtrl* resolutionNode = createNode(zodiac::STORY_RESOLUTION, "Resolution"); //create resolution
+}
+
+void MainCtrl::saveStoryGraph()
+{
+    //get list of all story nodes
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+    zodiac::NodeHandle *mainStoryNode;
+
+    //iterate through the list to find the main story node
+    for(QList<zodiac::NodeHandle>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+    {
+        if((*it).getType() == zodiac::NODE_STORY && (*it).getStoryNodeType() == zodiac::STORY_NAME)
+        {
+            mainStoryNode = &(*it); //get a pointer to the handle of the main node as a starting point
+            break;
+        }
+    }
+
+    //store story name
+
+    //get settings node
+    //get characters node - store, then iterate through details nodes and store these
+    //get locations node - store, then iterate through details nodes and store these
+    //get times node - store, then iterate through details nodes and store these
+
+    //get theme node
+    //get events node - find each seperate event and sub-events, store these
+    //get goals node - find each seperate goal and sub-goals, store these
+
+    //get plot node
+    //get each episode node - store, store subgoal, iterate through attempts, store these and sub episodes, same with outcomes
+
+    //get resolution node
+    //get events node - iterate though events and store
+    //get states node = iterate through states and store
+}
+
+void MainCtrl::loadStoryGraph()
+{
+    qDebug() << "load";
 }

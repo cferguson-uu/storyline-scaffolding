@@ -241,6 +241,11 @@ public: // methods
     void editParameterInOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
     ///
+    /// \brief Gets the type of story node
+    ///
+    ///
+    StoryNodeType getStoryNodeType();
+    ///
     /// \brief Sets the expansion of the node only if it is not currently forced open.
     ///
     /// \param [in] newState New state to expand.

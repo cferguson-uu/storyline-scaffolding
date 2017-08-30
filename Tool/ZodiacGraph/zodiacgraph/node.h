@@ -74,6 +74,7 @@ enum NodeType
 
 enum StoryNodeType
 {
+    STORY_NAME,
     STORY_SETTING,
     STORY_SETTING_CHARACTER,
     STORY_SETTING_LOCATION,
@@ -88,7 +89,8 @@ enum StoryNodeType
     STORY_PLOT_EPISODE_OUTCOME,
     STORY_RESOLUTION,
     STORY_RESOLUTION_EVENT,
-    STORY_RESOLUTION_STATE
+    STORY_RESOLUTION_STATE,
+    STORY_NONE
 };
 
 ///
@@ -1119,10 +1121,14 @@ private:
 class StoryNode: public Node
 {
 public:
-    StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid(),
+    StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid(), StoryNodeType storyType = STORY_NAME,
               QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
-              QColor labelBackgroundColor = QColor("#F84B28"/*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"))
-        : Node(scene, displayName, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor){}
+              QColor labelBackgroundColor = QColor("#F84B28" /*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"))
+        : Node(scene, displayName, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
+          , m_storyNodeType(storyType){}
+
+    StoryNodeType getStoryNodeType(){return m_storyNodeType;}
+
 private:
     StoryNodeType m_storyNodeType;
 

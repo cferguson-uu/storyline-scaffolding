@@ -69,7 +69,7 @@ public: // methods
     ///
     /// \return Control for new node.
     ///
-    NodeCtrl* createNode(bool createStoryNode, const QString& name = "");
+    NodeCtrl* createNode(zodiac::StoryNodeType storyType, const QString& name = "");
 
     ///
     /// \brief Deletes an existing node from the graph.
@@ -111,7 +111,20 @@ public slots:
     ///
     /// \brief Creates a new node in the graph selects and activates it.
     ///
-    void createDefaultNode(bool createStoryNode);
+    void createDefaultNode();
+    ///
+    /// \brief Creates a new story graph
+    ///
+    void createStoryGraph();
+    ///
+    /// \brief Save the story graph to a JSON file
+    ///
+    void loadStoryGraph();
+
+    ///
+    /// \brief Loads the story graph from a JSON file
+    ///
+    void saveStoryGraph();
 
 private slots:
 

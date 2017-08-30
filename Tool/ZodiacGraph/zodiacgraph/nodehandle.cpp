@@ -464,6 +464,21 @@ void NodeHandle::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QSt
     nNode->editParameterInOnUnlockedCommand(cmdKey, paramKey, value);
 }
 
+StoryNodeType NodeHandle::getStoryNodeType()
+{
+    StoryNode *sNode = static_cast<StoryNode*>(m_node);
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+    Q_ASSERT(sNode);
+#else
+    if(!m_isValid || !sNode){
+        return;
+    }
+
+#endif
+    return sNode->getStoryNodeType();
+}
+
 void NodeHandle::softSetExpansion(NodeExpansion newState)
 {
 #ifdef QT_DEBUG
