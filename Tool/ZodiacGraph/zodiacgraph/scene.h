@@ -172,6 +172,13 @@ public: // methods
     ///
     void updateStyle();
 
+    ///
+    /// \brief Returns the parent widget, needed in node sometimes.
+    ///
+    /// \return         The parent widget
+    ///
+    inline QObject* getParent() {return parent();}
+
 private: // members
 
     ///

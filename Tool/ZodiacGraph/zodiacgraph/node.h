@@ -36,6 +36,8 @@
 #include <QSet>
 #include <QUuid>
 #include <QPen>
+#include <QContextMenuEvent>
+#include <QMenu>
 
 namespace zodiac {
 
@@ -76,20 +78,30 @@ enum StoryNodeType
 {
     STORY_NAME,
     STORY_SETTING,
+    STORY_SETTING_CHARACTER_GROUP,
+    STORY_SETTING_LOCATION_GROUP,
+    STORY_SETTING_TIME_GROUP,
     STORY_SETTING_CHARACTER,
     STORY_SETTING_LOCATION,
     STORY_SETTING_TIME,
     STORY_ITEM_DETAILS,
     STORY_THEME,
+    STORY_THEME_EVENT_GROUP,
+    STORY_THEME_GOAL_GROUP,
     STORY_THEME_EVENT,
     STORY_THEME_GOAL,
     STORY_PLOT,
     STORY_PLOT_EPISODE,
+    STORY_PLOT_EPISODE_ATTEMPT_GROUP,
+    STORY_PLOT_EPISODE_OUTCOME_GROUP,
     STORY_PLOT_EPISODE_ATTEMPT,
     STORY_PLOT_EPISODE_OUTCOME,
+    STORY_PLOT_EPISODE_SUBGOAL,
     STORY_RESOLUTION,
     STORY_RESOLUTION_EVENT,
     STORY_RESOLUTION_STATE,
+    STORY_RESOLUTION_EVENT_GROUP,
+    STORY_RESOLUTION_STATE_GROUP,
     STORY_NONE
 };
 
@@ -1121,13 +1133,14 @@ private:
 class StoryNode: public Node
 {
 public:
-    StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, const QUuid& uuid = QUuid(), StoryNodeType storyType = STORY_NAME,
+    StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, StoryNodeType storyType, const QUuid& uuid = QUuid(),
               QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
               QColor labelBackgroundColor = QColor("#F84B28" /*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"))
         : Node(scene, displayName, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
           , m_storyNodeType(storyType){}
 
     StoryNodeType getStoryNodeType(){return m_storyNodeType;}
+    void contextMenuEvent(QContextMenuEvent *event);
 
 private:
     StoryNodeType m_storyNodeType;

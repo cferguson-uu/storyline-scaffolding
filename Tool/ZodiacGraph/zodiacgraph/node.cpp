@@ -72,7 +72,6 @@ Node::Node(Scene* scene, const QString &displayName, NodeType nodeType, const QU
     setOutlineWidth(3);
     m_linePen = QPen(QBrush("#cdcdcd"), s_outlineWidth);
 
-
     // set QGraphicsObject flags
     setFlag(ItemIsMovable);
     setFlag(ItemIsSelectable);
@@ -390,6 +389,14 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
         event->accept();
         emit removalRequested();
         return;
+    }else if(event->buttons() & View::getMoveButton()){   //if not scroll dragging then bring up a context menu
+        if(m_nodeType == NODE_STORY)
+        {
+            StoryNode *sNode = static_cast<StoryNode*>(this);
+
+            QContextMenuEvent fakeEvent(QContextMenuEvent::Mouse, event->pos().toPoint(), event->screenPos());
+            sNode->contextMenuEvent(&fakeEvent);
+        }
     }
 }
 
@@ -856,6 +863,111 @@ void NarrativeNode::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const 
     m_onUnlocked[cmdKey].parameters[paramKey] = value;
 }
 
+///
+/// \brief Brings up a context menu to add more nodes if applicable
+///
+/// \param [in] event   Menu Event.
+///
+///
+void StoryNode::contextMenuEvent(QContextMenuEvent *event)
+{
+    //QMenu menu(this);
+    QMenu contextMenu((QWidget*)getScene()->getParent());
+    QAction* addCharacter;
+    QAction* addLocation;
+    QAction* addTime;
+    QAction* addDetail;
+    QAction* addEvent;
+    QAction* addGoal;
+    QAction* addEpisode;
+    QAction* addAttempt;
+    QAction* addOutcome;
+    QAction* addState;
+
+    switch (m_storyNodeType) {
+    case STORY_SETTING:
+        addCharacter = new QAction(tr("&Add Character"), this);    //add item group then item
+        addLocation = new QAction(tr("&Add Location"), this);
+        addTime = new QAction(tr("&Add Time"), this);
+        contextMenu.addAction(addCharacter);
+        contextMenu.addAction(addLocation);
+        contextMenu.addAction(addTime);
+        break;
+    case STORY_SETTING_CHARACTER_GROUP:
+        addCharacter = new QAction(tr("&Add Character"), this);
+        contextMenu.addAction(addCharacter);
+        break;
+    case STORY_SETTING_LOCATION_GROUP:
+        addLocation = new QAction(tr("&Add Location"), this);
+        contextMenu.addAction(addLocation);
+        break;
+    case STORY_SETTING_TIME_GROUP:
+        addTime = new QAction(tr("&Add Time"), this);
+        contextMenu.addAction(addTime);
+        break;
+    case STORY_SETTING_CHARACTER:
+    case STORY_SETTING_LOCATION:
+    case STORY_SETTING_TIME:
+        addDetail = new QAction(tr("&Add Detail"), this);
+        contextMenu.addAction(addDetail);
+        break;
+    case STORY_THEME:
+        addEvent = new QAction(tr("&Add Event"), this);    //add event group then event
+        addGoal = new QAction(tr("&Add Goal"), this);      //add goal group then goal
+        contextMenu.addAction(addEvent);
+        contextMenu.addAction(addGoal);
+        break;
+    case STORY_THEME_EVENT_GROUP:
+        addEvent = new QAction(tr("&Add Event"), this);
+        contextMenu.addAction(addEvent);
+        break;
+    case STORY_THEME_GOAL_GROUP:
+        addGoal = new QAction(tr("&Add Goal"), this);
+        contextMenu.addAction(addGoal);
+        break;
+    case STORY_THEME_EVENT:
+        addEvent = new QAction(tr("&Add Sub-Event"), this);
+        contextMenu.addAction(addEvent);
+        break;
+    case STORY_THEME_GOAL:
+        addGoal = new QAction(tr("&Add Sub-Goal"), this);
+        contextMenu.addAction(addGoal);
+        break;
+    case STORY_PLOT:
+        addEpisode = new QAction(tr("&Add Episode"), this); //add attempt group, add outcome group, add subgoal
+        contextMenu.addAction(addEpisode);
+        break;
+    case STORY_PLOT_EPISODE_ATTEMPT_GROUP:
+        addAttempt = new QAction(tr("&Add Attempt"), this);
+        addEpisode = new QAction(tr("&Add Sub-Episode"), this);
+        contextMenu.addAction(addAttempt);
+        contextMenu.addAction(addEpisode);
+        break;
+    case STORY_PLOT_EPISODE_OUTCOME_GROUP:
+        addOutcome = new QAction(tr("&Add Outcome"), this);
+        addEpisode = new QAction(tr("&Add Sub-Episode"), this);
+        contextMenu.addAction(addOutcome);
+        contextMenu.addAction(addEpisode);
+        break;
+    case STORY_RESOLUTION:
+        addEvent = new QAction(tr("&Add Event"), this);    //add event group then event
+        addState = new QAction(tr("&Add State"), this);    //add state group then state
+        contextMenu.addAction(addEvent);
+        contextMenu.addAction(addState);
+    case STORY_RESOLUTION_EVENT_GROUP:
+        addEvent = new QAction(tr("&Add Event"), this);
+        contextMenu.addAction(addEvent);
+    case STORY_RESOLUTION_STATE_GROUP:
+        addState = new QAction(tr("&Add State"), this);
+        contextMenu.addAction(addState);
+        break;
+    default:
+        break;
+    }
+
+
+    contextMenu.exec(event->globalPos());
+}
 
 } // namespace zodiac
 

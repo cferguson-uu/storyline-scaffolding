@@ -142,6 +142,25 @@ void MainCtrl::createStoryGraph()
     NodeCtrl* themeNode = createNode(zodiac::STORY_THEME, "Theme"); //create theme
     NodeCtrl* plotNode = createNode(zodiac::STORY_PLOT, "Plot"); //create plot
     NodeCtrl* resolutionNode = createNode(zodiac::STORY_RESOLUTION, "Resolution"); //create resolution
+
+    //distance between each object should be 100, looks clean
+
+    nameNode->getNodeHandle().setPos(0, -100);
+    settingNode->getNodeHandle().setPos(-150, 100);
+    themeNode->getNodeHandle().setPos(-50, 100);
+    plotNode->getNodeHandle().setPos(50, 100);
+    resolutionNode->getNodeHandle().setPos(150, 100);
+
+    zodiac::PlugHandle nameNodeOutPlug = nameNode->getNodeHandle().createOutgoingPlug("nameOut");
+
+    zodiac::PlugHandle settingNodeInPlug = settingNode->getNodeHandle().createIncomingPlug("settingIn");
+    nameNodeOutPlug.connectPlug(settingNodeInPlug);
+    zodiac::PlugHandle themeNodeInPlug = themeNode->getNodeHandle().createIncomingPlug("themeIn");
+    nameNodeOutPlug.connectPlug(themeNodeInPlug);
+    zodiac::PlugHandle plotNodeInPlug = plotNode->getNodeHandle().createIncomingPlug("plotIn");
+    nameNodeOutPlug.connectPlug(plotNodeInPlug);
+    zodiac::PlugHandle resolutionNodeInPlug = resolutionNode->getNodeHandle().createIncomingPlug("resolutionIn");
+    nameNodeOutPlug.connectPlug(resolutionNodeInPlug);
 }
 
 void MainCtrl::saveStoryGraph()

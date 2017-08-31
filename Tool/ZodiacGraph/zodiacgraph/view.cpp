@@ -137,7 +137,7 @@ void View::mousePressEvent(QMouseEvent* event)
             QMouseEvent fakeEvent(event->type(), event->pos(), Qt::LeftButton, Qt::LeftButton, event->modifiers());
             QGraphicsView::mousePressEvent(&fakeEvent);
         }
-        return;
+        //return; //removed as drag button will be used when not dragging
 
     } else if (event->button() != s_selectionButton){
         // do not allow rubberband selection with any button other than the selection button

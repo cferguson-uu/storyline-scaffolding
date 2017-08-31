@@ -44,7 +44,7 @@ Node* Scene::createNode(const QString &name, StoryNodeType storyType, const QUui
     //Node* newNode = new Node(this, name, uuid);
     if(storyType != STORY_NONE)
     {
-        StoryNode* newNode = new StoryNode(this, name, NODE_STORY, uuid);
+        StoryNode* newNode = new StoryNode(this, name, NODE_STORY, storyType, uuid);
         m_nodes.insert(newNode);
         addItem(newNode);
         return newNode;
