@@ -256,6 +256,11 @@ public: // methods
 public slots:
 
     ///
+    /// \brief Emitted, when context menu is used to create another story node
+    ///
+    void createStoryChild(zodiac::StoryNodeType, QString);
+
+    ///
     /// \brief Tries to remove this logical node from the graph.
     ///
     /// \return <i>true</i> if the node was removed -- <i>false</i> otherwise.

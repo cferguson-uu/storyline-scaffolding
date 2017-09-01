@@ -115,6 +115,10 @@ public slots:
     ///
     /// \brief Creates a new story graph
     ///
+    void createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name);
+    ///
+    /// \brief Creates a new story graph
+    ///
     void createStoryGraph();
     ///
     /// \brief Save the story graph to a JSON file

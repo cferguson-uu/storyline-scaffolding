@@ -1132,6 +1132,7 @@ private:
 
 class StoryNode: public Node
 {
+    Q_OBJECT
 public:
     StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, StoryNodeType storyType, const QUuid& uuid = QUuid(),
               QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
@@ -1144,6 +1145,11 @@ public:
 
 private:
     StoryNodeType m_storyNodeType;
+signals:
+    ///
+    /// \brief Emitted, when context menu is used to create another story node
+    ///
+    void createStoryChild(zodiac::StoryNodeType, QString);
 
 };
 

@@ -873,93 +873,143 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
 {
     //QMenu menu(this);
     QMenu contextMenu((QWidget*)getScene()->getParent());
-    QAction* addCharacter;
-    QAction* addLocation;
-    QAction* addTime;
-    QAction* addDetail;
-    QAction* addEvent;
-    QAction* addGoal;
-    QAction* addEpisode;
-    QAction* addAttempt;
-    QAction* addOutcome;
-    QAction* addState;
+    QAction* addCharacterAction;
+    QAction* addLocationAction;
+    QAction* addTimeAction;
+    QAction* addDetailAction;
+    QAction* addEventAction;
+    QAction* addGoalAction;
+    QAction* addEpisodeAction;
+    QAction* addAttemptAction;
+    QAction* addOutcomeAction;
+    QAction* addStateAction;
 
     switch (m_storyNodeType) {
     case STORY_SETTING:
-        addCharacter = new QAction(tr("&Add Character"), this);    //add item group then item
-        addLocation = new QAction(tr("&Add Location"), this);
-        addTime = new QAction(tr("&Add Time"), this);
-        contextMenu.addAction(addCharacter);
-        contextMenu.addAction(addLocation);
-        contextMenu.addAction(addTime);
+        addCharacterAction = new QAction(tr("&Add Character"), this);    //add item group then item
+        addLocationAction = new QAction(tr("&Add Location"), this);
+        addTimeAction = new QAction(tr("&Add Time"), this);
+
+        connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER, "CHAR"); });
+
+        contextMenu.addAction(addCharacterAction);
+        contextMenu.addAction(addLocationAction);
+        contextMenu.addAction(addTimeAction);
         break;
     case STORY_SETTING_CHARACTER_GROUP:
-        addCharacter = new QAction(tr("&Add Character"), this);
-        contextMenu.addAction(addCharacter);
+        addCharacterAction = new QAction(tr("&Add Character"), this);
+
+
+
+        contextMenu.addAction(addCharacterAction);
         break;
     case STORY_SETTING_LOCATION_GROUP:
-        addLocation = new QAction(tr("&Add Location"), this);
-        contextMenu.addAction(addLocation);
+        addLocationAction = new QAction(tr("&Add Location"), this);
+
+
+
+        contextMenu.addAction(addLocationAction);
         break;
     case STORY_SETTING_TIME_GROUP:
-        addTime = new QAction(tr("&Add Time"), this);
-        contextMenu.addAction(addTime);
+        addTimeAction = new QAction(tr("&Add Time"), this);
+
+
+
+        contextMenu.addAction(addTimeAction);
         break;
     case STORY_SETTING_CHARACTER:
     case STORY_SETTING_LOCATION:
     case STORY_SETTING_TIME:
-        addDetail = new QAction(tr("&Add Detail"), this);
-        contextMenu.addAction(addDetail);
+        addDetailAction = new QAction(tr("&Add Detail"), this);
+
+
+
+        contextMenu.addAction(addDetailAction);
         break;
     case STORY_THEME:
-        addEvent = new QAction(tr("&Add Event"), this);    //add event group then event
-        addGoal = new QAction(tr("&Add Goal"), this);      //add goal group then goal
-        contextMenu.addAction(addEvent);
-        contextMenu.addAction(addGoal);
+        addEventAction = new QAction(tr("&Add Event"), this);    //add event group then event
+        addGoalAction = new QAction(tr("&Add Goal"), this);      //add goal group then goal
+
+
+
+        contextMenu.addAction(addEventAction);
+        contextMenu.addAction(addGoalAction);
         break;
     case STORY_THEME_EVENT_GROUP:
-        addEvent = new QAction(tr("&Add Event"), this);
-        contextMenu.addAction(addEvent);
+        addEventAction = new QAction(tr("&Add Event"), this);
+
+
+
+        contextMenu.addAction(addEventAction);
         break;
     case STORY_THEME_GOAL_GROUP:
-        addGoal = new QAction(tr("&Add Goal"), this);
-        contextMenu.addAction(addGoal);
+        addGoalAction = new QAction(tr("&Add Goal"), this);
+
+
+
+        contextMenu.addAction(addGoalAction);
         break;
     case STORY_THEME_EVENT:
-        addEvent = new QAction(tr("&Add Sub-Event"), this);
-        contextMenu.addAction(addEvent);
+        addEventAction = new QAction(tr("&Add Sub-Event"), this);
+
+
+
+        contextMenu.addAction(addEventAction);
         break;
     case STORY_THEME_GOAL:
-        addGoal = new QAction(tr("&Add Sub-Goal"), this);
-        contextMenu.addAction(addGoal);
+        addGoalAction = new QAction(tr("&Add Sub-Goal"), this);
+
+
+
+        contextMenu.addAction(addGoalAction);
         break;
     case STORY_PLOT:
-        addEpisode = new QAction(tr("&Add Episode"), this); //add attempt group, add outcome group, add subgoal
-        contextMenu.addAction(addEpisode);
+        addEpisodeAction = new QAction(tr("&Add Episode"), this); //add attempt group, add outcome group, add subgoal
+
+
+
+        contextMenu.addAction(addEpisodeAction);
         break;
     case STORY_PLOT_EPISODE_ATTEMPT_GROUP:
-        addAttempt = new QAction(tr("&Add Attempt"), this);
-        addEpisode = new QAction(tr("&Add Sub-Episode"), this);
-        contextMenu.addAction(addAttempt);
-        contextMenu.addAction(addEpisode);
+        addAttemptAction = new QAction(tr("&Add Attempt"), this);
+        addEpisodeAction = new QAction(tr("&Add Sub-Episode"), this);
+
+
+
+        contextMenu.addAction(addAttemptAction);
+        contextMenu.addAction(addEpisodeAction);
         break;
     case STORY_PLOT_EPISODE_OUTCOME_GROUP:
-        addOutcome = new QAction(tr("&Add Outcome"), this);
-        addEpisode = new QAction(tr("&Add Sub-Episode"), this);
-        contextMenu.addAction(addOutcome);
-        contextMenu.addAction(addEpisode);
+        addOutcomeAction = new QAction(tr("&Add Outcome"), this);
+        addEpisodeAction = new QAction(tr("&Add Sub-Episode"), this);
+
+
+
+        contextMenu.addAction(addOutcomeAction);
+        contextMenu.addAction(addEpisodeAction);
         break;
     case STORY_RESOLUTION:
-        addEvent = new QAction(tr("&Add Event"), this);    //add event group then event
-        addState = new QAction(tr("&Add State"), this);    //add state group then state
-        contextMenu.addAction(addEvent);
-        contextMenu.addAction(addState);
+        addEventAction = new QAction(tr("&Add Event"), this);    //add event group then event
+        addStateAction = new QAction(tr("&Add State"), this);    //add state group then state
+
+
+
+        contextMenu.addAction(addEventAction);
+        contextMenu.addAction(addStateAction);
+        break;
     case STORY_RESOLUTION_EVENT_GROUP:
-        addEvent = new QAction(tr("&Add Event"), this);
-        contextMenu.addAction(addEvent);
+        addEventAction = new QAction(tr("&Add Event"), this);
+
+
+
+        contextMenu.addAction(addEventAction);
+        break;
     case STORY_RESOLUTION_STATE_GROUP:
-        addState = new QAction(tr("&Add State"), this);
-        contextMenu.addAction(addState);
+        addStateAction = new QAction(tr("&Add State"), this);
+
+
+
+        contextMenu.addAction(addStateAction);
         break;
     default:
         break;

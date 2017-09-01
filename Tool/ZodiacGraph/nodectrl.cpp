@@ -20,6 +20,9 @@ NodeCtrl::NodeCtrl(MainCtrl* manager,  zodiac::NodeHandle node)
             this, SLOT(inputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)));
     connect(&m_node, SIGNAL(outputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)),
             this, SLOT(outputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)));
+
+    connect(&m_node, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString)),
+            this, SLOT(createStoryChild(zodiac::StoryNodeType, QString)));
 }
 
 void NodeCtrl::rename(const QString& name)
@@ -235,6 +238,11 @@ void NodeCtrl::setSelected(bool isSelected)
 bool NodeCtrl::remove()
 {
     return m_manager->deleteNode(this);
+}
+
+void NodeCtrl::createStoryChild(zodiac::StoryNodeType type, QString name)
+{
+    m_manager->createStoryNode(this, type, name);
 }
 
 zodiac::PlugHandle NodeCtrl::addPlug(const QString& name, bool incoming)
