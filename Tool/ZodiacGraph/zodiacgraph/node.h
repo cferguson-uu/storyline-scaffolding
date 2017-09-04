@@ -1136,9 +1136,7 @@ class StoryNode: public Node
 public:
     StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, StoryNodeType storyType, const QUuid& uuid = QUuid(),
               QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
-              QColor labelBackgroundColor = QColor("#F84B28" /*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"))
-        : Node(scene, displayName, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
-          , m_storyNodeType(storyType){}
+              QColor labelBackgroundColor = QColor("#F84B28" /*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"));
 
     StoryNodeType getStoryNodeType(){return m_storyNodeType;}
     void contextMenuEvent(QContextMenuEvent *event);
