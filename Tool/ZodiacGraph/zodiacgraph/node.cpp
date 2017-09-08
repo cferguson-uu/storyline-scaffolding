@@ -23,6 +23,8 @@
 #include "plugarranger.h"
 #include "straightedge.h"
 
+#include <QTimer>
+
 static void fireAnimation(QPropertyAnimation& animation, qreal targetValue, qreal startValue, qreal duration, const QEasingCurve& curve);
 static zodiac::Plug* findClosestPlug(const QPointF& pos, const QSet<zodiac::Plug*> &plugs, zodiac::Plug* closest);
 static qreal angularDistance(qreal alpha, qreal beta);
@@ -869,14 +871,12 @@ StoryNode::StoryNode(Scene* scene, const QString& displayName, NodeType nodeType
     : Node(scene, displayName, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
       , m_storyNodeType(storyType)
 {
-    //create child nodes if necessary
-    /*switch (m_storyNodeType)
+    if(m_storyNodeType == STORY_PLOT_EPISODE)
     {
-        case STORY_SETTING_CHARACTER_GROUP:
-        case STORY_SETTING_LOCATION_GROUP:
-        case STORY_SETTING_TIME_GROUP:
-
-    }*/
+        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempts"); } );
+        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcomes"); } );
+        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_SUBGOAL, "SubGoal"); } );
+    }
 }
 
 ///
@@ -903,13 +903,13 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
     switch (m_storyNodeType)
     {
         case STORY_SETTING:
-            addCharacterAction = new QAction(tr("&Add Character"), this);    //add item group then item
-            addLocationAction = new QAction(tr("&Add Location"), this);
-            addTimeAction = new QAction(tr("&Add Time"), this);
+            addCharacterAction = new QAction(tr("&Add Characters"), this);    //add item group then item
+            addLocationAction = new QAction(tr("&Add Locations"), this);
+            addTimeAction = new QAction(tr("&Add Times"), this);
 
-            connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "CHARACTERS"); });
-            connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "LOCATIONS"); });
-            connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "TIMES"); });
+            connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Characters"); });
+            connect(addLocationAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Locations"); });
+            connect(addTimeAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Times"); });
 
             contextMenu.addAction(addCharacterAction);
             contextMenu.addAction(addLocationAction);
@@ -946,8 +946,8 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             contextMenu.addAction(addDetailAction);
             break;
         case STORY_THEME:
-            addEventAction = new QAction(tr("&Add Event"), this);    //add event group then event
-            addGoalAction = new QAction(tr("&Add Goal"), this);      //add goal group then goal
+            addEventAction = new QAction(tr("&Add Events"), this);    //add event group then event
+            addGoalAction = new QAction(tr("&Add Goals"), this);      //add goal group then goal
 
             connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_EVENT_GROUP, "EVENT"); });
             connect(addGoalAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_GOAL_GROUP, "GOAL"); });
