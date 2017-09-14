@@ -134,16 +134,17 @@ void MainCtrl::selectionChanged(QList<zodiac::NodeHandle> selection)
     m_propertyEditor->showNodes(selection);
 }
 
-void MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name)
+void MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QPoint &relativePos)
 {
     NodeCtrl* child = createNode(type, name);
+
+    //do something with the position
+    child->setPos(parent->getPos().x() + relativePos.x(), parent->getPos().y() + relativePos.y());
 
     zodiac::PlugHandle ParentNodeOutPlug = parent->getNodeHandle().createOutgoingPlug("out");
     zodiac::PlugHandle childNodeInPlug = child->getNodeHandle().createIncomingPlug("in");
 
     ParentNodeOutPlug.connectPlug(childNodeInPlug);
-
-    //do something with the position
 }
 
 void MainCtrl::createStoryGraph()

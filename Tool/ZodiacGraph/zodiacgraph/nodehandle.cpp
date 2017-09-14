@@ -608,7 +608,7 @@ void NodeHandle::connectSignals()
     connect(m_node, SIGNAL(outputDisconnected(Plug*,Plug*)), this, SLOT(passOutputDisconnected(Plug*,Plug*)));
 
     StoryNode *sNode = static_cast<StoryNode*>(m_node);
-    connect(sNode, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString)), this, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString)));
+    connect(sNode, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QPoint&)), this, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QPoint&)));
 }
 
 void NodeHandle::passInputConnected(Plug* myInput, Plug* otherOutput)

@@ -87,6 +87,21 @@ public: // methods
     void changeDescription(const QString& description);
 
     ///
+    /// \brief Returns the position of the Node in the Scene.
+    ///
+    /// \return The position of the Node in the Scene.
+    ///
+    QPointF getPos() const;
+
+    ///
+    /// \brief Returns the position of the Node in the Scene.
+    ///
+    /// \param [in] x   The position of the Node along the x axis.
+    /// \param [in] y   The position of the Node along the y axis.
+    ///
+    void setPos(qreal x, qreal y);
+
+    ///
     /// \brief The command blocks part of the node.
     ///
     /// \return QHashes of command blocks.
@@ -258,7 +273,7 @@ public slots:
     ///
     /// \brief Emitted, when context menu is used to create another story node
     ///
-    void createStoryChild(zodiac::StoryNodeType, QString);
+    void createStoryChild(zodiac::StoryNodeType, QString, QPoint&);
 
     ///
     /// \brief Tries to remove this logical node from the graph.

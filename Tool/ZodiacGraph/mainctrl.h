@@ -115,7 +115,7 @@ public slots:
     ///
     /// \brief Creates a new story graph
     ///
-    void createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name);
+    void createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QPoint &relativePos);
     ///
     /// \brief Creates a new story graph
     ///

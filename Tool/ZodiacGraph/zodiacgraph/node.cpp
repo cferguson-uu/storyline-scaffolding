@@ -873,9 +873,9 @@ StoryNode::StoryNode(Scene* scene, const QString& displayName, NodeType nodeType
 {
     if(m_storyNodeType == STORY_PLOT_EPISODE)
     {
-        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempts"); } );
-        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcomes"); } );
-        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_SUBGOAL, "SubGoal"); } );
+        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempts", QPoint(-100,100)); } );
+        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcomes", QPoint(0,100)); } );
+        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_SUBGOAL, "SubGoal", QPoint(100,100)); } );
     }
 }
 
@@ -907,9 +907,9 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             addLocationAction = new QAction(tr("&Add Locations"), this);
             addTimeAction = new QAction(tr("&Add Times"), this);
 
-            connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Characters"); });
-            connect(addLocationAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Locations"); });
-            connect(addTimeAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Times"); });
+            connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Characters", QPoint(0,100)); });
+            connect(addLocationAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Locations", QPoint(0,100)); });
+            connect(addTimeAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Times", QPoint(0,100)); });
 
             contextMenu.addAction(addCharacterAction);
             contextMenu.addAction(addLocationAction);
@@ -918,21 +918,21 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
         case STORY_SETTING_CHARACTER_GROUP:
             addCharacterAction = new QAction(tr("&Add Character"), this);
 
-            connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER, "CHAR_"); });
+            connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER, "CHAR_", QPoint(0,100)); });
 
             contextMenu.addAction(addCharacterAction);
             break;
         case STORY_SETTING_LOCATION_GROUP:
             addLocationAction = new QAction(tr("&Add Location"), this);
 
-            connect(addLocationAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_LOCATION, "LOC_"); });
+            connect(addLocationAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_LOCATION, "LOC_", QPoint(0,100)); });
 
             contextMenu.addAction(addLocationAction);
             break;
         case STORY_SETTING_TIME_GROUP:
             addTimeAction = new QAction(tr("&Add Time"), this);
 
-            connect(addTimeAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_TIME, "TIM_"); });
+            connect(addTimeAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_TIME, "TIM_", QPoint(0,100)); });
 
             contextMenu.addAction(addTimeAction);
             break;
@@ -941,7 +941,7 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
         case STORY_SETTING_TIME:
             addDetailAction = new QAction(tr("&Add Detail"), this);
 
-            connect(addDetailAction, &QAction::triggered, [=]{createStoryChild(STORY_ITEM_DETAILS, "DET_"); });
+            connect(addDetailAction, &QAction::triggered, [=]{createStoryChild(STORY_ITEM_DETAILS, "DET_", QPoint(0,100)); });
 
             contextMenu.addAction(addDetailAction);
             break;
@@ -949,8 +949,8 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             addEventAction = new QAction(tr("&Add Events"), this);    //add event group then event
             addGoalAction = new QAction(tr("&Add Goals"), this);      //add goal group then goal
 
-            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_EVENT_GROUP, "EVENT"); });
-            connect(addGoalAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_GOAL_GROUP, "GOAL"); });
+            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_EVENT_GROUP, "EVENT", QPoint(0,100)); });
+            connect(addGoalAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_GOAL_GROUP, "GOAL", QPoint(0,100)); });
 
             contextMenu.addAction(addEventAction);
             contextMenu.addAction(addGoalAction);
@@ -958,35 +958,35 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
         case STORY_THEME_EVENT_GROUP:
             addEventAction = new QAction(tr("&Add Event"), this);
 
-            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_EVENT, "EV_"); });
+            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_EVENT, "EV_", QPoint(0,100)); });
 
             contextMenu.addAction(addEventAction);
             break;
         case STORY_THEME_GOAL_GROUP:
             addGoalAction = new QAction(tr("&Add Goal"), this);
 
-            connect(addGoalAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_GOAL, "GOAL_"); });
+            connect(addGoalAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_GOAL, "GOAL_", QPoint(0,100)); });
 
             contextMenu.addAction(addGoalAction);
             break;
         case STORY_THEME_EVENT:
             addEventAction = new QAction(tr("&Add Sub-Event"), this);
 
-            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_EVENT, "EV_"); });
+            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_EVENT, "EV_", QPoint(0,100)); });
 
             contextMenu.addAction(addEventAction);
             break;
         case STORY_THEME_GOAL:
             addGoalAction = new QAction(tr("&Add Sub-Goal"), this);
 
-            connect(addGoalAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_GOAL, "GOAL_"); });
+            connect(addGoalAction, &QAction::triggered, [=]{createStoryChild(STORY_THEME_GOAL, "GOAL_", QPoint(0,100)); });
 
             contextMenu.addAction(addGoalAction);
             break;
         case STORY_PLOT:
             addEpisodeAction = new QAction(tr("&Add Episode"), this); //add attempt group, add outcome group, add subgoal
 
-            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE, "EP_"); });
+            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE, "EP_", QPoint(0,100)); });
 
             contextMenu.addAction(addEpisodeAction);
             break;
@@ -994,8 +994,8 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             addAttemptAction = new QAction(tr("&Add Attempt"), this);
             addEpisodeAction = new QAction(tr("&Add Sub-Episode"), this);
 
-            connect(addAttemptAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE_ATTEMPT, "ATT_"); });
-            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE, "SUBEP_"); });
+            connect(addAttemptAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE_ATTEMPT, "ATT_", QPoint(0,100)); });
+            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE, "SUBEP_", QPoint(0,100)); });
 
             contextMenu.addAction(addAttemptAction);
             contextMenu.addAction(addEpisodeAction);
@@ -1004,8 +1004,8 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             addOutcomeAction = new QAction(tr("&Add Outcome"), this);
             addEpisodeAction = new QAction(tr("&Add Sub-Episode"), this);
 
-            connect(addOutcomeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE_OUTCOME, "OUT_"); });
-            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE, "SUBEP_"); });
+            connect(addOutcomeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE_OUTCOME, "OUT_", QPoint(0,100)); });
+            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE, "SUBEP_", QPoint(0,100)); });
 
             contextMenu.addAction(addOutcomeAction);
             contextMenu.addAction(addEpisodeAction);
@@ -1014,8 +1014,8 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             addEventAction = new QAction(tr("&Add Event"), this);    //add event group then event
             addStateAction = new QAction(tr("&Add State"), this);    //add state group then state
 
-            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_EVENT_GROUP, "EVENT"); });
-            connect(addStateAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_STATE_GROUP, "STATE"); });
+            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_EVENT_GROUP, "EVENT", QPoint(0,100)); });
+            connect(addStateAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_STATE_GROUP, "STATE", QPoint(0,100)); });
 
             contextMenu.addAction(addEventAction);
             contextMenu.addAction(addStateAction);
@@ -1023,14 +1023,14 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
         case STORY_RESOLUTION_EVENT_GROUP:
             addEventAction = new QAction(tr("&Add Event"), this);
 
-            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_EVENT, "EV_"); });
+            connect(addEventAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_EVENT, "EV_", QPoint(0,100)); });
 
             contextMenu.addAction(addEventAction);
             break;
         case STORY_RESOLUTION_STATE_GROUP:
             addStateAction = new QAction(tr("&Add State"), this);
 
-            connect(addStateAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_STATE_GROUP, "STA_"); });
+            connect(addStateAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_STATE_GROUP, "STA_", QPoint(0,100)); });
 
             contextMenu.addAction(addStateAction);
             break;

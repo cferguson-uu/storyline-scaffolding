@@ -21,8 +21,8 @@ NodeCtrl::NodeCtrl(MainCtrl* manager,  zodiac::NodeHandle node)
     connect(&m_node, SIGNAL(outputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)),
             this, SLOT(outputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)));
 
-    connect(&m_node, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString)),
-            this, SLOT(createStoryChild(zodiac::StoryNodeType, QString)));
+    connect(&m_node, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QPoint&)),
+            this, SLOT(createStoryChild(zodiac::StoryNodeType, QString, QPoint&)));
 }
 
 void NodeCtrl::rename(const QString& name)
@@ -38,6 +38,16 @@ void NodeCtrl::changeDescription(const QString& description)
 zodiac::NodeType NodeCtrl::getType() const
 {
     return m_node.getType();
+}
+
+QPointF NodeCtrl::getPos() const
+{
+    return m_node.getPos();
+}
+
+void NodeCtrl::setPos(qreal x, qreal y)
+{
+    m_node.setPos(x, y);
 }
 
 QHash<QUuid, zodiac::NodeCommand> NodeCtrl::getOnUnlockList()
@@ -240,9 +250,9 @@ bool NodeCtrl::remove()
     return m_manager->deleteNode(this);
 }
 
-void NodeCtrl::createStoryChild(zodiac::StoryNodeType type, QString name)
+void NodeCtrl::createStoryChild(zodiac::StoryNodeType type, QString name, QPoint &relativePos)
 {
-    m_manager->createStoryNode(this, type, name);
+    m_manager->createStoryNode(this, type, name, relativePos);
 }
 
 zodiac::PlugHandle NodeCtrl::addPlug(const QString& name, bool incoming)
