@@ -115,11 +115,11 @@ public slots:
     ///
     /// \brief Creates a new story graph
     ///
-    void createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QPoint &relativePos);
+    NodeCtrl* createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QPoint &relativePos);
     ///
     /// \brief Creates a new story graph
     ///
-    void createStoryGraph();
+    void createStoryGraph(QString storyName = "Story");
     ///
     /// \brief Save the story graph to a JSON file
     ///
@@ -165,6 +165,27 @@ private: // members
 
     //pointer to carry out undo functions
     QUndoStack *m_pUndoStack;
+
+    ///
+    /// \brief handle the setting items (characters, locations, times)
+    ///
+    void loadSettingItem(zodiac::NodeHandle *settingsNode, std::list<SettingItem> items, zodiac::StoryNodeType parentType, zodiac::StoryNodeType childType, QString parentName);
+
+    ///
+    /// \brief handle the theme items (events, goals)
+    ///
+    void loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType);
+
+    ///
+    /// \brief handle the plot items (episodes)
+    ///
+    void loadEpisodes(zodiac::NodeHandle* parentNode, std::list<Episode> episodes);
+
+    ///
+    /// \brief handle the resolution items (events, states)
+    ///
+    void loadResolution(zodiac::NodeHandle* resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states);
+
 
 private: // static members
 

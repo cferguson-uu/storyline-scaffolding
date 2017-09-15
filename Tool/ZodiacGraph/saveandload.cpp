@@ -5,7 +5,7 @@ saveandload::saveandload()
 
 }
 
-void saveandload::LoadStoryFromFile(QWidget *widget)
+bool saveandload::LoadStoryFromFile(QWidget *widget)
 {
     QFile file(QFileDialog::getOpenFileName(widget,
                                                      QObject::tr("Load Story Graph"), "",
@@ -22,21 +22,15 @@ void saveandload::LoadStoryFromFile(QWidget *widget)
             //qDebug() << jsonDoc.toJson();
 
 
-            if(jsonDoc.isNull()){
-                qDebug()<<"Failed to create JSON doc.";
-                exit(2);
-            }
-            if(!jsonDoc.isObject()){
-                qDebug()<<"JSON is not an object.";
-                exit(3);
+            if(jsonDoc.isNull() || !jsonDoc.isObject() || jsonDoc.isEmpty())
+            {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                messageBox.setFixedSize(500,200);
+                return false;
             }
 
             QJsonObject jsonObject=jsonDoc.object();
-
-            if(jsonDoc.isEmpty()){
-                qDebug()<<"JSON object is empty.";
-                exit(4);
-            }
 
             //on_pushButton_reset_clicked();
 
@@ -59,16 +53,22 @@ void saveandload::LoadStoryFromFile(QWidget *widget)
             ReadEpisodes(jsonPlot["episodes"].toArray());
 
             ReadResolution(jsonResolution);
+
+            return true;
         }
         else
         {
             QMessageBox messageBox;
             messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
             messageBox.setFixedSize(500,200);
+            return false;
         }
     }
     else
+    {
         qDebug() << "Load aborted by user";
+        return false;
+    }
 }
 
 void saveandload::ReadCharacters(QJsonArray &jsonCharacters)
@@ -522,8 +522,12 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
     jsonEpisode[kName_Id] = QString(prefix + "_" + e.id);
     jsonEpisode[kName_Description] = e.description;
 
-    jsonEpisode[kName_SubGoal] = e.stateID; //SHOULD BE ID DESCRIPTION PAIR
-    //jsonEpisode[kName_SubGoal] = e.stateDescription; //SHOULD BE ID DESCRIPTION PAIR
+    QJsonObject jsonSubGoal;
+
+    jsonSubGoal[kName_Id] = e.stateID;
+    jsonSubGoal[kName_Description] = e.stateDescription;
+
+    jsonEpisode[kName_SubGoal] = jsonSubGoal;
 
     if(!e.attempts.empty() || !e.attemptSubEpisodes.empty())
     {

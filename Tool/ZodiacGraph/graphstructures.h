@@ -88,6 +88,8 @@ struct Episode : public SimpleNodeWithState //id and subgoal
 
     std::list<Episode> attemptSubEpisodes;
     std::list<Episode> outcomeSubEpisodes;
+
+    //state is the subgoal
 };
 
 struct Resolution

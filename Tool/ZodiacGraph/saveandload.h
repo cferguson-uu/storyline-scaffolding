@@ -22,7 +22,7 @@ public:
     saveandload();
 
     //story
-    void LoadStoryFromFile(QWidget *widget);
+    bool LoadStoryFromFile(QWidget *widget);
     void SaveStoryToFile(QWidget *widget);
 
     //commands
