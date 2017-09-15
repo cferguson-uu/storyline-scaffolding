@@ -46,12 +46,13 @@ QEasingCurve Node::s_collapseCurve = QEasingCurve::OutQuad;
 //QPen Node::s_linePen = QPen(QBrush(s_outlineColor), s_outlineWidth);
 bool Node::s_mouseWasDragged = false;
 
-Node::Node(Scene* scene, const QString &displayName, NodeType nodeType, const QUuid &uuid,
+Node::Node(Scene* scene, const QString &displayName, const QString &description, NodeType nodeType, const QUuid &uuid,
            QColor idleColor, QColor selectedColor, QColor outlineColor,
            QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
     : QGraphicsObject(nullptr)
     , m_scene(scene)
     , m_displayName(displayName)
+    , m_displayDescription(description)
     , m_nodeType(nodeType)
     , m_uniqueId(uuid.isNull() ? QUuid::createUuid() : uuid)
     , m_outgoingExpansionFactor(0.)
@@ -865,10 +866,10 @@ void NarrativeNode::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const 
     m_onUnlocked[cmdKey].parameters[paramKey] = value;
 }
 
-StoryNode::StoryNode(Scene* scene, const QString& displayName, NodeType nodeType, StoryNodeType storyType, const QUuid& uuid,
+StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, StoryNodeType storyType, const QUuid& uuid,
           QColor idleColor, QColor selectedColor, QColor outlineColor,
           QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
-    : Node(scene, displayName, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
+    : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
       , m_storyNodeType(storyType)
 {
     if(m_storyNodeType == STORY_PLOT_EPISODE)

@@ -273,7 +273,7 @@ public slots:
     ///
     /// \brief Emitted, when context menu is used to create another story node
     ///
-    void createStoryChild(zodiac::StoryNodeType, QString, QPoint&);
+    void createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&);
 
     ///
     /// \brief Tries to remove this logical node from the graph.

@@ -24,7 +24,7 @@ SceneHandle& SceneHandle::operator = (const SceneHandle& other)
     return *this;
 }
 
-NodeHandle SceneHandle::createNode(const QString& name, StoryNodeType storyType, const QUuid& uuid)
+NodeHandle SceneHandle::createNode(const QString& name, const QString &description, StoryNodeType storyType, const QUuid& uuid)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
@@ -33,7 +33,7 @@ NodeHandle SceneHandle::createNode(const QString& name, StoryNodeType storyType,
         return NodeHandle();
     }
 #endif
-    return NodeHandle(m_scene->createNode(name, storyType, uuid));
+    return NodeHandle(m_scene->createNode(name, description, storyType, uuid));
 }
 
 QList<NodeHandle> SceneHandle::getNodes() const

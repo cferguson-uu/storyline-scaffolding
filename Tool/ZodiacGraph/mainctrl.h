@@ -69,7 +69,7 @@ public: // methods
     ///
     /// \return Control for new node.
     ///
-    NodeCtrl* createNode(zodiac::StoryNodeType storyType, const QString& name = "");
+    NodeCtrl* createNode(zodiac::StoryNodeType storyType, const QString& name = "", const QString& description = "");
 
     ///
     /// \brief Deletes an existing node from the graph.
@@ -115,7 +115,7 @@ public slots:
     ///
     /// \brief Creates a new story graph
     ///
-    NodeCtrl* createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QPoint &relativePos);
+    NodeCtrl* createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &relativePos);
     ///
     /// \brief Creates a new story graph
     ///

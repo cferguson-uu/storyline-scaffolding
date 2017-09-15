@@ -27,7 +27,7 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));
 }
 
-NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name)
+NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name, const QString& description)
 {
     // the newly created Node is the only selected one to avoid confusion
     m_scene.deselectAll();
@@ -39,7 +39,7 @@ NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& n
     }
 
     // create the node
-    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, storyType));
+    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, description, storyType));
     m_nodes.insert(nodeCtrl->getNodeHandle(), nodeCtrl);
 
     return nodeCtrl;
@@ -134,9 +134,9 @@ void MainCtrl::selectionChanged(QList<zodiac::NodeHandle> selection)
     m_propertyEditor->showNodes(selection);
 }
 
-NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QPoint &relativePos)
+NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &relativePos)
 {
-    NodeCtrl* child = createNode(type, name);
+    NodeCtrl* child = createNode(type, name, description);
 
     //do something with the position
     child->setPos(parent->getPos().x() + relativePos.x(), parent->getPos().y() + relativePos.y());
@@ -315,13 +315,13 @@ void MainCtrl::loadSettingItem(zodiac::NodeHandle *settingsNode, std::list<Setti
     //add each item to the tree
     for(std::list<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
-        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, QPoint(0, 100));
+        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(0, 100));
 
         //add all the details for the items
         std::list<SimpleNodeWithState> details = (*itemIt).details;
         for(std::list<SimpleNodeWithState>::iterator detailIt = details.begin(); detailIt != details.end(); ++detailIt)
         {
-            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, QPoint(0, 100));
+            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(0, 100));
         }
     }
 }
@@ -331,7 +331,7 @@ void MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items, z
     //add each item to the tree
     for(std::list<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
-        NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, QPoint(0, 100));
+        NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(0, 100));
 
         //if sub-item then load those too
         if((*itemIt).subItems.size() > 0)
@@ -351,19 +351,19 @@ void MainCtrl::loadEpisodes(zodiac::NodeHandle* parentNode, std::list<Episode> e
     //add each item to the tree
     for(std::list<Episode>::iterator epIt = episodes.begin(); epIt != episodes.end(); ++epIt)
     {
-        NodeCtrl *episodeNode = createNode(zodiac::STORY_PLOT_EPISODE, (*epIt).id);
+        NodeCtrl *episodeNode = createNode(zodiac::STORY_PLOT_EPISODE, (*epIt).id, (*epIt).description);
         episodeNode->getNodeHandle().setPos(parentNode->getPos().x(), parentNode->getPos().y()+100);
         zodiac::PlugHandle episodeNodeInPlug = episodeNode->getNodeHandle().createIncomingPlug("in");
         parentNode->getPlug("out").connectPlug(episodeNodeInPlug);
 
 
-        NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", QPoint(0, 100));
-        NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", QPoint(0, 100));
+        NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt", QPoint(0, 100));
+        NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome", QPoint(0, 100));
 
         //handle attempts
         for(std::list<SimpleNodeWithState>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
         {
-            createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, QPoint(0, 100));
+            createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, (*attIt).description, QPoint(0, 100));
         }
 
         //handle attempt sub-episodes
@@ -376,7 +376,7 @@ void MainCtrl::loadEpisodes(zodiac::NodeHandle* parentNode, std::list<Episode> e
         //handle outcomes
         for(std::list<SimpleNodeWithState>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
         {
-            createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, QPoint(0, 100));
+            createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, (*outIt).description, QPoint(0, 100));
         }
 
         //handle outcome sub-episodes
@@ -387,7 +387,7 @@ void MainCtrl::loadEpisodes(zodiac::NodeHandle* parentNode, std::list<Episode> e
         }*/
 
         //handle sub-goal
-        createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).stateID, QPoint(0, 100));
+        createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).stateID, (*epIt).stateDescription, QPoint(0, 100));
     }
 }
 
@@ -402,7 +402,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle* resolutionNode, std::list<Even
 
         for(std::list<EventGoal>::iterator evIt = events.begin(); evIt != events.end(); ++evIt)
         {
-            createStoryNode(eventNode, zodiac::STORY_RESOLUTION_EVENT, (*evIt).id, QPoint(0, 100));
+            createStoryNode(eventNode, zodiac::STORY_RESOLUTION_EVENT, (*evIt).id, (*evIt).description, QPoint(0, 100));
         }
     }
 
@@ -415,7 +415,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle* resolutionNode, std::list<Even
 
         for(std::list<SimpleNode>::iterator stIt = states.begin(); stIt != states.end(); ++stIt)
         {
-            createStoryNode(stateNode, zodiac::STORY_RESOLUTION_STATE, (*stIt).id, QPoint(0, 100));
+            createStoryNode(stateNode, zodiac::STORY_RESOLUTION_STATE, (*stIt).id, (*stIt).description, QPoint(0, 100));
         }
     }
 }

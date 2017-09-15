@@ -250,9 +250,9 @@ bool NodeCtrl::remove()
     return m_manager->deleteNode(this);
 }
 
-void NodeCtrl::createStoryChild(zodiac::StoryNodeType type, QString name, QPoint &relativePos)
+void NodeCtrl::createStoryChild(zodiac::StoryNodeType type, QString name, QString description, QPoint &relativePos)
 {
-    m_manager->createStoryNode(this, type, name, relativePos);
+    m_manager->createStoryNode(this, type, name, description, relativePos);
 }
 
 zodiac::PlugHandle NodeCtrl::addPlug(const QString& name, bool incoming)
