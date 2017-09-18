@@ -21,8 +21,8 @@ NodeCtrl::NodeCtrl(MainCtrl* manager,  zodiac::NodeHandle node)
     connect(&m_node, SIGNAL(outputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)),
             this, SLOT(outputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)));
 
-    connect(&m_node, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QPoint&)),
-            this, SLOT(createStoryChild(zodiac::StoryNodeType, QString, QPoint&)));
+    connect(&m_node, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)),
+            this, SLOT(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)));
 }
 
 void NodeCtrl::rename(const QString& name)
