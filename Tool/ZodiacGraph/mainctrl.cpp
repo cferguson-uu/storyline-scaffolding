@@ -256,13 +256,13 @@ void MainCtrl::loadStoryGraph()
 
         //load the setting items
         std::list<SettingItem> chars = m_saveAndLoadManager.GetCharacters();
-        loadSettingItem(settingNode, chars, zodiac::STORY_SETTING_CHARACTER_GROUP, zodiac::STORY_SETTING_CHARACTER, "Characters");
+        loadSettingItem(settingNode, chars, zodiac::STORY_SETTING_CHARACTER_GROUP, zodiac::STORY_SETTING_CHARACTER, "Characters", -1);
 
         std::list<SettingItem> locs = m_saveAndLoadManager.GetLocations();
-        loadSettingItem(settingNode, locs, zodiac::STORY_SETTING_LOCATION_GROUP, zodiac::STORY_SETTING_LOCATION, "Locations");
+        loadSettingItem(settingNode, locs, zodiac::STORY_SETTING_LOCATION_GROUP, zodiac::STORY_SETTING_LOCATION, "Locations", 0);
 
         std::list<SettingItem> times = m_saveAndLoadManager.GetTimes();
-        loadSettingItem(settingNode, times, zodiac::STORY_SETTING_TIME_GROUP, zodiac::STORY_SETTING_TIME, "Times");
+        loadSettingItem(settingNode, times, zodiac::STORY_SETTING_TIME_GROUP, zodiac::STORY_SETTING_TIME, "Times", 1);
 
         //load the theme items
         std::list<EventGoal> events = m_saveAndLoadManager.GetEvents();
@@ -300,29 +300,42 @@ void MainCtrl::loadStoryGraph()
     }
 }
 
-void MainCtrl::loadSettingItem(zodiac::NodeHandle *settingsNode, std::list<SettingItem> items, zodiac::StoryNodeType parentType, zodiac::StoryNodeType childType, QString parentName)
+void MainCtrl::loadSettingItem(zodiac::NodeHandle *settingsNode, std::list<SettingItem> items, zodiac::StoryNodeType parentType, zodiac::StoryNodeType childType, QString parentName, int parentCount)
 {
     if(items.size() == 0)   //if no items, don't create the group
         return;
 
     //create parent group node, move it, link to main settings node and set up plug for linking children
     NodeCtrl* parentNode = createNode(parentType, parentName);
-    parentNode->getNodeHandle().setPos(settingsNode->getPos().x(), settingsNode->getPos().y()+100);
+    parentNode->getNodeHandle().setPos((settingsNode->getPos().x() + (parentCount * 100)) * items.size(), settingsNode->getPos().y()+100);
 
     zodiac::PlugHandle parentNodeInPlug = parentNode->getNodeHandle().createIncomingPlug("in");
     settingsNode->getPlug("out").connectPlug(parentNodeInPlug);
 
+    qDebug() << parentName << (settingsNode->getPos().x() + (parentCount * 100)) * items.size();
+
+    float settingCount = 0;
+
+    if(items.size() > 1)
+        settingCount = 0.5 + items.size() * -0.5;
+
     //add each item to the tree
     for(std::list<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
-        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(0, 100));
+        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint((*itemIt).details.size() * settingCount * 100, 100));
+
+        float detailCount = 0;
+        if((*itemIt).details.size() > 1)
+            detailCount = 0.5 + (*itemIt).details.size() * -0.5;
 
         //add all the details for the items
         std::list<SimpleNodeWithState> details = (*itemIt).details;
         for(std::list<SimpleNodeWithState>::iterator detailIt = details.begin(); detailIt != details.end(); ++detailIt)
         {
-            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(0, 100));
+            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(detailCount * 100, 100));
+            detailCount += 1;
         }
+        settingCount += 1;
     }
 }
 
