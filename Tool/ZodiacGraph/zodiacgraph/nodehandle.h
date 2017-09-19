@@ -311,8 +311,9 @@ public: // methods
     ///
     /// \param [in] x   The position of the Node along the x axis.
     /// \param [in] y   The position of the Node along the y axis.
+    /// \param [in] updateChildren   Should the children of the node be updated?
     ///
-    void setPos(qreal x, qreal y);
+    void setPos(qreal x, qreal y, bool updateChildren = false);
 
 signals:
 

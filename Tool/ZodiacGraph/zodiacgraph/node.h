@@ -482,7 +482,12 @@ public: // methods
     ///
     /// \param [in] width   New core outline width;
     ///
-    inline void setOutlineWidth(qreal width) {s_outlineWidth = qMax(0.,width); updateOutlinePen();}
+    inline void setOutlineWidth(qreal width) {s_outlineWidth = qMax(0.,width); updateOutlinePen();}    
+
+    ///
+    /// \brief Updates all edges connecting to any Plug of this Node.
+    ///
+    void updateConnectedEdges();
 
 signals:
 
@@ -786,11 +791,6 @@ private: // methods
     /// \brief Resets the expansion state to the previous one (useful for changing in and out of the BOTH state).
     ///
     inline void resetExpansion() {setExpansion(m_lastExpansionState);}
-
-    ///
-    /// \brief Updates all edges connecting to any Plug of this Node.
-    ///
-    void updateConnectedEdges();
 
     ///
     /// \brief Called by the incoming expansion and collapse-animations to update the spread factor of incoming Plug%s.
