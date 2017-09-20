@@ -277,7 +277,7 @@ void MainCtrl::loadStoryGraph()
             zodiac::PlugHandle characterNodeInPlug = characterNode->getNodeHandle().createIncomingPlug("in");
             SettingNodeOutPlug.connectPlug(characterNodeInPlug);
 
-            maxXVal = loadSettingItem(characterNode, chars, zodiac::STORY_SETTING_CHARACTER, false);
+            maxXVal = loadSettingItem(characterNode, chars, zodiac::STORY_SETTING_CHARACTER);
 
             centrePos += characterNode->getPos().x();
             ++centreIt;
@@ -294,7 +294,7 @@ void MainCtrl::loadStoryGraph()
             zodiac::PlugHandle locationNodeInPlug = locationNode->getNodeHandle().createIncomingPlug("in");
             SettingNodeOutPlug.connectPlug(locationNodeInPlug);
 
-            maxXVal = loadSettingItem(locationNode, locs, zodiac::STORY_SETTING_LOCATION, true);
+            maxXVal = loadSettingItem(locationNode, locs, zodiac::STORY_SETTING_LOCATION);
 
             centrePos += locationNode->getPos().x();
             ++centreIt;
@@ -311,7 +311,7 @@ void MainCtrl::loadStoryGraph()
             zodiac::PlugHandle timeNodeInPlug = timeNode->getNodeHandle().createIncomingPlug("in");
             SettingNodeOutPlug.connectPlug(timeNodeInPlug);
 
-            maxXVal = loadSettingItem(timeNode, times, zodiac::STORY_SETTING_TIME, true);
+            maxXVal = loadSettingItem(timeNode, times, zodiac::STORY_SETTING_TIME);
 
             centrePos += timeNode->getPos().x();
             ++centreIt;
@@ -377,7 +377,7 @@ void MainCtrl::loadStoryGraph()
     }
 }
 
-float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> items, zodiac::StoryNodeType childType, bool move)
+float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> items, zodiac::StoryNodeType childType)
 {
     float minX = INFINITY;
     float maxX = -INFINITY;
@@ -400,10 +400,14 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
         else
             nodePos = (0.5 + (items.size() * -0.5)) * 100;
     }
-
+    float parentPos = 0;
+    int parentPosIt = 0;
     //add each item to the tree
     for(std::list<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
+        parentPos += nodePos + parentNode->getPos().x();
+        ++parentPosIt;
+
         if(nodePos + parentNode->getPos().x() < minX)
             minX = nodePos + parentNode->getPos().x();
         if(nodePos + parentNode->getPos().x() > maxX)
@@ -411,18 +415,19 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
 
         NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(nodePos, 100));
 
-        float detailSpacer = (*itemIt).details.size() * -0.5 + 0.5; //calculate spacing
+        float detailSpacer = ((*itemIt).details.size() * -0.5 + 0.5) * 100; //calculate spacing
 
         //add all the details for the items
         for(std::list<SimpleNodeWithState>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
         {
-            if((detailSpacer * 100) + childNode->getPos().x() < minX)
-                minX = (detailSpacer * 100) + childNode->getPos().x();
-            if((detailSpacer * 100) + childNode->getPos().x() > maxX)
-                maxX = (detailSpacer * 100) + childNode->getPos().x();
+            if(detailSpacer + childNode->getPos().x() < minX)
+                minX = detailSpacer + childNode->getPos().x();
 
-            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(detailSpacer * 100, 100));
-            detailSpacer += 1;
+            if(detailSpacer + childNode->getPos().x() > maxX)
+                maxX = detailSpacer + childNode->getPos().x();
+
+            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(detailSpacer, 100));
+            detailSpacer += 100;
         }
 
         std::list<SettingItem>::iterator nx = std::next(itemIt, 1);
@@ -434,13 +439,12 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
                 nodePos += ((*itemIt).details.size() + (*nx).details.size())/2 * 100 + 50;
         }
     }
+        parentNode->setPos(parentPos/parentPosIt, parentNode->getPos().y(), false);
 
-    if(move)
-    {
-        float width = maxX - minX;
-        parentNode->setPos(parentNode->getPos().x() + width, parentNode->getPos().y(), true);
-        maxX += width;
-    }
+        float halfWidth = parentNode->getPos().x() - minX;
+        parentNode->setPos(parentNode->getPos().x() + halfWidth, parentNode->getPos().y(), true);
+        minX += halfWidth;
+        maxX += halfWidth;
 
     qDebug() << parentNode->getName() << parentNode->getPos().x() << " minX " << minX << " maxX " << maxX;
 
@@ -452,11 +456,11 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
     float minX = INFINITY;
     float maxX = -INFINITY;
 
-    float nodePos = parentNode->getPos().x();
+    float nodePos = 0;
 
     if(items.size() > 1)
     {
-        float averageDetails = 0;
+        /*float averageDetails = 0;
 
         for(std::list<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
         {
@@ -467,14 +471,14 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
 
         if(averageDetails > 0)
             nodePos = (averageDetails * -0.5) * 100;
-        else
+        else*/
             nodePos = (0.5 + (items.size() * -0.5)) * 100;
     }
 
     //add each item to the tree
     for(std::list<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
-        NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(0, 100));
+        NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(nodePos, 100));
 
         if(nodePos < minX)
             minX = nodePos;
@@ -484,10 +488,9 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
         //if sub-item then load those too
         if((*itemIt).subItems.size() > 0)
         {
-            std::list<EventGoal> subItems = (*itemIt).subItems;
-            for(std::list<EventGoal>::iterator subItemIt = subItems.begin(); subItemIt != subItems.end(); ++subItemIt)
+            for(std::list<EventGoal>::iterator subItemIt = (*itemIt).subItems.begin(); subItemIt != (*itemIt).subItems.end(); ++subItemIt)
             {
-                QPointF minMax = loadThemeItem(itemNode, subItems, childType);
+                QPointF minMax = loadThemeItem(itemNode, (*itemIt).subItems, childType);
 
                 if(minMax.x() < minX)
                     minX = minMax.x();
@@ -496,22 +499,24 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
             }
         }
 
-        std::list<EventGoal>::iterator nx = std::next(itemIt, 1);
+        /*std::list<EventGoal>::iterator nx = std::next(itemIt, 1);
         if(nx != items.end())
         {
             if((*nx).subItems.size() == 0)
                 nodePos += 150;
             else
                 nodePos += (getThemeItemWidth((*itemIt)) + getThemeItemWidth((*nx)))/2 * 100 + 50;
-        }
+        }*/
+
+        nodePos += 100;
     }
 
-    /*//if(move)
+    //if(move)
     //{
         float width = maxX - minX;
-        parentNode->setPos(parentNode->getPos().x() + width, parentNode->getPos().y(), true);
-        maxX += width;
-    //}*/
+        parentNode->setPos(parentNode->getPos().x() + width/2, parentNode->getPos().y(), true);
+        maxX += width/2;
+    //}
 
     return QPointF(minX, maxX);
 }

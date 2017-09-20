@@ -169,7 +169,7 @@ private: // members
     ///
     /// \brief handle the setting items (characters, locations, times)
     ///
-    float loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> items, zodiac::StoryNodeType childType, bool move = false);
+    float loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> items, zodiac::StoryNodeType childType);
 
     ///
     /// \brief handle the theme items (events, goals)
