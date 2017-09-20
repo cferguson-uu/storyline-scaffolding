@@ -115,7 +115,7 @@ public slots:
     ///
     /// \brief Creates a new story graph
     ///
-    NodeCtrl* createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &relativePos);
+    NodeCtrl* createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &pos, bool relative = true);
     ///
     /// \brief Creates a new story graph
     ///
@@ -169,22 +169,23 @@ private: // members
     ///
     /// \brief handle the setting items (characters, locations, times)
     ///
-    void loadSettingItem(zodiac::NodeHandle *settingsNode, std::list<SettingItem> items, zodiac::StoryNodeType parentType, zodiac::StoryNodeType childType, QString parentName, int parentCount);
+    float loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> items, zodiac::StoryNodeType childType, bool move = false);
 
     ///
     /// \brief handle the theme items (events, goals)
     ///
-    void loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType);
+    QPointF loadThemeItem(NodeCtrl *parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType);
+    int getThemeItemWidth(EventGoal &item);
 
     ///
     /// \brief handle the plot items (episodes)
     ///
-    void loadEpisodes(zodiac::NodeHandle* parentNode, std::list<Episode> episodes);
+    void loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode> episodes);
 
     ///
     /// \brief handle the resolution items (events, states)
     ///
-    void loadResolution(zodiac::NodeHandle* resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states);
+    void loadResolution(zodiac::NodeHandle *resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states);
 
 
 private: // static members

@@ -134,12 +134,15 @@ void MainCtrl::selectionChanged(QList<zodiac::NodeHandle> selection)
     m_propertyEditor->showNodes(selection);
 }
 
-NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &relativePos)
+NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &pos, bool relative)
 {
     NodeCtrl* child = createNode(type, name, description);
 
-    //do something with the position
-    child->setPos(parent->getPos().x() + relativePos.x(), parent->getPos().y() + relativePos.y());
+    //set the position
+    if(relative)
+        child->setPos(parent->getPos().x() + pos.x(), parent->getPos().y() + pos.y());
+    else
+        child->setPos(pos.x(), pos.y());
 
     //if the out plug doesn't exist, make one
     zodiac::PlugHandle ParentNodeOutPlug = parent->getNodeHandle().getPlug("out");
@@ -227,6 +230,7 @@ void MainCtrl::loadStoryGraph()
         QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
 
         //find the main nodes
+        zodiac::NodeHandle *startingNode;
         zodiac::NodeHandle *settingNode;
         zodiac::NodeHandle *themeNode;
         zodiac::NodeHandle *plotNode;
@@ -236,17 +240,20 @@ void MainCtrl::loadStoryGraph()
         {
             if((*it).getType() == zodiac::NODE_STORY)
             {
-                if((*it).getStoryNodeType() == zodiac::STORY_SETTING)
-                    settingNode = &(*it); //get a pointer to the handle of the settings node
+                if((*it).getStoryNodeType() == zodiac::STORY_NAME)
+                    startingNode = &(*it); //get a pointer to the handle of the settings node
                 else
-                    if((*it).getStoryNodeType() == zodiac::STORY_THEME)
-                        themeNode = &(*it); //get a pointer to the handle of the theme node
+                    if((*it).getStoryNodeType() == zodiac::STORY_SETTING)
+                        settingNode = &(*it); //get a pointer to the handle of the settings node
                     else
-                        if((*it).getStoryNodeType() == zodiac::STORY_PLOT)
-                            plotNode = &(*it); //get a pointer to the handle of the plot node
+                        if((*it).getStoryNodeType() == zodiac::STORY_THEME)
+                            themeNode = &(*it); //get a pointer to the handle of the theme node
                         else
-                            if((*it).getStoryNodeType() == zodiac::STORY_RESOLUTION)
-                                resolutionNode = &(*it); //get a pointer to the handle of the resolution node
+                            if((*it).getStoryNodeType() == zodiac::STORY_PLOT)
+                                plotNode = &(*it); //get a pointer to the handle of the plot node
+                            else
+                                if((*it).getStoryNodeType() == zodiac::STORY_RESOLUTION)
+                                    resolutionNode = &(*it); //get a pointer to the handle of the resolution node
             }
         }
         zodiac::PlugHandle SettingNodeOutPlug = settingNode->createOutgoingPlug("out");   //create the outgoing plugs
@@ -254,39 +261,109 @@ void MainCtrl::loadStoryGraph()
         zodiac::PlugHandle PlotNodeOutPlug = plotNode->createOutgoingPlug("out");
         zodiac::PlugHandle ResolutionNodeOutPlug = resolutionNode->createOutgoingPlug("out");
 
+        float maxXVal = settingNode->getPos().x();
+        int centreIt = 0;
+        float centrePos = settingNode->getPos().x();
+
         //load the setting items
         std::list<SettingItem> chars = m_saveAndLoadManager.GetCharacters();
-        loadSettingItem(settingNode, chars, zodiac::STORY_SETTING_CHARACTER_GROUP, zodiac::STORY_SETTING_CHARACTER, "Characters", -1);
+        NodeCtrl* characterNode = nullptr;
+        if(chars.size() > 0)
+        {
+            //create parent group node, move it, link to main settings node and set up plug for linking children
+            characterNode = createNode(zodiac::STORY_SETTING_CHARACTER_GROUP, "Characters");
+            characterNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
+
+            zodiac::PlugHandle characterNodeInPlug = characterNode->getNodeHandle().createIncomingPlug("in");
+            SettingNodeOutPlug.connectPlug(characterNodeInPlug);
+
+            maxXVal = loadSettingItem(characterNode, chars, zodiac::STORY_SETTING_CHARACTER, false);
+
+            centrePos += characterNode->getPos().x();
+            ++centreIt;
+        }
 
         std::list<SettingItem> locs = m_saveAndLoadManager.GetLocations();
-        loadSettingItem(settingNode, locs, zodiac::STORY_SETTING_LOCATION_GROUP, zodiac::STORY_SETTING_LOCATION, "Locations", 0);
+        NodeCtrl* locationNode = nullptr;
+        if(locs.size() > 0)
+        {
+            //create parent group node, move it, link to main settings node and set up plug for linking children
+            locationNode = createNode(zodiac::STORY_SETTING_LOCATION_GROUP, "Locations");
+            locationNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
+
+            zodiac::PlugHandle locationNodeInPlug = locationNode->getNodeHandle().createIncomingPlug("in");
+            SettingNodeOutPlug.connectPlug(locationNodeInPlug);
+
+            maxXVal = loadSettingItem(locationNode, locs, zodiac::STORY_SETTING_LOCATION, true);
+
+            centrePos += locationNode->getPos().x();
+            ++centreIt;
+        }
 
         std::list<SettingItem> times = m_saveAndLoadManager.GetTimes();
-        loadSettingItem(settingNode, times, zodiac::STORY_SETTING_TIME_GROUP, zodiac::STORY_SETTING_TIME, "Times", 1);
+        NodeCtrl* timeNode = nullptr;
+        if(times.size() > 0)
+        {
+            //create parent group node, move it, link to main settings node and set up plug for linking children
+            timeNode = createNode(zodiac::STORY_SETTING_TIME_GROUP, "Times");
+            timeNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
+
+            zodiac::PlugHandle timeNodeInPlug = timeNode->getNodeHandle().createIncomingPlug("in");
+            SettingNodeOutPlug.connectPlug(timeNodeInPlug);
+
+            maxXVal = loadSettingItem(timeNode, times, zodiac::STORY_SETTING_TIME, true);
+
+            centrePos += timeNode->getPos().x();
+            ++centreIt;
+        }
+
+        if(centreIt != 0)  //if these nodes have been created, centre the setting node
+        {
+            centrePos /= centreIt;
+            settingNode->setPos(centrePos, settingNode->getPos().y());
+
+            centrePos = centreIt = 0;
+        }
 
         //load the theme items
         std::list<EventGoal> events = m_saveAndLoadManager.GetEvents();
+        NodeCtrl* eventNode = nullptr;
         if(events.size() > 0)
         {
             //create group node then load the events and all sub-events
-            NodeCtrl* parentNode = createNode(zodiac::STORY_THEME_EVENT_GROUP, "Events");
-            parentNode->getNodeHandle().setPos(themeNode->getPos().x(), themeNode->getPos().y()+100);
-            zodiac::PlugHandle parentNodeInPlug = parentNode->getNodeHandle().createIncomingPlug("in");
+            eventNode = createNode(zodiac::STORY_THEME_EVENT_GROUP, "Events");
+            eventNode->getNodeHandle().setPos(/*themeNode->getPos().x()*/maxXVal, themeNode->getPos().y()+100);
+            zodiac::PlugHandle parentNodeInPlug = eventNode->getNodeHandle().createIncomingPlug("in");
             ThemeNodeOutPlug.connectPlug(parentNodeInPlug);
 
-            loadThemeItem(parentNode, events, zodiac::STORY_THEME_EVENT);
+            maxXVal = loadThemeItem(eventNode, events, zodiac::STORY_THEME_EVENT).y() + 100;
+
+            centrePos += eventNode->getPos().x();
+            ++centreIt;
         }
 
         std::list<EventGoal> goals = m_saveAndLoadManager.GetGoals();
+        NodeCtrl* goalNode = nullptr;
         if(goals.size() > 0)
         {
             //same as events but goals
-            NodeCtrl* parentNode = createNode(zodiac::STORY_THEME_GOAL_GROUP, "Goals");
-            parentNode->getNodeHandle().setPos(themeNode->getPos().x(), themeNode->getPos().y()+100);
-            zodiac::PlugHandle parentNodeInPlug = parentNode->getNodeHandle().createIncomingPlug("in");
+            goalNode = createNode(zodiac::STORY_THEME_GOAL_GROUP, "Goals");
+            goalNode->getNodeHandle().setPos(/*themeNode->getPos().x()*/maxXVal, themeNode->getPos().y()+100);
+            zodiac::PlugHandle parentNodeInPlug = goalNode->getNodeHandle().createIncomingPlug("in");
             ThemeNodeOutPlug.connectPlug(parentNodeInPlug);
 
-            loadThemeItem(parentNode, goals, zodiac::STORY_THEME_GOAL);
+            maxXVal = loadThemeItem(goalNode, goals, zodiac::STORY_THEME_GOAL).y() + 100;
+
+            centrePos += goalNode->getPos().x();
+            ++centreIt;
+        }
+
+        if(centreIt != 0)  //if these nodes have been created, centre the setting node
+        {
+            centrePos /= centreIt;
+            themeNode->setPos(centrePos, themeNode->getPos().y());
+
+            centrePos = centreIt = 0;
         }
 
         //load the plot items (episodes)
@@ -300,39 +377,109 @@ void MainCtrl::loadStoryGraph()
     }
 }
 
-void MainCtrl::loadSettingItem(zodiac::NodeHandle *settingsNode, std::list<SettingItem> items, zodiac::StoryNodeType parentType, zodiac::StoryNodeType childType, QString parentName, int parentCount)
+float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> items, zodiac::StoryNodeType childType, bool move)
 {
-    if(items.size() == 0)   //if no items, don't create the group
-        return;
+    float minX = INFINITY;
+    float maxX = -INFINITY;
 
-    //create parent group node, move it, link to main settings node and set up plug for linking children
-    NodeCtrl* parentNode = createNode(parentType, parentName);
-    parentNode->getNodeHandle().setPos((settingsNode->getPos().x() + (parentCount * 100)) * items.size(), settingsNode->getPos().y()+100);
+    float nodePos = parentNode->getPos().x();
 
-    zodiac::PlugHandle parentNodeInPlug = parentNode->getNodeHandle().createIncomingPlug("in");
-    settingsNode->getPlug("out").connectPlug(parentNodeInPlug);
+    if(items.size() > 1)
+    {
+        float averageDetails = 0;
 
+        for(std::list<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
+        {
+            averageDetails += (*itemIt).details.size();
+        }
+
+        averageDetails /= items.size();
+
+        if(averageDetails > 0)
+            nodePos = (averageDetails * -0.5) * 100;
+        else
+            nodePos = (0.5 + (items.size() * -0.5)) * 100;
+    }
 
     //add each item to the tree
     for(std::list<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
-        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(0, 100));
+        if(nodePos + parentNode->getPos().x() < minX)
+            minX = nodePos + parentNode->getPos().x();
+        if(nodePos + parentNode->getPos().x() > maxX)
+            maxX = nodePos + parentNode->getPos().x();
+
+        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(nodePos, 100));
+
+        float detailSpacer = (*itemIt).details.size() * -0.5 + 0.5; //calculate spacing
 
         //add all the details for the items
-        std::list<SimpleNodeWithState> details = (*itemIt).details;
-        for(std::list<SimpleNodeWithState>::iterator detailIt = details.begin(); detailIt != details.end(); ++detailIt)
+        for(std::list<SimpleNodeWithState>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
         {
-            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(0, 100));
+            if((detailSpacer * 100) + childNode->getPos().x() < minX)
+                minX = (detailSpacer * 100) + childNode->getPos().x();
+            if((detailSpacer * 100) + childNode->getPos().x() > maxX)
+                maxX = (detailSpacer * 100) + childNode->getPos().x();
+
+            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(detailSpacer * 100, 100));
+            detailSpacer += 1;
+        }
+
+        std::list<SettingItem>::iterator nx = std::next(itemIt, 1);
+        if(nx != items.end())
+        {
+            if((*nx).details.size() == 0)
+                nodePos += 150;
+            else
+                nodePos += ((*itemIt).details.size() + (*nx).details.size())/2 * 100 + 50;
         }
     }
+
+    if(move)
+    {
+        float width = maxX - minX;
+        parentNode->setPos(parentNode->getPos().x() + width, parentNode->getPos().y(), true);
+        maxX += width;
+    }
+
+    qDebug() << parentNode->getName() << parentNode->getPos().x() << " minX " << minX << " maxX " << maxX;
+
+    return maxX + 100;
 }
 
-void MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType)
+QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType)
 {
+    float minX = INFINITY;
+    float maxX = -INFINITY;
+
+    float nodePos = parentNode->getPos().x();
+
+    if(items.size() > 1)
+    {
+        float averageDetails = 0;
+
+        for(std::list<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
+        {
+            averageDetails = getThemeItemWidth((*itemIt));
+        }
+
+        averageDetails /= items.size();
+
+        if(averageDetails > 0)
+            nodePos = (averageDetails * -0.5) * 100;
+        else
+            nodePos = (0.5 + (items.size() * -0.5)) * 100;
+    }
+
     //add each item to the tree
     for(std::list<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
         NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(0, 100));
+
+        if(nodePos < minX)
+            minX = nodePos;
+        if(nodePos > maxX)
+            maxX = nodePos;
 
         //if sub-item then load those too
         if((*itemIt).subItems.size() > 0)
@@ -340,14 +487,49 @@ void MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items, z
             std::list<EventGoal> subItems = (*itemIt).subItems;
             for(std::list<EventGoal>::iterator subItemIt = subItems.begin(); subItemIt != subItems.end(); ++subItemIt)
             {
-                loadThemeItem(itemNode, subItems, childType);
+                QPointF minMax = loadThemeItem(itemNode, subItems, childType);
 
+                if(minMax.x() < minX)
+                    minX = minMax.x();
+                if(minMax.y() > maxX)
+                    maxX = minMax.y();
             }
         }
+
+        std::list<EventGoal>::iterator nx = std::next(itemIt, 1);
+        if(nx != items.end())
+        {
+            if((*nx).subItems.size() == 0)
+                nodePos += 150;
+            else
+                nodePos += (getThemeItemWidth((*itemIt)) + getThemeItemWidth((*nx)))/2 * 100 + 50;
+        }
     }
+
+    /*//if(move)
+    //{
+        float width = maxX - minX;
+        parentNode->setPos(parentNode->getPos().x() + width, parentNode->getPos().y(), true);
+        maxX += width;
+    //}*/
+
+    return QPointF(minX, maxX);
 }
 
-void MainCtrl::loadEpisodes(zodiac::NodeHandle* parentNode, std::list<Episode> episodes)
+int MainCtrl::getThemeItemWidth(EventGoal &item)
+{
+    int i = 0;
+
+    for(std::list<EventGoal>::iterator itemIt = item.subItems.begin(); itemIt != item.subItems.end(); ++itemIt)
+    {
+        ++i;
+        i += getThemeItemWidth((*itemIt));
+    }
+
+    return i;
+}
+
+void MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode> episodes)
 {
     //add each item to the tree
     for(std::list<Episode>::iterator epIt = episodes.begin(); epIt != episodes.end(); ++epIt)
@@ -392,7 +574,7 @@ void MainCtrl::loadEpisodes(zodiac::NodeHandle* parentNode, std::list<Episode> e
     }
 }
 
-void MainCtrl::loadResolution(zodiac::NodeHandle* resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states)
+void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states)
 {
     if(events.size() > 0)
     {

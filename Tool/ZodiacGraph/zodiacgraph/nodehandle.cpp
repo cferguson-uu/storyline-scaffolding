@@ -608,8 +608,9 @@ void NodeHandle::setPos(qreal x, qreal y, bool updateChildren)
                 QList<PlugHandle> connectedPlugs = (*plugIt).getConnectedPlugs();
                 for(QList<PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
                 {
-                    QPointF nodePos = (*connectedPlugIt).getNode().getPos();    //add the difference to the old node position to move it relative to the parent
-                    (*connectedPlugIt).getNode().setPos(nodePos.x() + difference.x(), nodePos.y() + difference.y());
+                    NodeHandle newNode = (*connectedPlugIt).getNode();
+                    QPointF newNodePos = newNode.getPos() + difference;    //add the difference to the old node position to move it relative to the parent
+                    newNode.setPos(newNodePos.x(), newNodePos.y(), true);
                 }
             }
         }

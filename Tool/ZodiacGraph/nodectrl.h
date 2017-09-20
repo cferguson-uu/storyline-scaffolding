@@ -99,7 +99,7 @@ public: // methods
     /// \param [in] x   The position of the Node along the x axis.
     /// \param [in] y   The position of the Node along the y axis.
     ///
-    void setPos(qreal x, qreal y);
+    void setPos(qreal x, qreal y, bool moveChildren = false);
 
     ///
     /// \brief The command blocks part of the node.

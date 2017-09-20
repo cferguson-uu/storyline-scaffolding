@@ -45,9 +45,9 @@ QPointF NodeCtrl::getPos() const
     return m_node.getPos();
 }
 
-void NodeCtrl::setPos(qreal x, qreal y)
+void NodeCtrl::setPos(qreal x, qreal y, bool moveChildren)
 {
-    m_node.setPos(x, y);
+    m_node.setPos(x, y, moveChildren);
 }
 
 QHash<QUuid, zodiac::NodeCommand> NodeCtrl::getOnUnlockList()
