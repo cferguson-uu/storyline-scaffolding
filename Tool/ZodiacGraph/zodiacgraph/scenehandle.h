@@ -129,7 +129,7 @@ public: // methods
     ///
     /// \return             Handle of the new Node.
     ///
-    NodeHandle createNode(const QString& name, const QString &description, StoryNodeType storyType, const QUuid& uuid = QUuid());
+    NodeHandle createNode(const QString& name, const QString &description, StoryNodeType storyType, bool load = false, const QUuid& uuid = QUuid());
 
     ///
     /// \brief Returns all Node%s managed by the Scene.

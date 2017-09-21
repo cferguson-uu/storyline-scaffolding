@@ -69,7 +69,7 @@ public: // methods
     ///
     /// \return Control for new node.
     ///
-    NodeCtrl* createNode(zodiac::StoryNodeType storyType, const QString& name = "", const QString& description = "");
+    NodeCtrl* createNode(zodiac::StoryNodeType storyType, const QString& name = "", const QString& description = "", bool load = false);
 
     ///
     /// \brief Deletes an existing node from the graph.
@@ -115,7 +115,7 @@ public slots:
     ///
     /// \brief Creates a new story graph
     ///
-    NodeCtrl* createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &pos, bool relative = true);
+    NodeCtrl* createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &pos, bool relative = true, bool load = false);
     ///
     /// \brief Creates a new story graph
     ///
@@ -175,12 +175,11 @@ private: // members
     /// \brief handle the theme items (events, goals)
     ///
     QPointF loadThemeItem(NodeCtrl *parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType);
-    int getThemeItemWidth(EventGoal &item);
 
     ///
     /// \brief handle the plot items (episodes)
     ///
-    void loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode> episodes);
+    QPointF loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode> episodes);
 
     ///
     /// \brief handle the resolution items (events, states)

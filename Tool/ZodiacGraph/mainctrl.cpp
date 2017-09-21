@@ -27,7 +27,7 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));
 }
 
-NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name, const QString& description)
+NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name, const QString& description, bool load)
 {
     // the newly created Node is the only selected one to avoid confusion
     m_scene.deselectAll();
@@ -39,7 +39,7 @@ NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& n
     }
 
     // create the node
-    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, description, storyType));
+    NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, description, storyType, load));
     m_nodes.insert(nodeCtrl->getNodeHandle(), nodeCtrl);
 
     return nodeCtrl;
@@ -134,9 +134,9 @@ void MainCtrl::selectionChanged(QList<zodiac::NodeHandle> selection)
     m_propertyEditor->showNodes(selection);
 }
 
-NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &pos, bool relative)
+NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &pos, bool relative, bool load)
 {
-    NodeCtrl* child = createNode(type, name, description);
+    NodeCtrl* child = createNode(type, name, description, load);
 
     //set the position
     if(relative)
@@ -400,6 +400,7 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
         else
             nodePos = (0.5 + (items.size() * -0.5)) * 100;
     }
+
     float parentPos = 0;
     int parentPosIt = 0;
     //add each item to the tree
@@ -457,126 +458,229 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
     float maxX = -INFINITY;
 
     float nodePos = 0;
-
-    if(items.size() > 1)
-    {
-        /*float averageDetails = 0;
-
-        for(std::list<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
-        {
-            averageDetails = getThemeItemWidth((*itemIt));
-        }
-
-        averageDetails /= items.size();
-
-        if(averageDetails > 0)
-            nodePos = (averageDetails * -0.5) * 100;
-        else*/
-            nodePos = (0.5 + (items.size() * -0.5)) * 100;
-    }
+    float parentPos = 0;
+    int parentPosIt = 0;
 
     //add each item to the tree
     for(std::list<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
         NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(nodePos, 100));
 
-        if(nodePos < minX)
-            minX = nodePos;
-        if(nodePos > maxX)
-            maxX = nodePos;
+        parentPos += nodePos + parentNode->getPos().x();
+        ++parentPosIt;
+
+        if(nodePos + parentNode->getPos().x()  < minX)
+            minX = nodePos + parentNode->getPos().x();
+        if(nodePos + parentNode->getPos().x() > maxX)
+            maxX = nodePos + parentNode->getPos().x();
 
         //if sub-item then load those too
         if((*itemIt).subItems.size() > 0)
         {
+            float localMaxX = 0;
             for(std::list<EventGoal>::iterator subItemIt = (*itemIt).subItems.begin(); subItemIt != (*itemIt).subItems.end(); ++subItemIt)
             {
                 QPointF minMax = loadThemeItem(itemNode, (*itemIt).subItems, childType);
+
+                localMaxX = minMax.y() - itemNode->getPos().x();
 
                 if(minMax.x() < minX)
                     minX = minMax.x();
                 if(minMax.y() > maxX)
                     maxX = minMax.y();
             }
+            nodePos += localMaxX;
         }
-
-        /*std::list<EventGoal>::iterator nx = std::next(itemIt, 1);
-        if(nx != items.end())
-        {
-            if((*nx).subItems.size() == 0)
-                nodePos += 150;
-            else
-                nodePos += (getThemeItemWidth((*itemIt)) + getThemeItemWidth((*nx)))/2 * 100 + 50;
-        }*/
 
         nodePos += 100;
     }
 
-    //if(move)
-    //{
-        float width = maxX - minX;
-        parentNode->setPos(parentNode->getPos().x() + width/2, parentNode->getPos().y(), true);
-        maxX += width/2;
-    //}
+    parentNode->setPos(parentPos/parentPosIt, parentNode->getPos().y(), false);
+
+    float halfWidth = parentNode->getPos().x() - minX;
+    parentNode->setPos(parentNode->getPos().x() + halfWidth, parentNode->getPos().y(), true);
+    minX += halfWidth;
+    maxX += halfWidth;
 
     return QPointF(minX, maxX);
 }
 
-int MainCtrl::getThemeItemWidth(EventGoal &item)
+QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode> episodes)
 {
-    int i = 0;
+    float mainMinX = INFINITY;
+    float mainMaxX = -INFINITY;
 
-    for(std::list<EventGoal>::iterator itemIt = item.subItems.begin(); itemIt != item.subItems.end(); ++itemIt)
-    {
-        ++i;
-        i += getThemeItemWidth((*itemIt));
-    }
+    float nodePos = 0;
+    float parentPos = 0;
+    int parentPosIt = 0;
+    NodeCtrl *parentNodeCtrl = new NodeCtrl(this, *parentNode);
 
-    return i;
-}
-
-void MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode> episodes)
-{
     //add each item to the tree
     for(std::list<Episode>::iterator epIt = episodes.begin(); epIt != episodes.end(); ++epIt)
     {
-        NodeCtrl *episodeNode = createNode(zodiac::STORY_PLOT_EPISODE, (*epIt).id, (*epIt).description);
-        episodeNode->getNodeHandle().setPos(parentNode->getPos().x(), parentNode->getPos().y()+100);
-        zodiac::PlugHandle episodeNodeInPlug = episodeNode->getNodeHandle().createIncomingPlug("in");
-        parentNode->getPlug("out").connectPlug(episodeNodeInPlug);
+        float epMinX = INFINITY;
+        float epMaxX = -INFINITY;
 
+        NodeCtrl *episodeNode = createStoryNode(parentNodeCtrl, zodiac::STORY_PLOT_EPISODE, (*epIt).id, (*epIt).description, QPoint(nodePos, 100), true, true);
+
+        if(nodePos + parentNodeCtrl->getPos().x()  < epMinX)
+            epMinX = nodePos + parentNodeCtrl->getPos().x();
+        if(nodePos + parentNodeCtrl->getPos().x() > epMaxX)
+            epMaxX = nodePos + parentNodeCtrl->getPos().x();
 
         NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt", QPoint(0, 100));
-        NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome", QPoint(0, 100));
-
         //handle attempts
-        for(std::list<SimpleNodeWithState>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
+        if((*epIt).attempts.size() > 0 || (*epIt).attemptSubEpisodes.size() > 0)
         {
-            createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, (*attIt).description, QPoint(0, 100));
+            float attemptPos = 0;
+            float attemptMinX = INFINITY;
+            float attemptMaxX = -INFINITY;
+
+            for(std::list<SimpleNodeWithState>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
+            {
+                if(attemptPos + attemptGroupNode->getPos().x()  < attemptMinX)
+                    attemptMinX = attemptPos + attemptGroupNode->getPos().x();
+                if(attemptPos + attemptGroupNode->getPos().x() > attemptMaxX)
+                    attemptMaxX = attemptPos + attemptGroupNode->getPos().x();
+
+                createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, (*attIt).description, QPoint(attemptPos, 100));
+                attemptPos += 100;
+            }
+
+            if((*epIt).attemptSubEpisodes.size() > 0)
+            {
+                QPointF oldAttemptPos = attemptGroupNode->getPos();
+                attemptGroupNode->setPos(oldAttemptPos.x() + attemptPos, oldAttemptPos.y());
+
+                //handle attempt sub-episodes
+                QPointF attemptMinMax = loadEpisodes(&attemptGroupNode->getNodeHandle(), (*epIt).attemptSubEpisodes);
+
+                if(attemptMinMax.x()  < attemptMinX)
+                    attemptMinX = attemptMinMax.x();
+                if(attemptMinMax.y() > attemptMaxX)
+                    attemptMaxX = attemptMinMax.y();
+            }
+
+            //centre node
+            float attemptParentPos = 0;
+            int attemptParentPosIt = 0;
+            //get all connected plugs
+            QList<zodiac::PlugHandle> connectedPlugs = attemptGroupNode->getNodeHandle().getPlug("out").getConnectedPlugs();
+            if(connectedPlugs.size() > 1)
+            {
+                for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+                {
+                   zodiac::NodeHandle connectedNode = (*connectedPlugIt).getNode();
+                   attemptParentPos += connectedNode.getPos().x();
+                   ++attemptParentPosIt;
+                }
+                attemptGroupNode->setPos(attemptParentPos/attemptParentPosIt, attemptGroupNode->getPos().y(), false);
+            }
+
+            float attemptHalfWidth = attemptGroupNode->getPos().x() - attemptMinX;
+            attemptGroupNode->setPos(attemptGroupNode->getPos().x() + attemptHalfWidth, attemptGroupNode->getPos().y(), true);
+            attemptMinX += attemptHalfWidth;
+            attemptMaxX += attemptHalfWidth;
+
+            if(attemptMinX < epMinX)
+                epMinX = attemptMinX;
+            if(attemptMaxX > epMaxX)
+                epMaxX = attemptMaxX;
         }
 
-        //handle attempt sub-episodes
-        loadEpisodes(&attemptGroupNode->getNodeHandle(), (*epIt).attemptSubEpisodes);
-        /*for(std::list<Episode>::iterator attEpIt = (*epIt).attemptSubEpisodes.begin(); attEpIt != (*epIt).attemptSubEpisodes.end(); ++attEpIt)
-        {
+        epMaxX += 50; //gap between nodes
 
-        }*/
-
-        //handle outcomes
-        for(std::list<SimpleNodeWithState>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
+        NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome", QPoint(epMaxX, 100));
+        if((*epIt).outcomes.size() > 0 || (*epIt).outcomeSubEpisodes.size() > 0)
         {
-            createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, (*outIt).description, QPoint(0, 100));
+            //handle outcomes
+            float outcomePos = 0;
+            float outcomeMinX = INFINITY;
+            float outcomeMaxX = -INFINITY;
+            for(std::list<SimpleNodeWithState>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
+            {
+                if(outcomePos + outcomeGroupNode->getPos().x()  < outcomeMinX)
+                    outcomeMinX = outcomePos + outcomeGroupNode->getPos().x();
+                if(outcomePos + outcomeGroupNode->getPos().x() > outcomeMaxX)
+                    outcomeMaxX = outcomePos + outcomeGroupNode->getPos().x();
+
+                createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, (*outIt).description, QPoint(outcomePos, 100));
+                outcomePos += 100;
+            }
+
+            if((*epIt).outcomeSubEpisodes.size() > 0)
+            {
+                QPointF oldOutcomePos = outcomeGroupNode->getPos();
+                outcomeGroupNode->setPos(oldOutcomePos.x() + outcomePos, oldOutcomePos.y());
+
+                //handle outcome sub-episodes
+                QPointF outcomeMinMax = loadEpisodes(&outcomeGroupNode->getNodeHandle(), (*epIt).outcomeSubEpisodes);
+
+                if(outcomeMinMax.x()  < outcomeMinX)
+                    outcomeMinX = outcomeMinMax.x();
+                if(outcomeMinMax.y() > outcomeMaxX)
+                    outcomeMaxX = outcomeMinMax.y();
+            }
+
+            //centre node
+            float outcomeParentPos = 0;
+            float outcomeParentPosIt = 0;
+            //get all connected plugs
+            QList<zodiac::PlugHandle> connectedPlugs = outcomeGroupNode->getNodeHandle().getPlug("out").getConnectedPlugs();
+            if(connectedPlugs.size() > 1)
+            {
+                for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+                {
+                   zodiac::NodeHandle connectedNode = (*connectedPlugIt).getNode();
+                   outcomeParentPos += connectedNode.getPos().x();
+                   ++outcomeParentPosIt;
+                }
+                outcomeGroupNode->setPos(outcomeParentPos/outcomeParentPosIt, outcomeGroupNode->getPos().y(), false);
+            }
+
+            float outcomeHalfWidth = outcomeGroupNode->getPos().x() - outcomeMinX;
+            outcomeGroupNode->setPos(outcomeGroupNode->getPos().x() + outcomeHalfWidth, outcomeGroupNode->getPos().y(), true);
+            outcomeMinX += outcomeHalfWidth;
+            outcomeMaxX += outcomeHalfWidth;
+
+            if(outcomeMinX < epMinX)
+                epMinX = outcomeMinX;
+            if(outcomeMaxX > epMaxX)
+                epMaxX = outcomeMaxX;
         }
-
-        //handle outcome sub-episodes
-        loadEpisodes(&outcomeGroupNode->getNodeHandle(), (*epIt).outcomeSubEpisodes);
-        /*for(std::list<Episode>::iterator outEpIt = (*epIt).outcomeSubEpisodes.begin(); outEpIt != (*epIt).outcomeSubEpisodes.end(); ++outEpIt)
-        {
-
-        }*/
 
         //handle sub-goal
-        createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).stateID, (*epIt).stateDescription, QPoint(0, 100));
+        epMaxX += 50; //gap between nodes
+        NodeCtrl *subGoalNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).stateID, (*epIt).stateDescription, QPoint(epMaxX, 100));
+
+        //centre episode node
+        episodeNode->setPos((attemptGroupNode->getPos().x() + outcomeGroupNode->getPos().x() + subGoalNode->getPos().x())/3, episodeNode->getPos().y());
+
+        float episodeHalfWidth = episodeNode->getPos().x() - epMinX;
+        episodeNode->setPos(episodeNode->getPos().x() + episodeHalfWidth, episodeNode->getPos().y(), true);
+        epMinX += episodeHalfWidth;
+        epMaxX += episodeHalfWidth;
+
+        qDebug() << "episodeHalfWidth " <<  episodeHalfWidth;
+
+        parentPos += episodeNode->getPos().x();
+        ++parentPosIt;
+
+        if(epMinX < mainMinX)
+            mainMinX = epMinX;
+        if(epMaxX > mainMaxX)
+            mainMaxX = epMaxX;
+
+        qDebug() << "without" << epMaxX;
+        qDebug() << "parent" << epMaxX - parentNodeCtrl->getPos().x();
+        qDebug() << "episode" << epMaxX - episodeNode->getPos().x();
+
+        nodePos += (epMaxX - parentNode->getPos().x());
     }
+
+    parentNodeCtrl->setPos(parentPos/parentPosIt, parentNodeCtrl->getPos().y());
+
+    return QPointF(mainMinX, mainMaxX);
 }
 
 void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states)

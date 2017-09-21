@@ -1029,7 +1029,7 @@ private: // static members
 class NarrativeNode: public Node
 {
 public:
-    NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, const QUuid& uuid = QUuid(), QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
+    NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load = false, const QUuid& uuid = QUuid(), QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
                   QColor labelBackgroundColor = QColor("#426998"), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"))
             : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor){}
 
@@ -1134,7 +1134,7 @@ class StoryNode: public Node
 {
     Q_OBJECT
 public:
-    StoryNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, StoryNodeType storyType, const QUuid& uuid = QUuid(),
+    StoryNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, StoryNodeType storyType, bool load = false, const QUuid& uuid = QUuid(),
               QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
               QColor labelBackgroundColor = QColor("#F84B28" /*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"));
 

@@ -87,7 +87,7 @@ public: // methods
     ///
     /// \return             The new Node.
     ///
-    Node* createNode(const QString& name, const QString& description, StoryNodeType storyType, const QUuid& uuid = QUuid());
+    Node* createNode(const QString& name, const QString& description, StoryNodeType storyType, bool load = false, const QUuid& uuid = QUuid());
 
     ///
     /// \brief Removes an existing Node from this Scene.

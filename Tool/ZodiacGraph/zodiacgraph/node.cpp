@@ -866,18 +866,19 @@ void NarrativeNode::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const 
     m_onUnlocked[cmdKey].parameters[paramKey] = value;
 }
 
-StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, StoryNodeType storyType, const QUuid& uuid,
+StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, StoryNodeType storyType, bool load, const QUuid& uuid,
           QColor idleColor, QColor selectedColor, QColor outlineColor,
           QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
     : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
       , m_storyNodeType(storyType)
 {
-    if(m_storyNodeType == STORY_PLOT_EPISODE)
-    {
-        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempts", "", QPoint(-100,100)); } );
-        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcomes", "", QPoint(0,100)); } );
-        QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_SUBGOAL, "SubGoal", "", QPoint(100,100)); } );
-    }
+    if(!load)
+        if(m_storyNodeType == STORY_PLOT_EPISODE)
+        {
+            QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt", QPoint(-100,100)); } );
+            QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome", QPoint(0,100)); } );
+            QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_SUBGOAL, "SubGoal", "SubGoal", QPoint(100,100)); } );
+        }
 }
 
 ///
