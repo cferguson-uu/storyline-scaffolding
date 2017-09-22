@@ -472,7 +472,7 @@ StoryNodeType NodeHandle::getStoryNodeType()
     Q_ASSERT(sNode);
 #else
     if(!m_isValid || !sNode){
-        return;
+        return STORY_ERROR;
     }
 
 #endif
@@ -485,7 +485,7 @@ void NodeHandle::softSetExpansion(NodeExpansion newState)
     Q_ASSERT(m_isValid);
 #else
     if(!m_isValid){
-        return
+        return;
     }
 #endif
     m_node->softSetExpansion(newState);
