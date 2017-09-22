@@ -377,6 +377,9 @@ void MainCtrl::loadStoryGraph()
         std::list<SimpleNode> resStates = m_saveAndLoadManager.GetResolution().states;
         resolutionNode->setPos(maxXVal, resolutionNode->getPos().y());
         loadResolution(resolutionNode, resEvents, resStates);
+
+        //centre the main node
+        startingNode->setPos((settingNode->getPos().x() + themeNode->getPos().x() + plotNode->getPos().x() + resolutionNode->getPos().x())/4, startingNode->getPos().y());
     }
 }
 
@@ -387,72 +390,50 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
 
     float nodePos = parentNode->getPos().x();
 
-    if(items.size() > 1)
-    {
-        float averageDetails = 0;
-
-        for(std::list<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
-        {
-            averageDetails += (*itemIt).details.size();
-        }
-
-        averageDetails /= items.size();
-
-        if(averageDetails > 0)
-            nodePos = (averageDetails * -0.5) * 100;
-        else
-            nodePos = (0.5 + (items.size() * -0.5)) * 100;
-    }
-
     float parentPos = 0;
     int parentPosIt = 0;
     //add each item to the tree
     for(std::list<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
-        parentPos += nodePos + parentNode->getPos().x();
+        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(nodePos - parentNode->getPos().x(), 100));
+
+        if(childNode->getPos().x() < minX)
+            minX = childNode->getPos().x();
+        if(childNode->getPos().x() > maxX)
+            maxX = childNode->getPos().x();
+
+        if((*itemIt).details.size() > 0)
+        {
+            float detailSpacer = 0;
+            float childCentrePos = 0;
+            int childCentreIt = 0;
+            //add all the details for the items
+            for(std::list<SimpleNodeWithState>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
+            {
+                NodeCtrl* detailNode = createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(detailSpacer, 100));
+
+                if(detailNode->getPos().x() < minX)
+                    minX = detailNode->getPos().x();
+                if(detailNode->getPos().x() > maxX)
+                    maxX = detailNode->getPos().x();
+
+                detailSpacer += 100;
+
+                childCentrePos += detailNode->getPos().x();
+                ++childCentreIt;
+            }
+
+            childNode->setPos(childCentrePos/childCentreIt, childNode->getPos().y());
+        }
+
+        parentPos += childNode->getPos().x();
         ++parentPosIt;
 
-        if(nodePos + parentNode->getPos().x() < minX)
-            minX = nodePos + parentNode->getPos().x();
-        if(nodePos + parentNode->getPos().x() > maxX)
-            maxX = nodePos + parentNode->getPos().x();
-
-        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(nodePos, 100));
-
-        float detailSpacer = ((*itemIt).details.size() * -0.5 + 0.5) * 100; //calculate spacing
-
-        //add all the details for the items
-        for(std::list<SimpleNodeWithState>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
-        {
-            if(detailSpacer + childNode->getPos().x() < minX)
-                minX = detailSpacer + childNode->getPos().x();
-
-            if(detailSpacer + childNode->getPos().x() > maxX)
-                maxX = detailSpacer + childNode->getPos().x();
-
-            createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(detailSpacer, 100));
-            detailSpacer += 100;
-        }
-
-        std::list<SettingItem>::iterator nx = std::next(itemIt, 1);
-        if(nx != items.end())
-        {
-            if((*nx).details.size() == 0)
-                nodePos += 150;
-            else
-                nodePos += ((*itemIt).details.size() + (*nx).details.size())/2 * 100 + 50;
-        }
+        nodePos = maxX += 100;
     }
         parentNode->setPos(parentPos/parentPosIt, parentNode->getPos().y(), false);
 
-        float halfWidth = parentNode->getPos().x() - minX;
-        parentNode->setPos(parentNode->getPos().x() + halfWidth, parentNode->getPos().y(), true);
-        minX += halfWidth;
-        maxX += halfWidth;
-
-    qDebug() << parentNode->getName() << parentNode->getPos().x() << " minX " << minX << " maxX " << maxX;
-
-    return maxX + 100;
+    return maxX;
 }
 
 QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType)
@@ -499,11 +480,6 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
     }
 
     parentNode->setPos(parentPos/parentPosIt, parentNode->getPos().y(), false);
-
-    float halfWidth = parentNode->getPos().x() - minX;
-    parentNode->setPos(parentNode->getPos().x() + halfWidth, parentNode->getPos().y(), true);
-    minX += halfWidth;
-    maxX += halfWidth;
 
     return QPointF(minX, maxX);
 }
@@ -562,7 +538,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
                 if(attemptMinMax.x()  < attemptMinX)
                     attemptMinX = attemptMinMax.x();
                 if(attemptMinMax.y() > attemptMaxX)
-                    attemptMaxX = (attemptMinMax.y() - attemptGroupNode->getPos().x()) + 100;
+                    attemptMaxX = attemptMinMax.y();
             }
 
             //centre node
@@ -580,11 +556,6 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
                 }
                 attemptGroupNode->setPos(attemptParentPos/attemptParentPosIt, attemptGroupNode->getPos().y(), false);
             }
-
-            float attemptHalfWidth = attemptGroupNode->getPos().x() - attemptMinX;
-            //attemptGroupNode->setPos(attemptGroupNode->getPos().x() + attemptHalfWidth, attemptGroupNode->getPos().y(), true);
-            attemptMinX += attemptHalfWidth;
-            attemptMaxX += attemptHalfWidth;
 
             if(attemptMinX < epMinX)
                 epMinX = attemptMinX;
@@ -624,7 +595,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
                 if(outcomeMinMax.x()  < outcomeMinX)
                     outcomeMinX = outcomeMinMax.x();
                 if(outcomeMinMax.y() > outcomeMaxX)
-                    outcomeMaxX = (outcomeMinMax.y() - outcomeGroupNode->getPos().x()) + 100;
+                    outcomeMaxX = outcomeMinMax.y();
             }
 
             //centre node
@@ -643,11 +614,6 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
                 outcomeGroupNode->setPos(outcomeParentPos/outcomeParentPosIt, outcomeGroupNode->getPos().y(), false);
             }
 
-            float outcomeHalfWidth = outcomeGroupNode->getPos().x() - outcomeMinX;
-            //outcomeGroupNode->setPos(outcomeGroupNode->getPos().x() + outcomeHalfWidth, outcomeGroupNode->getPos().y(), true);
-            outcomeMinX += outcomeHalfWidth;
-            outcomeMaxX += outcomeHalfWidth;
-
             if(outcomeMinX < epMinX)
                 epMinX = outcomeMinX;
             if(outcomeMaxX > epMaxX)
@@ -655,23 +621,12 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
         }
 
         //handle sub-goal
-        float subGoalPos = outcomeGroupNode->getPos().x();
-        subGoalPos += 100; //always next to the outcome node as only one node
+        epMaxX += 100; //gap between nodes
 
-        if(subGoalPos < epMinX)
-            epMinX = subGoalPos;
-        if(subGoalPos > epMaxX)
-            epMaxX = subGoalPos;
-
-        NodeCtrl *subGoalNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).stateID, (*epIt).stateDescription, QPoint(subGoalPos - episodeNode->getPos().x(), 100));
+        NodeCtrl *subGoalNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).stateID, (*epIt).stateDescription, QPoint(epMaxX - episodeNode->getPos().x(), 100));
 
         //centre episode node
         episodeNode->setPos((attemptGroupNode->getPos().x() + outcomeGroupNode->getPos().x() + subGoalNode->getPos().x())/3, episodeNode->getPos().y());
-
-        float episodeHalfWidth = (episodeNode->getPos().x() - epMinX);
-        //episodeNode->setPos(episodeNode->getPos().x() + episodeHalfWidth, episodeNode->getPos().y(), true);
-        epMinX += episodeHalfWidth;
-        epMaxX += episodeHalfWidth;
 
         parentPos += episodeNode->getPos().x();
         ++parentPosIt;
@@ -681,10 +636,13 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
         if(epMaxX > mainMaxX)
             mainMaxX = epMaxX;
 
-        nodePos = epMaxX;
+        nodePos = epMaxX += 100;
     }
 
     parentNodeCtrl->setPos(parentPos/parentPosIt, parentNodeCtrl->getPos().y());
+
+
+    qDebug() << mainMaxX;
 
     return QPointF(mainMinX, mainMaxX);
 }
@@ -692,6 +650,9 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
 void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states)
 {
     float maxX = resolutionNode->getPos().x();
+
+    float parentCentrePos = 0;
+    int parentCentreIt = 0;
 
     if(events.size() > 0)
     {
@@ -718,6 +679,9 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<Even
 
         eventNode->setPos(centrePos/nodeIt, eventNode->getPos().y());
         maxX += 100;
+
+        parentCentrePos += eventNode->getPos().x();
+        ++parentCentreIt;
     }
 
    if(states.size() > 0)
@@ -742,5 +706,11 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<Even
         }
 
         stateNode->setPos(centrePos/nodeIt, stateNode->getPos().y());
-    }
+
+        parentCentrePos += stateNode->getPos().x();
+        ++parentCentreIt;
+    }   
+
+   if(parentCentreIt > 0)
+       resolutionNode->setPos(parentCentrePos/parentCentreIt, resolutionNode->getPos().y());
 }
