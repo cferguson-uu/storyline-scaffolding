@@ -189,35 +189,149 @@ void MainCtrl::saveStoryGraph()
 {
     //get list of all story nodes
     QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
-    zodiac::NodeHandle *mainStoryNode;
+    zodiac::NodeHandle *mainStoryNode = nullptr;
+    zodiac::NodeHandle *settingNode = nullptr;
+    zodiac::NodeHandle *themeNode = nullptr;
+    zodiac::NodeHandle *plotNode = nullptr;
+    zodiac::NodeHandle *resolutionNode = nullptr;
 
-    //iterate through the list to find the main story node
+    //iterate through the list to find the nodes
     for(QList<zodiac::NodeHandle>::iterator it = nodes.begin(); it != nodes.end(); ++it)
     {
-        if((*it).getType() == zodiac::NODE_STORY && (*it).getStoryNodeType() == zodiac::STORY_NAME)
+        if((*it).getType() == zodiac::NODE_STORY)
         {
-            mainStoryNode = &(*it); //get a pointer to the handle of the main node as a starting point
-            break;
+            if((*it).getStoryNodeType() == zodiac::STORY_NAME)
+                mainStoryNode = &(*it); //get a pointer to the handle of the name node
+            else
+                if((*it).getStoryNodeType() == zodiac::STORY_SETTING)
+                    settingNode = &(*it); //get a pointer to the handle of the settings node
+                else
+                    if((*it).getStoryNodeType() == zodiac::STORY_THEME)
+                        themeNode = &(*it); //get a pointer to the handle of the theme node
+                    else
+                        if((*it).getStoryNodeType() == zodiac::STORY_PLOT)
+                            plotNode = &(*it); //get a pointer to the handle of the plot node
+                        else
+                            if((*it).getStoryNodeType() == zodiac::STORY_RESOLUTION)
+                                resolutionNode = &(*it); //get a pointer to the handle of the resolution node
         }
     }
 
+    m_saveAndLoadManager.DeleteAll(); //clear the manager just in case
+
     //store story name
+    m_saveAndLoadManager.setStoryName(mainStoryNode->getName());
 
-    //get settings node
-    //get characters node - store, then iterate through details nodes and store these
-    //get locations node - store, then iterate through details nodes and store these
-    //get times node - store, then iterate through details nodes and store these
+    //save settings nodes
+    QList<zodiac::PlugHandle> connectedPlugs = settingNode->getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    {
+        saveSettingItem((*connectedPlugIt).getNode());
+    }
 
-    //get theme node
-    //get events node - find each seperate event and sub-events, store these
-    //get goals node - find each seperate goal and sub-goals, store these
+    //save theme nodes
+    connectedPlugs = themeNode->getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    {
+        saveThemeItem((*connectedPlugIt).getNode());
+    }
 
     //get plot node
     //get each episode node - store, store subgoal, iterate through attempts, store these and sub episodes, same with outcomes
+    connectedPlugs = plotNode->getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    {
+        savePlotItem((*connectedPlugIt).getNode());
+    }
 
     //get resolution node
     //get events node - iterate though events and store
     //get states node = iterate through states and store
+}
+
+void MainCtrl::saveSettingItem(zodiac::NodeHandle &settingGroup)
+{
+    QList<zodiac::PlugHandle> connectedPlugs = settingGroup.getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    {
+        zodiac::NodeHandle settingNode = (*connectedPlugIt).getNode();
+        SettingItem *settingItem;
+
+        if(settingNode.getType() == zodiac::STORY_SETTING_CHARACTER)
+            settingItem = m_saveAndLoadManager.addCharacter(settingNode.getName(), settingNode.getDescription());
+        else
+            if(settingNode.getType() == zodiac::STORY_SETTING_LOCATION)
+                settingItem = m_saveAndLoadManager.addLocation(settingNode.getName(), settingNode.getDescription());
+            else
+                if(settingNode.getType() == zodiac::STORY_SETTING_TIME)
+                    settingItem = m_saveAndLoadManager.addTime(settingNode.getName(), settingNode.getDescription());
+                else
+                    return; //error
+
+            QList<zodiac::PlugHandle> detailPlugs = settingNode.getPlug("out").getConnectedPlugs();
+            for(QList<zodiac::PlugHandle>::iterator detailPlugIt = detailPlugs.begin(); detailPlugIt != detailPlugs.end(); ++detailPlugIt)
+            {
+                zodiac::NodeHandle detailNode = (*detailPlugIt).getNode();
+                m_saveAndLoadManager.addDetail(settingItem, detailNode.getName(), detailNode.getDescription(), "", "");
+            }
+    }
+}
+
+void MainCtrl::saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem)
+{
+    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    {
+        zodiac::NodeHandle eventGoalNode = (*connectedPlugIt).getNode();
+        EventGoal *eventGoalItem;
+
+        if(eventGoalNode.getType() == zodiac::STORY_THEME_EVENT)
+            eventGoalItem = m_saveAndLoadManager.addEvent(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
+        else
+            if(eventGoalNode.getType() == zodiac::STORY_THEME_GOAL)
+                eventGoalItem = m_saveAndLoadManager.addGoal(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
+            else
+                return; //error
+
+            if(parent.getPlug("out").connectionCount() > 0)
+                saveThemeItem(eventGoalNode, eventGoalItem);
+    }
+}
+
+void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
+{
+    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    {
+        zodiac::NodeHandle episodeNode = (*connectedPlugIt).getNode();
+        Episode *episodeItem;
+
+        if(episodeNode.getType() == zodiac::STORY_PLOT_EPISODE)
+            episodeItem = m_saveAndLoadManager.addEpisode(episodeNode.getName(), episodeNode.getDescription(), parentItem);
+        else
+            return; //error
+
+        QList<zodiac::PlugHandle> childPlugs = parent.getPlug("out").getConnectedPlugs();
+        for(QList<zodiac::PlugHandle>::iterator childPlugIt = childPlugs.begin(); childPlugIt != childPlugs.end(); ++childPlugIt)
+        {
+            zodiac::NodeHandle childNode = (*connectedPlugIt).getNode();
+
+            if(childNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP)
+            {
+
+            }
+            else
+                if(childNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP)
+                {
+
+                }
+                else
+                    if((childNode).getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_SUBGOAL)
+                    {
+
+                    }
+        }
+    }
 }
 
 void MainCtrl::loadStoryGraph()
@@ -241,7 +355,7 @@ void MainCtrl::loadStoryGraph()
             if((*it).getType() == zodiac::NODE_STORY)
             {
                 if((*it).getStoryNodeType() == zodiac::STORY_NAME)
-                    startingNode = &(*it); //get a pointer to the handle of the settings node
+                    startingNode = &(*it); //get a pointer to the handle of the name node
                 else
                     if((*it).getStoryNodeType() == zodiac::STORY_SETTING)
                         settingNode = &(*it); //get a pointer to the handle of the settings node

@@ -627,6 +627,234 @@ void saveandload::WriteResolution(QJsonObject &jsonResolution)
     }
 }
 
+void saveandload::DeleteAll()
+{
+    m_storyName = "";
+    m_characters.clear();
+    m_locations.clear();
+    m_times.clear();
+    m_episodes.clear();
+    m_events.clear();
+    m_goals.clear();
+    m_resolution.events.clear();
+    m_resolution.states.clear();
+
+}
+
+void saveandload::setStoryName(QString name)
+{
+    m_storyName = name;
+}
+
+SettingItem *saveandload::addCharacter(QString id, QString description)
+{
+    SettingItem newCharacter;
+    newCharacter.id = id;
+    newCharacter.description = description;
+
+    m_characters.push_back(newCharacter);
+
+    for(std::list<SettingItem>::iterator it = m_characters.begin(); it!= m_characters.end(); ++it)
+    {
+        if((*it).id == newCharacter.id)
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+SettingItem *saveandload::addLocation(QString id, QString description)
+{
+    SettingItem newLocation;
+    newLocation.id = id;
+    newLocation.description = description;
+
+    m_locations.push_back(newLocation);
+
+    for(std::list<SettingItem>::iterator it = m_locations.begin(); it!= m_locations.end(); ++it)
+    {
+        if((*it).id == newLocation.id)
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+SettingItem *saveandload::addTime(QString id, QString description)
+{
+    SettingItem newTime;
+    newTime.id = id;
+    newTime.description = description;
+
+    m_times.push_back(newTime);
+
+    for(std::list<SettingItem>::iterator it = m_times.begin(); it!= m_times.end(); ++it)
+    {
+        if((*it).id == newTime.id)
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+void saveandload::addDetail(SettingItem *item, QString id, QString description, QString stateId, QString stateDescription)
+{
+    SimpleNodeWithState newDetail;
+    newDetail.id = id;
+    newDetail.description = description;
+    newDetail.stateID = stateId;
+    newDetail.stateDescription = stateDescription;
+
+    item->details.push_back(newDetail);
+}
+
+EventGoal *saveandload::addEvent(QString id, QString description, EventGoal* parent)
+{
+    EventGoal newEvent;
+    newEvent.id = id;
+    newEvent.description = description;
+
+    if(parent != nullptr)
+    {
+        parent->subItems.push_back(newEvent);
+
+        for(std::list<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
+        {
+            if((*it).id == newEvent.id)
+                return &(*it);
+        }
+    }
+    else
+    {
+        m_events.push_back(newEvent);
+
+        for(std::list<EventGoal>::iterator it = m_events.begin(); it!= m_events.end(); ++it)
+        {
+            if((*it).id == newEvent.id)
+                return &(*it);
+        }
+    }
+
+    return nullptr; //if a problem
+}
+
+EventGoal *saveandload::addGoal(QString id, QString description, EventGoal* parent)
+{
+    EventGoal newGoal;
+    newGoal.id = id;
+    newGoal.description = description;
+
+    if(parent != nullptr)
+    {
+        parent->subItems.push_back(newGoal);
+
+        for(std::list<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
+        {
+            if((*it).id == newGoal.id)
+                return &(*it);
+        }
+    }
+    else
+    {
+        m_goals.push_back(newGoal);
+
+        for(std::list<EventGoal>::iterator it = m_goals.begin(); it!= m_goals.end(); ++it)
+        {
+            if((*it).id == newGoal.id)
+                return &(*it);
+        }
+    }
+
+    return nullptr; //if a problem
+}
+
+Episode *saveandload::addEpisode(QString id, QString description, Episode* parent, zodiac::StoryNodeType type)
+{
+    Episode newEpisode;
+    newEpisode.id = id;
+    newEpisode.description = description;
+
+    if(parent != nullptr)
+    {
+        if(type == zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP)
+        {
+            parent->attemptSubEpisodes.push_back(newEpisode);
+
+            for(std::list<Episode>::iterator it = parent->attemptSubEpisodes.begin(); it!= parent->attemptSubEpisodes.end(); ++it)
+            {
+                if((*it).id == newEpisode.id)
+                    return &(*it);
+            }
+        }
+        else    //STORY_PLOT_EPISODE_OUTCOME_GROUP
+        {
+            parent->outcomeSubEpisodes.push_back(newEpisode);
+
+            for(std::list<Episode>::iterator it = parent->outcomeSubEpisodes.begin(); it!= parent->outcomeSubEpisodes.end(); ++it)
+            {
+                if((*it).id == newEpisode.id)
+                    return &(*it);
+            }
+        }
+    }
+    else
+    {
+        m_episodes.push_back(newEpisode);
+
+        for(std::list<Episode>::iterator it = m_episodes.begin(); it!= m_episodes.end(); ++it)
+        {
+            if((*it).id == newEpisode.id)
+                return &(*it);
+        }
+    }
+
+    return nullptr; //if a problem
+}
+
+SimpleNodeWithState *saveandload::addAttempt(QString id, QString description, QString stateId, QString stateDescription, Episode* parent)
+{
+    SimpleNodeWithState newAttempt;
+    newAttempt.id = id;
+    newAttempt.description = description;
+    newAttempt.stateID = stateId;
+    newAttempt.stateDescription = description;
+
+    parent->attempts.push_back(newAttempt);
+
+    for(std::list<SimpleNodeWithState>::iterator it = parent->attempts.begin(); it!= parent->attempts.end(); ++it)
+    {
+        if((*it).id == newAttempt.id)
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+SimpleNodeWithState *saveandload::addOutcome(QString id, QString description, QString stateId, QString stateDescription, Episode* parent)
+{
+    SimpleNodeWithState newOutcome;
+    newOutcome.id = id;
+    newOutcome.description = description;
+    newOutcome.stateID = stateId;
+    newOutcome.stateDescription = description;
+
+    parent->outcomes.push_back(newOutcome);
+
+    for(std::list<SimpleNodeWithState>::iterator it = parent->outcomes.begin(); it!= parent->outcomes.end(); ++it)
+    {
+        if((*it).id == newOutcome.id)
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+void saveandload::addSubGoal(QString id, QString description, Episode* parent)
+{
+    parent->stateID = id;
+    parent->stateDescription = description;
+}
+
 void saveandload::LoadParams(QJsonArray &jsonParams)
 {
     foreach (const QJsonValue & value, jsonParams)

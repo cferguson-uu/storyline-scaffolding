@@ -186,6 +186,10 @@ private: // members
     ///
     void loadResolution(zodiac::NodeHandle *resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states);
 
+    void saveSettingItem(zodiac::NodeHandle &settingGroup);
+    void saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem = nullptr);
+    void savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem = nullptr);
+
 
 private: // static members
 

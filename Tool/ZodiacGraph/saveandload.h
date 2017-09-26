@@ -16,6 +16,8 @@
 #include <QApplication>
 #include <QTimer>
 
+#include "zodiacgraph/node.h"
+
 class saveandload
 {
 public:
@@ -40,8 +42,23 @@ public:
     const std::list<Episode> GetEpisodes(){return m_episodes;}
     const std::list<EventGoal> GetEvents(){return m_events;}
     const std::list<EventGoal> GetGoals(){return m_goals;}
-
     const Resolution GetResolution(){return m_resolution;}
+
+    //setter functions
+    void setStoryName(QString name);
+
+    SettingItem *addCharacter(QString id, QString description);
+    SettingItem *addLocation(QString id, QString description);
+    SettingItem *addTime(QString id, QString description);
+    void addDetail(SettingItem *item, QString id, QString description, QString stateId, QString stateDescription);
+
+    EventGoal *addEvent(QString id, QString description, EventGoal* parent = nullptr);
+    EventGoal *addGoal(QString id, QString description, EventGoal* parent = nullptr);
+
+    Episode *addEpisode(QString id, QString description, Episode* parent = nullptr, zodiac::StoryNodeType type = zodiac::STORY_PLOT_EPISODE);
+    SimpleNodeWithState *addAttempt(QString id, QString description, QString stateId, QString stateDescription, Episode* parent);
+    SimpleNodeWithState *addOutcome(QString id, QString description, QString stateId, QString stateDescription, Episode* parent);
+    void addSubGoal(QString id, QString description, Episode* parent);
 
     const std::list<Command> GetCommands(){return m_commands;}
     const std::list<Parameter> GetParameters(){return m_parameters;}
@@ -49,6 +66,7 @@ public:
 
     std::list<Command> *GetCommandListPointer(){return &m_commands;}
 
+    void DeleteAll();
 
 private:
     //story
