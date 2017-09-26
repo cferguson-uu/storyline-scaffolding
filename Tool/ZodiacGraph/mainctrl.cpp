@@ -245,8 +245,9 @@ void MainCtrl::saveStoryGraph()
     }
 
     //get resolution node
-    //get events node - iterate though events and store
-    //get states node = iterate through states and store
+    saveResolution(*resolutionNode);
+
+    m_saveAndLoadManager.SaveStoryToFile(qobject_cast<QWidget*>(parent()));
 }
 
 void MainCtrl::saveSettingItem(zodiac::NodeHandle &settingGroup)
@@ -318,20 +319,73 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
 
             if(childNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP)
             {
+                QList<zodiac::PlugHandle> attemptPlugs = childNode.getPlug("out").getConnectedPlugs();
+                for(QList<zodiac::PlugHandle>::iterator attemptPlugIt = attemptPlugs.begin(); attemptPlugIt != attemptPlugs.end(); ++attemptPlugIt)
+                {
+                    zodiac::NodeHandle attemptNode = (*attemptPlugIt).getNode();
 
+                    if(attemptNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT)
+                        m_saveAndLoadManager.addAttempt(attemptNode.getName(), attemptNode.getDescription(), "", "", episodeItem);
+                    else //sup-episode
+                        savePlotItem(attemptNode, episodeItem);
+                }
             }
             else
                 if(childNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP)
                 {
+                    QList<zodiac::PlugHandle> outcomePlugs = childNode.getPlug("out").getConnectedPlugs();
+                    for(QList<zodiac::PlugHandle>::iterator outcomePlugIt = outcomePlugs.begin(); outcomePlugIt != outcomePlugs.end(); ++outcomePlugIt)
+                    {
+                        zodiac::NodeHandle outcomeNode = (*outcomePlugIt).getNode();
 
+                       if(outcomeNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_OUTCOME)
+                            m_saveAndLoadManager.addOutcome(outcomeNode.getName(), outcomeNode.getDescription(), "", "", episodeItem);
+                        else //sup-episode
+                            savePlotItem(outcomeNode, episodeItem);
+                    }
                 }
                 else
                     if((childNode).getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_SUBGOAL)
                     {
-
+                        m_saveAndLoadManager.addSubGoal(childNode.getName(), childNode.getDescription(), episodeItem);
                     }
         }
     }
+}
+
+void MainCtrl::saveResolution(zodiac::NodeHandle &parent)
+{
+    zodiac::NodeHandle eventGroupNode;
+    zodiac::NodeHandle stateGroupNode;
+
+    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    {
+        if((*connectedPlugIt).getNode().getType() == zodiac::STORY_RESOLUTION_EVENT_GROUP)
+            eventGroupNode = (*connectedPlugIt).getNode();
+        else
+            if((*connectedPlugIt).getNode().getType() == zodiac::STORY_RESOLUTION_STATE_GROUP)
+                stateGroupNode = (*connectedPlugIt).getNode();
+            else
+                return; //error
+    }
+
+    QList<zodiac::PlugHandle> eventPlugs = eventGroupNode.getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator eventPlugIt = eventPlugs.begin(); eventPlugIt != eventPlugs.end(); ++eventPlugIt)
+    {
+        zodiac::NodeHandle eventNode = (*eventPlugIt).getNode();
+
+        m_saveAndLoadManager.addResolutionEvent(eventNode.getName(), eventNode.getDescription());
+    }
+
+    QList<zodiac::PlugHandle> statePlugs = eventGroupNode.getPlug("out").getConnectedPlugs();
+    for(QList<zodiac::PlugHandle>::iterator statePlugIt = statePlugs.begin(); statePlugIt != statePlugs.end(); ++statePlugIt)
+    {
+        zodiac::NodeHandle stateNode = (*statePlugIt).getNode();
+
+        m_saveAndLoadManager.addResolutionState(stateNode.getName(), stateNode.getDescription());
+    }
+
 }
 
 void MainCtrl::loadStoryGraph()

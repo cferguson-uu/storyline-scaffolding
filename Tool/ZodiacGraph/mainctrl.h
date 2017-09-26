@@ -189,7 +189,7 @@ private: // members
     void saveSettingItem(zodiac::NodeHandle &settingGroup);
     void saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem = nullptr);
     void savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem = nullptr);
-
+    void saveResolution(zodiac::NodeHandle &parent);
 
 private: // static members
 

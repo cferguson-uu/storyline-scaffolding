@@ -849,6 +849,24 @@ SimpleNodeWithState *saveandload::addOutcome(QString id, QString description, QS
     return nullptr; //if a problem
 }
 
+void saveandload::addResolutionEvent(QString id, QString description)
+{
+    EventGoal newEvent;
+    newEvent.id = id;
+    newEvent.description = description;
+
+    m_resolution.events.push_back(newEvent);
+}
+
+void saveandload::addResolutionState(QString id, QString description)
+{
+    SimpleNode newState;
+    newState.id = id;
+    newState.description = description;
+
+    m_resolution.states.push_back(newState);
+}
+
 void saveandload::addSubGoal(QString id, QString description, Episode* parent)
 {
     parent->stateID = id;

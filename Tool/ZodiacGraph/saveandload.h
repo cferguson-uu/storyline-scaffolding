@@ -60,6 +60,9 @@ public:
     SimpleNodeWithState *addOutcome(QString id, QString description, QString stateId, QString stateDescription, Episode* parent);
     void addSubGoal(QString id, QString description, Episode* parent);
 
+    void addResolutionEvent(QString id, QString description);
+    void addResolutionState(QString id, QString description);
+
     const std::list<Command> GetCommands(){return m_commands;}
     const std::list<Parameter> GetParameters(){return m_parameters;}
     const std::list<NarrativeNode> GetNarrativeNodes(){return m_narrativeNodes;}
