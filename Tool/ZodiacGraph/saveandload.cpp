@@ -21,7 +21,6 @@ bool saveandload::LoadStoryFromFile(QWidget *widget)
             QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
             //qDebug() << jsonDoc.toJson();
 
-
             if(jsonDoc.isNull() || !jsonDoc.isObject() || jsonDoc.isEmpty())
             {
                 QMessageBox messageBox;
@@ -627,7 +626,7 @@ void saveandload::WriteResolution(QJsonObject &jsonResolution)
     }
 }
 
-void saveandload::DeleteAll()
+void saveandload::DeleteAllStoryItems()
 {
     m_storyName = "";
     m_characters.clear();
@@ -957,7 +956,7 @@ void saveandload::LoadNarrativeParamsAndCommands(QWidget *widget)
 
 }
 
-void saveandload::ReadNarrativeFromFile(QWidget *widget)
+bool saveandload::LoadNarrativeFromFile(QWidget *widget)
 {
     QString settings;
     QFile file;
@@ -976,56 +975,49 @@ void saveandload::ReadNarrativeFromFile(QWidget *widget)
             file.close();
 
             QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
-            //qDebug() << "json: " << jsonDoc.toJson();
 
+            if(jsonDoc.isObject())
+                if(jsonDoc.object().contains("node_list") || jsonDoc.object().contains("blocks"))
+                {
+                    QMessageBox messageBox;
+                    messageBox.critical(0,"Error","You appear to be opening a compiled narrative graph.");
+                    messageBox.setFixedSize(500,200);
+                    return false;
+                }
 
-            if(jsonDoc.isNull()){
-                qDebug()<<"Failed to create JSON doc.";
-                exit(2);
-            }
-            if(!jsonDoc.isArray()){
-                qDebug()<<"JSON is not an array.";
-                exit(3);
-            }
-
-            QJsonArray jsonArray=jsonDoc.array();
-
-            if(jsonArray.isEmpty()){
-                qDebug()<<"JSON array is empty.";
-                exit(4);
-            }
-
-            /*if(jsonObject.contains("node_list") || jsonObject.contains("blocks"))
+            if(jsonDoc.isNull() || !jsonDoc.isArray() || jsonDoc.isEmpty())
             {
                 QMessageBox messageBox;
-                messageBox.critical(0,"Error","You appear to be opening a compiled narrative graph.");
+                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
                 messageBox.setFixedSize(500,200);
+                return false;
             }
-            else
-            {
 
-            }*/
-
-            readNodeList(jsonArray);
+            readNodeList(jsonDoc.array());
+            return true;
         }
         else
         {
             QMessageBox messageBox;
             messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
             messageBox.setFixedSize(500,200);
+            return false;
         }
     }
     else
+    {
         qDebug() << "Load aborted by user";
+        return false;
+    }
 }
 
 void saveandload::readNodeList(QJsonArray &jsonNodeList)
 {
     foreach (const QJsonValue &value, jsonNodeList)
     {
-        m_narrativeNodes.push_back(NarrativeNode());
+        m_narrativeNodes.push_back(NarNode());
 
-        std::list<NarrativeNode>::iterator it = m_narrativeNodes.end();
+        std::list<NarNode>::iterator it = m_narrativeNodes.end();
         --it;
 
         QJsonObject obj = value.toObject();
@@ -1055,7 +1047,7 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList)
     }
 }
 
-void saveandload::readRequirements(QJsonObject &requirements, NarrativeNode &node)
+void saveandload::readRequirements(QJsonObject &requirements, NarNode &node)
 {
     if(!requirements["type"].isUndefined())
         //qDebug() << requirements["type"].toString();
@@ -1076,11 +1068,11 @@ void saveandload::readRequirements(QJsonObject &requirements, NarrativeNode &nod
     }
 }
 
-void saveandload::readRequirementsChildren(QJsonObject &children, NarrativeRequirements &req)
+void saveandload::readRequirementsChildren(QJsonObject &children, NarRequirements &req)
 {
-    req.children.push_back(NarrativeRequirements());
+    req.children.push_back(NarRequirements());
 
-    std::list<NarrativeRequirements>::iterator it = req.children.end();
+    std::list<NarRequirements>::iterator it = req.children.end();
     --it;
 
     if(!children["type"].isUndefined())
@@ -1102,7 +1094,7 @@ void saveandload::readRequirementsChildren(QJsonObject &children, NarrativeRequi
     }
 }
 
-void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarrativeCommand> &cmdList)
+void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarCommand> &cmdList)
 {
     foreach (const QJsonValue &value, jsonCommandBlock)
     {
@@ -1111,11 +1103,26 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, std::list<Narra
 
         QString command = obj["cmd"].toString();
 
-        cmdList.push_back(NarrativeCommand());
-        std::list<NarrativeCommand>::iterator cmdIt = cmdList.end();
+        QString description;
+
+        for(std::list<Command>::iterator cmdTableIt = m_commands.begin(); cmdTableIt != m_commands.end(); ++cmdTableIt)
+        {
+            if((*cmdTableIt).id == command)
+            {
+                description = (*cmdTableIt).label;
+                break;
+            }
+        }
+
+        if(description == "")
+            qDebug() << "Warning. " << command << " not found in table.";
+
+        cmdList.push_back(NarCommand());
+        std::list<NarCommand>::iterator cmdIt = cmdList.end();
         --cmdIt;
 
         (*cmdIt).command = command;
+        (*cmdIt).description = description;
 
         for(std::list<Command>::iterator it = m_commands.begin(); it != m_commands.end(); ++it)
         {
@@ -1161,7 +1168,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
         QJsonArray nodeList;
         //QJsonArray blocks;
 
-        for(std::list<NarrativeNode>::iterator it = m_narrativeNodes.begin(); it != m_narrativeNodes.end(); ++it)
+        for(std::list<NarNode>::iterator it = m_narrativeNodes.begin(); it != m_narrativeNodes.end(); ++it)
         {
             QJsonObject node;
 
@@ -1214,7 +1221,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
         qDebug() << "Save aborted by user";
 }
 
-void saveandload::WriteRequirements(NarrativeRequirements &req, QJsonObject &node, QString objectName)
+void saveandload::WriteRequirements(NarRequirements &req, QJsonObject &node, QString objectName)
 {
     if(!req.type.isEmpty())
         node["type"] = req.type;
@@ -1225,7 +1232,7 @@ void saveandload::WriteRequirements(NarrativeRequirements &req, QJsonObject &nod
     if(!req.children.empty())
     {
         QJsonArray children;
-        for(std::list<NarrativeRequirements>::iterator it = req.children.begin(); it != req.children.end(); ++it)
+        for(std::list<NarRequirements>::iterator it = req.children.begin(); it != req.children.end(); ++it)
         {
             QJsonObject child;
             WriteRequirements((*it), child, "children");
@@ -1236,9 +1243,9 @@ void saveandload::WriteRequirements(NarrativeRequirements &req, QJsonObject &nod
     }
 }
 
-void saveandload::WriteCommandBlock(std::list<NarrativeCommand> cmd, QJsonArray &block)
+void saveandload::WriteCommandBlock(std::list<NarCommand> cmd, QJsonArray &block)
 {
-    for(std::list<NarrativeCommand>::iterator it = cmd.begin(); it != cmd.end(); ++it)
+    for(std::list<NarCommand>::iterator it = cmd.begin(); it != cmd.end(); ++it)
     {
         QJsonObject com;
         com["cmd"] = (*it).command;

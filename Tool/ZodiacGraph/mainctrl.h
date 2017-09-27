@@ -92,14 +92,6 @@ public: // methods
     inline NodeCtrl* getCtrlForHandle(zodiac::NodeHandle handle) const { return m_nodes.value(handle, nullptr); }
 
     ///
-    /// \brief Prints the current state of the zodiac::Scene.
-    ///
-    /// This is not a serialized form, even though it might in the future extend to be used in such a fashion.
-    /// For now, it is used for helping me creating the initial "ZODIAC"-logo setup.
-    ///
-    void printZodiacScene();
-
-    ///
     /// \brief Must be called before closing the application.
     ///
     /// \return             <i>true</i> if the manager was shut down successfully -- <i>false</i> if the user objected.
@@ -120,6 +112,7 @@ public slots:
     /// \brief Creates a new story graph
     ///
     void createStoryGraph(QString storyName = "Story");
+
     ///
     /// \brief Save the story graph to a JSON file
     ///
@@ -129,6 +122,16 @@ public slots:
     /// \brief Loads the story graph from a JSON file
     ///
     void saveStoryGraph();
+
+    ///
+    /// \brief Save the narrative graph to a JSON file
+    ///
+    void loadNarrativeGraph();
+
+    ///
+    /// \brief Loads the narrative graph from a JSON file
+    ///
+    void saveNarrativeGraph();
 
 private slots:
 

@@ -179,29 +179,30 @@ struct Command
 
 //narrative graph info begins
 
-struct NarrativeCommand
+struct NarCommand
 {
     QString command;
+    QString description;
     std::list<SimpleNode> params;    //list of parameters associated with command
 };
 
-struct NarrativeRequirements
+struct NarRequirements
 {
     QString type;
     QString id;
-    std::list<NarrativeRequirements> children;
+    std::list<NarRequirements> children;
 };
 
-struct NarrativeNode
+struct NarNode
 {
     QString comments;
     QString id;
 
-    NarrativeRequirements requirements;
+    NarRequirements requirements;
 
-    std::list<NarrativeCommand> onUnlockCommands;
-    std::list<NarrativeCommand> onFailCommands;
-    std::list<NarrativeCommand> onUnlockedCommands;
+    std::list<NarCommand> onUnlockCommands;
+    std::list<NarCommand> onFailCommands;
+    std::list<NarCommand> onUnlockedCommands;
 };
 
 //narrative graph info ends

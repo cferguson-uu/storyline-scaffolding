@@ -58,6 +58,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(saveStory, &QAction::triggered, [=]{m_mainCtrl->saveStoryGraph();});
     connect(loadStory, &QAction::triggered, [=]{m_mainCtrl->loadStoryGraph();});
 
+    //create menu for narrative graph functions
+    QMenu *narrativeMenu = menuBar()->addMenu(tr("&Narrative Graph"));
+    QAction* saveNarrative = new QAction(tr("&Save Narrative"), this);
+    QAction* loadNarrative = new QAction(tr("&Load Narrative"), this);
+    narrativeMenu->addAction(saveNarrative);
+    narrativeMenu->addAction(loadNarrative);
+    connect(saveNarrative, &QAction::triggered, [=]{m_mainCtrl->saveNarrativeGraph();});
+    connect(loadNarrative, &QAction::triggered, [=]{m_mainCtrl->loadNarrativeGraph();});
+
     // create the main toolbar
     QToolBar* mainToolBar = new QToolBar(this);
     mainToolBar->setStyleSheet("QToolBar {border: 0px;}");

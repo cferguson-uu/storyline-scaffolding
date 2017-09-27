@@ -69,42 +69,6 @@ bool MainCtrl::deleteNode(NodeCtrl* node)
     return result;
 }
 
-void MainCtrl::printZodiacScene()
-{
-    QList<zodiac::NodeHandle> allNodes = m_nodes.keys();
-    for(zodiac::NodeHandle node : allNodes){
-        int number = node.getName().right(2).trimmed().toInt();
-        QString nodeCtrl = "nodeCtrl" + QString::number(number);
-        QPointF pos = node.getPos();
-
-        qDebug() << "NodeCtrl* nodeCtrl" + QString::number(number) + " = mainCtrl->createNode(\"" + node.getName() + "\");";
-        qDebug() << nodeCtrl + "->getNodeHandle().setPos(" + QString::number(pos.x()) + ", " + QString::number(pos.y()) + ");";
-
-        for(zodiac::PlugHandle plug : node.getPlugs()){
-            if(plug.isIncoming()){
-                qDebug() << nodeCtrl + "->addIncomingPlug(\"" + plug.getName() + "\");";
-            } else {
-                qDebug() << nodeCtrl + "->addOutgoingPlug(\"" + plug.getName() + "\");";
-            }
-        }
-
-        qDebug() << ""; // newline
-    }
-
-    for(zodiac::NodeHandle node : allNodes){
-        int number = node.getName().right(2).trimmed().toInt();
-        QString nodeCtrl = "nodeCtrl" + QString::number(number);
-        for(zodiac::PlugHandle plug : node.getPlugs()){
-            if(plug.isIncoming()) continue;
-            for(zodiac::PlugHandle otherPlug : plug.getConnectedPlugs()){
-                int otherNumber = otherPlug.getNode().getName().right(2).trimmed().toInt();
-                QString otherNodeCtrl = "nodeCtrl" + QString::number(otherNumber);
-                qDebug() << nodeCtrl + "->getNodeHandle().getPlug(\"" + plug.getName() + "\").connectPlug(" + otherNodeCtrl + "->getNodeHandle().getPlug(\"" + otherPlug.getName() + "\"));";
-            }
-        }
-    }
-}
-
 bool MainCtrl::shutdown()
 {
     // do not receive any more signals from the scene handle
@@ -217,7 +181,7 @@ void MainCtrl::saveStoryGraph()
         }
     }
 
-    m_saveAndLoadManager.DeleteAll(); //clear the manager just in case
+    m_saveAndLoadManager.DeleteAllStoryItems(); //clear the manager just in case
 
     //store story name
     m_saveAndLoadManager.setStoryName(mainStoryNode->getName());
@@ -390,7 +354,6 @@ void MainCtrl::saveResolution(zodiac::NodeHandle &parent)
 
 void MainCtrl::loadStoryGraph()
 {
-    qDebug() << "load";
     if(m_saveAndLoadManager.LoadStoryFromFile(qobject_cast<QWidget*>(parent())))
     {
         //create the story graph and grab the nodes
@@ -881,4 +844,55 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<Even
 
    if(parentCentreIt > 0)
        resolutionNode->setPos(parentCentrePos/parentCentreIt, resolutionNode->getPos().y());
+}
+
+void MainCtrl::saveNarrativeGraph()
+{
+
+}
+
+void MainCtrl::loadNarrativeGraph()
+{
+    if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
+    {
+        std::list<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
+
+        for(std::list<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
+        {
+            NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
+
+            for(std::list<NarCommand>::iterator cmdIt = (*narIt).onUnlockCommands.begin(); cmdIt != (*narIt).onUnlockCommands.end(); ++cmdIt)
+            {
+                QUuid cmdKey = QUuid::createUuid();
+                newNarNode->addOnUnlockCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+
+                for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+                {
+                    newNarNode->addParameterToOnUnlockCommand(cmdKey, (*paramIt).id, (*paramIt).description);
+                }
+            }
+
+            for(std::list<NarCommand>::iterator cmdIt = (*narIt).onFailCommands.begin(); cmdIt != (*narIt).onFailCommands.end(); ++cmdIt)
+            {
+                QUuid cmdKey = QUuid::createUuid();
+                newNarNode->addOnFailCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+
+                for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+                {
+                    newNarNode->addParameterToOnFailCommand(cmdKey, (*paramIt).id, (*paramIt).description);
+                }
+            }
+
+            for(std::list<NarCommand>::iterator cmdIt = (*narIt).onUnlockedCommands.begin(); cmdIt != (*narIt).onUnlockedCommands.end(); ++cmdIt)
+            {
+                QUuid cmdKey = QUuid::createUuid();
+                newNarNode->addOnUnlockedCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+
+                for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+                {
+                    newNarNode->addParameterToOnUnlockedCommand(cmdKey, (*paramIt).id, (*paramIt).description);
+                }
+            }
+        }
+    }
 }

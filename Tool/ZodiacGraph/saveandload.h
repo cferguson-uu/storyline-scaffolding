@@ -27,13 +27,6 @@ public:
     bool LoadStoryFromFile(QWidget *widget);
     void SaveStoryToFile(QWidget *widget);
 
-    //commands
-    void LoadNarrativeParamsAndCommands(QWidget *widget);
-
-    //narrative
-    void ReadNarrativeFromFile(QWidget *widget);
-    void SaveNarrativeToFile(QWidget *widget);
-
     //getter functions
     const QString GetStoryName(){return m_storyName;}
     const std::list<SettingItem> GetCharacters(){return m_characters;}
@@ -63,13 +56,20 @@ public:
     void addResolutionEvent(QString id, QString description);
     void addResolutionState(QString id, QString description);
 
+    void DeleteAllStoryItems();
+
+    //commands
+    void LoadNarrativeParamsAndCommands(QWidget *widget);
+
+    //narrative
+    bool LoadNarrativeFromFile(QWidget *widget);
+    void SaveNarrativeToFile(QWidget *widget);
+
     const std::list<Command> GetCommands(){return m_commands;}
     const std::list<Parameter> GetParameters(){return m_parameters;}
-    const std::list<NarrativeNode> GetNarrativeNodes(){return m_narrativeNodes;}
+    const std::list<NarNode> GetNarrativeNodes(){return m_narrativeNodes;}
 
     std::list<Command> *GetCommandListPointer(){return &m_commands;}
-
-    void DeleteAll();
 
 private:
     //story
@@ -117,15 +117,15 @@ private:
     //narrative
     //load functions
     void readNodeList(QJsonArray &jsonNodeList);
-    void readRequirements(QJsonObject &requirements, NarrativeNode &node);
-    void readRequirementsChildren(QJsonObject &children, NarrativeRequirements &req);
-    void readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarrativeCommand> &cmdList);
+    void readRequirements(QJsonObject &requirements, NarNode &node);
+    void readRequirementsChildren(QJsonObject &children, NarRequirements &req);
+    void readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarCommand> &cmdList);
 
     //save
-    void WriteCommandBlock(std::list<NarrativeCommand> cmd, QJsonArray &block);
-    void WriteRequirements(NarrativeRequirements &req, QJsonObject &node, QString objectName);
+    void WriteCommandBlock(std::list<NarCommand> cmd, QJsonArray &block);
+    void WriteRequirements(NarRequirements &req, QJsonObject &node, QString objectName);
 
-    std::list<NarrativeNode> m_narrativeNodes;
+    std::list<NarNode> m_narrativeNodes;
 };
 
 #endif // SAVEANDLOAD_H
