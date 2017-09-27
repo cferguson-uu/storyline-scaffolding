@@ -70,7 +70,8 @@ SOURCES += main.cpp\
     zodiacgraph/straightedge.cpp \
     zodiacgraph/view.cpp \
     saveandload.cpp \
-    undoedits.cpp
+    undoedits.cpp \
+    analyticslogwindow.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -104,7 +105,8 @@ HEADERS  += mainwindow.h \
     zodiacgraph/view.h \
     graphstructures.h \
     saveandload.h \
-    undoedits.h
+    undoedits.h \
+    analyticslogwindow.h
 
 RESOURCES += \
     res/icons.qrc

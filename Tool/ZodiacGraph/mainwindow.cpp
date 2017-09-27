@@ -24,6 +24,7 @@
 #include "zodiacgraph/view.h"
 
 #include "graphstructures.h"
+#include "analyticslogwindow.h"
 
 #include <QMenuBar>
 
@@ -95,6 +96,15 @@ MainWindow::MainWindow(QWidget *parent)
     m_mainSplitter->addWidget(zodiacView);
     m_mainSplitter->setSizes({100, 900});
 
+    //create the analytics logger
+    AnalyticsLogWindow* analyticsLog = new AnalyticsLogWindow(this);
+
+    //setup the second splitter
+    m_secondSplitter = new QSplitter(Qt::Vertical, this);
+    m_secondSplitter->addWidget(m_mainSplitter);
+    m_secondSplitter->addWidget(analyticsLog);
+    m_secondSplitter->setSizes({900, 100});
+
     // create global actions
     QAction* newNarrativeNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Narrative Node"), this);
     newNarrativeNodeAction->setShortcuts(QKeySequence::New);
@@ -118,7 +128,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(displayAbout()));
 
     // initialize the GUI
-    setCentralWidget(m_mainSplitter);
+    //setCentralWidget(m_mainSplitter);
+    setCentralWidget(m_secondSplitter);
     readSettings();
     zodiacScene->updateStyle();
     zodiacView->updateStyle();

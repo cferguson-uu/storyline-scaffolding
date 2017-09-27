@@ -102,6 +102,11 @@ private: // members
     ///
     QSplitter* m_mainSplitter;
 
+    ///
+    /// \brief Main splitter between the graph editors and the analytics log
+    ///
+    QSplitter* m_secondSplitter;
+
     QUndoStack *m_pUndoStack;
     QAction *m_pUndoAction;
     QAction *m_pRedoAction;
