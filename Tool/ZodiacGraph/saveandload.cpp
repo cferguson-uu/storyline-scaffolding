@@ -1050,8 +1050,19 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList)
 void saveandload::readRequirements(QJsonObject &requirements, NarNode &node)
 {
     if(!requirements["type"].isUndefined())
+    {
         //qDebug() << requirements["type"].toString();
-        node.requirements.type = requirements["type"].toString();
+        //node.requirements.type = requirements["type"].toString();
+
+        if(requirements["type"].toString().toUpper() == "SEQ")
+            node.requirements.type = REQ_SEQ;
+
+        if(requirements["type"].toString().toUpper() == "LEAF")
+            node.requirements.type = REQ_LEAF;
+
+        if(requirements["type"].toString().toUpper() == "INV")
+            node.requirements.type = REQ_INV;
+    }
 
     if(!requirements["id"].isUndefined())
         //qDebug() << requirements["id"].toString();
@@ -1076,8 +1087,21 @@ void saveandload::readRequirementsChildren(QJsonObject &children, NarRequirement
     --it;
 
     if(!children["type"].isUndefined())
+    {
         //qDebug() << requirements["type"].toString();
-        (*it).type = children["type"].toString();
+        //(*it).type = children["type"].toString();
+
+        if(children["type"].toString().toUpper() == "SEQ")
+            (*it).type = REQ_SEQ;
+
+        if(children["type"].toString().toUpper() == "LEAF")
+            (*it).type = REQ_LEAF;
+
+        if(children["type"].toString().toUpper() == "INV")
+            (*it).type = REQ_INV;
+    }
+    else
+        (*it).type = REQ_NONE;
 
     if(!children["id"].isUndefined())
         //qDebug() << requirements["id"].toString();
@@ -1174,7 +1198,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
 
             node["id"] = (*it).id;
 
-            if(!((*it).requirements.id.isEmpty() && (*it).requirements.type.isEmpty() && (*it).requirements.children.empty()))
+            if(!((*it).requirements.id.isEmpty() && (*it).requirements.type == REQ_NONE && (*it).requirements.children.empty()))
             {
                 QJsonObject requirements;
                 WriteRequirements((*it).requirements, requirements, "requirements");
@@ -1223,11 +1247,16 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
 
 void saveandload::WriteRequirements(NarRequirements &req, QJsonObject &node, QString objectName)
 {
-    if(!req.type.isEmpty())
-        node["type"] = req.type;
+    if(req.type == REQ_SEQ)
+        node["type"] = "SEQ";
 
-    if(!req.id.isEmpty())
-        node["id"] = req.id;
+    if(req.type = REQ_LEAF)
+        node["type"] = "LEAF";
+
+    if(req.type = REQ_INV)
+        node["type"] = "INV";
+
+    node["id"] = req.id;
 
     if(!req.children.empty())
     {

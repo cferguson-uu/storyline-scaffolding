@@ -856,43 +856,132 @@ void MainCtrl::loadNarrativeGraph()
     if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
     {
         std::list<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
+        QList<NodeCtrl*> sceneNodes;
 
         for(std::list<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
         {
             NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
 
-            for(std::list<NarCommand>::iterator cmdIt = (*narIt).onUnlockCommands.begin(); cmdIt != (*narIt).onUnlockCommands.end(); ++cmdIt)
-            {
-                QUuid cmdKey = QUuid::createUuid();
-                newNarNode->addOnUnlockCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+            loadNarrativeCommands((*narIt), newNarNode);
 
-                for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
-                {
-                    newNarNode->addParameterToOnUnlockCommand(cmdKey, (*paramIt).id, (*paramIt).description);
-                }
+            if((*narIt).requirements.type != REQ_NONE)
+            {
+                qDebug() << (*narIt).id << " requirements";
+
+                zodiac::PlugHandle reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
+                loadRequirements((*narIt).requirements, reqOutPlug, sceneNodes, 0);
             }
 
-            for(std::list<NarCommand>::iterator cmdIt = (*narIt).onFailCommands.begin(); cmdIt != (*narIt).onFailCommands.end(); ++cmdIt)
-            {
-                QUuid cmdKey = QUuid::createUuid();
-                newNarNode->addOnFailCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+            sceneNodes.push_back(newNarNode);
+        }
+    }
+}
 
-                for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
-                {
-                    newNarNode->addParameterToOnFailCommand(cmdKey, (*paramIt).id, (*paramIt).description);
-                }
+void MainCtrl::loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode)
+{
+    for(std::list<NarCommand>::iterator cmdIt = loadedNode.onUnlockCommands.begin(); cmdIt != loadedNode.onUnlockCommands.end(); ++cmdIt)
+    {
+        QUuid cmdKey = QUuid::createUuid();
+        sceneNode->addOnUnlockCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+
+        for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+        {
+            sceneNode->addParameterToOnUnlockCommand(cmdKey, (*paramIt).id, (*paramIt).description);
+        }
+    }
+
+    for(std::list<NarCommand>::iterator cmdIt = loadedNode.onFailCommands.begin(); cmdIt != loadedNode.onFailCommands.end(); ++cmdIt)
+    {
+        QUuid cmdKey = QUuid::createUuid();
+        sceneNode->addOnFailCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+
+        for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+        {
+            sceneNode->addParameterToOnFailCommand(cmdKey, (*paramIt).id, (*paramIt).description);
+        }
+    }
+
+    for(std::list<NarCommand>::iterator cmdIt = loadedNode.onUnlockedCommands.begin(); cmdIt != loadedNode.onUnlockedCommands.end(); ++cmdIt)
+    {
+        QUuid cmdKey = QUuid::createUuid();
+        sceneNode->addOnUnlockedCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+
+        for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+        {
+            sceneNode->addParameterToOnUnlockedCommand(cmdKey, (*paramIt).id, (*paramIt).description);
+        }
+    }
+
+}
+
+void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, float relativeY)
+{
+    NodeCtrl* newRequirementNode;
+
+    if(requirements.type == REQ_SEQ)
+    {
+       //qDebug() << "Type: SEQ";
+       newRequirementNode = createNode(zodiac::STORY_NONE, "SEQ", "SEQ");
+    }
+    else
+        if(requirements.type == REQ_LEAF)
+        {
+            //qDebug() << "Type: LEAF";
+            newRequirementNode = createNode(zodiac::STORY_NONE, "LEAF", "LEAF");
+        }
+        else
+            if(requirements.type == REQ_INV)
+            {
+                //qDebug() << "Type: INV";
+                newRequirementNode = createNode(zodiac::STORY_NONE, "INV", "INV");
             }
 
-            for(std::list<NarCommand>::iterator cmdIt = (*narIt).onUnlockedCommands.begin(); cmdIt != (*narIt).onUnlockedCommands.end(); ++cmdIt)
-            {
-                QUuid cmdKey = QUuid::createUuid();
-                newNarNode->addOnUnlockedCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+    newRequirementNode->setPos(parentReqOutPlug.getNode().getPos().x() - 100, parentReqOutPlug.getNode().getPos().y() + relativeY);
 
-                for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
-                {
-                    newNarNode->addParameterToOnUnlockedCommand(cmdKey, (*paramIt).id, (*paramIt).description);
-                }
+    //connect narrative node to new requirements node
+    zodiac::PlugHandle reqInPlug = newRequirementNode->addIncomingPlug("reqIn");
+    parentReqOutPlug.connectPlug(reqInPlug);
+
+    zodiac::PlugHandle reqOutPlug;
+
+    if(requirements.id != "")
+    {
+        //qDebug() << "Id: " << requirements.id;
+
+        reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //create the out plug
+
+        bool found = false;
+        //link it to the node mentioned in the id
+        for(QList<NodeCtrl*>::iterator nodeIt = sceneNodes.begin(); nodeIt != sceneNodes.end(); ++nodeIt)
+            if((*nodeIt)->getName() == requirements.id)
+            {
+                zodiac::PlugHandle nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn"); //create in plug
+                reqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                (*nodeIt)->setPos(newRequirementNode->getPos().x() - 100, newRequirementNode->getPos().y(), true); //move it back
+                found  = true;
+                break;
             }
+
+        if(!found)
+            qDebug() << "Warning. Node:" << requirements.id << "not found!";
+    }
+
+    float childrenSize = requirements.children.size();
+    if(childrenSize > 0)
+    {
+        float y = 0;
+
+        if(childrenSize > 1)
+            y = childrenSize * -50;
+
+        for(std::list<NarRequirements>::iterator reqIt = requirements.children.begin(); reqIt != requirements.children.end(); ++reqIt)
+        {
+            if(!reqOutPlug.isValid())
+                reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //make the out plug if it doesn't exist
+
+            loadRequirements((*reqIt), reqOutPlug, sceneNodes, y);
+
+            y += 100;
         }
     }
 }

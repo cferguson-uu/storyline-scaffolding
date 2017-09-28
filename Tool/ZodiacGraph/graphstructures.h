@@ -109,6 +109,14 @@ enum ValueType
     VAL_STRING
 };
 
+enum RequirementType
+{
+    REQ_SEQ,
+    REQ_LEAF,
+    REQ_INV,
+    REQ_NONE
+};
+
 struct Parameter
 {
     Parameter(QString l, QString i, QString t)
@@ -188,7 +196,7 @@ struct NarCommand
 
 struct NarRequirements
 {
-    QString type;
+    RequirementType type;
     QString id;
     std::list<NarRequirements> children;
 };

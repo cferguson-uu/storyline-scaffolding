@@ -194,6 +194,9 @@ private: // members
     void savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem = nullptr);
     void saveResolution(zodiac::NodeHandle &parent);
 
+    void loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode);
+    void loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, float relativeY = 0);
+
 private: // static members
 
     ///
