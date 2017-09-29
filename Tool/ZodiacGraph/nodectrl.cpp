@@ -169,6 +169,41 @@ void NodeCtrl::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QStri
     m_node.editParameterInOnUnlockedCommand(cmdKey, paramKey, value);
 }
 
+const QColor& NodeCtrl::getIdleColor()
+{
+    return m_node.getIdleColor();
+}
+
+void NodeCtrl::setIdleColor(const QColor& color)
+{
+    m_node.setIdleColor(color);
+}
+
+const QColor& NodeCtrl::getSelectedColor()
+{
+    return m_node.getSelectedColor();
+}
+
+void NodeCtrl::setSelectedColor(const QColor& color)
+{
+    m_node.setSelectedColor(color);
+}
+
+const QColor& NodeCtrl::getOutlineColor()
+{
+    return m_node.getOutlineColor();
+}
+
+void NodeCtrl::setOutlineColor(const QColor& color)
+{
+    m_node.setOutlineColor(color);
+}
+
+void NodeCtrl::setOutlineWidth(qreal width)
+{
+    m_node.setOutlineWidth(width);
+}
+
 QString NodeCtrl::renamePlug(const QString& oldName, const QString& newName)
 {
     if(newName == oldName){

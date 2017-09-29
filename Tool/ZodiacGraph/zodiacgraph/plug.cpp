@@ -66,7 +66,7 @@ void Plug::addEdge(PlugEdge* edge)
                     && (!m_edges.contains(edge))                                // edge is not already connected
                     && (!m_connectedPlugs.contains(startPlug))                  // other plug is not already connected
                     && (!m_connectedPlugs.contains(endPlug))                    //    "    -     "
-                    && (m_direction==PlugDirection::IN?m_edges.count()==0:true));   // if incoming, not yet connected
+                    /*&& (m_direction==PlugDirection::IN?m_edges.count()==0:true)*/);   // if incoming, not yet connected
 #ifdef QT_DEBUG
     Q_ASSERT(isValid);
 #else

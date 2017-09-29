@@ -9,6 +9,8 @@
 #include "plug.h"
 #include "plugedge.h"
 
+#include <QDebug>
+
 namespace zodiac {
 
 Scene::Scene(QObject *parent)
@@ -100,10 +102,10 @@ PlugEdge* Scene::createEdge(Plug* fromPlug, Plug* toPlug)
         return nullptr;
     }
 
-    // make sure that the incoming edge has no connections yet
-    if(toPlug->getEdgeCount() != 0){
+    // make sure that the incoming edge has no connections yet - removed as unnecessary constraint that breaks narratives
+    /*if(toPlug->getEdgeCount() != 0){
         return nullptr;
-    }
+    }*/
 
     // find the edge group for this edge, if it exists
     uint edgeGroupHash = EdgeGroup::getHashOf(fromNode, toNode);

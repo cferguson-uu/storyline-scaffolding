@@ -182,6 +182,55 @@ public: // methods
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
 
     ///
+    /// \brief Fill color of an idle Node core.
+    ///
+    /// \return Idle fill color.
+    ///
+    const QColor& getIdleColor();
+
+    ///
+    /// \brief Sets a new fill color of idle Node cores.
+    ///
+    /// \param [in] color   New idle color of the node core.
+    ///
+    void setIdleColor(const QColor& color);
+
+    ///
+    /// \brief Fill color of a selected Node core.
+    ///
+    /// \return Selected fill color.
+    ///
+    const QColor& getSelectedColor();
+
+    ///
+    /// \brief Sets a new fill color of selected Node cores.
+    ///
+    /// \param [in] color   New selected color of the node core.
+    ///
+    void setSelectedColor(const QColor& color);
+
+    ///
+    /// \brief The color used to draw the outline around the node core.
+    ///
+    /// \return Core outline color.
+    ///
+    const QColor& getOutlineColor();
+
+    ///
+    /// \brief Sets a new color used to draw the outline around the node core.
+    ///
+    /// \param [in] color   New core outline color.
+    ///
+    void setOutlineColor(const QColor& color);
+
+    ///
+    /// \brief Sets a new width of the outline around the node core in pixels.
+    ///
+    /// \param [in] width   New core outline width;
+    ///
+    void setOutlineWidth(qreal width);
+
+    ///
     /// \brief Sets the expansion of the node only if it is not currently forced open.
     ///
     /// \param [in] newState New state to expand.

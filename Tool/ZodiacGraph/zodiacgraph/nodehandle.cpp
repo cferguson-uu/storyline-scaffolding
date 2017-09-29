@@ -474,9 +474,92 @@ StoryNodeType NodeHandle::getStoryNodeType()
     if(!m_isValid || !sNode){
         return STORY_ERROR;
     }
-
 #endif
     return sNode->getStoryNodeType();
+}
+
+const QColor& NodeHandle::getIdleColor()
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid || !sNode){
+        return QColor();
+    }
+#endif
+    return m_node->getIdleColor();
+}
+
+void NodeHandle::setIdleColor(const QColor& color)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid || !sNode){
+        return;
+    }
+#endif
+    return m_node->setIdleColor(color);
+}
+
+const QColor& NodeHandle::getSelectedColor()
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid || !sNode){
+        return QColor();
+    }
+#endif
+    return m_node->getSelectedColor();
+}
+
+void NodeHandle::setSelectedColor(const QColor& color)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid || !sNode){
+        return;
+    }
+#endif
+    return m_node->setSelectedColor(color);
+}
+
+const QColor& NodeHandle::getOutlineColor()
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid || !sNode){
+        return QColor();
+    }
+#endif
+    return m_node->getOutlineColor();
+}
+
+void NodeHandle::setOutlineColor(const QColor& color)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid || !sNode){
+        return;
+    }
+#endif
+    return m_node->setOutlineColor(color);
+}
+
+void NodeHandle::setOutlineWidth(qreal width)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid || !sNode){
+        return;
+    }
+#endif
+    return m_node->setOutlineWidth(width);
 }
 
 void NodeHandle::softSetExpansion(NodeExpansion newState)

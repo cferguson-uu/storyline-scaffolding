@@ -1044,6 +1044,8 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList)
 
         if(obj.contains("requirements") && obj["requirements"].isObject())
             readRequirements(obj["requirements"].toObject(), (*it));
+        else
+            (*it).requirements.type = REQ_NONE; //set requirements to none if it doesn't have any
     }
 }
 

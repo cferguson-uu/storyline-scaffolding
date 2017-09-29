@@ -855,6 +855,7 @@ void MainCtrl::loadNarrativeGraph()
 {
     if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
     {
+        //float relativeY = 0;
         std::list<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
         QList<NodeCtrl*> sceneNodes;
 
@@ -866,14 +867,22 @@ void MainCtrl::loadNarrativeGraph()
 
             if((*narIt).requirements.type != REQ_NONE)
             {
-                qDebug() << (*narIt).id << " requirements";
+                //qDebug() << (*narIt).id << " requirements";
 
                 zodiac::PlugHandle reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
                 loadRequirements((*narIt).requirements, reqOutPlug, sceneNodes, 0);
             }
+            /*else
+            {
+                qDebug() << "relativeY: " << relativeY;
+                newNarNode->setPos(newNarNode->getPos().x(), newNarNode->getPos().y() + relativeY);
+                relativeY += 100;
+            }*/
 
             sceneNodes.push_back(newNarNode);
         }
+
+        spaceOutNarrative((*sceneNodes.begin()));
     }
 }
 
@@ -914,8 +923,10 @@ void MainCtrl::loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode)
 
 }
 
-void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, float relativeY)
+QPointF MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, float relativeY)
 {
+    //parentReqOutPlug.getNode().setPos(parentReqOutPlug.getNode().getPos().x(), parentReqOutPlug.getNode().getPos().y() + relativeY);
+
     NodeCtrl* newRequirementNode;
 
     if(requirements.type == REQ_SEQ)
@@ -936,10 +947,20 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                 newRequirementNode = createNode(zodiac::STORY_NONE, "INV", "INV");
             }
 
-    newRequirementNode->setPos(parentReqOutPlug.getNode().getPos().x() - 100, parentReqOutPlug.getNode().getPos().y() + relativeY);
+    newRequirementNode->setIdleColor(QColor(255, 204, 0));
+    newRequirementNode->setSelectedColor(QColor(255, 153, 0));
+
+    /*QPointF parentNodePos = parentReqOutPlug.getNode().getPos();
+    newRequirementNode->setPos(parentNodePos.x(), parentNodePos.y() + relativeY);
+    parentReqOutPlug.getNode().setPos(parentNodePos.x() + 100, parentNodePos.y());*/
 
     //connect narrative node to new requirements node
-    zodiac::PlugHandle reqInPlug = newRequirementNode->addIncomingPlug("reqIn");
+    zodiac::PlugHandle reqInPlug;
+    if(newRequirementNode->getNodeHandle().getPlug("reqIn").isValid())
+        reqInPlug = newRequirementNode->getNodeHandle().getPlug("reqIn");
+    else
+        reqInPlug = newRequirementNode->addIncomingPlug("reqIn");
+
     parentReqOutPlug.connectPlug(reqInPlug);
 
     zodiac::PlugHandle reqOutPlug;
@@ -948,16 +969,23 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
     {
         //qDebug() << "Id: " << requirements.id;
 
-        reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //create the out plug
+        if(newRequirementNode->getNodeHandle().getPlug("reqOut").isValid())
+            reqOutPlug = newRequirementNode->getNodeHandle().getPlug("reqOut");
+        else
+            reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut");  //create the out plug
 
         bool found = false;
         //link it to the node mentioned in the id
         for(QList<NodeCtrl*>::iterator nodeIt = sceneNodes.begin(); nodeIt != sceneNodes.end(); ++nodeIt)
             if((*nodeIt)->getName() == requirements.id)
             {
-                zodiac::PlugHandle nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn"); //create in plug
+                zodiac::PlugHandle nodeReqInPlug;
+
+                if((*nodeIt)->getNodeHandle().getPlug("reqIn").isValid())
+                    nodeReqInPlug = (*nodeIt)->getNodeHandle().getPlug("reqIn");
+                else
+                    nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn");
                 reqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
-                (*nodeIt)->setPos(newRequirementNode->getPos().x() - 100, newRequirementNode->getPos().y(), true); //move it back
                 found  = true;
                 break;
             }
@@ -969,19 +997,104 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
     float childrenSize = requirements.children.size();
     if(childrenSize > 0)
     {
-        float y = 0;
+        //float y = 0;
 
-        if(childrenSize > 1)
-            y = childrenSize * -50;
+        /*if(childrenSize > 1)
+            y = childrenSize * -50;*/
+
+        //QPointF rollingPos(0,0);
 
         for(std::list<NarRequirements>::iterator reqIt = requirements.children.begin(); reqIt != requirements.children.end(); ++reqIt)
         {
             if(!reqOutPlug.isValid())
-                reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //make the out plug if it doesn't exist
+            {
+                if(newRequirementNode->getNodeHandle().getPlug("reqOut").isValid())
+                    reqOutPlug = newRequirementNode->getNodeHandle().getPlug("reqOut");
+                else
+                    reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //make the out plug if it doesn't exist
+            }
 
-            loadRequirements((*reqIt), reqOutPlug, sceneNodes, y);
+            loadRequirements((*reqIt), reqOutPlug, sceneNodes);
+            //rollingPos += loadRequirements((*reqIt), reqOutPlug, sceneNodes);
+            //rollingPos += loadRequirements((*reqIt), reqOutPlug, sceneNodes, y);
 
-            y += 100;
+            //y += 100;
+        }
+
+        //rollingPos /= childrenSize;
+        //newRequirementNode->setPos(rollingPos.x() + 100, rollingPos.y());
+    }
+
+
+    //parentReqOutPlug.getNode().setPos(newRequirementNode->getPos().x() + 150, newRequirementNode->getPos().y());
+
+    return newRequirementNode->getPos();
+}
+
+void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
+{
+    //qDebug() << sceneNode->getName();
+    //qDebug() << sceneNode->getPos();
+
+    zodiac::PlugHandle inPlug = sceneNode->getNodeHandle().getPlug("reqIn");
+    zodiac::PlugHandle outPlug = sceneNode->getNodeHandle().getPlug("reqOut");
+
+    if(inPlug.isValid() && inPlug.isIncoming())
+    {
+        QList<zodiac::PlugHandle> connectedPlugs = inPlug.getConnectedPlugs();
+
+        if(connectedPlugs.size() > 0)
+        {
+            float averageY = 0;
+
+            //qDebug() << "Connected Nodes:" << inPlug.getConnectedPlugs().size();
+
+            float y = sceneNode->getPos().y() + (connectedPlugs.size() / -50);
+
+            for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
+            {
+                NodeCtrl* childNode = new NodeCtrl(this, (*plugIt).getNode());
+
+                childNode->setPos(sceneNode->getPos().x() + 150, y);
+                spaceOutNarrative(childNode);
+
+                averageY += childNode->getPos().y();
+                y += 100;
+            }
+
+            //averageY /= connectedPlugs.size();
+
+            //qDebug() << sceneNode->getName() << "old Y" << sceneNode->getPos().y() << "new Y" << averageY/connectedPlugs.size();
+
+            sceneNode->setPos(sceneNode->getPos().x(), averageY/connectedPlugs.size());
         }
     }
+
+     /*if(outPlug.isValid() && outPlug.isOutgoing())
+     {
+         QList<zodiac::PlugHandle> connectedPlugs = outPlug.getConnectedPlugs();
+
+         if(connectedPlugs.size() > 1)
+         {
+             qDebug() << sceneNode->getName() << outPlug.getConnectedPlugs().size();
+
+             float averageY = 0;
+             float maxX = -INFINITY;
+
+             for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
+             {
+                 QPointF nodePos = (*plugIt).getNode().getPos();
+
+                 averageY += nodePos.y();
+
+                 if(nodePos.x() > maxX)
+                     maxX = nodePos.x();
+             }
+
+             averageY /= connectedPlugs.size();
+
+             //sceneNode->setPos(maxX + 150, averageY);
+             sceneNode->setPos(sceneNode->getPos().x(), averageY);
+         }
+     }*/
 }
