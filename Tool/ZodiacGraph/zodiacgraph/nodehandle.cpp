@@ -664,7 +664,7 @@ QPointF NodeHandle::getPos() const
     return m_node->pos();
 }
 
-void NodeHandle::setPos(qreal x, qreal y, bool updateChildren)
+void NodeHandle::setPos(qreal x, qreal y, bool updateChildren, bool updateParents)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
@@ -686,6 +686,28 @@ void NodeHandle::setPos(qreal x, qreal y, bool updateChildren)
         for(QList<PlugHandle>::iterator plugIt = plugs.begin(); plugIt != plugs.end(); ++plugIt)
         {
             if((*plugIt).isOutgoing())
+            {
+                //get all connected plugs
+                QList<PlugHandle> connectedPlugs = (*plugIt).getConnectedPlugs();
+                for(QList<PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+                {
+                    NodeHandle newNode = (*connectedPlugIt).getNode();
+                    QPointF newNodePos = newNode.getPos() + difference;    //add the difference to the old node position to move it relative to the parent
+                    newNode.setPos(newNodePos.x(), newNodePos.y(), true);
+                }
+            }
+        }
+    }
+
+    if(updateParents)
+    {
+        QPointF difference = m_node->pos() - oldPos;    //get difference between the two positions
+
+        //get all outgoing plugs and iterate
+        QList<PlugHandle> plugs = getPlugs();
+        for(QList<PlugHandle>::iterator plugIt = plugs.begin(); plugIt != plugs.end(); ++plugIt)
+        {
+            if((*plugIt).isIncoming())
             {
                 //get all connected plugs
                 QList<PlugHandle> connectedPlugs = (*plugIt).getConnectedPlugs();

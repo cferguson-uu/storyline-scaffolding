@@ -313,7 +313,7 @@ public: // methods
     /// \param [in] y   The position of the Node along the y axis.
     /// \param [in] updateChildren   Should the children of the node be updated?
     ///
-    void setPos(qreal x, qreal y, bool updateChildren = false);
+    void setPos(qreal x, qreal y, bool updateChildren = false, bool updateParents = false);
 
     ///
     /// \brief Fill color of an idle Node core.
