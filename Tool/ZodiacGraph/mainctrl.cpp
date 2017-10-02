@@ -929,104 +929,130 @@ QPointF MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHa
 
     NodeCtrl* newRequirementNode;
 
-    if(requirements.type == REQ_SEQ)
+
+    if(requirements.type == REQ_LEAF)
     {
-       //qDebug() << "Type: SEQ";
-       newRequirementNode = createNode(zodiac::STORY_NONE, "SEQ", "SEQ");
+        //qDebug() << "Type: LEAF";
+        //newRequirementNode = createNode(zodiac::STORY_NONE, "LEAF", "LEAF");
+
+        if(requirements.id != "")
+        {
+            //qDebug() << "Id: " << requirements.id;
+
+            bool found = false;
+            //link it to the node mentioned in the id
+            for(QList<NodeCtrl*>::iterator nodeIt = sceneNodes.begin(); nodeIt != sceneNodes.end(); ++nodeIt)
+                if((*nodeIt)->getName() == requirements.id)
+                {
+                    newRequirementNode = (*nodeIt);
+
+                    zodiac::PlugHandle nodeReqInPlug;
+
+                    if((*nodeIt)->getNodeHandle().getPlug("reqIn").isValid())
+                        nodeReqInPlug = (*nodeIt)->getNodeHandle().getPlug("reqIn");
+                    else
+                        nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn");
+                    parentReqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                    found  = true;
+                    break;
+                }
+
+            if(!found)
+                qDebug() << "Warning. Node:" << requirements.id << "not found!";
+        }
     }
     else
-        if(requirements.type == REQ_LEAF)
+    {
+        if(requirements.type == REQ_SEQ)
         {
-            //qDebug() << "Type: LEAF";
-            newRequirementNode = createNode(zodiac::STORY_NONE, "LEAF", "LEAF");
+           //qDebug() << "Type: SEQ";
+           newRequirementNode = createNode(zodiac::STORY_NONE, "SEQ", "SEQ");
+           newRequirementNode->setIdleColor(QColor(255, 204, 0));
+           newRequirementNode->setSelectedColor(QColor(255, 153, 0));
         }
         else
             if(requirements.type == REQ_INV)
             {
                 //qDebug() << "Type: INV";
                 newRequirementNode = createNode(zodiac::STORY_NONE, "INV", "INV");
+                newRequirementNode->setIdleColor(QColor(255, 204, 0));
+                newRequirementNode->setSelectedColor(QColor(255, 153, 0));
             }
 
-    newRequirementNode->setIdleColor(QColor(255, 204, 0));
-    newRequirementNode->setSelectedColor(QColor(255, 153, 0));
-
-    /*QPointF parentNodePos = parentReqOutPlug.getNode().getPos();
-    newRequirementNode->setPos(parentNodePos.x(), parentNodePos.y() + relativeY);
-    parentReqOutPlug.getNode().setPos(parentNodePos.x() + 100, parentNodePos.y());*/
-
-    //connect narrative node to new requirements node
-    zodiac::PlugHandle reqInPlug;
-    if(newRequirementNode->getNodeHandle().getPlug("reqIn").isValid())
-        reqInPlug = newRequirementNode->getNodeHandle().getPlug("reqIn");
-    else
-        reqInPlug = newRequirementNode->addIncomingPlug("reqIn");
-
-    parentReqOutPlug.connectPlug(reqInPlug);
-
-    zodiac::PlugHandle reqOutPlug;
-
-    if(requirements.id != "")
-    {
-        //qDebug() << "Id: " << requirements.id;
-
-        if(newRequirementNode->getNodeHandle().getPlug("reqOut").isValid())
-            reqOutPlug = newRequirementNode->getNodeHandle().getPlug("reqOut");
+        //connect narrative node to new requirements node
+        zodiac::PlugHandle reqInPlug;
+        if(newRequirementNode->getNodeHandle().getPlug("reqIn").isValid())
+            reqInPlug = newRequirementNode->getNodeHandle().getPlug("reqIn");
         else
-            reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut");  //create the out plug
+            reqInPlug = newRequirementNode->addIncomingPlug("reqIn");
 
-        bool found = false;
-        //link it to the node mentioned in the id
-        for(QList<NodeCtrl*>::iterator nodeIt = sceneNodes.begin(); nodeIt != sceneNodes.end(); ++nodeIt)
-            if((*nodeIt)->getName() == requirements.id)
-            {
-                zodiac::PlugHandle nodeReqInPlug;
+        parentReqOutPlug.connectPlug(reqInPlug);
 
-                if((*nodeIt)->getNodeHandle().getPlug("reqIn").isValid())
-                    nodeReqInPlug = (*nodeIt)->getNodeHandle().getPlug("reqIn");
-                else
-                    nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn");
-                reqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
-                found  = true;
-                break;
-            }
+        zodiac::PlugHandle reqOutPlug;
 
-        if(!found)
-            qDebug() << "Warning. Node:" << requirements.id << "not found!";
-    }
-
-    float childrenSize = requirements.children.size();
-    if(childrenSize > 0)
-    {
-        //float y = 0;
-
-        /*if(childrenSize > 1)
-            y = childrenSize * -50;*/
-
-        //QPointF rollingPos(0,0);
-
-        for(std::list<NarRequirements>::iterator reqIt = requirements.children.begin(); reqIt != requirements.children.end(); ++reqIt)
+        if(requirements.id != "")
         {
-            if(!reqOutPlug.isValid())
-            {
-                if(newRequirementNode->getNodeHandle().getPlug("reqOut").isValid())
-                    reqOutPlug = newRequirementNode->getNodeHandle().getPlug("reqOut");
-                else
-                    reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //make the out plug if it doesn't exist
-            }
+            //qDebug() << "Id: " << requirements.id;
 
-            loadRequirements((*reqIt), reqOutPlug, sceneNodes);
-            //rollingPos += loadRequirements((*reqIt), reqOutPlug, sceneNodes);
-            //rollingPos += loadRequirements((*reqIt), reqOutPlug, sceneNodes, y);
+            if(newRequirementNode->getNodeHandle().getPlug("reqOut").isValid())
+                reqOutPlug = newRequirementNode->getNodeHandle().getPlug("reqOut");
+            else
+                reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut");  //create the out plug
 
-            //y += 100;
+            bool found = false;
+            //link it to the node mentioned in the id
+            for(QList<NodeCtrl*>::iterator nodeIt = sceneNodes.begin(); nodeIt != sceneNodes.end(); ++nodeIt)
+                if((*nodeIt)->getName() == requirements.id)
+                {
+                    zodiac::PlugHandle nodeReqInPlug;
+
+                    if((*nodeIt)->getNodeHandle().getPlug("reqIn").isValid())
+                        nodeReqInPlug = (*nodeIt)->getNodeHandle().getPlug("reqIn");
+                    else
+                        nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn");
+                    reqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                    found  = true;
+                    break;
+                }
+
+            if(!found)
+                qDebug() << "Warning. Node:" << requirements.id << "not found!";
         }
 
-        //rollingPos /= childrenSize;
-        //newRequirementNode->setPos(rollingPos.x() + 100, rollingPos.y());
+        float childrenSize = requirements.children.size();
+        if(childrenSize > 0)
+        {
+            //float y = 0;
+
+            /*if(childrenSize > 1)
+                y = childrenSize * -50;*/
+
+            //QPointF rollingPos(0,0);
+
+            for(std::list<NarRequirements>::iterator reqIt = requirements.children.begin(); reqIt != requirements.children.end(); ++reqIt)
+            {
+                if(!reqOutPlug.isValid())
+                {
+                    if(newRequirementNode->getNodeHandle().getPlug("reqOut").isValid())
+                        reqOutPlug = newRequirementNode->getNodeHandle().getPlug("reqOut");
+                    else
+                        reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //make the out plug if it doesn't exist
+                }
+
+                loadRequirements((*reqIt), reqOutPlug, sceneNodes);
+                //rollingPos += loadRequirements((*reqIt), reqOutPlug, sceneNodes);
+                //rollingPos += loadRequirements((*reqIt), reqOutPlug, sceneNodes, y);
+
+                //y += 100;
+            }
+
+            //rollingPos /= childrenSize;
+            //newRequirementNode->setPos(rollingPos.x() + 100, rollingPos.y());
+        }
+
+
+        //parentReqOutPlug.getNode().setPos(newRequirementNode->getPos().x() + 150, newRequirementNode->getPos().y());
     }
-
-
-    //parentReqOutPlug.getNode().setPos(newRequirementNode->getPos().x() + 150, newRequirementNode->getPos().y());
 
     return newRequirementNode->getPos();
 }
