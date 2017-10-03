@@ -959,49 +959,57 @@ void saveandload::LoadNarrativeParamsAndCommands(QWidget *widget)
 bool saveandload::LoadNarrativeFromFile(QWidget *widget)
 {
     QString settings;
-    QFile file;
-
-    //file.setFileName("narrative.json");
+    /*QFile file;
 
     file.setFileName(QFileDialog::getOpenFileName(widget,
                                                      QObject::tr("Load Narrative File"), "",
-                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
+                                                     QObject::tr("JSON File (*.json);;All Files (*)")));*/
 
-    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    QStringList filenames = QFileDialog::getOpenFileNames(widget,
+                                                     QObject::tr("Load Narrative File"), "",
+                                                     QObject::tr("JSON File (*.json);;All Files (*)"));
+
+    //if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    if(!filenames.isEmpty())
     {
-        if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+        for (int i =0; i<filenames.count(); i++)
         {
-            settings = file.readAll();
-            file.close();
+            QFile file = filenames.at(i);
 
-            QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+            if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+            {
+                settings = file.readAll();
+                file.close();
 
-            if(jsonDoc.isObject())
-                if(jsonDoc.object().contains("node_list") || jsonDoc.object().contains("blocks"))
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+
+                if(jsonDoc.isObject())
+                    if(jsonDoc.object().contains("node_list") || jsonDoc.object().contains("blocks"))
+                    {
+                        QMessageBox messageBox;
+                        messageBox.critical(0,"Error","You appear to be opening a compiled narrative graph.");
+                        messageBox.setFixedSize(500,200);
+                        return false;
+                    }
+
+                if(jsonDoc.isNull() || !jsonDoc.isArray() || jsonDoc.isEmpty())
                 {
                     QMessageBox messageBox;
-                    messageBox.critical(0,"Error","You appear to be opening a compiled narrative graph.");
+                    messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
                     messageBox.setFixedSize(500,200);
                     return false;
                 }
 
-            if(jsonDoc.isNull() || !jsonDoc.isArray() || jsonDoc.isEmpty())
+                readNodeList(jsonDoc.array());
+                //return true;
+            }
+            else
             {
                 QMessageBox messageBox;
                 messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
                 messageBox.setFixedSize(500,200);
                 return false;
             }
-
-            readNodeList(jsonDoc.array());
-            return true;
-        }
-        else
-        {
-            QMessageBox messageBox;
-            messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
-            messageBox.setFixedSize(500,200);
-            return false;
         }
     }
     else
@@ -1009,6 +1017,8 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
         qDebug() << "Load aborted by user";
         return false;
     }
+
+    return true;    //will return true unless error found
 }
 
 void saveandload::readNodeList(QJsonArray &jsonNodeList)
