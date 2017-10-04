@@ -182,6 +182,13 @@ public: // methods
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
 
     ///
+    /// \brief Get the type of story node
+    ///
+    /// \return Story node type
+    ///
+    zodiac::StoryNodeType getStoryNodeType(){return m_node.getStoryNodeType();}
+
+    ///
     /// \brief Fill color of an idle Node core.
     ///
     /// \return Idle fill color.

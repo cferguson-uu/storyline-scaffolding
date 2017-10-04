@@ -124,10 +124,10 @@ void MainCtrl::createStoryGraph(QString storyName)
 {
     NodeCtrl* nameNode = createNode(zodiac::STORY_NAME, storyName); //create story name
 
-    NodeCtrl* settingNode = createNode(zodiac::STORY_SETTING, "Setting"); //create setting
-    NodeCtrl* themeNode = createNode(zodiac::STORY_THEME, "Theme"); //create theme
-    NodeCtrl* plotNode = createNode(zodiac::STORY_PLOT, "Plot"); //create plot
-    NodeCtrl* resolutionNode = createNode(zodiac::STORY_RESOLUTION, "Resolution"); //create resolution
+    NodeCtrl* settingNode = createNode(zodiac::STORY_SETTING, "Setting", "Setting Group"); //create setting
+    NodeCtrl* themeNode = createNode(zodiac::STORY_THEME, "Theme", "Theme Group"); //create theme
+    NodeCtrl* plotNode = createNode(zodiac::STORY_PLOT, "Plot", "Plot Group"); //create plot
+    NodeCtrl* resolutionNode = createNode(zodiac::STORY_RESOLUTION, "Resolution", "Resolution Group"); //create resolution
 
     //distance between each object should be 100, looks clean
 
@@ -402,7 +402,7 @@ void MainCtrl::loadStoryGraph()
         if(chars.size() > 0)
         {
             //create parent group node, move it, link to main settings node and set up plug for linking children
-            characterNode = createNode(zodiac::STORY_SETTING_CHARACTER_GROUP, "Characters");
+            characterNode = createNode(zodiac::STORY_SETTING_CHARACTER_GROUP, "Characters", "Characters Group");
             characterNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
 
             zodiac::PlugHandle characterNodeInPlug = characterNode->getNodeHandle().createIncomingPlug("in");
@@ -419,7 +419,7 @@ void MainCtrl::loadStoryGraph()
         if(locs.size() > 0)
         {
             //create parent group node, move it, link to main settings node and set up plug for linking children
-            locationNode = createNode(zodiac::STORY_SETTING_LOCATION_GROUP, "Locations");
+            locationNode = createNode(zodiac::STORY_SETTING_LOCATION_GROUP, "Locations", "Locations Group");
             locationNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
 
             zodiac::PlugHandle locationNodeInPlug = locationNode->getNodeHandle().createIncomingPlug("in");
@@ -436,7 +436,7 @@ void MainCtrl::loadStoryGraph()
         if(times.size() > 0)
         {
             //create parent group node, move it, link to main settings node and set up plug for linking children
-            timeNode = createNode(zodiac::STORY_SETTING_TIME_GROUP, "Times");
+            timeNode = createNode(zodiac::STORY_SETTING_TIME_GROUP, "Times", "Times Group");
             timeNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
 
             zodiac::PlugHandle timeNodeInPlug = timeNode->getNodeHandle().createIncomingPlug("in");
@@ -462,7 +462,7 @@ void MainCtrl::loadStoryGraph()
         if(events.size() > 0)
         {
             //create group node then load the events and all sub-events
-            eventNode = createNode(zodiac::STORY_THEME_EVENT_GROUP, "Events");
+            eventNode = createNode(zodiac::STORY_THEME_EVENT_GROUP, "Events", "Events Group");
             eventNode->getNodeHandle().setPos(/*themeNode->getPos().x()*/maxXVal, themeNode->getPos().y()+100);
             zodiac::PlugHandle parentNodeInPlug = eventNode->getNodeHandle().createIncomingPlug("in");
             ThemeNodeOutPlug.connectPlug(parentNodeInPlug);
@@ -478,7 +478,7 @@ void MainCtrl::loadStoryGraph()
         if(goals.size() > 0)
         {
             //same as events but goals
-            goalNode = createNode(zodiac::STORY_THEME_GOAL_GROUP, "Goals");
+            goalNode = createNode(zodiac::STORY_THEME_GOAL_GROUP, "Goals", "Goals Group");
             goalNode->getNodeHandle().setPos(/*themeNode->getPos().x()*/maxXVal, themeNode->getPos().y()+100);
             zodiac::PlugHandle parentNodeInPlug = goalNode->getNodeHandle().createIncomingPlug("in");
             ThemeNodeOutPlug.connectPlug(parentNodeInPlug);
@@ -639,7 +639,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
         if(episodeNode->getPos().x() > epMaxX)
             epMaxX = episodeNode->getPos().x();
 
-        NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt", QPoint(0, 100));
+        NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt Group", QPoint(0, 100));
         //handle attempts
         if((*epIt).attempts.size() > 0 || (*epIt).attemptSubEpisodes.size() > 0)
         {
@@ -696,7 +696,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
 
         epMaxX += 100; //gap between nodes
 
-        NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome", QPoint(epMaxX - episodeNode->getPos().x(), 100));
+        NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome Group", QPoint(epMaxX - episodeNode->getPos().x(), 100));
         if((*epIt).outcomes.size() > 0 || (*epIt).outcomeSubEpisodes.size() > 0)
         {
             //handle outcomes
@@ -787,7 +787,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<Even
 
     if(events.size() > 0)
     {
-        NodeCtrl *eventNode = createNode(zodiac::STORY_RESOLUTION_EVENT_GROUP, "Event");
+        NodeCtrl *eventNode = createNode(zodiac::STORY_RESOLUTION_EVENT_GROUP, "Event", "Group of Events");
         eventNode->getNodeHandle().setPos(resolutionNode->getPos().x(), resolutionNode->getPos().y()+100);
         zodiac::PlugHandle eventNodeInPlug = eventNode->getNodeHandle().createIncomingPlug("in");
         resolutionNode->getPlug("out").connectPlug(eventNodeInPlug);
@@ -817,7 +817,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<Even
 
    if(states.size() > 0)
     {
-        NodeCtrl *stateNode = createNode(zodiac::STORY_RESOLUTION_STATE_GROUP, "State");
+        NodeCtrl *stateNode = createNode(zodiac::STORY_RESOLUTION_STATE_GROUP, "State", "Group of States");
         stateNode->getNodeHandle().setPos(maxX, resolutionNode->getPos().y()+100);
         zodiac::PlugHandle stateNodeInPlug = stateNode->getNodeHandle().createIncomingPlug("in");
         resolutionNode->getPlug("out").connectPlug(stateNodeInPlug);
@@ -870,14 +870,8 @@ void MainCtrl::loadNarrativeGraph()
                 //qDebug() << (*narIt).id << " requirements";
 
                 zodiac::PlugHandle reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
-                loadRequirements((*narIt).requirements, reqOutPlug, sceneNodes, 0);
+                loadRequirements((*narIt).requirements, reqOutPlug, sceneNodes);
             }
-            /*else
-            {
-                qDebug() << "relativeY: " << relativeY;
-                newNarNode->setPos(newNarNode->getPos().x(), newNarNode->getPos().y() + relativeY);
-                relativeY += 100;
-            }*/
 
             sceneNodes.push_back(newNarNode);
         }
@@ -923,7 +917,7 @@ void MainCtrl::loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode)
 
 }
 
-QPointF MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, float relativeY)
+void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes)
 {
     //parentReqOutPlug.getNode().setPos(parentReqOutPlug.getNode().getPos().x(), parentReqOutPlug.getNode().getPos().y() + relativeY);
 
@@ -966,7 +960,7 @@ QPointF MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHa
         if(requirements.type == REQ_SEQ)
         {
            //qDebug() << "Type: SEQ";
-           newRequirementNode = createNode(zodiac::STORY_NONE, "SEQ", "SEQ");
+           newRequirementNode = createNode(zodiac::STORY_NONE, "SEQ", "Requirements Sequence");
            newRequirementNode->setIdleColor(QColor(255, 204, 0));
            newRequirementNode->setSelectedColor(QColor(255, 153, 0));
         }
@@ -974,7 +968,7 @@ QPointF MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHa
             if(requirements.type == REQ_INV)
             {
                 //qDebug() << "Type: INV";
-                newRequirementNode = createNode(zodiac::STORY_NONE, "INV", "INV");
+                newRequirementNode = createNode(zodiac::STORY_NONE, "INV", "Inverse Requirements");
                 newRequirementNode->setIdleColor(QColor(255, 204, 0));
                 newRequirementNode->setSelectedColor(QColor(255, 153, 0));
             }
@@ -1022,13 +1016,6 @@ QPointF MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHa
         float childrenSize = requirements.children.size();
         if(childrenSize > 0)
         {
-            //float y = 0;
-
-            /*if(childrenSize > 1)
-                y = childrenSize * -50;*/
-
-            //QPointF rollingPos(0,0);
-
             for(std::list<NarRequirements>::iterator reqIt = requirements.children.begin(); reqIt != requirements.children.end(); ++reqIt)
             {
                 if(!reqOutPlug.isValid())
@@ -1040,21 +1027,9 @@ QPointF MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHa
                 }
 
                 loadRequirements((*reqIt), reqOutPlug, sceneNodes);
-                //rollingPos += loadRequirements((*reqIt), reqOutPlug, sceneNodes);
-                //rollingPos += loadRequirements((*reqIt), reqOutPlug, sceneNodes, y);
-
-                //y += 100;
             }
-
-            //rollingPos /= childrenSize;
-            //newRequirementNode->setPos(rollingPos.x() + 100, rollingPos.y());
         }
-
-
-        //parentReqOutPlug.getNode().setPos(newRequirementNode->getPos().x() + 150, newRequirementNode->getPos().y());
     }
-
-    return newRequirementNode->getPos();
 }
 
 void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)

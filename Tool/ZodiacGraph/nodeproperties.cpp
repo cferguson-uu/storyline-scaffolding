@@ -28,23 +28,6 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
     // update the title of the collapsible container
     parent->updateTitle(m_node->getName());
 
-    // define the name edit
-    QHBoxLayout* nameLayout = new QHBoxLayout();
-    m_nameEdit = new QLineEdit(m_node->getName(), this);
-    connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renameNode()));
-    nameLayout->addWidget(new QLabel("Name", this));
-    nameLayout->addWidget(m_nameEdit);    
-    nameLayout->setContentsMargins(0, 4, 0, 0);
-    mainLayout->addLayout(nameLayout);
-
-    QHBoxLayout* descriptionLayout = new QHBoxLayout();
-    m_descriptionEdit = new QLineEdit(m_node->getDescription(), this);
-    connect(m_descriptionEdit, SIGNAL(editingFinished()), this, SLOT(changeNodeDescription()));
-    descriptionLayout->addWidget(new QLabel("Description", this));
-    descriptionLayout->addWidget(m_descriptionEdit);
-    descriptionLayout->setContentsMargins(0, 4, 0, 0);
-    mainLayout->addLayout(descriptionLayout);
-
     if(m_node->getType() == zodiac::NODE_NARRATIVE)
         constructNarrativeNodeProperties(mainLayout);
 
@@ -80,80 +63,155 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Co
 
 void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
 {
-    // define the on_unlock block
-    m_onUnlockLayout = new QGridLayout();
-    m_onUnlockLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
-    m_onUnlockLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
-    m_addOnUnlockButton = new QPushButton(this);
-    m_addOnUnlockButton->setIconSize(QSize(8, 8));
-    m_addOnUnlockButton->setIcon(QIcon(":/icons/plus.svg"));
-    m_addOnUnlockButton->setFlat(true);
-    m_onUnlockLayout->addWidget(new QLabel("OnUnlock", this), 0, 0, 1, 2, Qt::AlignLeft);
-    m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
-    //connect(m_addOnUnlockButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK);});
-    connect(m_addOnUnlockButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockLayout, &m_onUnlockRows, CMD_UNLOCK, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
+    //Set initial label names
+    QString nameLabel = "Name";
+    QString descriptionLabel = "Description";
 
-    if(!m_node->getOnUnlockList().empty())
+    // define the name and description layout
+    QHBoxLayout* nameLayout = new QHBoxLayout();
+    QHBoxLayout* descriptionLayout = new QHBoxLayout();
+
+    if(m_node->getName() == "SEQ" || m_node->getName() == "INV")
     {
-        QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnUnlockList();
-        //need to load command list
-        for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
-            if(!cmdIt.key().isNull())
-                createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK, cmdIt.key(), &(*cmdIt));
+        nameLabel += ": " + m_node->getName();
+        descriptionLabel += ": " + m_node->getDescription();
+        nameLayout->addWidget(new QLabel(nameLabel, this));
+        descriptionLayout->addWidget(new QLabel(descriptionLabel, this));
+
+        nameLayout->setContentsMargins(0, 4, 0, 0);
+        mainLayout->addLayout(nameLayout);
+        descriptionLayout->setContentsMargins(0, 4, 0, 0);
+        mainLayout->addLayout(descriptionLayout);
     }
-
-    // define the on_fail block
-    m_onFailLayout = new QGridLayout();
-    m_onFailLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
-    m_onFailLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
-    m_addOnFailButton = new QPushButton(this);
-    m_addOnFailButton->setIconSize(QSize(8, 8));
-    m_addOnFailButton->setIcon(QIcon(":/icons/plus.svg"));
-    m_addOnFailButton->setFlat(true);
-    m_onFailLayout->addWidget(new QLabel("OnFail", this), 0, 0, 1, 2, Qt::AlignLeft);
-    m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
-    //connect(m_addOnFailButton, &QPushButton::released, [=]{createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL);});
-     connect(m_addOnFailButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onFailLayout, &m_onFailRows, CMD_FAIL, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
-
-    if(!m_node->getOnFailList().empty())
+    else
     {
-        QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnFailList();
-        //need to load command list
-        for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
-            if(!cmdIt.key().isNull())
-                createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL, cmdIt.key(), &(*cmdIt));
+        nameLayout->addWidget(new QLabel(nameLabel, this));
+        m_nameEdit = new QLineEdit(m_node->getName(), this);
+        connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renameNode()));
+        nameLayout->addWidget(m_nameEdit);
+        m_descriptionEdit = new QLineEdit(m_node->getDescription(), this);
+        connect(m_descriptionEdit, SIGNAL(editingFinished()), this, SLOT(changeNodeDescription()));
+        descriptionLayout->addWidget(new QLabel(descriptionLabel, this));
+        descriptionLayout->addWidget(m_descriptionEdit);
+
+        nameLayout->setContentsMargins(0, 4, 0, 0);
+        mainLayout->addLayout(nameLayout);
+        descriptionLayout->setContentsMargins(0, 4, 0, 0);
+        mainLayout->addLayout(descriptionLayout);
+
+        // define the on_unlock block
+        m_onUnlockLayout = new QGridLayout();
+        m_onUnlockLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+        m_onUnlockLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
+        m_addOnUnlockButton = new QPushButton(this);
+        m_addOnUnlockButton->setIconSize(QSize(8, 8));
+        m_addOnUnlockButton->setIcon(QIcon(":/icons/plus.svg"));
+        m_addOnUnlockButton->setFlat(true);
+        m_onUnlockLayout->addWidget(new QLabel("OnUnlock", this), 0, 0, 1, 2, Qt::AlignLeft);
+        m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
+        connect(m_addOnUnlockButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockLayout, &m_onUnlockRows, CMD_UNLOCK, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
+
+        if(!m_node->getOnUnlockList().empty())
+        {
+            QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnUnlockList();
+            //need to load command list
+            for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
+                if(!cmdIt.key().isNull())
+                    createNewCommandBlock(m_onUnlockLayout, m_onUnlockRows, CMD_UNLOCK, cmdIt.key(), &(*cmdIt));
+        }
+
+        // define the on_fail block
+        m_onFailLayout = new QGridLayout();
+        m_onFailLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+        m_onFailLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
+        m_addOnFailButton = new QPushButton(this);
+        m_addOnFailButton->setIconSize(QSize(8, 8));
+        m_addOnFailButton->setIcon(QIcon(":/icons/plus.svg"));
+        m_addOnFailButton->setFlat(true);
+        m_onFailLayout->addWidget(new QLabel("OnFail", this), 0, 0, 1, 2, Qt::AlignLeft);
+        m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
+         connect(m_addOnFailButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onFailLayout, &m_onFailRows, CMD_FAIL, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
+
+        if(!m_node->getOnFailList().empty())
+        {
+            QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnFailList();
+            //need to load command list
+            for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
+                if(!cmdIt.key().isNull())
+                    createNewCommandBlock(m_onFailLayout, m_onFailRows, CMD_FAIL, cmdIt.key(), &(*cmdIt));
+        }
+
+        // define the on_unlocked block
+        m_onUnlockedLayout = new QGridLayout();
+        m_onUnlockedLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+        m_onUnlockedLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
+        m_addOnUnlockedButton = new QPushButton(this);
+        m_addOnUnlockedButton->setIconSize(QSize(8, 8));
+        m_addOnUnlockedButton->setIcon(QIcon(":/icons/plus.svg"));
+        m_addOnUnlockedButton->setFlat(true);
+        m_onUnlockedLayout->addWidget(new QLabel("OnUnlocked", this), 0, 0, 1, 2, Qt::AlignLeft);
+        m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
+        connect(m_addOnUnlockedButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockedLayout, &m_onUnlockedRows, CMD_UNLOCKED, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
+
+        if(!m_node->getOnUnlockedList().empty())
+        {
+            QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnUnlockedList();
+            //need to load command list
+            for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
+                if(!cmdIt.key().isNull())
+                    createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED, cmdIt.key(), &(*cmdIt));
+        }
+
+        mainLayout->addLayout(m_onUnlockLayout);
+        mainLayout->addLayout(m_onFailLayout);
+        mainLayout->addLayout(m_onUnlockedLayout);
     }
-
-    // define the on_unlocked block
-    m_onUnlockedLayout = new QGridLayout();
-    m_onUnlockedLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
-    m_onUnlockedLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
-    m_addOnUnlockedButton = new QPushButton(this);
-    m_addOnUnlockedButton->setIconSize(QSize(8, 8));
-    m_addOnUnlockedButton->setIcon(QIcon(":/icons/plus.svg"));
-    m_addOnUnlockedButton->setFlat(true);
-    m_onUnlockedLayout->addWidget(new QLabel("OnUnlocked", this), 0, 0, 1, 2, Qt::AlignLeft);
-    m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
-    //connect(m_addOnUnlockedButton, &QPushButton::released, [=]{createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED);});
-    connect(m_addOnUnlockedButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockedLayout, &m_onUnlockedRows, CMD_UNLOCKED, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
-
-    if(!m_node->getOnUnlockedList().empty())
-    {
-        QHash<QUuid,zodiac::NodeCommand> *hashPointer = &m_node->getOnUnlockedList();
-        //need to load command list
-        for(QHash<QUuid,zodiac::NodeCommand>::iterator cmdIt = hashPointer->begin(); cmdIt != hashPointer->end(); ++cmdIt)
-            if(!cmdIt.key().isNull())
-                createNewCommandBlock(m_onUnlockedLayout, m_onUnlockedRows, CMD_UNLOCKED, cmdIt.key(), &(*cmdIt));
-    }
-
-    mainLayout->addLayout(m_onUnlockLayout);
-    mainLayout->addLayout(m_onFailLayout);
-    mainLayout->addLayout(m_onUnlockedLayout);
 }
 
 void NodeProperties::constructStoryNodeProperties(QVBoxLayout* mainLayout)
 {
-    //zodiac::StoryNode::setIdleColor(QColor("#2864F8"));
+    //Set initial label names
+    QString nameLabel = "Name";
+    QString descriptionLabel = "Description";
+
+    // define the name and description layout
+    QHBoxLayout* nameLayout = new QHBoxLayout();
+    QHBoxLayout* descriptionLayout = new QHBoxLayout();
+
+    zodiac::StoryNodeType type = m_node->getStoryNodeType();
+
+    if(type == zodiac::STORY_SETTING || type == zodiac::STORY_THEME || type == zodiac::STORY_PLOT || type == zodiac::STORY_RESOLUTION ||
+            type == zodiac::STORY_SETTING_CHARACTER_GROUP || type == zodiac::STORY_SETTING_LOCATION_GROUP || type == zodiac::STORY_SETTING_TIME_GROUP ||
+            type == zodiac::STORY_THEME_EVENT_GROUP || type == zodiac::STORY_THEME_GOAL_GROUP || type == zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP ||
+            type == zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP || type == zodiac::STORY_RESOLUTION_EVENT_GROUP || type == zodiac::STORY_RESOLUTION_STATE_GROUP)
+    {
+        nameLabel += ": " + m_node->getName();
+        descriptionLabel += ": " + m_node->getDescription();
+        nameLayout->addWidget(new QLabel(nameLabel, this));
+        descriptionLayout->addWidget(new QLabel(descriptionLabel, this));
+
+        nameLayout->setContentsMargins(0, 4, 0, 0);
+        mainLayout->addLayout(nameLayout);
+        descriptionLayout->setContentsMargins(0, 4, 0, 0);
+        mainLayout->addLayout(descriptionLayout);
+    }
+    else
+    {
+        nameLayout->addWidget(new QLabel(nameLabel, this));
+        m_nameEdit = new QLineEdit(m_node->getName(), this);
+        connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renameNode()));
+        nameLayout->addWidget(m_nameEdit);
+        m_descriptionEdit = new QLineEdit(m_node->getDescription(), this);
+        connect(m_descriptionEdit, SIGNAL(editingFinished()), this, SLOT(changeNodeDescription()));
+        descriptionLayout->addWidget(new QLabel(descriptionLabel, this));
+        descriptionLayout->addWidget(m_descriptionEdit);
+
+        nameLayout->setContentsMargins(0, 4, 0, 0);
+        mainLayout->addLayout(nameLayout);
+        descriptionLayout->setContentsMargins(0, 4, 0, 0);
+        mainLayout->addLayout(descriptionLayout);
+
+    }
 }
 
 void NodeProperties::renameNode()
