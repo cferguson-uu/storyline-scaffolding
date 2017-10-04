@@ -397,7 +397,7 @@ void MainCtrl::loadStoryGraph()
         float centrePos = settingNode->getPos().x();
 
         //load the setting items
-        std::list<SettingItem> chars = m_saveAndLoadManager.GetCharacters();
+        QList<SettingItem> chars = m_saveAndLoadManager.GetCharacters();
         NodeCtrl* characterNode = nullptr;
         if(chars.size() > 0)
         {
@@ -414,7 +414,7 @@ void MainCtrl::loadStoryGraph()
             ++centreIt;
         }
 
-        std::list<SettingItem> locs = m_saveAndLoadManager.GetLocations();
+        QList<SettingItem> locs = m_saveAndLoadManager.GetLocations();
         NodeCtrl* locationNode = nullptr;
         if(locs.size() > 0)
         {
@@ -431,7 +431,7 @@ void MainCtrl::loadStoryGraph()
             ++centreIt;
         }
 
-        std::list<SettingItem> times = m_saveAndLoadManager.GetTimes();
+        QList<SettingItem> times = m_saveAndLoadManager.GetTimes();
         NodeCtrl* timeNode = nullptr;
         if(times.size() > 0)
         {
@@ -457,7 +457,7 @@ void MainCtrl::loadStoryGraph()
         }
 
         //load the theme items
-        std::list<EventGoal> events = m_saveAndLoadManager.GetEvents();
+        QList<EventGoal> events = m_saveAndLoadManager.GetEvents();
         NodeCtrl* eventNode = nullptr;
         if(events.size() > 0)
         {
@@ -473,7 +473,7 @@ void MainCtrl::loadStoryGraph()
             ++centreIt;
         }
 
-        std::list<EventGoal> goals = m_saveAndLoadManager.GetGoals();
+        QList<EventGoal> goals = m_saveAndLoadManager.GetGoals();
         NodeCtrl* goalNode = nullptr;
         if(goals.size() > 0)
         {
@@ -498,14 +498,14 @@ void MainCtrl::loadStoryGraph()
         }
 
         //load the plot items (episodes)
-        std::list<Episode> episodes = m_saveAndLoadManager.GetEpisodes();
+        QList<Episode> episodes = m_saveAndLoadManager.GetEpisodes();
         plotNode->setPos(maxXVal, plotNode->getPos().y());
         maxXVal = loadEpisodes(plotNode, episodes).y() + 100;
         resolutionNode->setPos(maxXVal, resolutionNode->getPos().x());
 
         //load the resolution
-        std::list<EventGoal> resEvents = m_saveAndLoadManager.GetResolution().events;
-        std::list<SimpleNode> resStates = m_saveAndLoadManager.GetResolution().states;
+        QList<EventGoal> resEvents = m_saveAndLoadManager.GetResolution().events;
+        QList<SimpleNode> resStates = m_saveAndLoadManager.GetResolution().states;
         resolutionNode->setPos(maxXVal, resolutionNode->getPos().y());
         loadResolution(resolutionNode, resEvents, resStates);
 
@@ -514,7 +514,7 @@ void MainCtrl::loadStoryGraph()
     }
 }
 
-float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> items, zodiac::StoryNodeType childType)
+float MainCtrl::loadSettingItem(NodeCtrl *parentNode, QList<SettingItem> items, zodiac::StoryNodeType childType)
 {
     float minX = INFINITY;
     float maxX = -INFINITY;
@@ -524,7 +524,7 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
     float parentPos = 0;
     int parentPosIt = 0;
     //add each item to the tree
-    for(std::list<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
+    for(QList<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
         NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(nodePos - parentNode->getPos().x(), 100));
 
@@ -539,7 +539,7 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
             float childCentrePos = 0;
             int childCentreIt = 0;
             //add all the details for the items
-            for(std::list<SimpleNode>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
+            for(QList<SimpleNode>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
             {
                 NodeCtrl* detailNode = createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(detailSpacer, 100));
 
@@ -567,7 +567,7 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
     return maxX;
 }
 
-QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType)
+QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, QList<EventGoal> items, zodiac::StoryNodeType childType)
 {
     float minX = INFINITY;
     float maxX = -INFINITY;
@@ -577,7 +577,7 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
     int parentPosIt = 0;
 
     //add each item to the tree
-    for(std::list<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
+    for(QList<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
         NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(nodePos, 100));
 
@@ -593,7 +593,7 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
         if((*itemIt).subItems.size() > 0)
         {
             float localMaxX = 0;
-            for(std::list<EventGoal>::iterator subItemIt = (*itemIt).subItems.begin(); subItemIt != (*itemIt).subItems.end(); ++subItemIt)
+            for(QList<EventGoal>::iterator subItemIt = (*itemIt).subItems.begin(); subItemIt != (*itemIt).subItems.end(); ++subItemIt)
             {
                 QPointF minMax = loadThemeItem(itemNode, (*itemIt).subItems, childType);
 
@@ -615,7 +615,7 @@ QPointF MainCtrl::loadThemeItem(NodeCtrl* parentNode, std::list<EventGoal> items
     return QPointF(minX, maxX);
 }
 
-QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode> episodes)
+QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episodes)
 {
     NodeCtrl *parentNodeCtrl = new NodeCtrl(this, *parentNode);
 
@@ -627,7 +627,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
     int parentPosIt = 0;
 
     //add each item to the tree
-    for(std::list<Episode>::iterator epIt = episodes.begin(); epIt != episodes.end(); ++epIt)
+    for(QList<Episode>::iterator epIt = episodes.begin(); epIt != episodes.end(); ++epIt)
     {
         float epMinX = INFINITY;
         float epMaxX = -INFINITY;
@@ -647,7 +647,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
             float attemptMinX = INFINITY;
             float attemptMaxX = -INFINITY;
 
-            for(std::list<SimpleNode>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
+            for(QList<SimpleNode>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
             {
                 NodeCtrl *attemptNode = createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, (*attIt).description, QPoint(attemptPos, 100));
                 attemptPos += 100;     
@@ -703,7 +703,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
             float outcomePos = 0;
             float outcomeMinX = INFINITY;
             float outcomeMaxX = -INFINITY;
-            for(std::list<SimpleNode>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
+            for(QList<SimpleNode>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
             {
                 NodeCtrl *outcomeNode = createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, (*outIt).description, QPoint(outcomePos, 100));
 
@@ -778,7 +778,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
     return QPointF(mainMinX, mainMaxX);
 }
 
-void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states)
+void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states)
 {
     float maxX = resolutionNode->getPos().x();
 
@@ -796,7 +796,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<Even
         float nodePos = 0;
         float centrePos = 0;
         int nodeIt = 0;
-        for(std::list<EventGoal>::iterator evIt = events.begin(); evIt != events.end(); ++evIt)
+        for(QList<EventGoal>::iterator evIt = events.begin(); evIt != events.end(); ++evIt)
         {
             NodeCtrl *childNode = createStoryNode(eventNode, zodiac::STORY_RESOLUTION_EVENT, (*evIt).id, (*evIt).description, QPoint(nodePos, 100));
 
@@ -826,7 +826,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, std::list<Even
         float nodePos = 0;
         float centrePos = 0;
         int nodeIt = 0;
-        for(std::list<SimpleNode>::iterator stIt = states.begin(); stIt != states.end(); ++stIt)
+        for(QList<SimpleNode>::iterator stIt = states.begin(); stIt != states.end(); ++stIt)
         {
             NodeCtrl *childNode = createStoryNode(stateNode, zodiac::STORY_RESOLUTION_STATE, (*stIt).id, (*stIt).description, QPoint(nodePos, 100));
 
@@ -856,10 +856,10 @@ void MainCtrl::loadNarrativeGraph()
     if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
     {
         //float relativeY = 0;
-        std::list<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
+        QList<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
         QList<NodeCtrl*> sceneNodes;
 
-        for(std::list<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
+        for(QList<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
         {
             NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
 
@@ -882,34 +882,34 @@ void MainCtrl::loadNarrativeGraph()
 
 void MainCtrl::loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode)
 {
-    for(std::list<NarCommand>::iterator cmdIt = loadedNode.onUnlockCommands.begin(); cmdIt != loadedNode.onUnlockCommands.end(); ++cmdIt)
+    for(QList<NarCommand>::iterator cmdIt = loadedNode.onUnlockCommands.begin(); cmdIt != loadedNode.onUnlockCommands.end(); ++cmdIt)
     {
         QUuid cmdKey = QUuid::createUuid();
         sceneNode->addOnUnlockCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
 
-        for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+        for(QList<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
         {
             sceneNode->addParameterToOnUnlockCommand(cmdKey, (*paramIt).id, (*paramIt).description);
         }
     }
 
-    for(std::list<NarCommand>::iterator cmdIt = loadedNode.onFailCommands.begin(); cmdIt != loadedNode.onFailCommands.end(); ++cmdIt)
+    for(QList<NarCommand>::iterator cmdIt = loadedNode.onFailCommands.begin(); cmdIt != loadedNode.onFailCommands.end(); ++cmdIt)
     {
         QUuid cmdKey = QUuid::createUuid();
         sceneNode->addOnFailCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
 
-        for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+        for(QList<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
         {
             sceneNode->addParameterToOnFailCommand(cmdKey, (*paramIt).id, (*paramIt).description);
         }
     }
 
-    for(std::list<NarCommand>::iterator cmdIt = loadedNode.onUnlockedCommands.begin(); cmdIt != loadedNode.onUnlockedCommands.end(); ++cmdIt)
+    for(QList<NarCommand>::iterator cmdIt = loadedNode.onUnlockedCommands.begin(); cmdIt != loadedNode.onUnlockedCommands.end(); ++cmdIt)
     {
         QUuid cmdKey = QUuid::createUuid();
         sceneNode->addOnUnlockedCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
 
-        for(std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
+        for(QList<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
         {
             sceneNode->addParameterToOnUnlockedCommand(cmdKey, (*paramIt).id, (*paramIt).description);
         }
@@ -1016,7 +1016,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
         float childrenSize = requirements.children.size();
         if(childrenSize > 0)
         {
-            for(std::list<NarRequirements>::iterator reqIt = requirements.children.begin(); reqIt != requirements.children.end(); ++reqIt)
+            for(QList<NarRequirements>::iterator reqIt = requirements.children.begin(); reqIt != requirements.children.end(); ++reqIt)
             {
                 if(!reqOutPlug.isValid())
                 {

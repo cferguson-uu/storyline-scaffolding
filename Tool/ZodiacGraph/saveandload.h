@@ -29,12 +29,12 @@ public:
 
     //getter functions
     const QString GetStoryName(){return m_storyName;}
-    const std::list<SettingItem> GetCharacters(){return m_characters;}
-    const std::list<SettingItem> GetLocations(){return m_locations;}
-    const std::list<SettingItem> GetTimes(){return m_times;}
-    const std::list<Episode> GetEpisodes(){return m_episodes;}
-    const std::list<EventGoal> GetEvents(){return m_events;}
-    const std::list<EventGoal> GetGoals(){return m_goals;}
+    const QList<SettingItem> GetCharacters(){return m_characters;}
+    const QList<SettingItem> GetLocations(){return m_locations;}
+    const QList<SettingItem> GetTimes(){return m_times;}
+    const QList<Episode> GetEpisodes(){return m_episodes;}
+    const QList<EventGoal> GetEvents(){return m_events;}
+    const QList<EventGoal> GetGoals(){return m_goals;}
     const Resolution GetResolution(){return m_resolution;}
 
     //setter functions
@@ -65,11 +65,11 @@ public:
     bool LoadNarrativeFromFile(QWidget *widget);
     void SaveNarrativeToFile(QWidget *widget);
 
-    const std::list<Command> GetCommands(){return m_commands;}
-    const std::list<Parameter> GetParameters(){return m_parameters;}
-    const std::list<NarNode> GetNarrativeNodes(){return m_narrativeNodes;}
+    const QList<Command> GetCommands(){return m_commands;}
+    const QList<Parameter> GetParameters(){return m_parameters;}
+    const QList<NarNode> GetNarrativeNodes(){return m_narrativeNodes;}
 
-    std::list<Command> *GetCommandListPointer(){return &m_commands;}
+    QList<Command> *GetCommandListPointer(){return &m_commands;}
 
 private:
     //story
@@ -88,28 +88,28 @@ private:
     void ReadResolution(QJsonObject &jsonResolution);
 
     //save functions
-    void WriteSettingItem(QJsonObject &jsonSetting, std::list<SettingItem> &settingList, QString elementName, const QString &prefix);
+    void WriteSettingItem(QJsonObject &jsonSetting, QList<SettingItem> &settingList, QString elementName, const QString &prefix);
     void WriteEpisodes(QJsonObject &jsonPlot, const QString &prefix);
     void WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const QString &prefix);
-    void WriteEventGoals(QJsonObject &jsonTheme, std::list<EventGoal> &eVList, QString eventGoalId, QString subItemId, const QString &prefix);
+    void WriteEventGoals(QJsonObject &jsonTheme, QList<EventGoal> &eVList, QString eventGoalId, QString subItemId, const QString &prefix);
     void WriteEventGoal(QJsonArray &jsonEvents, const EventGoal &e, QString subItemId, const QString &prefix);
     void WriteResolution(QJsonObject &jsonResolution);
 
     QString m_storyName;
 
-    std::list<SettingItem> m_characters;
-    std::list<SettingItem> m_locations;
-    std::list<SettingItem> m_times;
+    QList<SettingItem> m_characters;
+    QList<SettingItem> m_locations;
+    QList<SettingItem> m_times;
 
-    std::list<Episode> m_episodes;
-    std::list<EventGoal> m_events;
-    std::list<EventGoal> m_goals;
+    QList<Episode> m_episodes;
+    QList<EventGoal> m_events;
+    QList<EventGoal> m_goals;
 
     Resolution m_resolution;
 
     //commands
-    std::list<Command> m_commands;
-    std::list<Parameter> m_parameters;
+    QList<Command> m_commands;
+    QList<Parameter> m_parameters;
 
     void LoadParams(QJsonArray &jsonParams);
     void LoadCommands(QJsonArray &jsonCommands);
@@ -119,13 +119,13 @@ private:
     void readNodeList(QJsonArray &jsonNodeList);
     void readRequirements(QJsonObject &requirements, NarNode &node);
     void readRequirementsChildren(QJsonObject &children, NarRequirements &req);
-    void readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarCommand> &cmdList);
+    void readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarCommand> &cmdList);
 
     //save
-    void WriteCommandBlock(std::list<NarCommand> cmd, QJsonArray &block);
+    void WriteCommandBlock(QList<NarCommand> cmd, QJsonArray &block);
     void WriteRequirements(NarRequirements &req, QJsonObject &node, QString objectName);
 
-    std::list<NarNode> m_narrativeNodes;
+    QList<NarNode> m_narrativeNodes;
 };
 
 #endif // SAVEANDLOAD_H

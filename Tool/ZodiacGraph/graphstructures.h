@@ -65,29 +65,29 @@ struct SimpleNode
 
 struct SettingItem : public SimpleNode  //simple node with state child
 {
-    std::list<SimpleNode> details;
+    QList<SimpleNode> details;
 };
 
 struct EventGoal : public SimpleNode  //simple node with nested children
 {
-    std::list<EventGoal> subItems;
+    QList<EventGoal> subItems;
 };
 
 struct Episode : public SimpleNode //id and subgoal
 {
-    std::list<SimpleNode> attempts;
-    std::list<SimpleNode> outcomes;
+    QList<SimpleNode> attempts;
+    QList<SimpleNode> outcomes;
 
-    std::list<Episode> attemptSubEpisodes;
-    std::list<Episode> outcomeSubEpisodes;
+    QList<Episode> attemptSubEpisodes;
+    QList<Episode> outcomeSubEpisodes;
 
     SimpleNode subGoal;
 };
 
 struct Resolution
 {
-    std::list<EventGoal> events;
-    std::list<SimpleNode> states;
+    QList<EventGoal> events;
+    QList<SimpleNode> states;
 };
 
 //Story graph info ends
@@ -142,7 +142,7 @@ struct Parameter
 
 struct Command
 {
-    Command(QString l, QString i, QString t, std::list<Parameter> cP = std::list<Parameter>())
+    Command(QString l, QString i, QString t, QList<Parameter> cP = QList<Parameter>())
     {
         label = l;
         id = i;
@@ -161,7 +161,7 @@ struct Command
         commandParams = cP;
     }
 
-    Command(QString l, QString i, ValueType t, std::list<Parameter> cP = std::list<Parameter>())
+    Command(QString l, QString i, ValueType t, QList<Parameter> cP = QList<Parameter>())
     {
         label = l;
         id = i;
@@ -172,7 +172,7 @@ struct Command
     QString label;
     QString id;
     ValueType type;
-    std::list<Parameter> commandParams;
+    QList<Parameter> commandParams;
 };
 
 //command info ends
@@ -183,14 +183,14 @@ struct NarCommand
 {
     QString command;
     QString description;
-    std::list<SimpleNode> params;    //list of parameters associated with command
+    QList<SimpleNode> params;    //list of parameters associated with command
 };
 
 struct NarRequirements
 {
     RequirementType type;
     QString id;
-    std::list<NarRequirements> children;
+    QList<NarRequirements> children;
 };
 
 struct NarNode
@@ -200,9 +200,9 @@ struct NarNode
 
     NarRequirements requirements;
 
-    std::list<NarCommand> onUnlockCommands;
-    std::list<NarCommand> onFailCommands;
-    std::list<NarCommand> onUnlockedCommands;
+    QList<NarCommand> onUnlockCommands;
+    QList<NarCommand> onFailCommands;
+    QList<NarCommand> onUnlockedCommands;
 };
 
 //narrative graph info ends

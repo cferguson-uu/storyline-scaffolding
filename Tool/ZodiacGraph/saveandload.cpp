@@ -75,7 +75,7 @@ void saveandload::ReadCharacters(QJsonArray &jsonCharacters)
     foreach (const QJsonValue &charValue, jsonCharacters)
     {
         m_characters.push_back(SettingItem());
-        std::list<SettingItem>::iterator charIt = m_characters.end();
+        QList<SettingItem>::iterator charIt = m_characters.end();
         --charIt;
 
         ReadSettingsItem(charValue.toObject(), (*charIt));
@@ -87,7 +87,7 @@ void saveandload::ReadLocations(QJsonArray &jsonLocations)
   foreach (const QJsonValue &locValue, jsonLocations)
   {
       m_locations.push_back(SettingItem());
-      std::list<SettingItem>::iterator locIt = m_locations.end();
+      QList<SettingItem>::iterator locIt = m_locations.end();
       --locIt;
 
       ReadSettingsItem(locValue.toObject(), (*locIt));
@@ -99,7 +99,7 @@ void saveandload::ReadTimes(QJsonArray &jsonTimes)
     foreach (const QJsonValue &timValue, jsonTimes)
     {
         m_times.push_back(SettingItem());
-        std::list<SettingItem>::iterator timIt = m_times.end();
+        QList<SettingItem>::iterator timIt = m_times.end();
         --timIt;
 
         ReadSettingsItem(timValue.toObject(), (*timIt));
@@ -123,7 +123,7 @@ void saveandload::ReadSettingsItem(QJsonObject &jsonCharacter, SettingItem &s)
     foreach (const QJsonValue &detailValue, jsonCharacterDetails)
     {
         s.details.push_back(SimpleNode());
-        std::list<SimpleNode>::iterator detailIt = (s).details.end();
+        QList<SimpleNode>::iterator detailIt = (s).details.end();
         --detailIt;
 
         QJsonObject detail = detailValue.toObject();
@@ -146,7 +146,7 @@ void saveandload::ReadEvents(QJsonArray &jsonEvents)
     foreach (const QJsonValue &eventValue, jsonEvents)
     {
         m_events.push_back(EventGoal());
-        std::list<EventGoal>::iterator evIt = m_events.end();
+        QList<EventGoal>::iterator evIt = m_events.end();
         --evIt;
 
         ReadEventGoal(eventValue.toObject(), kName_SubEvents, (*evIt));
@@ -158,7 +158,7 @@ void saveandload::ReadGoals(QJsonArray &jsonGoals)
     foreach (const QJsonValue &goalValue, jsonGoals)
     {
         m_goals.push_back(EventGoal());
-        std::list<EventGoal>::iterator goIt = m_goals.end();
+        QList<EventGoal>::iterator goIt = m_goals.end();
         --goIt;
 
         ReadEventGoal(goalValue.toObject(), kName_SubGoals, (*goIt));
@@ -184,7 +184,7 @@ void saveandload::ReadEventGoal(QJsonObject &eventGoal, QString SubItemId, Event
             {
                 e.subItems.push_back(EventGoal());
 
-                std::list<EventGoal>::iterator subEvIt = e.subItems.end();
+                QList<EventGoal>::iterator subEvIt = e.subItems.end();
                 --subEvIt;
 
                 ReadSubItem(subItemValue.toObject(), (*subEvIt), SubItemId);
@@ -208,7 +208,7 @@ void saveandload::ReadSubItem(QJsonObject &jsonSubItem, EventGoal &e, QString Su
         {
             e.subItems.push_back(EventGoal());
 
-            std::list<EventGoal>::iterator subEvIt = e.subItems.end();
+            QList<EventGoal>::iterator subEvIt = e.subItems.end();
             --subEvIt;
 
             ReadSubItem(subItemValue.toObject(), (*subEvIt), SubItemId);
@@ -221,7 +221,7 @@ void saveandload::ReadEpisodes(QJsonArray &jsonEpisodes)
     foreach (const QJsonValue &episodeValue, jsonEpisodes)
     {
         m_episodes.push_back(Episode());
-        std::list<Episode>::iterator epIt = m_episodes.end();
+        QList<Episode>::iterator epIt = m_episodes.end();
         --epIt;
 
         ReadEpisode(episodeValue.toObject(), (*epIt));
@@ -258,14 +258,14 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
         if(attempt[kName_Id].toString().section('_', 0, 0) == kPrefix_SubEpisode)  //handle sub episode
         {
             e.attemptSubEpisodes.push_back(Episode());
-            std::list<Episode>::iterator subEpIt = e.attemptSubEpisodes.end();
+            QList<Episode>::iterator subEpIt = e.attemptSubEpisodes.end();
             --subEpIt;
             ReadEpisode(attempt, (*subEpIt));
         }
         else    //handle attempt as normal
         {
             e.attempts.push_back(SimpleNode());
-            std::list<SimpleNode>::iterator attIt = e.attempts.end();
+            QList<SimpleNode>::iterator attIt = e.attempts.end();
             --attIt;
 
             qDebug() << attempt[kName_Id].toString().section('_', 1);
@@ -283,14 +283,14 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
         if(outcome[kName_Id].toString().section('_', 0, 0) == "SUBEP")  //handle sub episode
         {
             e.outcomeSubEpisodes.push_back(Episode());
-            std::list<Episode>::iterator subEpIt = e.outcomeSubEpisodes.end();
+            QList<Episode>::iterator subEpIt = e.outcomeSubEpisodes.end();
             --subEpIt;
             ReadEpisode(outcome, (*subEpIt));
         }
         else    //handle attempt as normal
         {
             e.outcomes.push_back(SimpleNode());
-            std::list<SimpleNode>::iterator outIt = e.outcomes.end();
+            QList<SimpleNode>::iterator outIt = e.outcomes.end();
             --outIt;
 
             qDebug() << outcome[kName_Id].toString().section('_', 1);
@@ -311,7 +311,7 @@ void saveandload::ReadResolution(QJsonObject &jsonResolution)
     foreach (const QJsonValue &eventValue, jsonEvents)
     {
         m_resolution.events.push_back(EventGoal());
-        std::list<EventGoal>::iterator evIt = m_resolution.events.end();
+        QList<EventGoal>::iterator evIt = m_resolution.events.end();
         --evIt;
 
         QJsonObject jsonEvent = eventValue.toObject();
@@ -328,7 +328,7 @@ void saveandload::ReadResolution(QJsonObject &jsonResolution)
     foreach (const QJsonValue &stateValue, jsonStates)
     {
        m_resolution.states.push_back(SimpleNode());
-        std::list<SimpleNode>::iterator stIt = m_resolution.states.end();
+        QList<SimpleNode>::iterator stIt = m_resolution.states.end();
         --stIt;
 
         QJsonObject jsonState = stateValue.toObject();
@@ -392,11 +392,11 @@ void saveandload::SaveStoryToFile(QWidget *widget)
         qDebug() << "Save aborted by user";
 }
 
-void saveandload::WriteSettingItem(QJsonObject &jsonSetting, std::list<SettingItem> &settingList, QString elementName, const QString &prefix)
+void saveandload::WriteSettingItem(QJsonObject &jsonSetting, QList<SettingItem> &settingList, QString elementName, const QString &prefix)
 {
     QJsonArray jsonSettingItems;
 
-    for(std::list<SettingItem>::iterator it = settingList.begin(); it != settingList.end(); ++it)
+    for(QList<SettingItem>::iterator it = settingList.begin(); it != settingList.end(); ++it)
     {
         QJsonObject jsonSettingItem;
         jsonSettingItem[kName_Id] = QString(prefix + "_" + (*it).id);
@@ -406,7 +406,7 @@ void saveandload::WriteSettingItem(QJsonObject &jsonSetting, std::list<SettingIt
         {
             QJsonArray jsonDetails;
 
-            for(std::list<SimpleNode>::iterator it2 = (*it).details.begin(); it2 != (*it).details.end(); ++it2)
+            for(QList<SimpleNode>::iterator it2 = (*it).details.begin(); it2 != (*it).details.end(); ++it2)
             {
                 QJsonObject jsonDetail;
 
@@ -427,12 +427,12 @@ void saveandload::WriteSettingItem(QJsonObject &jsonSetting, std::list<SettingIt
     jsonSetting[elementName] = jsonSettingItems;
 }
 
-void saveandload::WriteEventGoals(QJsonObject &jsonTheme, std::list<EventGoal> &eVList, QString eventGoalId, QString subItemId, const QString &prefix)
+void saveandload::WriteEventGoals(QJsonObject &jsonTheme, QList<EventGoal> &eVList, QString eventGoalId, QString subItemId, const QString &prefix)
 {
     if(!eVList.empty())
     {
         QJsonArray jsonEventGoals;
-        for(std::list<EventGoal>::iterator it = eVList.begin(); it != eVList.end(); ++it)
+        for(QList<EventGoal>::iterator it = eVList.begin(); it != eVList.end(); ++it)
         {
                 WriteEventGoal(jsonEventGoals, (*it), subItemId, prefix);
         }
@@ -449,7 +449,7 @@ void saveandload::WriteEventGoal(QJsonArray &jsonEvents, const EventGoal &e, QSt
     {
         QJsonArray jsonSubEvents;
 
-        for(std::list<EventGoal>::const_iterator it = e.subItems.begin(); it != e.subItems.end(); ++it)
+        for(QList<EventGoal>::const_iterator it = e.subItems.begin(); it != e.subItems.end(); ++it)
         {
             WriteEventGoal(jsonSubEvents, (*it), subItemId, prefix);
         }
@@ -469,7 +469,7 @@ void saveandload::WriteEpisodes(QJsonObject &jsonPlot, const QString &prefix)
     {
         QJsonArray jsonEpisodes;
 
-        for(std::list<Episode>::iterator it = m_episodes.begin(); it != m_episodes.end(); ++it)
+        for(QList<Episode>::iterator it = m_episodes.begin(); it != m_episodes.end(); ++it)
         {
                 WriteEpisode(jsonEpisodes, (*it), prefix);
         }
@@ -496,7 +496,7 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
     {
         QJsonArray jsonAttempts;
 
-        for(std::list<SimpleNode>::const_iterator it = e.attempts.begin(); it != e.attempts.end(); ++it)
+        for(QList<SimpleNode>::const_iterator it = e.attempts.begin(); it != e.attempts.end(); ++it)
         {
             QJsonObject jsonAttempt;
 
@@ -506,7 +506,7 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
             jsonAttempts.append(jsonAttempt);
         }
 
-        for(std::list<Episode>::const_iterator it2 = e.attemptSubEpisodes.begin(); it2 != e.attemptSubEpisodes.end(); ++it2)
+        for(QList<Episode>::const_iterator it2 = e.attemptSubEpisodes.begin(); it2 != e.attemptSubEpisodes.end(); ++it2)
         {
             WriteEpisode(jsonAttempts, (*it2), kPrefix_SubEpisode);
         }
@@ -518,7 +518,7 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
     {
         QJsonArray jsonOutcomes;
 
-        for(std::list<SimpleNode>::const_iterator it = e.outcomes.begin(); it != e.outcomes.end(); ++it)
+        for(QList<SimpleNode>::const_iterator it = e.outcomes.begin(); it != e.outcomes.end(); ++it)
         {
             QJsonObject jsonOutcome;
             jsonOutcome[kName_Id] = QString(kPrefix_Outcome + "_" +(*it).id);
@@ -527,7 +527,7 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
             jsonOutcomes.append(jsonOutcome);
         }
 
-        for(std::list<Episode>::const_iterator it2 = e.outcomeSubEpisodes.begin(); it2 != e.outcomeSubEpisodes.end(); ++it2)
+        for(QList<Episode>::const_iterator it2 = e.outcomeSubEpisodes.begin(); it2 != e.outcomeSubEpisodes.end(); ++it2)
         {
             WriteEpisode(jsonOutcomes, (*it2), kPrefix_SubEpisode);
         }
@@ -543,7 +543,7 @@ void saveandload::WriteResolution(QJsonObject &jsonResolution)
     {
         QJsonArray jsonEvents;
 
-        for(std::list<EventGoal>::iterator it = m_resolution.events.begin(); it != m_resolution.events.end(); ++it)
+        for(QList<EventGoal>::iterator it = m_resolution.events.begin(); it != m_resolution.events.end(); ++it)
         {
             QJsonObject jsonEvent;
 
@@ -560,7 +560,7 @@ void saveandload::WriteResolution(QJsonObject &jsonResolution)
     {
         QJsonArray jsonStates;
 
-        for(std::list<SimpleNode>::iterator it = m_resolution.states.begin(); it != m_resolution.states.end(); ++it)
+        for(QList<SimpleNode>::iterator it = m_resolution.states.begin(); it != m_resolution.states.end(); ++it)
         {
             QJsonObject jsonState;
 
@@ -601,7 +601,7 @@ SettingItem *saveandload::addCharacter(QString id, QString description)
 
     m_characters.push_back(newCharacter);
 
-    for(std::list<SettingItem>::iterator it = m_characters.begin(); it!= m_characters.end(); ++it)
+    for(QList<SettingItem>::iterator it = m_characters.begin(); it!= m_characters.end(); ++it)
     {
         if((*it).id == newCharacter.id)
             return &(*it);
@@ -618,7 +618,7 @@ SettingItem *saveandload::addLocation(QString id, QString description)
 
     m_locations.push_back(newLocation);
 
-    for(std::list<SettingItem>::iterator it = m_locations.begin(); it!= m_locations.end(); ++it)
+    for(QList<SettingItem>::iterator it = m_locations.begin(); it!= m_locations.end(); ++it)
     {
         if((*it).id == newLocation.id)
             return &(*it);
@@ -635,7 +635,7 @@ SettingItem *saveandload::addTime(QString id, QString description)
 
     m_times.push_back(newTime);
 
-    for(std::list<SettingItem>::iterator it = m_times.begin(); it!= m_times.end(); ++it)
+    for(QList<SettingItem>::iterator it = m_times.begin(); it!= m_times.end(); ++it)
     {
         if((*it).id == newTime.id)
             return &(*it);
@@ -663,7 +663,7 @@ EventGoal *saveandload::addEvent(QString id, QString description, EventGoal* par
     {
         parent->subItems.push_back(newEvent);
 
-        for(std::list<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
+        for(QList<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
         {
             if((*it).id == newEvent.id)
                 return &(*it);
@@ -673,7 +673,7 @@ EventGoal *saveandload::addEvent(QString id, QString description, EventGoal* par
     {
         m_events.push_back(newEvent);
 
-        for(std::list<EventGoal>::iterator it = m_events.begin(); it!= m_events.end(); ++it)
+        for(QList<EventGoal>::iterator it = m_events.begin(); it!= m_events.end(); ++it)
         {
             if((*it).id == newEvent.id)
                 return &(*it);
@@ -693,7 +693,7 @@ EventGoal *saveandload::addGoal(QString id, QString description, EventGoal* pare
     {
         parent->subItems.push_back(newGoal);
 
-        for(std::list<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
+        for(QList<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
         {
             if((*it).id == newGoal.id)
                 return &(*it);
@@ -703,7 +703,7 @@ EventGoal *saveandload::addGoal(QString id, QString description, EventGoal* pare
     {
         m_goals.push_back(newGoal);
 
-        for(std::list<EventGoal>::iterator it = m_goals.begin(); it!= m_goals.end(); ++it)
+        for(QList<EventGoal>::iterator it = m_goals.begin(); it!= m_goals.end(); ++it)
         {
             if((*it).id == newGoal.id)
                 return &(*it);
@@ -725,7 +725,7 @@ Episode *saveandload::addEpisode(QString id, QString description, Episode* paren
         {
             parent->attemptSubEpisodes.push_back(newEpisode);
 
-            for(std::list<Episode>::iterator it = parent->attemptSubEpisodes.begin(); it!= parent->attemptSubEpisodes.end(); ++it)
+            for(QList<Episode>::iterator it = parent->attemptSubEpisodes.begin(); it!= parent->attemptSubEpisodes.end(); ++it)
             {
                 if((*it).id == newEpisode.id)
                     return &(*it);
@@ -735,7 +735,7 @@ Episode *saveandload::addEpisode(QString id, QString description, Episode* paren
         {
             parent->outcomeSubEpisodes.push_back(newEpisode);
 
-            for(std::list<Episode>::iterator it = parent->outcomeSubEpisodes.begin(); it!= parent->outcomeSubEpisodes.end(); ++it)
+            for(QList<Episode>::iterator it = parent->outcomeSubEpisodes.begin(); it!= parent->outcomeSubEpisodes.end(); ++it)
             {
                 if((*it).id == newEpisode.id)
                     return &(*it);
@@ -746,7 +746,7 @@ Episode *saveandload::addEpisode(QString id, QString description, Episode* paren
     {
         m_episodes.push_back(newEpisode);
 
-        for(std::list<Episode>::iterator it = m_episodes.begin(); it!= m_episodes.end(); ++it)
+        for(QList<Episode>::iterator it = m_episodes.begin(); it!= m_episodes.end(); ++it)
         {
             if((*it).id == newEpisode.id)
                 return &(*it);
@@ -764,7 +764,7 @@ SimpleNode *saveandload::addAttempt(QString id, QString description, Episode* pa
 
     parent->attempts.push_back(newAttempt);
 
-    for(std::list<SimpleNode>::iterator it = parent->attempts.begin(); it!= parent->attempts.end(); ++it)
+    for(QList<SimpleNode>::iterator it = parent->attempts.begin(); it!= parent->attempts.end(); ++it)
     {
         if((*it).id == newAttempt.id)
             return &(*it);
@@ -781,7 +781,7 @@ SimpleNode *saveandload::addOutcome(QString id, QString description, Episode* pa
 
     parent->outcomes.push_back(newOutcome);
 
-    for(std::list<SimpleNode>::iterator it = parent->outcomes.begin(); it!= parent->outcomes.end(); ++it)
+    for(QList<SimpleNode>::iterator it = parent->outcomes.begin(); it!= parent->outcomes.end(); ++it)
     {
         if((*it).id == newOutcome.id)
             return &(*it);
@@ -834,12 +834,12 @@ void saveandload::LoadCommands(QJsonArray &jsonCommands)
         //qDebug() << obj["type"].toString();
 
         QJsonArray jsonCommandParams = obj["params"].toArray();
-        std::list<Parameter> params;
+        QList<Parameter> params;
 
         foreach (const QJsonValue &value2, jsonCommandParams)
         {
             //qDebug() << value2.toString();
-            for(std::list<Parameter>::iterator it = m_parameters.begin(); it != m_parameters.end(); ++it)
+            for(QList<Parameter>::iterator it = m_parameters.begin(); it != m_parameters.end(); ++it)
             {
                 if((*it).id == value2.toString())
                 {
@@ -969,7 +969,7 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList)
     {
         m_narrativeNodes.push_back(NarNode());
 
-        std::list<NarNode>::iterator it = m_narrativeNodes.end();
+        QList<NarNode>::iterator it = m_narrativeNodes.end();
         --it;
 
         QJsonObject obj = value.toObject();
@@ -1037,7 +1037,7 @@ void saveandload::readRequirementsChildren(QJsonObject &children, NarRequirement
 {
     req.children.push_back(NarRequirements());
 
-    std::list<NarRequirements>::iterator it = req.children.end();
+    QList<NarRequirements>::iterator it = req.children.end();
     --it;
 
     if(!children["type"].isUndefined())
@@ -1072,7 +1072,7 @@ void saveandload::readRequirementsChildren(QJsonObject &children, NarRequirement
     }
 }
 
-void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarCommand> &cmdList)
+void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarCommand> &cmdList)
 {
     foreach (const QJsonValue &value, jsonCommandBlock)
     {
@@ -1083,7 +1083,7 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarCo
 
         QString description;
 
-        for(std::list<Command>::iterator cmdTableIt = m_commands.begin(); cmdTableIt != m_commands.end(); ++cmdTableIt)
+        for(QList<Command>::iterator cmdTableIt = m_commands.begin(); cmdTableIt != m_commands.end(); ++cmdTableIt)
         {
             if((*cmdTableIt).id == command)
             {
@@ -1096,21 +1096,21 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, std::list<NarCo
             qDebug() << "Warning. " << command << " not found in table.";
 
         cmdList.push_back(NarCommand());
-        std::list<NarCommand>::iterator cmdIt = cmdList.end();
+        QList<NarCommand>::iterator cmdIt = cmdList.end();
         --cmdIt;
 
         (*cmdIt).command = command;
         (*cmdIt).description = description;
 
-        for(std::list<Command>::iterator it = m_commands.begin(); it != m_commands.end(); ++it)
+        for(QList<Command>::iterator it = m_commands.begin(); it != m_commands.end(); ++it)
         {
             if((*it).id == command)
             {
-                for(std::list<Parameter>::iterator it2 = (*it).commandParams.begin(); it2 != (*it).commandParams.end(); ++it2)
+                for(QList<Parameter>::iterator it2 = (*it).commandParams.begin(); it2 != (*it).commandParams.end(); ++it2)
                 {
                     //qDebug() << (*it2).id;
                     (*cmdIt).params.push_back(SimpleNode());
-                    std::list<SimpleNode>::iterator paramIt = (*cmdIt).params.end();
+                    QList<SimpleNode>::iterator paramIt = (*cmdIt).params.end();
                     --paramIt;
 
                     (*paramIt).id = (*it2).label;
@@ -1146,7 +1146,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
         QJsonArray nodeList;
         //QJsonArray blocks;
 
-        for(std::list<NarNode>::iterator it = m_narrativeNodes.begin(); it != m_narrativeNodes.end(); ++it)
+        for(QList<NarNode>::iterator it = m_narrativeNodes.begin(); it != m_narrativeNodes.end(); ++it)
         {
             QJsonObject node;
 
@@ -1215,7 +1215,7 @@ void saveandload::WriteRequirements(NarRequirements &req, QJsonObject &node, QSt
     if(!req.children.empty())
     {
         QJsonArray children;
-        for(std::list<NarRequirements>::iterator it = req.children.begin(); it != req.children.end(); ++it)
+        for(QList<NarRequirements>::iterator it = req.children.begin(); it != req.children.end(); ++it)
         {
             QJsonObject child;
             WriteRequirements((*it), child, "children");
@@ -1226,16 +1226,16 @@ void saveandload::WriteRequirements(NarRequirements &req, QJsonObject &node, QSt
     }
 }
 
-void saveandload::WriteCommandBlock(std::list<NarCommand> cmd, QJsonArray &block)
+void saveandload::WriteCommandBlock(QList<NarCommand> cmd, QJsonArray &block)
 {
-    for(std::list<NarCommand>::iterator it = cmd.begin(); it != cmd.end(); ++it)
+    for(QList<NarCommand>::iterator it = cmd.begin(); it != cmd.end(); ++it)
     {
         QJsonObject com;
         com["cmd"] = (*it).command;
 
-        for(std::list<SimpleNode>::iterator it2 = (*it).params.begin(); it2 != (*it).params.end(); ++it2)
+        for(QList<SimpleNode>::iterator it2 = (*it).params.begin(); it2 != (*it).params.end(); ++it2)
         {
-            for(std::list<Parameter>::iterator it3 = m_parameters.begin(); it3 != m_parameters.end(); ++it3)
+            for(QList<Parameter>::iterator it3 = m_parameters.begin(); it3 != m_parameters.end(); ++it3)
             {
                 if((*it2).id == (*it3).label)
                 {

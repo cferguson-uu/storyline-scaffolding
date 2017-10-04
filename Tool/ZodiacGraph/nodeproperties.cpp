@@ -12,7 +12,7 @@
 
 QString NodeProperties::s_defaultPlugName = "plug";
 
-NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, std::list<Command> *commands, QUndoStack *undoStack)
+NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, QList<Command> *commands, QUndoStack *undoStack)
     : QWidget(parent)
     , m_node(node)
     , m_nextPlugIsIncoming(true)
@@ -246,7 +246,7 @@ CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid
 
     QComboBox* commandBox = new QComboBox();
 
-    for(std::list<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
+    for(QList<Command>::iterator it = m_pCommands->begin(); it != m_pCommands->end(); ++it)
         commandBox->addItem((*it).label, (*it).id);
 
     QUuid u;
@@ -317,14 +317,14 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
             break;
     }
     //get parameters from the command pointer
-    for(std::list<Command>::iterator cmdIt = m_pCommands->begin(); cmdIt != m_pCommands->end(); ++cmdIt)
+    for(QList<Command>::iterator cmdIt = m_pCommands->begin(); cmdIt != m_pCommands->end(); ++cmdIt)
     {
         qDebug() << "(*cmdIt).id " << (*cmdIt).id;
         qDebug() << "hashPointer->value(cmdKey).id " << hashPointer->value(cmdKey).id;
         qDebug() << "hashPointer->value(cmdKey).description " << hashPointer->value(cmdKey).description;
 
         if((*cmdIt).id == hashPointer->value(cmdKey).id)
-            for(std::list<Parameter>::iterator paramIt = (*cmdIt).commandParams.begin(); paramIt != (*cmdIt).commandParams.end(); ++paramIt)
+            for(QList<Parameter>::iterator paramIt = (*cmdIt).commandParams.begin(); paramIt != (*cmdIt).commandParams.end(); ++paramIt)
             {
                 //create fields and labels
                 QLabel *label = new QLabel((*paramIt).label);

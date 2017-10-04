@@ -61,7 +61,7 @@ public: // methods
     void setMainCtrl(MainCtrl* mainCtrl) {Q_ASSERT(!m_mainCtrl); m_mainCtrl = mainCtrl;}
 
     //the list of commands and parameters for editing the command block
-    void setCommandList(std::list<Command> *cmds) { m_pCommands = cmds;}
+    void setCommandList(QList<Command> *cmds) { m_pCommands = cmds;}
 
     //undo stack for undo and redo
     void setUndoStack(QUndoStack *undoStack) { m_pUndoStack = undoStack;}
@@ -90,7 +90,7 @@ private: // members
     MainCtrl* m_mainCtrl;
 
     //holds a pointer to the command list from the save and load class
-    std::list<Command> *m_pCommands;
+    QList<Command> *m_pCommands;
 
     ///
     /// \brief Layout of the widget displayed in the scroll area, manages the individual Collapsible%s.

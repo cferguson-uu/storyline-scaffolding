@@ -172,22 +172,22 @@ private: // members
     ///
     /// \brief handle the setting items (characters, locations, times)
     ///
-    float loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> items, zodiac::StoryNodeType childType);
+    float loadSettingItem(NodeCtrl *parentNode, QList<SettingItem> items, zodiac::StoryNodeType childType);
 
     ///
     /// \brief handle the theme items (events, goals)
     ///
-    QPointF loadThemeItem(NodeCtrl *parentNode, std::list<EventGoal> items, zodiac::StoryNodeType childType);
+    QPointF loadThemeItem(NodeCtrl *parentNode, QList<EventGoal> items, zodiac::StoryNodeType childType);
 
     ///
     /// \brief handle the plot items (episodes)
     ///
-    QPointF loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode> episodes);
+    QPointF loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episodes);
 
     ///
     /// \brief handle the resolution items (events, states)
     ///
-    void loadResolution(zodiac::NodeHandle *resolutionNode, std::list<EventGoal> events, std::list<SimpleNode> states);
+    void loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states);
 
     void saveSettingItem(zodiac::NodeHandle &settingGroup);
     void saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem = nullptr);
