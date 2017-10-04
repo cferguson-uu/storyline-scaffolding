@@ -49,8 +49,8 @@ public:
     EventGoal *addGoal(QString id, QString description, EventGoal* parent = nullptr);
 
     Episode *addEpisode(QString id, QString description, Episode* parent = nullptr, zodiac::StoryNodeType type = zodiac::STORY_PLOT_EPISODE);
-    SimpleNodeWithState *addAttempt(QString id, QString description, QString stateId, QString stateDescription, Episode* parent);
-    SimpleNodeWithState *addOutcome(QString id, QString description, QString stateId, QString stateDescription, Episode* parent);
+    SimpleNode *addAttempt(QString id, QString description, Episode* parent);
+    SimpleNode *addOutcome(QString id, QString description, Episode* parent);
     void addSubGoal(QString id, QString description, Episode* parent);
 
     void addResolutionEvent(QString id, QString description);

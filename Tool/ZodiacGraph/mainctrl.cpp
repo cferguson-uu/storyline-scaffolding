@@ -289,7 +289,7 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
                     zodiac::NodeHandle attemptNode = (*attemptPlugIt).getNode();
 
                     if(attemptNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT)
-                        m_saveAndLoadManager.addAttempt(attemptNode.getName(), attemptNode.getDescription(), "", "", episodeItem);
+                        m_saveAndLoadManager.addAttempt(attemptNode.getName(), attemptNode.getDescription(), episodeItem);
                     else //sup-episode
                         savePlotItem(attemptNode, episodeItem);
                 }
@@ -303,7 +303,7 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
                         zodiac::NodeHandle outcomeNode = (*outcomePlugIt).getNode();
 
                        if(outcomeNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_OUTCOME)
-                            m_saveAndLoadManager.addOutcome(outcomeNode.getName(), outcomeNode.getDescription(), "", "", episodeItem);
+                            m_saveAndLoadManager.addOutcome(outcomeNode.getName(), outcomeNode.getDescription(), episodeItem);
                         else //sup-episode
                             savePlotItem(outcomeNode, episodeItem);
                     }
@@ -539,7 +539,7 @@ float MainCtrl::loadSettingItem(NodeCtrl *parentNode, std::list<SettingItem> ite
             float childCentrePos = 0;
             int childCentreIt = 0;
             //add all the details for the items
-            for(std::list<SimpleNodeWithState>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
+            for(std::list<SimpleNode>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
             {
                 NodeCtrl* detailNode = createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(detailSpacer, 100));
 
@@ -647,7 +647,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
             float attemptMinX = INFINITY;
             float attemptMaxX = -INFINITY;
 
-            for(std::list<SimpleNodeWithState>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
+            for(std::list<SimpleNode>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
             {
                 NodeCtrl *attemptNode = createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, (*attIt).description, QPoint(attemptPos, 100));
                 attemptPos += 100;     
@@ -703,7 +703,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
             float outcomePos = 0;
             float outcomeMinX = INFINITY;
             float outcomeMaxX = -INFINITY;
-            for(std::list<SimpleNodeWithState>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
+            for(std::list<SimpleNode>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
             {
                 NodeCtrl *outcomeNode = createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, (*outIt).description, QPoint(outcomePos, 100));
 
@@ -754,7 +754,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, std::list<Episode
         //handle sub-goal
         epMaxX += 100; //gap between nodes
 
-        NodeCtrl *subGoalNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).stateID, (*epIt).stateDescription, QPoint(epMaxX - episodeNode->getPos().x(), 100));
+        NodeCtrl *subGoalNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).subGoal.id, (*epIt).subGoal.description, QPoint(epMaxX - episodeNode->getPos().x(), 100));
 
         //centre episode node
         episodeNode->setPos((attemptGroupNode->getPos().x() + outcomeGroupNode->getPos().x() + subGoalNode->getPos().x())/3, episodeNode->getPos().y());

@@ -122,8 +122,8 @@ void saveandload::ReadSettingsItem(QJsonObject &jsonCharacter, SettingItem &s)
 
     foreach (const QJsonValue &detailValue, jsonCharacterDetails)
     {
-        s.details.push_back(SimpleNodeWithState());
-        std::list<SimpleNodeWithState>::iterator detailIt = (s).details.end();
+        s.details.push_back(SimpleNode());
+        std::list<SimpleNode>::iterator detailIt = (s).details.end();
         --detailIt;
 
         QJsonObject detail = detailValue.toObject();
@@ -137,12 +137,6 @@ void saveandload::ReadSettingsItem(QJsonObject &jsonCharacter, SettingItem &s)
         if(detail.contains(kName_State))
         {
             QJsonObject jsonState = detail[kName_State].toObject();
-
-            qDebug() << jsonState[kName_Id].toString();
-            (*detailIt).stateID = jsonState[kName_Id].toString();
-
-            qDebug() << jsonState[kName_Description].toString();
-            (*detailIt).stateDescription = jsonState[kName_Description].toString();
         }
     }
 }
@@ -251,10 +245,10 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
     e.description = description.toString();
     qDebug() << description.toString();
 
-    e.stateID = subGoalId.toString().section('_', 1);
+    e.subGoal.id = subGoalId.toString().section('_', 1);
     qDebug() << subGoalId.toString();
 
-    e.stateDescription = subGoalDescription.toString();
+    e.subGoal.description = subGoalDescription.toString();
     qDebug() << subGoalDescription.toString();
 
     foreach (const QJsonValue &attemptValue, jsonAttempts)
@@ -270,8 +264,8 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
         }
         else    //handle attempt as normal
         {
-            e.attempts.push_back(SimpleNodeWithState());
-            std::list<SimpleNodeWithState>::iterator attIt = e.attempts.end();
+            e.attempts.push_back(SimpleNode());
+            std::list<SimpleNode>::iterator attIt = e.attempts.end();
             --attIt;
 
             qDebug() << attempt[kName_Id].toString().section('_', 1);
@@ -279,17 +273,6 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
 
             qDebug() << attempt[kName_Description].toString();
             (*attIt).description = attempt[kName_Description].toString();
-
-            if(attempt.contains(kName_State))
-            {
-                QJsonObject jsonState = attempt[kName_State].toObject();
-
-                qDebug() << jsonState[kName_Id].toString();
-                (*attIt).stateID = jsonState[kName_Id].toString();
-
-                qDebug() << jsonState[kName_Description].toString();
-                (*attIt).stateDescription = jsonState[kName_Description].toString();
-            }
         }
     }
 
@@ -306,8 +289,8 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
         }
         else    //handle attempt as normal
         {
-            e.outcomes.push_back(SimpleNodeWithState());
-            std::list<SimpleNodeWithState>::iterator outIt = e.outcomes.end();
+            e.outcomes.push_back(SimpleNode());
+            std::list<SimpleNode>::iterator outIt = e.outcomes.end();
             --outIt;
 
             qDebug() << outcome[kName_Id].toString().section('_', 1);
@@ -315,17 +298,6 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
 
             qDebug() << outcome[kName_Description].toString();
             (*outIt).description = outcome[kName_Description].toString();
-
-            if(outcome.contains(kName_State))
-            {
-                QJsonObject jsonState = outcome[kName_State].toObject();
-
-                qDebug() << jsonState[kName_Id].toString().section('_', 1);
-                (*outIt).stateID = jsonState[kName_Id].toString().section('_', 1);
-
-                qDebug() << jsonState[kName_Description].toString();
-                (*outIt).stateDescription = jsonState[kName_Description].toString();
-            }
         }
     }
 }
@@ -434,20 +406,12 @@ void saveandload::WriteSettingItem(QJsonObject &jsonSetting, std::list<SettingIt
         {
             QJsonArray jsonDetails;
 
-            for(std::list<SimpleNodeWithState>::iterator it2 = (*it).details.begin(); it2 != (*it).details.end(); ++it2)
+            for(std::list<SimpleNode>::iterator it2 = (*it).details.begin(); it2 != (*it).details.end(); ++it2)
             {
                 QJsonObject jsonDetail;
 
                 jsonDetail[kName_Id] = QString(kPrefix_Detail + "_" + (*it2).id);
                 jsonDetail[kName_Description] = (*it2).description;
-
-                if((*it2).stateID.length() > 0)
-                {
-                    QJsonObject jsonState;
-                    jsonState[kName_Id] = QString(kPrefix_State + "_" + (*it2).stateID);
-                    jsonState[kName_Description] = (*it2).stateDescription;
-                    jsonDetail[kName_State] = jsonState;
-                }
 
                 jsonDetails.append(jsonDetail);
 
@@ -523,8 +487,8 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
 
     QJsonObject jsonSubGoal;
 
-    jsonSubGoal[kName_Id] = e.stateID;
-    jsonSubGoal[kName_Description] = e.stateDescription;
+    jsonSubGoal[kName_Id] = e.subGoal.id;
+    jsonSubGoal[kName_Description] = e.subGoal.description;
 
     jsonEpisode[kName_SubGoal] = jsonSubGoal;
 
@@ -532,20 +496,12 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
     {
         QJsonArray jsonAttempts;
 
-        for(std::list<SimpleNodeWithState>::const_iterator it = e.attempts.begin(); it != e.attempts.end(); ++it)
+        for(std::list<SimpleNode>::const_iterator it = e.attempts.begin(); it != e.attempts.end(); ++it)
         {
             QJsonObject jsonAttempt;
 
             jsonAttempt[kName_Id] = QString(kPrefix_Attempt + "_" + (*it).id);
             jsonAttempt[kName_Description] = (*it).description;
-
-            if(!(*it).stateID.isEmpty())
-            {
-                QJsonObject jsonState;
-                jsonState[kName_Id] = QString(kPrefix_State + "_" + (*it).stateID);
-                jsonState[kName_Description] = (*it).stateDescription;
-                jsonAttempt[kName_State] = jsonState;
-            }
 
             jsonAttempts.append(jsonAttempt);
         }
@@ -562,19 +518,11 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
     {
         QJsonArray jsonOutcomes;
 
-        for(std::list<SimpleNodeWithState>::const_iterator it = e.outcomes.begin(); it != e.outcomes.end(); ++it)
+        for(std::list<SimpleNode>::const_iterator it = e.outcomes.begin(); it != e.outcomes.end(); ++it)
         {
             QJsonObject jsonOutcome;
             jsonOutcome[kName_Id] = QString(kPrefix_Outcome + "_" +(*it).id);
             jsonOutcome[kName_Description] = (*it).description;
-
-            if(!(*it).stateID.isEmpty())
-            {
-                QJsonObject jsonState;
-                jsonState[kName_Id] = QString(kPrefix_State + "_" + (*it).stateID);
-                jsonState[kName_Description] = (*it).stateDescription;
-                jsonOutcome[kName_State] = jsonState;
-            }
 
             jsonOutcomes.append(jsonOutcome);
         }
@@ -698,11 +646,9 @@ SettingItem *saveandload::addTime(QString id, QString description)
 
 void saveandload::addDetail(SettingItem *item, QString id, QString description, QString stateId, QString stateDescription)
 {
-    SimpleNodeWithState newDetail;
+    SimpleNode newDetail;
     newDetail.id = id;
     newDetail.description = description;
-    newDetail.stateID = stateId;
-    newDetail.stateDescription = stateDescription;
 
     item->details.push_back(newDetail);
 }
@@ -810,17 +756,15 @@ Episode *saveandload::addEpisode(QString id, QString description, Episode* paren
     return nullptr; //if a problem
 }
 
-SimpleNodeWithState *saveandload::addAttempt(QString id, QString description, QString stateId, QString stateDescription, Episode* parent)
+SimpleNode *saveandload::addAttempt(QString id, QString description, Episode* parent)
 {
-    SimpleNodeWithState newAttempt;
+    SimpleNode newAttempt;
     newAttempt.id = id;
     newAttempt.description = description;
-    newAttempt.stateID = stateId;
-    newAttempt.stateDescription = description;
 
     parent->attempts.push_back(newAttempt);
 
-    for(std::list<SimpleNodeWithState>::iterator it = parent->attempts.begin(); it!= parent->attempts.end(); ++it)
+    for(std::list<SimpleNode>::iterator it = parent->attempts.begin(); it!= parent->attempts.end(); ++it)
     {
         if((*it).id == newAttempt.id)
             return &(*it);
@@ -829,17 +773,15 @@ SimpleNodeWithState *saveandload::addAttempt(QString id, QString description, QS
     return nullptr; //if a problem
 }
 
-SimpleNodeWithState *saveandload::addOutcome(QString id, QString description, QString stateId, QString stateDescription, Episode* parent)
+SimpleNode *saveandload::addOutcome(QString id, QString description, Episode* parent)
 {
-    SimpleNodeWithState newOutcome;
+    SimpleNode newOutcome;
     newOutcome.id = id;
     newOutcome.description = description;
-    newOutcome.stateID = stateId;
-    newOutcome.stateDescription = description;
 
     parent->outcomes.push_back(newOutcome);
 
-    for(std::list<SimpleNodeWithState>::iterator it = parent->outcomes.begin(); it!= parent->outcomes.end(); ++it)
+    for(std::list<SimpleNode>::iterator it = parent->outcomes.begin(); it!= parent->outcomes.end(); ++it)
     {
         if((*it).id == newOutcome.id)
             return &(*it);
@@ -868,8 +810,8 @@ void saveandload::addResolutionState(QString id, QString description)
 
 void saveandload::addSubGoal(QString id, QString description, Episode* parent)
 {
-    parent->stateID = id;
-    parent->stateDescription = description;
+    parent->subGoal.id = id;
+    parent->subGoal.description = description;
 }
 
 void saveandload::LoadParams(QJsonArray &jsonParams)

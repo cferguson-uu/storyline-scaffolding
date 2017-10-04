@@ -63,17 +63,9 @@ struct SimpleNode
     QString description;
 };
 
-struct SimpleNodeWithState
-{
-    QString id;
-    QString description;
-    QString stateID;
-    QString stateDescription;
-};
-
 struct SettingItem : public SimpleNode  //simple node with state child
 {
-    std::list<SimpleNodeWithState> details;
+    std::list<SimpleNode> details;
 };
 
 struct EventGoal : public SimpleNode  //simple node with nested children
@@ -81,15 +73,15 @@ struct EventGoal : public SimpleNode  //simple node with nested children
     std::list<EventGoal> subItems;
 };
 
-struct Episode : public SimpleNodeWithState //id and subgoal
+struct Episode : public SimpleNode //id and subgoal
 {
-    std::list<SimpleNodeWithState> attempts;
-    std::list<SimpleNodeWithState> outcomes;
+    std::list<SimpleNode> attempts;
+    std::list<SimpleNode> outcomes;
 
     std::list<Episode> attemptSubEpisodes;
     std::list<Episode> outcomeSubEpisodes;
 
-    //state is the subgoal
+    SimpleNode subGoal;
 };
 
 struct Resolution
