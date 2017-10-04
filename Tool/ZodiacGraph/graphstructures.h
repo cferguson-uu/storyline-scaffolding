@@ -103,10 +103,11 @@ enum ValueType
 
 enum RequirementType
 {
+    REQ_NONE,
     REQ_SEQ,
     REQ_LEAF,
     REQ_INV,
-    REQ_NONE
+    REQ_ERROR
 };
 
 struct Parameter
@@ -203,6 +204,8 @@ struct NarNode
     QList<NarCommand> onUnlockCommands;
     QList<NarCommand> onFailCommands;
     QList<NarCommand> onUnlockedCommands;
+
+    QList<QString> storyTags;
 };
 
 //narrative graph info ends

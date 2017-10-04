@@ -848,7 +848,133 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
 
 void MainCtrl::saveNarrativeGraph()
 {
+    //clear the narrative data from save and load
 
+    //get list of all nodes
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+
+    for(QList<zodiac::NodeHandle>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
+    {
+        if((*nodeIt).getType() == zodiac::NODE_NARRATIVE)
+        {
+            NarNode *newNarrativeNode = m_saveAndLoadManager.addNarrativeNode((*nodeIt).getName(), (*nodeIt).getDescription());
+
+            saveCommands(newNarrativeNode, (*nodeIt));
+            saveRequirements(newNarrativeNode, (*nodeIt));
+            saveStoryTags(newNarrativeNode, (*nodeIt));
+        }
+    }
+
+}
+
+void MainCtrl::saveCommands(NarNode *narNode, zodiac::NodeHandle &sceneNode)
+{
+    QHash<QUuid, zodiac::NodeCommand> onUnlockList = sceneNode.getOnUnlockList();
+    for(QHash<QUuid, zodiac::NodeCommand>::iterator cmdIt = onUnlockList.begin(); cmdIt != onUnlockList.end(); ++cmdIt)
+    {
+        NarCommand* cmd = m_saveAndLoadManager.addOnUnlock(narNode, (*cmdIt).id, (*cmdIt).description);
+        QHash<QString, QString> paramList = (*cmdIt).parameters;
+
+        for(QHash<QString, QString>::iterator paramIt = paramList.begin(); paramIt != paramList.end(); ++paramIt)
+        {
+            m_saveAndLoadManager.addParameterToCommand(cmd, paramIt.key(), paramIt.value());
+        }
+    }
+
+    QHash<QUuid, zodiac::NodeCommand> onFailList = sceneNode.getOnFailList();
+    for(QHash<QUuid, zodiac::NodeCommand>::iterator cmdIt = onFailList.begin(); cmdIt != onFailList.end(); ++cmdIt)
+    {
+        NarCommand* cmd = m_saveAndLoadManager.addOnFail(narNode, (*cmdIt).id, (*cmdIt).description);
+        QHash<QString, QString> paramList = (*cmdIt).parameters;
+
+        for(QHash<QString, QString>::iterator paramIt = paramList.begin(); paramIt != paramList.end(); ++paramIt)
+        {
+            m_saveAndLoadManager.addParameterToCommand(cmd, paramIt.key(), paramIt.value());
+        }
+    }
+
+    QHash<QUuid, zodiac::NodeCommand> onUnlockedList = sceneNode.getOnUnlockedList();
+    for(QHash<QUuid, zodiac::NodeCommand>::iterator cmdIt = onUnlockedList.begin(); cmdIt != onUnlockedList.end(); ++cmdIt)
+    {
+        NarCommand* cmd = m_saveAndLoadManager.addOnUnlocked(narNode, (*cmdIt).id, (*cmdIt).description);
+        QHash<QString, QString> paramList = (*cmdIt).parameters;
+
+        for(QHash<QString, QString>::iterator paramIt = paramList.begin(); paramIt != paramList.end(); ++paramIt)
+        {
+            m_saveAndLoadManager.addParameterToCommand(cmd, paramIt.key(), paramIt.value());
+        }
+    }
+}
+
+void MainCtrl::saveRequirements(NarNode *narNode, zodiac::NodeHandle &sceneNode)
+{
+    if(sceneNode.getPlug("reqOut").isValid())
+    {
+        QList<zodiac::PlugHandle> requirementPlugs = sceneNode.getPlug("reqOut").getConnectedPlugs();
+
+        for(QList<zodiac::PlugHandle>::iterator rPlugIt = requirementPlugs.begin(); rPlugIt != requirementPlugs.end(); ++rPlugIt)
+        {
+            zodiac::NodeHandle reqNode = (*rPlugIt).getNode();
+
+            if(reqNode.getName() == "SEQ")
+            {
+                NarRequirements *newReq = m_saveAndLoadManager.addRequirementToNarrativeNode(narNode, "SEQ");
+                saveRequirementsChildren(newReq, reqNode);  //call recursive function to handle rest of requirements
+            }
+            else
+                if(reqNode.getName() == "INV")
+                {
+                    m_saveAndLoadManager.addRequirementToNarrativeNode(narNode, "INV", reqNode.getName());
+                }
+                else    //is leaf
+                {
+                    m_saveAndLoadManager.addRequirementToNarrativeNode(narNode, "LEAF", reqNode.getName());
+                }
+        }
+    }
+}
+
+void MainCtrl::saveRequirementsChildren(NarRequirements *narReq, zodiac::NodeHandle &sceneNode)
+{
+    if(sceneNode.getPlug("reqOut").isValid())
+    {
+        QList<zodiac::PlugHandle> requirementPlugs = sceneNode.getPlug("reqOut").getConnectedPlugs();
+
+        for(QList<zodiac::PlugHandle>::iterator rPlugIt = requirementPlugs.begin(); rPlugIt != requirementPlugs.end(); ++rPlugIt)
+        {
+            zodiac::NodeHandle reqNode = (*rPlugIt).getNode();
+
+            if(reqNode.getName() == "SEQ")
+            {
+                NarRequirements *newReq = m_saveAndLoadManager.addChildRequirement(narReq, "SEQ");
+                saveRequirementsChildren(newReq, reqNode);  //call recursive function to handle rest of requirements
+            }
+            else
+                if(reqNode.getName() == "INV")
+                {
+                    m_saveAndLoadManager.addChildRequirement(narReq, "INV", reqNode.getName());
+                }
+                else    //is leaf
+                {
+                    m_saveAndLoadManager.addChildRequirement(narReq, "LEAF", reqNode.getName());
+                }
+        }
+    }
+}
+
+void MainCtrl::saveStoryTags(NarNode *narNode, zodiac::NodeHandle &sceneNode)
+{
+    if(sceneNode.getPlug("storyOut").isValid())
+    {
+        QList<zodiac::PlugHandle> storyPlugs = sceneNode.getPlug("storyOut").getConnectedPlugs();
+
+        for(QList<zodiac::PlugHandle>::iterator sPlugIt = storyPlugs.begin(); sPlugIt != storyPlugs.end(); ++sPlugIt)
+        {
+            zodiac::NodeHandle storyNode = (*sPlugIt).getNode();
+
+            m_saveAndLoadManager.addStoryTagToNarrativeNode(narNode, storyNode.getName());
+        }
+    }
 }
 
 void MainCtrl::loadNarrativeGraph()

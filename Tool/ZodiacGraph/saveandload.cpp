@@ -853,6 +853,155 @@ void saveandload::LoadCommands(QJsonArray &jsonCommands)
     }
 }
 
+NarNode *saveandload::addNarrativeNode(QString id, QString description)
+{
+    /*SimpleNode newAttempt;
+    newAttempt.id = id;
+    newAttempt.description = description;
+
+    parent->attempts.push_back(newAttempt);
+
+    for(QList<SimpleNode>::iterator it = parent->attempts.begin(); it!= parent->attempts.end(); ++it)
+    {
+        if((*it).id == newAttempt.id)
+            return &(*it);
+    }
+
+    return nullptr; //if a problem*/
+
+    NarNode newNode;
+    newNode.id = id;
+    newNode.comments = description;
+
+    m_narrativeNodes.push_back(newNode);
+
+    for(QList<NarNode>::iterator it = m_narrativeNodes.begin(); it!= m_narrativeNodes.end(); ++it)
+    {
+        if((*it).id == newNode.id)
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+NarCommand *saveandload::addOnUnlock(NarNode *node, QString cmdId, QString cmdDescription)
+{
+    NarCommand newCmd;
+    newCmd.command = cmdId;
+    newCmd.description = cmdDescription;
+
+    node->onUnlockCommands.push_back(newCmd);
+
+    for(QList<NarCommand>::iterator it = node->onUnlockCommands.begin(); it!= node->onUnlockCommands.end(); ++it)
+    {
+        if((*it).command == newCmd.command && (*it).params.isEmpty())   //params is empty as just created
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+NarCommand *saveandload::addOnFail(NarNode *node, QString cmdId, QString cmdDescription)
+{
+    NarCommand newCmd;
+    newCmd.command = cmdId;
+    newCmd.description = cmdDescription;
+
+    node->onFailCommands.push_back(newCmd);
+
+    for(QList<NarCommand>::iterator it = node->onFailCommands.begin(); it!= node->onFailCommands.end(); ++it)
+    {
+        if((*it).command == newCmd.command && (*it).params.isEmpty())   //params is empty as just created
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+NarCommand *saveandload::addOnUnlocked(NarNode *node, QString cmdId, QString cmdDescription)
+{
+    NarCommand newCmd;
+    newCmd.command = cmdId;
+    newCmd.description = cmdDescription;
+
+    node->onUnlockedCommands.push_back(newCmd);
+
+    for(QList<NarCommand>::iterator it = node->onUnlockedCommands.begin(); it!= node->onUnlockedCommands.end(); ++it)
+    {
+        if((*it).command == newCmd.command && (*it).params.isEmpty())   //params is empty as just created
+            return &(*it);
+    }
+
+    return nullptr; //if a problem
+}
+
+void saveandload::addParameterToCommand(NarCommand *cmd, QString paramID, QString paramVal)
+{
+    SimpleNode newParam;
+    newParam.id = paramID;
+    newParam.description = paramVal;
+
+    cmd->params.push_back(newParam);
+}
+
+void saveandload::addStoryTagToNarrativeNode(NarNode *node, QString storyTag)
+{
+    node->storyTags.push_back(storyTag);
+}
+
+NarRequirements *saveandload::addRequirementToNarrativeNode(NarNode *node, QString type, QString id)
+{
+    node->requirements.id = id;
+
+    if(type.toUpper() == "SEQ")
+    {
+        node->requirements.type = REQ_SEQ;
+    }
+    else
+        if(type.toUpper() == "LEAF")
+        {
+            node->requirements.type = REQ_LEAF;
+        }
+        else
+            if(type.toUpper() == "INV")
+            {
+                node->requirements.type = REQ_INV;
+            }
+
+    return &node->requirements;
+}
+
+NarRequirements *saveandload::addChildRequirement(NarRequirements *req, QString type, QString id)
+{
+    NarRequirements newReq;
+    newReq.id = id;
+
+    if(type.toUpper() == "SEQ")
+    {
+        newReq.type = REQ_SEQ;
+    }
+    else
+        if(type.toUpper() == "LEAF")
+        {
+            newReq.type = REQ_LEAF;
+        }
+        else
+            if(type.toUpper() == "INV")
+            {
+                newReq.type = REQ_INV;
+            }
+
+    req->children.push_back(newReq);
+
+    for(QList<NarRequirements>::iterator it = req->children.begin(); it!= req->children.end(); ++it)
+    {
+        if((*it).id == newReq.id)
+            return &(*it);
+    }
+
+    return nullptr; //if there is a problem
+}
+
 void saveandload::LoadNarrativeParamsAndCommands(QWidget *widget)
 {
     QString settings;
@@ -920,6 +1069,9 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
 
             if(file.open(QIODevice::ReadOnly | QIODevice::Text))
             {
+                QFileInfo fileInfo(file.fileName());
+                QString filename(fileInfo.fileName());
+
                 settings = file.readAll();
                 file.close();
 

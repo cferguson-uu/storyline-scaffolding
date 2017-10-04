@@ -198,6 +198,11 @@ private: // members
     void loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes);
     void spaceOutNarrative(NodeCtrl* sceneNode);
 
+    void saveCommands(NarNode *narNode, zodiac::NodeHandle &sceneNode);
+    void saveRequirements(NarNode *narNode, zodiac::NodeHandle &sceneNode);
+    void saveRequirementsChildren(NarRequirements *narReq, zodiac::NodeHandle &sceneNode);
+    void saveStoryTags(NarNode *narNode, zodiac::NodeHandle &sceneNode);
+
 private: // static members
 
     ///

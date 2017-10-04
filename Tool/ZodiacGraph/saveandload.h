@@ -65,6 +65,15 @@ public:
     bool LoadNarrativeFromFile(QWidget *widget);
     void SaveNarrativeToFile(QWidget *widget);
 
+    NarNode *addNarrativeNode(QString id, QString description);
+    NarCommand *addOnUnlock(NarNode *node, QString cmdId, QString cmdDescription);
+    NarCommand *addOnFail(NarNode *node, QString cmdId, QString cmdDescription);
+    NarCommand *addOnUnlocked(NarNode *node, QString cmdId, QString cmdDescription);
+    void addParameterToCommand(NarCommand *cmd, QString paramID, QString paramVal);
+    void addStoryTagToNarrativeNode(NarNode *node, QString storyTag);
+    NarRequirements *addRequirementToNarrativeNode(NarNode *node, QString type, QString id = "");
+    NarRequirements *addChildRequirement(NarRequirements *req, QString type, QString id = "");
+
     const QList<Command> GetCommands(){return m_commands;}
     const QList<Parameter> GetParameters(){return m_parameters;}
     const QList<NarNode> GetNarrativeNodes(){return m_narrativeNodes;}
