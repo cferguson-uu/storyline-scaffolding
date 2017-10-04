@@ -65,20 +65,26 @@ public:
     bool LoadNarrativeFromFile(QWidget *widget);
     void SaveNarrativeToFile(QWidget *widget);
 
+    //gettfunctions
+    const QList<Command> GetCommands(){return m_commands;}
+    const QList<Parameter> GetParameters(){return m_parameters;}
+    const QList<NarNode> GetNarrativeNodes(){return m_narrativeNodes;}
+    QList<Command> *GetCommandListPointer(){return &m_commands;}
+
+    //setter functions
     NarNode *addNarrativeNode(QString id, QString description);
+
     NarCommand *addOnUnlock(NarNode *node, QString cmdId, QString cmdDescription);
     NarCommand *addOnFail(NarNode *node, QString cmdId, QString cmdDescription);
     NarCommand *addOnUnlocked(NarNode *node, QString cmdId, QString cmdDescription);
     void addParameterToCommand(NarCommand *cmd, QString paramID, QString paramVal);
+
     void addStoryTagToNarrativeNode(NarNode *node, QString storyTag);
+
     NarRequirements *addRequirementToNarrativeNode(NarNode *node, QString type, QString id = "");
     NarRequirements *addChildRequirement(NarRequirements *req, QString type, QString id = "");
 
-    const QList<Command> GetCommands(){return m_commands;}
-    const QList<Parameter> GetParameters(){return m_parameters;}
-    const QList<NarNode> GetNarrativeNodes(){return m_narrativeNodes;}
-
-    QList<Command> *GetCommandListPointer(){return &m_commands;}
+    void DeleteAllNarrativeItems();
 
 private:
     //story
@@ -135,6 +141,8 @@ private:
     void WriteRequirements(NarRequirements &req, QJsonObject &node, QString objectName);
 
     QList<NarNode> m_narrativeNodes;
+
+    QVector<QString> m_prefixes;
 };
 
 #endif // SAVEANDLOAD_H

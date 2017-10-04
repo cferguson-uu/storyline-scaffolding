@@ -848,14 +848,14 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
 
 void MainCtrl::saveNarrativeGraph()
 {
-    //clear the narrative data from save and load
+    m_saveAndLoadManager.DeleteAllNarrativeItems(); //clear the narrative data from save and load
 
     //get list of all nodes
     QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
 
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
     {
-        if((*nodeIt).getType() == zodiac::NODE_NARRATIVE)
+        if((*nodeIt).getType() == zodiac::NODE_NARRATIVE && !((*nodeIt).getName() == "SEQ" || (*nodeIt).getName() == "INV"))
         {
             NarNode *newNarrativeNode = m_saveAndLoadManager.addNarrativeNode((*nodeIt).getName(), (*nodeIt).getDescription());
 
@@ -864,6 +864,8 @@ void MainCtrl::saveNarrativeGraph()
             saveStoryTags(newNarrativeNode, (*nodeIt));
         }
     }
+
+    m_saveAndLoadManager.SaveNarrativeToFile(qobject_cast<QWidget*>(parent()));
 
 }
 
@@ -979,6 +981,8 @@ void MainCtrl::saveStoryTags(NarNode *narNode, zodiac::NodeHandle &sceneNode)
 
 void MainCtrl::loadNarrativeGraph()
 {
+    m_saveAndLoadManager.DeleteAllNarrativeItems(); //reset the holder
+
     if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
     {
         //float relativeY = 0;

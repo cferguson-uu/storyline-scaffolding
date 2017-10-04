@@ -855,20 +855,23 @@ void saveandload::LoadCommands(QJsonArray &jsonCommands)
 
 NarNode *saveandload::addNarrativeNode(QString id, QString description)
 {
-    /*SimpleNode newAttempt;
-    newAttempt.id = id;
-    newAttempt.description = description;
+    //check if the prefix is new, if not then add it to the list
+    QString prefix = id.section('_', 0, 0);
+    bool prefixExists = false;
+    for(QVector<QString>::iterator it = m_prefixes.begin(); it!= m_prefixes.end(); ++it)
+        if((*it) == prefix)
+        {
+            prefixExists = true;
+            break;
+        }
 
-    parent->attempts.push_back(newAttempt);
-
-    for(QList<SimpleNode>::iterator it = parent->attempts.begin(); it!= parent->attempts.end(); ++it)
+    if(!prefixExists)
     {
-        if((*it).id == newAttempt.id)
-            return &(*it);
+        qDebug() << "Prefix" << prefix << "added";
+        m_prefixes.push_back(prefix);
     }
 
-    return nullptr; //if a problem*/
-
+    //create the node
     NarNode newNode;
     newNode.id = id;
     newNode.comments = description;
@@ -1287,68 +1290,75 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarComman
 
 void saveandload::SaveNarrativeToFile(QWidget *widget)
 {
-    QFile file(QFileDialog::getSaveFileName(widget,
-                                                         QObject::tr("Load Story Graph"), "",
-                                                        QObject:: tr("JSON File (*.json);;All Files (*)")));
-
-    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    for(QVector<QString>::iterator prefixIt = m_prefixes.begin(); prefixIt!= m_prefixes.end(); ++prefixIt)
     {
+        QString windowTitle = "Save narrative graph with prefix " + (*prefixIt);
+        QFile file(QFileDialog::getSaveFileName(widget,
+                                                             QObject::tr(windowTitle.toStdString().c_str()), "",
+                                                            QObject:: tr("JSON File (*.json);;All Files (*)")));
 
-        QJsonObject jsonData;
-        QJsonArray nodeList;
-        //QJsonArray blocks;
-
-        for(QList<NarNode>::iterator it = m_narrativeNodes.begin(); it != m_narrativeNodes.end(); ++it)
+        if(!file.fileName().isEmpty()&& !file.fileName().isNull())
         {
-            QJsonObject node;
 
-            node["id"] = (*it).id;
+            QJsonObject jsonData;
+            QJsonArray nodeList;
+            //QJsonArray blocks;
 
-            if(!((*it).requirements.id.isEmpty() && (*it).requirements.type == REQ_NONE && (*it).requirements.children.empty()))
+            for(QList<NarNode>::iterator it = m_narrativeNodes.begin(); it != m_narrativeNodes.end(); ++it)
             {
-                QJsonObject requirements;
-                WriteRequirements((*it).requirements, requirements, "requirements");
-                node["requirements"] = requirements;
+                if((*it).id.section('_', 0, 0) == (*prefixIt))
+                {
+                    QJsonObject node;
+
+                    node["id"] = (*it).id;
+
+                    if(!((*it).requirements.id.isEmpty() && (*it).requirements.type == REQ_NONE && (*it).requirements.children.empty()))
+                    {
+                        QJsonObject requirements;
+                        WriteRequirements((*it).requirements, requirements, "requirements");
+                        node["requirements"] = requirements;
+                    }
+
+                    if(!(*it).onUnlockCommands.empty())
+                    {
+                        QJsonArray onUnlockBlock;
+                        WriteCommandBlock((*it).onUnlockCommands, onUnlockBlock);
+                        node["on_unlock"] = onUnlockBlock;
+                    }
+
+                    if(!(*it).onFailCommands.empty())
+                    {
+                        QJsonArray onFailBlock;
+                        WriteCommandBlock((*it).onFailCommands, onFailBlock);
+                        node["on_fail"] = onFailBlock;
+                    }
+
+                    if(!(*it).onUnlockedCommands.empty())
+                    {
+                        QJsonArray onUnlockedBlock;
+                        WriteCommandBlock((*it).onUnlockedCommands, onUnlockedBlock);
+                        node["on_unlocked"] = onUnlockedBlock;
+                    }
+
+                    nodeList.push_back(node);
+                }
             }
 
-            if(!(*it).onUnlockCommands.empty())
-            {
-                QJsonArray onUnlockBlock;
-                WriteCommandBlock((*it).onUnlockCommands, onUnlockBlock);
-                node["on_unlock"] = onUnlockBlock;
-            }
+            QJsonDocument jsonDoc(nodeList);
+            //qDebug() << jsonDoc.toJson();
 
-            if(!(*it).onFailCommands.empty())
+            if(file.open(QFile::WriteOnly))
+                file.write(jsonDoc.toJson());
+            else
             {
-                QJsonArray onFailBlock;
-                WriteCommandBlock((*it).onFailCommands, onFailBlock);
-                node["on_fail"] = onFailBlock;
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                messageBox.setFixedSize(500,200);
             }
-
-            if(!(*it).onUnlockedCommands.empty())
-            {
-                QJsonArray onUnlockedBlock;
-                WriteCommandBlock((*it).onUnlockedCommands, onUnlockedBlock);
-                node["on_unlocked"] = onUnlockedBlock;
-            }
-
-            nodeList.push_back(node);
         }
-
-        QJsonDocument jsonDoc(nodeList);
-        //qDebug() << jsonDoc.toJson();
-
-        if(file.open(QFile::WriteOnly))
-            file.write(jsonDoc.toJson());
         else
-        {
-            QMessageBox messageBox;
-            messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
-            messageBox.setFixedSize(500,200);
-        }
+            qDebug() << "Save of" << (*it) << "nodes aborted by user";
     }
-    else
-        qDebug() << "Save aborted by user";
 }
 
 void saveandload::WriteRequirements(NarRequirements &req, QJsonObject &node, QString objectName)
@@ -1414,4 +1424,10 @@ void saveandload::WriteCommandBlock(QList<NarCommand> cmd, QJsonArray &block)
         }
         block.push_back(com);
     }
+}
+
+void saveandload::DeleteAllNarrativeItems()
+{
+    m_narrativeNodes.clear();
+    m_prefixes.clear();
 }
