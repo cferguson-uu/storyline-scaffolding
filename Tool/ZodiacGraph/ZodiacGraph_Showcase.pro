@@ -71,7 +71,8 @@ SOURCES += main.cpp\
     zodiacgraph/view.cpp \
     saveandload.cpp \
     undoedits.cpp \
-    analyticslogwindow.cpp
+    analyticslogwindow.cpp \
+    linkerwindow.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -106,7 +107,8 @@ HEADERS  += mainwindow.h \
     graphstructures.h \
     saveandload.h \
     undoedits.h \
-    analyticslogwindow.h
+    analyticslogwindow.h \
+    linkerwindow.h
 
 RESOURCES += \
     res/icons.qrc

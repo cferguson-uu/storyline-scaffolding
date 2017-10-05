@@ -1357,7 +1357,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
             }
         }
         else
-            qDebug() << "Save of" << (*it) << "nodes aborted by user";
+            qDebug() << "Save of" << (*prefixIt) << "nodes aborted by user";
     }
 }
 

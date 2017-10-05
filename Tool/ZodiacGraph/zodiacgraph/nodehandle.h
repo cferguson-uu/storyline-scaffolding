@@ -390,6 +390,11 @@ signals:
     void createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&);
 
     ///
+    /// \brief Emitted, when context menu is used to clink narrative nodes
+    ///
+    void openLinker();
+
+    ///
     /// \brief Is emitted, when an incoming plug of the managed Node has been connected to an outgoing plug of another
     /// Node.
     ///

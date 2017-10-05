@@ -741,6 +741,12 @@ void NodeHandle::connectSignals()
         StoryNode *sNode = static_cast<StoryNode*>(m_node);
         connect(sNode, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)), this, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)));
     }
+    else
+        if(m_node->getType() == NODE_NARRATIVE)
+        {
+            NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
+            connect(nNode, SIGNAL(openLinker()), this, SIGNAL(openLinker()));
+        }
 }
 
 void NodeHandle::passInputConnected(Plug* myInput, Plug* otherOutput)

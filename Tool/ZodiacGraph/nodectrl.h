@@ -332,6 +332,11 @@ public slots:
     void createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&);
 
     ///
+    /// \brief Emitted, when narrative nodes need linking
+    ///
+    void openLinker();
+
+    ///
     /// \brief Tries to remove this logical node from the graph.
     ///
     /// \return <i>true</i> if the node was removed -- <i>false</i> otherwise.

@@ -1029,10 +1029,10 @@ private: // static members
 
 class NarrativeNode: public Node
 {
+    Q_OBJECT
 public:
     NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load = false, const QUuid& uuid = QUuid(), QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
-                  QColor labelBackgroundColor = QColor("#426998"), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"))
-            : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor){}
+                  QColor labelBackgroundColor = QColor("#426998"), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"));
 
     ///
     /// \brief The command blocks part of the node.
@@ -1115,6 +1115,9 @@ public:
     void editParameterInOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
 
+    void contextMenuEvent(QContextMenuEvent *event);
+
+
 private:
     ///
     /// \brief The various command blocks that are attached to the node
@@ -1128,6 +1131,12 @@ private:
     /// When the node is already unlocked
     ///
     QHash<QUuid, NodeCommand> m_onUnlocked;
+
+signals:
+    ///
+    /// \brief Emitted, when context menu is used to create another story node
+    ///
+    void openLinker();
 
 };
 

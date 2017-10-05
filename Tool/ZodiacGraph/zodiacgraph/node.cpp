@@ -400,6 +400,14 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
             QContextMenuEvent fakeEvent(QContextMenuEvent::Mouse, event->pos().toPoint(), event->screenPos());
             sNode->contextMenuEvent(&fakeEvent);
         }
+        else
+            if(m_nodeType == NODE_NARRATIVE)
+            {
+                NarrativeNode *nNode = static_cast<NarrativeNode*>(this);
+
+                QContextMenuEvent fakeEvent(QContextMenuEvent::Mouse, event->pos().toPoint(), event->screenPos());
+                nNode->contextMenuEvent(&fakeEvent);
+            }
     }
 }
 
@@ -762,6 +770,16 @@ void Node::updateOutlinePen()
     m_linePen = QPen(QBrush(m_outlineColor), s_outlineWidth);
 }
 
+NarrativeNode::NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load, const QUuid& uuid, QColor idleColor, QColor selectedColor, QColor outlineColor,
+              QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
+        : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
+{
+    if(load)
+    {
+        //behaviour to be carried out when a node is being loaded
+    }
+}
+
 void NarrativeNode::addOnUnlockCommand(const QUuid& key, const QString& value, const QString& description)
 {
     m_onUnlock.insert(key, NodeCommand(value, description));
@@ -864,6 +882,24 @@ void NarrativeNode::editParameterInOnFailCommand(const QUuid& cmdKey, const QStr
 void NarrativeNode::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value)
 {
     m_onUnlocked[cmdKey].parameters[paramKey] = value;
+}
+
+///
+/// \brief Brings up a context menu to add more nodes if applicable
+///
+/// \param [in] event   Menu Event.
+///
+///
+void NarrativeNode::contextMenuEvent(QContextMenuEvent *event)
+{
+    //QMenu menu(this);
+    QMenu contextMenu((QWidget*)getScene()->getParent());
+
+    QAction* openLinkerWindow = new QAction(tr("&Link Nodes"), this);
+    connect(openLinkerWindow, &QAction::triggered, [=]{openLinker();});
+    contextMenu.addAction(openLinkerWindow);
+
+    contextMenu.exec(event->globalPos());
 }
 
 StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, StoryNodeType storyType, bool load, const QUuid& uuid,

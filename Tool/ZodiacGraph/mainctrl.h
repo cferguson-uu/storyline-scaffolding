@@ -34,6 +34,7 @@
 #include "zodiacgraph/scenehandle.h"
 
 #include "saveandload.h"
+#include "linkerwindow.h"
 
 class NodeCtrl;
 class PropertyEditor;
@@ -133,6 +134,11 @@ public slots:
     ///
     void saveNarrativeGraph();
 
+    ///
+    /// \brief Shows the window for linking nodes
+    ///
+    void showLinkerWindow(zodiac::NodeHandle &node);
+
 private slots:
 
     ///
@@ -164,10 +170,20 @@ private: // members
     ///
     uint m_nodeIndex;
 
+    ///
+    /// \brief Handle saving and loading story and narrative graphs
+    ///
     saveandload m_saveAndLoadManager;
 
-    //pointer to carry out undo functions
+    ///
+    /// \brief For undoing and redoing actions
+    ///
     QUndoStack *m_pUndoStack;
+
+    ///
+    /// \brief For linking narrative and story 1nodes
+    ///
+    LinkerWindow *m_linkWindow;
 
     ///
     /// \brief handle the setting items (characters, locations, times)

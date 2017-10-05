@@ -23,6 +23,8 @@ NodeCtrl::NodeCtrl(MainCtrl* manager,  zodiac::NodeHandle node)
 
     connect(&m_node, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)),
             this, SLOT(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)));
+
+    connect(&m_node, SIGNAL(openLinker()), this, SLOT(openLinker()));
 }
 
 void NodeCtrl::rename(const QString& name)
@@ -288,6 +290,11 @@ bool NodeCtrl::remove()
 void NodeCtrl::createStoryChild(zodiac::StoryNodeType type, QString name, QString description, QPoint &relativePos)
 {
     m_manager->createStoryNode(this, type, name, description, relativePos);
+}
+
+void NodeCtrl::openLinker()
+{
+    m_manager->showLinkerWindow(getNodeHandle());
 }
 
 zodiac::PlugHandle NodeCtrl::addPlug(const QString& name, bool incoming)

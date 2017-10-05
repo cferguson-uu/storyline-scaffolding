@@ -1229,3 +1229,9 @@ void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
          }
      }*/
 }
+
+void MainCtrl::showLinkerWindow(zodiac::NodeHandle &node)
+{
+    m_linkWindow = new LinkerWindow(node, m_scene.getNodes(), qobject_cast<QWidget*>(parent()));
+    m_linkWindow->show();
+}
