@@ -229,7 +229,6 @@ private: // static members
     /// \brief Default node name. "Node_" will result in a default name of "Node_12" for example.
     ///
     static QString s_defaultName;
-
 };
 
 #endif // NODEMANAGER_H

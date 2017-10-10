@@ -983,6 +983,28 @@ void MainCtrl::loadNarrativeGraph()
 {
     m_saveAndLoadManager.DeleteAllNarrativeItems(); //reset the holder
 
+    float xPos = 0;
+    float yPos = 0;
+
+    QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
+
+    if(currentNodes.size() > 0)    //make sure that narrative graph is placed below other nodes (such as story graph)
+    {
+        xPos = INFINITY;
+        yPos = -INFINITY;
+
+        for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+        {
+            QPointF nodePos = (*cNIt).getPos();
+
+            if(nodePos.x() < xPos)
+                xPos = nodePos.x();
+
+            if(nodePos.y() > yPos)
+                yPos = (nodePos.y() + 200);
+        }
+    }
+
     if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
     {
         //float relativeY = 0;
@@ -992,6 +1014,7 @@ void MainCtrl::loadNarrativeGraph()
         for(QList<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
         {
             NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
+            newNarNode->setPos(xPos, yPos);
 
             loadNarrativeCommands((*narIt), newNarNode);
 
