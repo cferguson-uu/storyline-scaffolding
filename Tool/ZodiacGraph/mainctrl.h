@@ -99,6 +99,10 @@ public: // methods
     ///
     bool shutdown();
 
+    void linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList);
+
+    void linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList);
+
 public slots:
 
     ///
@@ -183,7 +187,7 @@ private: // members
     ///
     /// \brief For linking narrative and story 1nodes
     ///
-    LinkerWindow *m_linkWindow;
+    LinkerWindow *m_linkWindow = nullptr;
 
     ///
     /// \brief handle the setting items (characters, locations, times)

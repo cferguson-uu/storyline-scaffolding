@@ -10,11 +10,15 @@
 
 #include <zodiacgraph/nodehandle.h>
 
+class MainCtrl;
+
 class LinkerWindow : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, QWidget *parent = 0);
+    explicit LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, MainCtrl *controller,
+                          void (MainCtrl::*linkNarrative) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&),
+                          void (MainCtrl::*linkStory) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&), QWidget *parent = 0);
 
 private:
     zodiac::NodeHandle m_mainNode;
@@ -25,6 +29,10 @@ private:
 
     QPushButton *m_saveBtn;
     QPushButton *m_cancelBtn;
+
+    MainCtrl *m_pController;
+    void (MainCtrl::*m_pLinkNarrative) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&);
+    void (MainCtrl::*m_pLinkStory) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&);
 };
 
 class NodeTab : public QWidget
@@ -34,10 +42,12 @@ class NodeTab : public QWidget
 public:
     explicit NodeTab(QList<zodiac::NodeHandle>, zodiac::NodeType, QWidget *parent = 0);
 
+    QList<zodiac::NodeHandle> getSelectedNodes();
+
 private:
     QList<zodiac::NodeHandle> m_nodeList;
     zodiac::NodeType m_nodeType;
-    QList<QCheckBox*> checkboxes;
+    QList<QCheckBox*> m_checkboxes;
 };
 
 #endif // LINKERWINDOW_H

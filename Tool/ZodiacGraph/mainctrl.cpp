@@ -1232,6 +1232,62 @@ void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
 
 void MainCtrl::showLinkerWindow(zodiac::NodeHandle &node)
 {
-    m_linkWindow = new LinkerWindow(node, m_scene.getNodes(), qobject_cast<QWidget*>(parent()));
+    if(m_linkWindow)
+    {
+        delete m_linkWindow;
+        m_linkWindow = nullptr;
+    }
+
+    m_linkWindow = new LinkerWindow(node, m_scene.getNodes(), this, &MainCtrl::linkNarrativeNodes, &MainCtrl::linkStoryNodes, qobject_cast<QWidget*>(parent()));
     m_linkWindow->show();
+}
+
+void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList)
+{
+    //if node list is more than one, make a seq node then link them
+    zodiac::NodeHandle *nodePtr;
+
+    if(nodeList.size() > 1)
+    {
+        nodePtr = &createNode(zodiac::STORY_NONE, "SEQ", "")->getNodeHandle();
+        nodePtr->setIdleColor(QColor(255, 204, 0));
+        nodePtr->setSelectedColor(QColor(255, 153, 0));
+
+        nodePtr->createIncomingPlug("reqIn");
+
+        if(node.getPlug("reqOut").isValid())
+            node.getPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
+        else
+            node.createOutgoingPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
+    }
+    else
+        nodePtr = &node;
+
+    for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++ nodeIt)
+    {
+        //if inverse then add an inverse node - will add later
+
+        //make plugs and connections
+        if(!(*nodeIt).getPlug("reqIn").isValid())
+            (*nodeIt).createIncomingPlug("reqIn");
+
+        if(nodePtr->getPlug("reqOut").isValid())
+            nodePtr->getPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
+        else
+            nodePtr->createOutgoingPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
+    }
+}
+
+void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList)
+{
+    for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++ nodeIt)
+    {
+        //make plugs and connect
+        if(!node.getPlug("storyOut").isValid())
+            node.createOutgoingPlug("storyOut");
+        if(!(*nodeIt).getPlug("narrativeIn").isValid())
+            (*nodeIt).createIncomingPlug("narrativeIn");
+
+        node.getPlug("storyOut").connectPlug((*nodeIt).getPlug("narrativeIn")); //connect nodes
+    }
 }

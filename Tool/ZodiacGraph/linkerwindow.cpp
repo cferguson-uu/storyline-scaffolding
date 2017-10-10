@@ -1,10 +1,16 @@
 #include "linkerwindow.h"
+#include "mainctrl.h"
 
 #include <QScrollArea>
 
-LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, QWidget *parent)
+LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, MainCtrl *controller,
+                           void (MainCtrl::*linkNarrative) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&),
+                           void (MainCtrl::*linkStory) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&), QWidget *parent)
     : QDialog(parent)
     , m_mainNode(node)
+    , m_pController(controller)
+    , m_pLinkNarrative(linkNarrative)
+    , m_pLinkStory(linkStory)
 {
     //separate both types of nodes
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
@@ -31,11 +37,17 @@ LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &
     }
 
     m_tabWidget = new QTabWidget;
-    m_tabWidget->addTab(new NodeTab(m_narrativeNodeList, zodiac::NODE_NARRATIVE, parent), tr("Narrative"));
-    m_tabWidget->addTab(new NodeTab(m_storyNodeList, zodiac::NODE_STORY, parent), tr("Story"));
+
+    NodeTab* narrativeTab = new NodeTab(m_narrativeNodeList, zodiac::NODE_NARRATIVE, parent);
+    NodeTab* storyTab = new NodeTab(m_storyNodeList, zodiac::NODE_STORY, parent);
+    m_tabWidget->addTab(narrativeTab, tr("Narrative"));
+    m_tabWidget->addTab(storyTab, tr("Story"));
 
     m_saveBtn = new QPushButton("Save");
     m_cancelBtn = new QPushButton("Cancel");
+
+    connect(m_saveBtn, &QPushButton::released, [=]{m_pController->linkNarrativeNodes(m_mainNode, narrativeTab->getSelectedNodes()); m_pController->linkStoryNodes(m_mainNode, storyTab->getSelectedNodes()); this->hide();});
+    connect(m_cancelBtn, &QPushButton::released, [=]{this->hide();});
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(m_tabWidget);
@@ -61,7 +73,7 @@ NodeTab::NodeTab(QList<zodiac::NodeHandle> nodeList, zodiac::NodeType nodeType, 
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
     {
         QCheckBox *checkBox = new QCheckBox((*nodeIt).getName());
-        checkboxes.push_back(checkBox);
+        m_checkboxes.push_back(checkBox);
         nodeLayout->addWidget(checkBox, x, y);
 
         ++x;
@@ -84,4 +96,23 @@ NodeTab::NodeTab(QList<zodiac::NodeHandle> nodeList, zodiac::NodeType nodeType, 
     setLayout(mainLayout);
 
 
+}
+
+QList<zodiac::NodeHandle> NodeTab::getSelectedNodes()
+{
+    QList<zodiac::NodeHandle> checkedNodes;
+
+    for(QList<QCheckBox*>::iterator checkboxIt = m_checkboxes.begin(); checkboxIt != m_checkboxes.end(); ++checkboxIt)
+    {
+        if((*checkboxIt)->isChecked())
+            for(QList<zodiac::NodeHandle>::iterator nodeIt = m_nodeList.begin(); nodeIt != m_nodeList.end(); ++nodeIt)
+            {
+                if((*nodeIt).getName() == (*checkboxIt)->text())
+                {
+                    checkedNodes.push_back((*nodeIt));
+                }
+            }
+    }
+
+    return checkedNodes;
 }
