@@ -984,33 +984,37 @@ void MainCtrl::loadNarrativeGraph()
 {
     m_saveAndLoadManager.DeleteAllNarrativeItems(); //reset the holder
 
-    float xPos = 0;
-    float yPos = 0;
-
-    QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
-
-    if(currentNodes.size() > 0)    //make sure that narrative graph is placed below other nodes (such as story graph)
-    {
-        xPos = INFINITY;
-        yPos = -INFINITY;
-
-        for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
-        {
-            QPointF nodePos = (*cNIt).getPos();
-
-            if(nodePos.x() < xPos)
-                xPos = nodePos.x();
-
-            if(nodePos.y() > yPos)
-                yPos = (nodePos.y() + 200);
-        }
-    }
-
     if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
     {
-        //float relativeY = 0;
+        float xPos = 0;
+        float yPos = 0;
+
+        QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
+        QList<zodiac::NodeHandle> currentNarSceneNodes;
+
+        if(currentNodes.size() > 0)    //make sure that narrative graph is placed below other nodes (such as story graph)
+        {
+            xPos = INFINITY;
+            yPos = -INFINITY;
+
+            for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+            {
+                QPointF nodePos = (*cNIt).getPos();
+
+                if(nodePos.x() < xPos)
+                    xPos = nodePos.x();
+
+                if(nodePos.y() > yPos)
+                    yPos = (nodePos.y() + 200);
+
+                //also save all current narrative nodes to a separate list in case two parts of the same narrative are loaded separately, for requirements
+                currentNarSceneNodes.push_back(*(cNIt));
+
+            }
+        }
+
         QList<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
-        QList<NodeCtrl*> sceneNodes;
+        QList<NodeCtrl*> newNarSceneNodes;
 
         for(QList<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
         {
@@ -1024,13 +1028,24 @@ void MainCtrl::loadNarrativeGraph()
                 //qDebug() << (*narIt).id << " requirements";
 
                 zodiac::PlugHandle reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
-                loadRequirements((*narIt).requirements, reqOutPlug, sceneNodes);
+                loadRequirements((*narIt).requirements, reqOutPlug, newNarSceneNodes, currentNarSceneNodes);
             }
 
-            sceneNodes.push_back(newNarNode);
+            newNarSceneNodes.push_back(newNarNode);
         }
 
-        spaceOutNarrative((*sceneNodes.begin()));
+        if(currentNarSceneNodes.size() > 0)
+        {
+            //look for starting nodes (ones with no requirements) and space them out
+            for(QList<zodiac::NodeHandle>::iterator narIt = currentNarSceneNodes.begin(); narIt != currentNarSceneNodes.end(); ++narIt)
+            {
+                if(!(*narIt).getPlug("reqOut").isValid())
+                    spaceOutNarrative(new NodeCtrl(this, (*narIt)));
+            }
+        }
+
+        //space out new nodes
+        spaceOutNarrative((*newNarSceneNodes.begin()));
     }
 }
 
@@ -1071,7 +1086,7 @@ void MainCtrl::loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode)
 
 }
 
-void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes)
+void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, QList<zodiac::NodeHandle> &currentNarSceneNodes)
 {
     //parentReqOutPlug.getNode().setPos(parentReqOutPlug.getNode().getPos().x(), parentReqOutPlug.getNode().getPos().y() + relativeY);
 
@@ -1106,7 +1121,28 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                 }
 
             if(!found)
-                qDebug() << "Warning. Node:" << requirements.id << "not found!";
+            {
+                qDebug() << "Warning. Node:" << requirements.id << "not found in loaded list, checking scene nodes.";
+
+                for(QList<zodiac::NodeHandle>::iterator nodeIt = currentNarSceneNodes.begin(); nodeIt != currentNarSceneNodes.end(); ++nodeIt)
+                    if((*nodeIt).getName() == requirements.id)
+                    {
+                        newRequirementNode = new NodeCtrl(this, (*nodeIt));;
+
+                        zodiac::PlugHandle nodeReqInPlug;
+
+                        if((*nodeIt).getPlug("reqIn").isValid())
+                            nodeReqInPlug = (*nodeIt).getPlug("reqIn");
+                        else
+                            nodeReqInPlug = (*nodeIt).createIncomingPlug("reqIn");
+                        parentReqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                        found  = true;
+                        break;
+                    }
+
+                if(!found)
+                    qDebug() << "Warning. Node:" << requirements.id << "not found!";
+            }
         }
     }
     else
@@ -1164,7 +1200,26 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                 }
 
             if(!found)
-                qDebug() << "Warning. Node:" << requirements.id << "not found!";
+            {
+                qDebug() << "Warning. Node:" << requirements.id << "not found in loaded list, checking scene nodes.";
+
+                for(QList<zodiac::NodeHandle>::iterator nodeIt = currentNarSceneNodes.begin(); nodeIt != currentNarSceneNodes.end(); ++nodeIt)
+                    if((*nodeIt).getName() == requirements.id)
+                    {
+                        zodiac::PlugHandle nodeReqInPlug;
+
+                        if((*nodeIt).getPlug("reqIn").isValid())
+                            nodeReqInPlug = (*nodeIt).getPlug("reqIn");
+                        else
+                            nodeReqInPlug = (*nodeIt).createIncomingPlug("reqIn");
+                        parentReqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                        found  = true;
+                        break;
+                    }
+
+                if(!found)
+                    qDebug() << "Warning. Node:" << requirements.id << "not found!";
+            }
         }
 
         float childrenSize = requirements.children.size();
@@ -1180,7 +1235,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                         reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //make the out plug if it doesn't exist
                 }
 
-                loadRequirements((*reqIt), reqOutPlug, sceneNodes);
+                loadRequirements((*reqIt), reqOutPlug, sceneNodes, currentNarSceneNodes);
             }
         }
     }

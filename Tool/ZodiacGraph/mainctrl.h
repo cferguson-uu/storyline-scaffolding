@@ -217,7 +217,7 @@ private: // members
     void saveResolution(zodiac::NodeHandle &parent);
 
     void loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode);
-    void loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes);
+    void loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, QList<zodiac::NodeHandle> &currentNarSceneNodes);
     void spaceOutNarrative(NodeCtrl* sceneNode);
 
     void saveCommands(NarNode *narNode, zodiac::NodeHandle &sceneNode);
