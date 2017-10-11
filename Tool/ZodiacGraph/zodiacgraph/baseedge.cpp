@@ -122,12 +122,12 @@ QPainterPath BaseEdge::shape() const
 
 void BaseEdge::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    if(m_label){
+    /*if(m_label){
         m_secondaryFadeIn.setStartValue(m_secondaryOpacity);
         m_secondaryFadeIn.setDuration((1.0-m_secondaryOpacity)*m_secondaryFadeInDuration);
         m_secondaryFadeIn.setEasingCurve(m_secondaryFadeInCurve);
         m_secondaryFadeIn.start();
-    }
+    }*/
     QGraphicsObject::hoverEnterEvent(event);
 }
 

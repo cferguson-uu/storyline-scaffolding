@@ -457,8 +457,8 @@ void NodeProperties::addPlugRow(zodiac::PlugHandle plug)
     directionButton->setStatusTip("Toggle the direction of the Plug from 'incoming' to 'outoing' and vice versa.");
     m_plugLayout->addWidget(directionButton, row, 0);
 
-    QLineEdit* plugNameEdit = new QLineEdit(plug.getName(), this);
-    m_plugLayout->addWidget(plugNameEdit, row, 1);
+    QLabel* plugName = new QLabel(plug.getName(), this);
+    m_plugLayout->addWidget(plugName, row, 1);
 
     QPushButton* removalButton = new QPushButton(this);
     removalButton->setIcon(QIcon(":/icons/minus.svg"));
@@ -467,7 +467,7 @@ void NodeProperties::addPlugRow(zodiac::PlugHandle plug)
     removalButton->setStatusTip("Delete the Plug from its Node");
     m_plugLayout->addWidget(removalButton, row, 2);
 
-    m_plugRows.insert(plug.getName(), new PlugRow(this, plug, plugNameEdit, directionButton, removalButton));
+    m_plugRows.insert(plug.getName(), new PlugRow(this, plug, plugName, directionButton, removalButton));
 }
 
 void NodeProperties::removePlugRow(const QString& plugName)
@@ -483,15 +483,15 @@ void NodeProperties::removeCommandRow(const QUuid& commandId, QHash<QUuid, Comma
 }
 
 PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug,
-                 QLineEdit* nameEdit, QPushButton* directionToggle, QPushButton* removalButton)
+                 QLabel* nameLabel, QPushButton* directionToggle, QPushButton* removalButton)
     : QObject(editor)
     , m_editor(editor)
     , m_plug(plug)
-    , m_nameEdit(nameEdit)
+    , m_nameLabel(nameLabel)
     , m_directionToggle(directionToggle)
     , m_removalButton(removalButton)
 {
-    connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renamePlug()));
+    //connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renamePlug()));
     connect(m_directionToggle, SIGNAL(clicked()), this, SLOT(togglePlugDirection()));
     connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removePlug()));
 
@@ -500,7 +500,7 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug,
 
 void PlugRow::renamePlug()
 {
-    m_nameEdit->setText(m_editor->getNode()->renamePlug(m_plug.getName(), m_nameEdit->text()));
+    m_nameLabel->setText(m_editor->getNode()->renamePlug(m_plug.getName(), m_nameLabel->text()));
 }
 
 void PlugRow::updateDirectionIcon()
@@ -533,12 +533,12 @@ void PlugRow::removePlug()
     // remove widgets from the editor
     QGridLayout* plugLayout = m_editor->getPlugLayout();
     plugLayout->removeWidget(m_directionToggle);
-    plugLayout->removeWidget(m_nameEdit);
+    plugLayout->removeWidget(m_nameLabel);
     plugLayout->removeWidget(m_removalButton);
 
     // delete the widgets, they are no longer needed
     m_directionToggle->deleteLater();
-    m_nameEdit->deleteLater();
+    m_nameLabel->deleteLater();
     m_removalButton->deleteLater();
 
     // finally, remove the plug from the logical node
