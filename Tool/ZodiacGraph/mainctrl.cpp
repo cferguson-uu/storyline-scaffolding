@@ -7,6 +7,7 @@
 #include "propertyeditor.h"
 #include "zodiacgraph/nodehandle.h"
 
+
 QString MainCtrl::s_defaultName = "Node ";
 
 MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, QUndoStack *undoStack)
@@ -1303,14 +1304,24 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
 
 void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList)
 {
-    for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++ nodeIt)
+    if(nodeList.size() > 0)
     {
-        //make plugs and connect
-        if(!node.getPlug("storyOut").isValid())
-            node.createOutgoingPlug("storyOut");
-        if(!(*nodeIt).getPlug("narrativeIn").isValid())
-            (*nodeIt).createIncomingPlug("narrativeIn");
+        for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
+        {
+            //make plugs and connect
+            if(!node.getPlug("storyOut").isValid())
+                node.createOutgoingPlug("storyOut");
+            if(!(*nodeIt).getPlug("narrativeIn").isValid())
+                (*nodeIt).createIncomingPlug("narrativeIn");
 
-        node.getPlug("storyOut").connectPlug((*nodeIt).getPlug("narrativeIn")); //connect nodes
+            node.getPlug("storyOut").connectPlug((*nodeIt).getPlug("narrativeIn")); //connect nodes
+        }
+
+
+        QSet<zodiac::PlugEdge*> edgeList = node.getPlug("storyOut").getEdges();
+        for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
+        {
+            (*plugIt)->setBaseColor(QColor(0, 184, 13));
+        }
     }
 }

@@ -29,7 +29,9 @@
 #include <QObject>
 #include <QHash>
 #include <QUndoStack>
+#include <QSet>
 
+#include "zodiacgraph/plugedge.h"
 #include "zodiacgraph/nodehandle.h"
 #include "zodiacgraph/scenehandle.h"
 

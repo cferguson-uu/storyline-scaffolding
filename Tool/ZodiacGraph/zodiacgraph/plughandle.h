@@ -38,6 +38,7 @@ namespace zodiac {
 
 class NodeHandle;
 class Plug;
+class PlugEdge;
 class SceneHandle;
 
 ///
@@ -204,6 +205,9 @@ public: // methods
     /// \return Scene handle.
     ///
     SceneHandle getScene() const;
+
+    //get the edges of the plug
+    QSet<PlugEdge*> getEdges();
 
 public slots:
 

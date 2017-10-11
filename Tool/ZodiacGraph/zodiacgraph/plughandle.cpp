@@ -231,6 +231,18 @@ SceneHandle PlugHandle::getScene() const
     return SceneHandle(m_plug->getNode()->getScene());
 }
 
+QSet<PlugEdge*> PlugHandle::getEdges()
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return QSet<PlugEdge*>();
+    }
+#endif
+    return m_plug->getEdges();
+}
+
 void PlugHandle::connectSignals()
 {
     if(!m_isValid){

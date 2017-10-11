@@ -251,6 +251,9 @@ public: // methods
     ///
     qreal getArrangementPriority();
 
+    //get plug edges
+    inline QSet<PlugEdge*> getEdges(){return m_edges;}
+
 signals:
 
     ///
