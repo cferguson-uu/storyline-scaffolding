@@ -1029,6 +1029,12 @@ void MainCtrl::loadNarrativeGraph()
 
                 zodiac::PlugHandle reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
                 loadRequirements((*narIt).requirements, reqOutPlug, newNarSceneNodes, currentNarSceneNodes);
+
+                QSet<zodiac::PlugEdge*> edgeList = newNarNode->getNodeHandle().getPlug("reqOut").getEdges();
+                for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
+                {
+                    (*plugIt)->setBaseColor(QColor(66, 134, 244));
+                }
             }
 
             newNarSceneNodes.push_back(newNarNode);
@@ -1091,7 +1097,6 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
     //parentReqOutPlug.getNode().setPos(parentReqOutPlug.getNode().getPos().x(), parentReqOutPlug.getNode().getPos().y() + relativeY);
 
     NodeCtrl* newRequirementNode;
-
 
     if(requirements.type == REQ_LEAF)
     {
@@ -1238,6 +1243,12 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                 loadRequirements((*reqIt), reqOutPlug, sceneNodes, currentNarSceneNodes);
             }
         }
+
+        QSet<zodiac::PlugEdge*> edgeList = newRequirementNode->getNodeHandle().getPlug("reqOut").getEdges();
+        for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
+        {
+            (*plugIt)->setBaseColor(QColor(66, 134, 244));
+        }
     }
 }
 
@@ -1354,6 +1365,12 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
             nodePtr->getPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
         else
             nodePtr->createOutgoingPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
+
+        QSet<zodiac::PlugEdge*> edgeList = nodePtr->getPlug("reqOut").getEdges();
+        for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
+        {
+            (*plugIt)->setBaseColor(QColor(66, 134, 244));
+        }
     }
 }
 
