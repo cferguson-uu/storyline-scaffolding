@@ -128,92 +128,89 @@ public: // methods
     /// Is part of the scene-wide cascade of %updateStyle()-calls after a re-styling of the ZodiacGraph.
     ///
     virtual void updateStyle();
-
-public: // static methods
-
     ///
     /// \brief The width of a default edge in the graph in pixels.
     ///
     /// \return Width of an edge.
     ///
-    static inline qreal getBaseWidth() {return s_width;}
+    inline qreal getBaseWidth() {return m_width;}
 
     ///
     /// \brief Sets the width of all BaseEdges in the graph.
     ///
     /// \param [in] width    New edge width in pixels.
     ///
-    static inline void setBaseWidth(qreal width) {s_width=width; s_pen.setWidthF(s_width);}
+    inline void setBaseWidth(qreal width) {m_width=width; m_pen.setWidthF(m_width);}
 
     ///
     /// \brief The line color of a default edge in the graph.
     ///
     /// \return Color of an edge.
     ///
-    static inline QColor getBaseColor() {return s_color;}
+    inline QColor getBaseColor() {return m_color;}
 
     ///
     /// \brief Sets a new line color of all BaseEdges in the graph.
     ///
     /// \param [in] color    New edge color.
     ///
-    static inline void setBaseColor(const QColor& color) {s_color=color; s_pen.setColor(color);}
+    inline void setBaseColor(const QColor& color) {m_color=color; m_pen.setColor(color);}
 
     ///
     /// \brief Duration of the secondary edge items to fade-in when the mouse enters the edge.
     ///
     /// \return Secondary items fade-in duration.
     ///
-    static inline qreal getSecondaryFadeInDuration() {return s_secondaryFadeInDuration;}
+    inline qreal getSecondaryFadeInDuration() {return m_secondaryFadeInDuration;}
 
     ///
     /// \brief Sets a new duration of the secondary edge items to fade-in when the mouse enters the edge.
     ///
     /// \param [in] duration Duration of the fade-in milliseconds.
     ///
-    static inline void setSecondaryFadeInDuration(qreal duration) {s_secondaryFadeInDuration=duration;}
+    inline void setSecondaryFadeInDuration(qreal duration) {m_secondaryFadeInDuration=duration;}
 
     ///
     /// \brief Duration of the secondary edge items to fade-out after the mouse has left the edge.
     ///
     /// \return Secondary items fade-out duration.
     ///
-    static inline qreal getSecondaryFadeOutDuration() {return s_secondaryFadeOutDuration;}
+    inline qreal getSecondaryFadeOutDuration() {return m_secondaryFadeOutDuration;}
 
     ///
     /// \brief Sets a new duration of the secondary edge items to fade-out after the mouse has left the edge.
     ///
     /// \param [in] duration Duration of the fade-in milliseconds.
     ///
-    static inline void setSecondaryFadeOutDuration(qreal duration) {s_secondaryFadeOutDuration=duration;}
+    inline void setSecondaryFadeOutDuration(qreal duration) {m_secondaryFadeOutDuration=duration;}
 
     ///
     /// \brief Ease animation curve for the secondary edge items' fade-in animation.
     ///
     /// \return Fade-in easing curve.
     ///
-    static inline QEasingCurve getSecondaryFadeInCurve() {return s_secondaryFadeInCurve;}
+    inline QEasingCurve getSecondaryFadeInCurve() {return m_secondaryFadeInCurve;}
 
     ///
     /// \brief Sets a new ease animation curve for the secondary edge items' fade-in animation.
     ///
     /// \param [in] curve    New animation curve for the fade-in animation.
     ///
-    static inline void setSecondaryFadeInCurve(QEasingCurve curve) {s_secondaryFadeInCurve=curve;}
+    inline void setSecondaryFadeInCurve(QEasingCurve curve) {m_secondaryFadeInCurve=curve;}
 
     ///
     /// \brief Ease animation curve for the secondary edge items' fade-out animation.
     ///
     /// \return Fade-out easing curve.
     ///
-    static inline QEasingCurve getSecondaryFadeOutCurve() {return s_secondaryFadeOutCurve;}
+    inline QEasingCurve getSecondaryFadeOutCurve() {return m_secondaryFadeOutCurve;}
 
     ///
     /// \brief Sets a new ease animation curve for the secondary edge items' fade-out animation.
     ///
     /// \param [in] curve    New animation curve for the fade-out animation.
     ///
-    static inline void setSecondarylFadeOutCurve(QEasingCurve curve) {s_secondaryFadeOutCurve=curve;}
+    inline void setSecondarylFadeOutCurve(QEasingCurve curve) {m_secondaryFadeOutCurve=curve;}
 
 protected: // methods
 
@@ -305,7 +302,7 @@ protected: // members
     qreal m_secondaryOpacity;
 
 protected: // static members
-
+/*
     ///
     /// \brief Width of the edge line.
     ///
@@ -339,7 +336,15 @@ protected: // static members
     ///
     /// \brief Pen used to draw all DrawEdge%s.
     ///
-    static QPen s_pen;
+    static QPen s_pen;*/
+
+    qreal m_width = 2.5;
+    QColor m_color = QColor("#cc5d4e");
+    qreal m_secondaryFadeInDuration = 200.;
+    qreal m_secondaryFadeOutDuration = 400.;
+    QEasingCurve m_secondaryFadeInCurve = QEasingCurve::OutQuart;
+    QEasingCurve m_secondaryFadeOutCurve = QEasingCurve::InCubic;
+    QPen BaseEdge::m_pen = QPen(QBrush(m_color), m_width, Qt::SolidLine, Qt::RoundCap);
 
 private: // members
 
@@ -347,7 +352,6 @@ private: // members
     /// \brief Label of this BaseEdge, can be <i>nullptr</i>.
     ///
     EdgeLabel* m_label;
-
 };
 
 } // namespace zodiac

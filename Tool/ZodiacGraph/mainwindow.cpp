@@ -207,10 +207,10 @@ void MainWindow::readSettings()
     // apply ZodiacGraph settings
     settings.beginGroup("zodiac");
 
-    settings.beginGroup("baseEdge");
+    /*settings.beginGroup("baseEdge");
     zodiac::BaseEdge::setBaseWidth(settings.value("width", 2.5).toReal());
     zodiac::BaseEdge::setBaseColor(settings.value("color", "#cc5d4e").toString());
-    settings.endGroup();
+    settings.endGroup();*/
 
     settings.beginGroup("edgeArrow");
     zodiac::EdgeArrow::defineArrow(settings.value("length", 12).toReal(), settings.value("width", 15).toReal());
@@ -307,10 +307,10 @@ void MainWindow::writeSettings()
     // write out ZodiacGraph settings
     settings.beginGroup("zodiac");
 
-    settings.beginGroup("baseEdge");
+    /*settings.beginGroup("baseEdge");
     settings.setValue("width", zodiac::BaseEdge::getBaseWidth());
     settings.setValue("color", zodiac::BaseEdge::getBaseColor().name());
-    settings.endGroup();
+    settings.endGroup();*/
 
     settings.beginGroup("edgeArrow");
     settings.setValue("width", zodiac::EdgeArrow::getArrowWidth());

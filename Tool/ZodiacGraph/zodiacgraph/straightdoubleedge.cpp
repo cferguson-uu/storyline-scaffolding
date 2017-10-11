@@ -32,7 +32,7 @@ void StraightDoubleEdge::updateShape()
     // calculate the perpendicular edge offset
     QVector2D direction = QVector2D(m_endPoint-m_startPoint);
     direction.normalize();
-    QPointF offset = QPointF(-direction.y(), direction.x()) * s_width;
+    QPointF offset = QPointF(-direction.y(), direction.x()) * m_width;
 
     // update the path
     QPainterPath doubleLine;

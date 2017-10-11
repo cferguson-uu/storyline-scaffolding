@@ -10,13 +10,13 @@
 
 namespace zodiac {
 
-qreal BaseEdge::s_width = 2.5;
+/*qreal BaseEdge::s_width = 2.5;
 QColor BaseEdge::s_color = QColor("#cc5d4e");
 qreal BaseEdge::s_secondaryFadeInDuration = 200.;
 qreal BaseEdge::s_secondaryFadeOutDuration = 400.;
 QEasingCurve BaseEdge::s_secondaryFadeInCurve = QEasingCurve::OutQuart;
 QEasingCurve BaseEdge::s_secondaryFadeOutCurve = QEasingCurve::InCubic;
-QPen BaseEdge::s_pen = QPen(QBrush(s_color), s_width, Qt::SolidLine, Qt::RoundCap);
+QPen BaseEdge::s_pen = QPen(QBrush(s_color), s_width, Qt::SolidLine, Qt::RoundCap);*/
 
 BaseEdge::BaseEdge(Scene* scene)
     : QGraphicsObject(nullptr)
@@ -27,6 +27,14 @@ BaseEdge::BaseEdge(Scene* scene)
     , m_label(nullptr)
 {
     m_scene->addItem(this);
+
+    m_width = 2.5;
+    m_color = QColor("#cc5d4e");
+    m_secondaryFadeInDuration = 200.;
+    m_secondaryFadeOutDuration = 400.;
+    m_secondaryFadeInCurve = QEasingCurve::OutQuart;
+    m_secondaryFadeOutCurve = QEasingCurve::InCubic;
+    m_pen = QPen(QBrush(m_color), m_width, Qt::SolidLine, Qt::RoundCap);
 
     // edges are always behind nodes
     setZValue(zStack::EDGE);
@@ -96,28 +104,28 @@ void BaseEdge::updateStyle()
 
 QRectF BaseEdge::boundingRect() const
 {
-    qreal overdraw = s_width/2.;
+    qreal overdraw = m_width/2.;
     return m_path.boundingRect().marginsAdded(QMarginsF(overdraw,overdraw,overdraw,overdraw));
 }
 
 void BaseEdge::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* /* widget */)
 {
     painter->setClipRect(option->exposedRect);
-    painter->setPen(s_pen);
+    painter->setPen(m_pen);
     painter->drawPath(m_path);
 }
 
 QPainterPath BaseEdge::shape() const
 {
-    return QPainterPathStroker(s_pen).createStroke(m_path);
+    return QPainterPathStroker(m_pen).createStroke(m_path);
 }
 
 void BaseEdge::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
     if(m_label){
         m_secondaryFadeIn.setStartValue(m_secondaryOpacity);
-        m_secondaryFadeIn.setDuration((1.0-m_secondaryOpacity)*s_secondaryFadeInDuration);
-        m_secondaryFadeIn.setEasingCurve(s_secondaryFadeInCurve);
+        m_secondaryFadeIn.setDuration((1.0-m_secondaryOpacity)*m_secondaryFadeInDuration);
+        m_secondaryFadeIn.setEasingCurve(m_secondaryFadeInCurve);
         m_secondaryFadeIn.start();
     }
     QGraphicsObject::hoverEnterEvent(event);
@@ -127,8 +135,8 @@ void BaseEdge::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
     if(m_label){
         m_secondaryFadeOut.setStartValue(m_secondaryOpacity);
-        m_secondaryFadeOut.setDuration(m_secondaryOpacity*s_secondaryFadeOutDuration);
-        m_secondaryFadeOut.setEasingCurve(s_secondaryFadeOutCurve);
+        m_secondaryFadeOut.setDuration(m_secondaryOpacity*m_secondaryFadeOutDuration);
+        m_secondaryFadeOut.setEasingCurve(m_secondaryFadeOutCurve);
         m_secondaryFadeOut.start();
     }
     QGraphicsObject::hoverLeaveEvent(event);
