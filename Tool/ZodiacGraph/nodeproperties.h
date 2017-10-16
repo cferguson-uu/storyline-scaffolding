@@ -239,8 +239,8 @@ public: // methods
     /// \param [in] directionToggle Plug-direction toggle button.
     /// \param [in] removalButton   Plug-removal button.
     ///
-    PlugRow(NodeProperties *editor, zodiac::PlugHandle plug,
-            QLabel *nameLabel, QPushButton *directionToggle, QPushButton *removalButton);
+    PlugRow(NodeProperties *editor, zodiac::PlugHandle plug, QLabel *nameLabel,
+            QPushButton *directionToggle, QPushButton *removalButton, QGridLayout *rowLayout);
 
 private slots:
 
@@ -296,12 +296,12 @@ private: // members
     ///
     /// \brief List of story connections
     ///
-    QList<QPair<QLabel*, QPushButton>> storyConnections;
+    QList<QPair<QLabel*, QPushButton*>> m_storyConnections;
 
     ///
     /// \brief List of narrative connections
     ///
-    QList<QPair<QLabel*, QPushButton>> narrativeConnections;
+    QList<QPair<QLabel*, QPushButton*>> m_narrativeConnections;
 };
 
 class CommandRow : public QObject

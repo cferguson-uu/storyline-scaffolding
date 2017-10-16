@@ -451,23 +451,30 @@ void NodeProperties::addPlugRow(zodiac::PlugHandle plug)
 {
     int row = m_plugLayout->rowCount();
 
+    QGridLayout *rowLayout = new QGridLayout();
+
     QPushButton* directionButton = new QPushButton(this);
     directionButton->setIconSize(QSize(16, 16));
     directionButton->setFlat(true);
     directionButton->setStatusTip("Toggle the direction of the Plug from 'incoming' to 'outoing' and vice versa.");
-    m_plugLayout->addWidget(directionButton, row, 0);
+    //m_plugLayout->addWidget(directionButton, row, 0);
+    rowLayout->addWidget(directionButton, 0, 0);
 
     QLabel* plugName = new QLabel(plug.getName(), this);
-    m_plugLayout->addWidget(plugName, row, 1);
+    //m_plugLayout->addWidget(plugName, row, 1);
+    rowLayout->addWidget(plugName, 0, 1);
 
     QPushButton* removalButton = new QPushButton(this);
     removalButton->setIcon(QIcon(":/icons/minus.svg"));
     removalButton->setIconSize(QSize(8, 8));
     removalButton->setFlat(true);
     removalButton->setStatusTip("Delete the Plug from its Node");
-    m_plugLayout->addWidget(removalButton, row, 2);
+    //m_plugLayout->addWidget(removalButton, row, 2);
+    rowLayout->addWidget(removalButton, 0, 2);
 
-    m_plugRows.insert(plug.getName(), new PlugRow(this, plug, plugName, directionButton, removalButton));
+    m_plugLayout->addLayout(rowLayout, row, 0);
+
+    m_plugRows.insert(plug.getName(), new PlugRow(this, plug, plugName, directionButton, removalButton, rowLayout));
 }
 
 void NodeProperties::removePlugRow(const QString& plugName)
@@ -482,8 +489,8 @@ void NodeProperties::removeCommandRow(const QUuid& commandId, QHash<QUuid, Comma
     commandRows->remove(commandId);
 }
 
-PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug,
-                 QLabel* nameLabel, QPushButton* directionToggle, QPushButton* removalButton)
+PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLabel,
+                 QPushButton* directionToggle, QPushButton* removalButton, QGridLayout *rowLayout)
     : QObject(editor)
     , m_editor(editor)
     , m_plug(plug)
@@ -494,6 +501,52 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug,
     //connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renamePlug()));
     connect(m_directionToggle, SIGNAL(clicked()), this, SLOT(togglePlugDirection()));
     connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removePlug()));
+
+    int row = rowLayout->rowCount();
+
+    if(plug.getName() == "story")
+    {
+        QList<zodiac::PlugHandle> connections =  plug.getConnectedPlugs();
+        for(QList<zodiac::PlugHandle>::iterator conIt = connections.begin(); conIt != connections.end(); ++conIt)
+        {
+            QLabel *connectionLabel = new QLabel((*conIt).getNode().getName());
+            QPushButton* connectionButton = new QPushButton();
+            removalButton->setIcon(QIcon(":/icons/minus.svg"));
+            removalButton->setIconSize(QSize(8, 8));
+            removalButton->setFlat(true);
+            removalButton->setStatusTip("Delete the Connection");
+
+            rowLayout->addWidget(connectionLabel, row, 0);
+            rowLayout->addWidget(connectionButton, row, 1);
+            ++row;
+
+            connect(connectionButton, &QPushButton::released, [=]{});
+
+            m_storyConnections.push_back(qMakePair(connectionLabel, connectionButton));
+        }
+    }
+
+    if(plug.getName() == "narrative")
+    {
+        QList<zodiac::PlugHandle> connections =  plug.getConnectedPlugs();
+        for(QList<zodiac::PlugHandle>::iterator conIt = connections.begin(); conIt != connections.end(); ++conIt)
+        {
+            QLabel *connectionLabel = new QLabel((*conIt).getNode().getName());
+            QPushButton* connectionButton = new QPushButton();
+            removalButton->setIcon(QIcon(":/icons/minus.svg"));
+            removalButton->setIconSize(QSize(8, 8));
+            removalButton->setFlat(true);
+            removalButton->setStatusTip("Delete the Connection");
+
+            rowLayout->addWidget(connectionLabel, row, 0);
+            rowLayout->addWidget(connectionButton, row, 1);
+            ++row;
+
+            connect(connectionButton, &QPushButton::released, [=]{});
+
+            m_narrativeConnections.push_back(qMakePair(connectionLabel, connectionButton));
+        }
+    }
 
     updateDirectionIcon();
 }
