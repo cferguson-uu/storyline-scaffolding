@@ -110,11 +110,11 @@ NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type
         child->setPos(pos.x(), pos.y());
 
     //if the out plug doesn't exist, make one
-    zodiac::PlugHandle ParentNodeOutPlug = parent->getNodeHandle().getPlug("out");
+    zodiac::PlugHandle ParentNodeOutPlug = parent->getNodeHandle().getPlug("storyOut");
     if(!ParentNodeOutPlug.isValid())
-        ParentNodeOutPlug = parent->getNodeHandle().createOutgoingPlug("out");
+        ParentNodeOutPlug = parent->getNodeHandle().createOutgoingPlug("storyOut");
 
-    zodiac::PlugHandle childNodeInPlug = child->getNodeHandle().createIncomingPlug("in");
+    zodiac::PlugHandle childNodeInPlug = child->getNodeHandle().createIncomingPlug("storyIn");
 
     ParentNodeOutPlug.connectPlug(childNodeInPlug);
 
@@ -188,14 +188,14 @@ void MainCtrl::saveStoryGraph()
     m_saveAndLoadManager.setStoryName(mainStoryNode->getName());
 
     //save settings nodes
-    QList<zodiac::PlugHandle> connectedPlugs = settingNode->getPlug("out").getConnectedPlugs();
+    QList<zodiac::PlugHandle> connectedPlugs = settingNode->getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
     {
         saveSettingItem((*connectedPlugIt).getNode());
     }
 
     //save theme nodes
-    connectedPlugs = themeNode->getPlug("out").getConnectedPlugs();
+    connectedPlugs = themeNode->getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
     {
         saveThemeItem((*connectedPlugIt).getNode());
@@ -203,7 +203,7 @@ void MainCtrl::saveStoryGraph()
 
     //get plot node
     //get each episode node - store, store subgoal, iterate through attempts, store these and sub episodes, same with outcomes
-    connectedPlugs = plotNode->getPlug("out").getConnectedPlugs();
+    connectedPlugs = plotNode->getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
     {
         savePlotItem((*connectedPlugIt).getNode());
@@ -217,7 +217,7 @@ void MainCtrl::saveStoryGraph()
 
 void MainCtrl::saveSettingItem(zodiac::NodeHandle &settingGroup)
 {
-    QList<zodiac::PlugHandle> connectedPlugs = settingGroup.getPlug("out").getConnectedPlugs();
+    QList<zodiac::PlugHandle> connectedPlugs = settingGroup.getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
     {
         zodiac::NodeHandle settingNode = (*connectedPlugIt).getNode();
@@ -234,7 +234,7 @@ void MainCtrl::saveSettingItem(zodiac::NodeHandle &settingGroup)
                 else
                     return; //error
 
-            QList<zodiac::PlugHandle> detailPlugs = settingNode.getPlug("out").getConnectedPlugs();
+            QList<zodiac::PlugHandle> detailPlugs = settingNode.getPlug("storyOut").getConnectedPlugs();
             for(QList<zodiac::PlugHandle>::iterator detailPlugIt = detailPlugs.begin(); detailPlugIt != detailPlugs.end(); ++detailPlugIt)
             {
                 zodiac::NodeHandle detailNode = (*detailPlugIt).getNode();
@@ -245,7 +245,7 @@ void MainCtrl::saveSettingItem(zodiac::NodeHandle &settingGroup)
 
 void MainCtrl::saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem)
 {
-    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("out").getConnectedPlugs();
+    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
     {
         zodiac::NodeHandle eventGoalNode = (*connectedPlugIt).getNode();
@@ -259,14 +259,14 @@ void MainCtrl::saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem)
             else
                 return; //error
 
-            if(parent.getPlug("out").connectionCount() > 0)
+            if(parent.getPlug("storyOut").connectionCount() > 0)
                 saveThemeItem(eventGoalNode, eventGoalItem);
     }
 }
 
 void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
 {
-    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("out").getConnectedPlugs();
+    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
     {
         zodiac::NodeHandle episodeNode = (*connectedPlugIt).getNode();
@@ -277,14 +277,14 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
         else
             return; //error
 
-        QList<zodiac::PlugHandle> childPlugs = parent.getPlug("out").getConnectedPlugs();
+        QList<zodiac::PlugHandle> childPlugs = parent.getPlug("storyOut").getConnectedPlugs();
         for(QList<zodiac::PlugHandle>::iterator childPlugIt = childPlugs.begin(); childPlugIt != childPlugs.end(); ++childPlugIt)
         {
             zodiac::NodeHandle childNode = (*connectedPlugIt).getNode();
 
             if(childNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP)
             {
-                QList<zodiac::PlugHandle> attemptPlugs = childNode.getPlug("out").getConnectedPlugs();
+                QList<zodiac::PlugHandle> attemptPlugs = childNode.getPlug("storyOut").getConnectedPlugs();
                 for(QList<zodiac::PlugHandle>::iterator attemptPlugIt = attemptPlugs.begin(); attemptPlugIt != attemptPlugs.end(); ++attemptPlugIt)
                 {
                     zodiac::NodeHandle attemptNode = (*attemptPlugIt).getNode();
@@ -298,7 +298,7 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
             else
                 if(childNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP)
                 {
-                    QList<zodiac::PlugHandle> outcomePlugs = childNode.getPlug("out").getConnectedPlugs();
+                    QList<zodiac::PlugHandle> outcomePlugs = childNode.getPlug("storyOut").getConnectedPlugs();
                     for(QList<zodiac::PlugHandle>::iterator outcomePlugIt = outcomePlugs.begin(); outcomePlugIt != outcomePlugs.end(); ++outcomePlugIt)
                     {
                         zodiac::NodeHandle outcomeNode = (*outcomePlugIt).getNode();
@@ -323,7 +323,7 @@ void MainCtrl::saveResolution(zodiac::NodeHandle &parent)
     zodiac::NodeHandle eventGroupNode;
     zodiac::NodeHandle stateGroupNode;
 
-    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("out").getConnectedPlugs();
+    QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
     {
         if((*connectedPlugIt).getNode().getType() == zodiac::STORY_RESOLUTION_EVENT_GROUP)
@@ -335,7 +335,7 @@ void MainCtrl::saveResolution(zodiac::NodeHandle &parent)
                 return; //error
     }
 
-    QList<zodiac::PlugHandle> eventPlugs = eventGroupNode.getPlug("out").getConnectedPlugs();
+    QList<zodiac::PlugHandle> eventPlugs = eventGroupNode.getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator eventPlugIt = eventPlugs.begin(); eventPlugIt != eventPlugs.end(); ++eventPlugIt)
     {
         zodiac::NodeHandle eventNode = (*eventPlugIt).getNode();
@@ -343,7 +343,7 @@ void MainCtrl::saveResolution(zodiac::NodeHandle &parent)
         m_saveAndLoadManager.addResolutionEvent(eventNode.getName(), eventNode.getDescription());
     }
 
-    QList<zodiac::PlugHandle> statePlugs = eventGroupNode.getPlug("out").getConnectedPlugs();
+    QList<zodiac::PlugHandle> statePlugs = eventGroupNode.getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator statePlugIt = statePlugs.begin(); statePlugIt != statePlugs.end(); ++statePlugIt)
     {
         zodiac::NodeHandle stateNode = (*statePlugIt).getNode();
@@ -388,10 +388,10 @@ void MainCtrl::loadStoryGraph()
                                     resolutionNode = &(*it); //get a pointer to the handle of the resolution node
             }
         }
-        zodiac::PlugHandle SettingNodeOutPlug = settingNode->createOutgoingPlug("out");   //create the outgoing plugs
-        zodiac::PlugHandle ThemeNodeOutPlug = themeNode->createOutgoingPlug("out");
-        zodiac::PlugHandle PlotNodeOutPlug = plotNode->createOutgoingPlug("out");
-        zodiac::PlugHandle ResolutionNodeOutPlug = resolutionNode->createOutgoingPlug("out");
+        zodiac::PlugHandle SettingNodeOutPlug = settingNode->createOutgoingPlug("storyOut");   //create the outgoing plugs
+        zodiac::PlugHandle ThemeNodeOutPlug = themeNode->createOutgoingPlug("storyOut");
+        zodiac::PlugHandle PlotNodeOutPlug = plotNode->createOutgoingPlug("storyOut");
+        zodiac::PlugHandle ResolutionNodeOutPlug = resolutionNode->createOutgoingPlug("storyOut");
 
         float maxXVal = settingNode->getPos().x();
         int centreIt = 0;
@@ -406,7 +406,7 @@ void MainCtrl::loadStoryGraph()
             characterNode = createNode(zodiac::STORY_SETTING_CHARACTER_GROUP, "Characters", "Characters Group");
             characterNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
 
-            zodiac::PlugHandle characterNodeInPlug = characterNode->getNodeHandle().createIncomingPlug("in");
+            zodiac::PlugHandle characterNodeInPlug = characterNode->getNodeHandle().createIncomingPlug("storyIn");
             SettingNodeOutPlug.connectPlug(characterNodeInPlug);
 
             maxXVal = loadSettingItem(characterNode, chars, zodiac::STORY_SETTING_CHARACTER);
@@ -423,7 +423,7 @@ void MainCtrl::loadStoryGraph()
             locationNode = createNode(zodiac::STORY_SETTING_LOCATION_GROUP, "Locations", "Locations Group");
             locationNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
 
-            zodiac::PlugHandle locationNodeInPlug = locationNode->getNodeHandle().createIncomingPlug("in");
+            zodiac::PlugHandle locationNodeInPlug = locationNode->getNodeHandle().createIncomingPlug("storyIn");
             SettingNodeOutPlug.connectPlug(locationNodeInPlug);
 
             maxXVal = loadSettingItem(locationNode, locs, zodiac::STORY_SETTING_LOCATION);
@@ -440,7 +440,7 @@ void MainCtrl::loadStoryGraph()
             timeNode = createNode(zodiac::STORY_SETTING_TIME_GROUP, "Times", "Times Group");
             timeNode->getNodeHandle().setPos(maxXVal, settingNode->getPos().y()+100);
 
-            zodiac::PlugHandle timeNodeInPlug = timeNode->getNodeHandle().createIncomingPlug("in");
+            zodiac::PlugHandle timeNodeInPlug = timeNode->getNodeHandle().createIncomingPlug("storyIn");
             SettingNodeOutPlug.connectPlug(timeNodeInPlug);
 
             maxXVal = loadSettingItem(timeNode, times, zodiac::STORY_SETTING_TIME);
@@ -465,7 +465,7 @@ void MainCtrl::loadStoryGraph()
             //create group node then load the events and all sub-events
             eventNode = createNode(zodiac::STORY_THEME_EVENT_GROUP, "Events", "Events Group");
             eventNode->getNodeHandle().setPos(/*themeNode->getPos().x()*/maxXVal, themeNode->getPos().y()+100);
-            zodiac::PlugHandle parentNodeInPlug = eventNode->getNodeHandle().createIncomingPlug("in");
+            zodiac::PlugHandle parentNodeInPlug = eventNode->getNodeHandle().createIncomingPlug("storyIn");
             ThemeNodeOutPlug.connectPlug(parentNodeInPlug);
 
             maxXVal = loadThemeItem(eventNode, events, zodiac::STORY_THEME_EVENT).y() + 100;
@@ -481,7 +481,7 @@ void MainCtrl::loadStoryGraph()
             //same as events but goals
             goalNode = createNode(zodiac::STORY_THEME_GOAL_GROUP, "Goals", "Goals Group");
             goalNode->getNodeHandle().setPos(/*themeNode->getPos().x()*/maxXVal, themeNode->getPos().y()+100);
-            zodiac::PlugHandle parentNodeInPlug = goalNode->getNodeHandle().createIncomingPlug("in");
+            zodiac::PlugHandle parentNodeInPlug = goalNode->getNodeHandle().createIncomingPlug("storyIn");
             ThemeNodeOutPlug.connectPlug(parentNodeInPlug);
 
             maxXVal = loadThemeItem(goalNode, goals, zodiac::STORY_THEME_GOAL).y() + 100;
@@ -677,7 +677,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> ep
             float attemptParentPos = 0;
             int attemptParentPosIt = 0;
             //get all connected plugs
-            QList<zodiac::PlugHandle> connectedPlugs = attemptGroupNode->getNodeHandle().getPlug("out").getConnectedPlugs();
+            QList<zodiac::PlugHandle> connectedPlugs = attemptGroupNode->getNodeHandle().getPlug("storyOut").getConnectedPlugs();
             if(connectedPlugs.size() > 1)
             {
                 for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
@@ -734,7 +734,7 @@ QPointF MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> ep
             float outcomeParentPos = 0;
             float outcomeParentPosIt = 0;
             //get all connected plugs
-            QList<zodiac::PlugHandle> connectedPlugs = outcomeGroupNode->getNodeHandle().getPlug("out").getConnectedPlugs();
+            QList<zodiac::PlugHandle> connectedPlugs = outcomeGroupNode->getNodeHandle().getPlug("storyOut").getConnectedPlugs();
             if(connectedPlugs.size() > 1)
             {
                 for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
@@ -790,8 +790,8 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
     {
         NodeCtrl *eventNode = createNode(zodiac::STORY_RESOLUTION_EVENT_GROUP, "Event", "Group of Events");
         eventNode->getNodeHandle().setPos(resolutionNode->getPos().x(), resolutionNode->getPos().y()+100);
-        zodiac::PlugHandle eventNodeInPlug = eventNode->getNodeHandle().createIncomingPlug("in");
-        resolutionNode->getPlug("out").connectPlug(eventNodeInPlug);
+        zodiac::PlugHandle eventNodeInPlug = eventNode->getNodeHandle().createIncomingPlug("storyIn");
+        resolutionNode->getPlug("storyOut").connectPlug(eventNodeInPlug);
 
 
         float nodePos = 0;
@@ -820,8 +820,8 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
     {
         NodeCtrl *stateNode = createNode(zodiac::STORY_RESOLUTION_STATE_GROUP, "State", "Group of States");
         stateNode->getNodeHandle().setPos(maxX, resolutionNode->getPos().y()+100);
-        zodiac::PlugHandle stateNodeInPlug = stateNode->getNodeHandle().createIncomingPlug("in");
-        resolutionNode->getPlug("out").connectPlug(stateNodeInPlug);
+        zodiac::PlugHandle stateNodeInPlug = stateNode->getNodeHandle().createIncomingPlug("storyIn");
+        resolutionNode->getPlug("storyOut").connectPlug(stateNodeInPlug);
 
 
         float nodePos = 0;

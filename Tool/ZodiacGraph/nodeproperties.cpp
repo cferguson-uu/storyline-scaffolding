@@ -504,17 +504,17 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
 
     int row = rowLayout->rowCount();
 
-    if(plug.getName() == "story")
+    if(plug.getName() == "storyOut" || plug.getName() == "storyIn")
     {
         QList<zodiac::PlugHandle> connections =  plug.getConnectedPlugs();
         for(QList<zodiac::PlugHandle>::iterator conIt = connections.begin(); conIt != connections.end(); ++conIt)
         {
             QLabel *connectionLabel = new QLabel((*conIt).getNode().getName());
             QPushButton* connectionButton = new QPushButton();
-            removalButton->setIcon(QIcon(":/icons/minus.svg"));
-            removalButton->setIconSize(QSize(8, 8));
-            removalButton->setFlat(true);
-            removalButton->setStatusTip("Delete the Connection");
+            connectionButton->setIcon(QIcon(":/icons/minus.svg"));
+            connectionButton->setIconSize(QSize(8, 8));
+            connectionButton->setFlat(true);
+            connectionButton->setStatusTip("Delete the Connection");
 
             rowLayout->addWidget(connectionLabel, row, 0);
             rowLayout->addWidget(connectionButton, row, 1);
@@ -526,25 +526,52 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
         }
     }
 
-    if(plug.getName() == "narrative")
+    if(plug.getName() == "reqOut" || plug.getName() == "reqIn")
     {
         QList<zodiac::PlugHandle> connections =  plug.getConnectedPlugs();
         for(QList<zodiac::PlugHandle>::iterator conIt = connections.begin(); conIt != connections.end(); ++conIt)
         {
-            QLabel *connectionLabel = new QLabel((*conIt).getNode().getName());
-            QPushButton* connectionButton = new QPushButton();
-            removalButton->setIcon(QIcon(":/icons/minus.svg"));
-            removalButton->setIconSize(QSize(8, 8));
-            removalButton->setFlat(true);
-            removalButton->setStatusTip("Delete the Connection");
+            if((*conIt).getNode().getName() == "SEQ" || (*conIt).getNode().getName() == "INV")
+            {
+                QString nodeName = (*conIt).getNode().getName();
+                QString plugName = plug.getName();
 
-            rowLayout->addWidget(connectionLabel, row, 0);
-            rowLayout->addWidget(connectionButton, row, 1);
-            ++row;
+                QList<zodiac::PlugHandle> secondConnections =  (*conIt).getNode().getPlug(plugName).getConnectedPlugs();
+                for(QList<zodiac::PlugHandle>::iterator secConIt = secondConnections.begin(); secConIt != secondConnections.end(); ++secConIt)
+                {
+                    QLabel *connectionLabel = new QLabel((*secConIt).getNode().getName() + " - " + nodeName);
+                    QPushButton* connectionButton = new QPushButton();
+                    connectionButton->setIcon(QIcon(":/icons/minus.svg"));
+                    connectionButton->setIconSize(QSize(8, 8));
+                    connectionButton->setFlat(true);
+                    connectionButton->setStatusTip("Delete the Connection");
 
-            connect(connectionButton, &QPushButton::released, [=]{});
+                    rowLayout->addWidget(connectionLabel, row, 0);
+                    rowLayout->addWidget(connectionButton, row, 1);
+                    ++row;
 
-            m_narrativeConnections.push_back(qMakePair(connectionLabel, connectionButton));
+                    connect(connectionButton, &QPushButton::released, [=]{});
+
+                    m_narrativeConnections.push_back(qMakePair(connectionLabel, connectionButton));
+                }
+            }
+            else
+            {
+                QLabel *connectionLabel = new QLabel((*conIt).getNode().getName());
+                QPushButton* connectionButton = new QPushButton();
+                connectionButton->setIcon(QIcon(":/icons/minus.svg"));
+                connectionButton->setIconSize(QSize(8, 8));
+                connectionButton->setFlat(true);
+                connectionButton->setStatusTip("Delete the Connection");
+
+                rowLayout->addWidget(connectionLabel, row, 0);
+                rowLayout->addWidget(connectionButton, row, 1);
+                ++row;
+
+                connect(connectionButton, &QPushButton::released, [=]{});
+
+                m_narrativeConnections.push_back(qMakePair(connectionLabel, connectionButton));
+            }
         }
     }
 
