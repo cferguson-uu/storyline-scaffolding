@@ -23,7 +23,7 @@
 #    SOFTWARE.
 #
 
-QT          += core gui widgets
+QT          += core gui widgets network
 CONFIG      += c++11 static
 DEFINES     *= QT_USE_QSTRINGBUILDER
 
@@ -72,7 +72,8 @@ SOURCES += main.cpp\
     saveandload.cpp \
     undoedits.cpp \
     analyticslogwindow.cpp \
-    linkerwindow.cpp
+    linkerwindow.cpp \
+    analyticssocket.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -108,7 +109,8 @@ HEADERS  += mainwindow.h \
     saveandload.h \
     undoedits.h \
     analyticslogwindow.h \
-    linkerwindow.h
+    linkerwindow.h \
+    analyticssocket.h
 
 RESOURCES += \
     res/icons.qrc
