@@ -10,6 +10,7 @@ class AnalyticsLogWindow : public QPlainTextEdit
 
 public:
     AnalyticsLogWindow(QWidget *parent);
+    void initialiseLogFile();
     void appendMessage(const QString& text);
 
 private:

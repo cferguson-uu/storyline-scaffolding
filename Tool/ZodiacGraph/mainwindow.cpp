@@ -25,6 +25,7 @@
 
 #include "graphstructures.h"
 #include "analyticslogwindow.h"
+#include "analyticssocket.h"
 
 #include <QMenuBar>
 
@@ -96,14 +97,21 @@ MainWindow::MainWindow(QWidget *parent)
     m_mainSplitter->addWidget(zodiacView);
     m_mainSplitter->setSizes({100, 900});
 
-    //create the analytics logger
+    //create the analytics logger and the socket for receiving data
     AnalyticsLogWindow* analyticsLog = new AnalyticsLogWindow(this);
+    AnalyticsSocket* analyticsSocket = new AnalyticsSocket(analyticsLog, this);
 
     //setup the second splitter
     m_secondSplitter = new QSplitter(Qt::Vertical, this);
     m_secondSplitter->addWidget(m_mainSplitter);
     m_secondSplitter->addWidget(analyticsLog);
     m_secondSplitter->setSizes({900, 100});
+
+    //create menu for analytics functions
+    QMenu *analyticsMenu = menuBar()->addMenu(tr("&Analytics"));
+    QAction *analyticsConnect = new QAction(tr("&Connect"), this);
+    analyticsMenu->addAction(analyticsConnect);
+    connect(analyticsConnect, &QAction::triggered, [=]{analyticsSocket->SetUpSocket();});
 
     // create global actions
     QAction* newNarrativeNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Narrative Node"), this);

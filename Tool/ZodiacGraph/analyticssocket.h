@@ -1,29 +1,44 @@
 #ifndef ANALYTICSSOCKET_H
 #define ANALYTICSSOCKET_H
 
-#include <QObject>
+#include <QDialog>
 #include <QDebug>
+
 #include <QTcpSocket>
 #include <QAbstractSocket>
 
-class AnalyticsSocket : public QObject
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QGridLayout>
+#include <QMessageBox>
+
+#include "analyticslogwindow.h"
+
+class AnalyticsSocket : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AnalyticsSocket(QObject *parent = 0);
-
-    void SetUpSocket(QString address, int port);
+    explicit AnalyticsSocket(AnalyticsLogWindow* analyticsLog, QWidget *parent = 0);
 
 signals:
 
 public slots:
+    void SetUpSocket();
+
     void connected();
     void disconnected();
     void bytesWritten(qint64 bytes);
     void readyRead();
 
 private:
-    QTcpSocket *socket;
+    void connectToServer(QString address, int port);
+
+    QTcpSocket *m_socket;
+    AnalyticsLogWindow *m_analyticsLog;
+
+    QString m_address;
+    int m_port;
 };
 
 #endif // ANALYTICSSOCKET_H
