@@ -60,7 +60,7 @@ void AnalyticsSocket::connectToServer(QString address, int port)
 
             connect(m_socket, SIGNAL(connected()), this, SLOT(connected()));
             connect(m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-            connect(m_socket, SIGNAL(bytesWritten()), this, SLOT(bytesWritten()));
+            connect(m_socket, SIGNAL(bytesWritten(qint64 bytes)), this, SLOT(bytesWritten(qint64 bytes)));
             connect(m_socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
             qDebug() << "Connecting...";
@@ -94,6 +94,13 @@ void AnalyticsSocket::connected()
 void AnalyticsSocket::disconnected()
 {
     qDebug() << "Disconnected.";
+
+    QMessageBox messageBox;
+    messageBox.information(0, "Disconnected", "Disconnected from: " + m_address + ":" + QString::number(m_port));
+    messageBox.setFixedSize(500,200);
+
+    m_socket->deleteLater();
+    m_socket->close();
 }
 void AnalyticsSocket::bytesWritten(qint64 bytes)
 {
