@@ -127,6 +127,18 @@ void NodeHandle::changeDescription(const QString& description)
     m_node->setDisplayDescription(description);
 }
 
+void NodeHandle::setLabelBackgroundColor(const QColor& color)
+{
+    #ifdef QT_DEBUG
+        Q_ASSERT(m_isValid);
+    #else
+        if(!m_isValid){
+            return;
+        }
+    #endif
+    m_node->setLabelBackgroundColor(color);
+}
+
 QHash<QUuid, NodeCommand> NodeHandle::getOnUnlockList()
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);

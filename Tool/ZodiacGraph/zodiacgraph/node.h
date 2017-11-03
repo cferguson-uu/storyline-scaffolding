@@ -318,6 +318,13 @@ public: // methods
     void setDisplayDescription(const QString& displayDescription);
 
     ///
+    /// \brief Define a new color used to fill the label background.
+    ///
+    /// \param [in] color    New color used to fill the label background.
+    ///
+    void setLabelBackgroundColor(const QColor& color);
+
+    ///
     /// \brief Renames an existing Plug of this Node.
     ///
     /// Make sure that this Node actually contains the given Plug.

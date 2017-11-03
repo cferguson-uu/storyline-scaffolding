@@ -3,6 +3,11 @@
 
 #include <QPlainTextEdit>
 #include <QScrollBar>
+#include <QTextStream>
+#include <QDateTime>
+#include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 class AnalyticsLogWindow : public QPlainTextEdit
 {
@@ -14,6 +19,8 @@ public:
     void appendMessage(const QString& text);
 
 private:
+    QString convertJSONtoSentence(const QString& text);
+
     QFile m_logFile;
 };
 

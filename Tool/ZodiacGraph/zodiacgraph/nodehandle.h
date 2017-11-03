@@ -162,6 +162,13 @@ public: // methods
     void changeDescription(const QString& description);
 
     ///
+    /// \brief Define a new color used to fill the label background.
+    ///
+    /// \param [in] color    New color used to fill the label background.
+    ///
+    void setLabelBackgroundColor(const QColor& color);
+
+    ///
     /// \brief The command blocks part of the node.
     ///
     /// \return QHashes of command blocks.

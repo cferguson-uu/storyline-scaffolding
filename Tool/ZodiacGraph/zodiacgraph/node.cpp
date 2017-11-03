@@ -232,6 +232,11 @@ void Node::setDisplayDescription(const QString& displayDescription)
     m_displayDescription = displayDescription;
 }
 
+void Node::setLabelBackgroundColor(const QColor& color)
+{
+    m_label->setBackgroundColor(color);
+}
+
 QString Node::renamePlug(Plug *plug, const QString& newName)
 {
     // make sure that the Plug is actually of this Node

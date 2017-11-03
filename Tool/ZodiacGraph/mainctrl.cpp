@@ -1021,6 +1021,14 @@ void MainCtrl::loadNarrativeGraph()
             NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
             newNarNode->setPos(xPos, yPos);
 
+            if((*narIt).id == "a1_begins" || (*narIt).id == "a1_approach_house")
+                newNarNode->setIdleColor(QColor(0, 204, 0));
+            else
+                if((*narIt).id == "a1_near_main_door")
+                    newNarNode->setIdleColor(QColor(51, 51, 255));
+            else
+                    newNarNode->setIdleColor(QColor(255, 0, 0));
+
             loadNarrativeCommands((*narIt), newNarNode);
 
             if((*narIt).requirements.type != REQ_NONE)
@@ -1387,6 +1395,8 @@ void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle
                 (*nodeIt).createIncomingPlug("narrativeIn");
 
             node.getPlug("storyOut").connectPlug((*nodeIt).getPlug("narrativeIn")); //connect nodes
+
+            (*nodeIt).setLabelBackgroundColor(QColor(2, 202, 0));
         }
 
 
