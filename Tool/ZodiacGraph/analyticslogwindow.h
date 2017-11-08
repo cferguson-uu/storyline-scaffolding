@@ -15,13 +15,15 @@ class AnalyticsLogWindow : public QPlainTextEdit
 
 public:
     AnalyticsLogWindow(QWidget *parent);
+    ~AnalyticsLogWindow();
     void initialiseLogFile();
-    void appendMessage(const QString& text);
+    void closeLogFile();
+    void appendToWindow(const QString& text);
+    void appendToLogFile(const QString& text);
 
 private:
-    QString convertJSONtoSentence(const QString& text);
-
     QFile m_logFile;
+    bool m_fileOpen;
 };
 
 #endif // ANALYTICSLOGWINDOW_H

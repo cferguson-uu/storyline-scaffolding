@@ -1,8 +1,8 @@
 #include "analyticssocket.h"
 
-AnalyticsSocket::AnalyticsSocket(AnalyticsLogWindow* analyticsLog, QWidget *parent)
+AnalyticsSocket::AnalyticsSocket(/*AnalyticsLogWindow* analyticsLog,*/ QWidget *parent)
     : QDialog(parent)
-    , m_analyticsLog(analyticsLog)
+ //   , m_analyticsLog(analyticsLog)
 {
 
 }
@@ -88,7 +88,9 @@ void AnalyticsSocket::connected()
 
     //m_socket->write("Send me some stuff");
 
-    m_analyticsLog->initialiseLogFile();
+    //m_analyticsLog->initialiseLogFile();
+
+    connectedCallback();
 }
 
 void AnalyticsSocket::disconnected()
@@ -101,6 +103,8 @@ void AnalyticsSocket::disconnected()
 
     m_socket->deleteLater();
     m_socket->close();
+
+    disconnectedCallback();
 }
 
 void AnalyticsSocket::bytesWritten(qint64 bytes)
@@ -114,6 +118,8 @@ void AnalyticsSocket::readyRead()
     QString data = m_socket->readAll();
     qDebug() << data;
     //qDebug() << m_socket->readAll();
-    m_analyticsLog->appendMessage(data);
-    m_socket->write(data.toStdString().c_str());
+    //m_analyticsLog->appendMessage(data);
+    //m_socket->write(data.toStdString().c_str());
+
+    readMessage(data);
 }

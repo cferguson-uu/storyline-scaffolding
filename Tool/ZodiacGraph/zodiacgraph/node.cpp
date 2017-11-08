@@ -889,6 +889,16 @@ void NarrativeNode::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const 
     m_onUnlocked[cmdKey].parameters[paramKey] = value;
 }
 
+void NarrativeNode::setLockedStatus(bool status)
+{
+    m_locked = status;
+}
+
+bool NarrativeNode::getLockedStatus()
+{
+    return m_locked;
+}
+
 ///
 /// \brief Brings up a context menu to add more nodes if applicable
 ///

@@ -252,6 +252,20 @@ public: // methods
     ///
     ///
     StoryNodeType getStoryNodeType();
+
+    ///
+    /// \brief set the locked/unlocked status of the node
+    ///
+    ///
+    /// \param [in] bool to set status
+    ///
+    void setLockedStatus(bool status);
+
+    ///
+    /// \brief get the locked/unlocked status of the node
+    ///
+    bool getLockedStatus();
+
     ///
     /// \brief Sets the expansion of the node only if it is not currently forced open.
     ///

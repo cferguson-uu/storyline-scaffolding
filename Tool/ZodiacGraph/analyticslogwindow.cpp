@@ -2,8 +2,15 @@
 
 AnalyticsLogWindow::AnalyticsLogWindow(QWidget *parent)
     : QPlainTextEdit(parent)
+    , m_fileOpen(false)
 {
     QPlainTextEdit::setReadOnly(true);
+}
+
+AnalyticsLogWindow::~AnalyticsLogWindow()
+{
+    if(m_fileOpen)
+        closeLogFile();
 }
 
 void AnalyticsLogWindow::initialiseLogFile()
@@ -11,40 +18,37 @@ void AnalyticsLogWindow::initialiseLogFile()
     QDateTime current = QDateTime::currentDateTime().toUTC();
 
     m_logFile.setFileName(current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".txt");
+
     if (!m_logFile.open(QIODevice::ReadWrite))
         qDebug() << "fail";
+    else
+        m_fileOpen = true;
 }
 
-void AnalyticsLogWindow::appendMessage(const QString& text/*, bool addToLogFile*/)
+void AnalyticsLogWindow::closeLogFile()
 {
-    this->appendPlainText(convertJSONtoSentence(text)); // Adds the message to the widget
-    this->verticalScrollBar()->setValue(this->verticalScrollBar()->maximum()); // Scrolls to the bottom
+    m_logFile.write("\n}");
+    m_logFile.close();
 
-    m_logFile.write(text.toLocal8Bit().constData()); // Logs to file
+    m_fileOpen = false;
+}
+
+void AnalyticsLogWindow::appendToWindow(const QString& text)
+{
+    this->appendPlainText(text); // Adds the message to the widget
+    this->verticalScrollBar()->setValue(this->verticalScrollBar()->maximum()); // Scrolls to the bottom
+}
+
+void AnalyticsLogWindow::appendToLogFile(const QString& text)
+{
+    if (m_logFile.size() == 0)
+        m_logFile.write(text.toLocal8Bit().constData()); // Logs to file
+    else
+    {
+        m_logFile.write(",\n");
+        m_logFile.write(text.toLocal8Bit().constData()); // Logs to file
+    }
 
     QTextStream outputStream(&m_logFile);
     outputStream << text << "\n";
-}
-
-QString AnalyticsLogWindow::convertJSONtoSentence(const QString& text)
-{
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(text.toUtf8());
-
-    if(jsonDoc.isNull() || !jsonDoc.isObject() || jsonDoc.isEmpty())    //check if json string is properly formatted
-    {
-        qDebug() << "Problem with JSON string";
-        return "";
-    }
-    else
-    {
-        QJsonObject jsonObj = jsonDoc.object();
-        if(!jsonObj.contains("actor") || !jsonObj.contains("verb") || !jsonObj.contains("object") || !jsonObj.contains("timestamp"))
-        {
-            qDebug() << "Problem with JSON string";
-            return "";
-        }
-
-        return jsonObj["actor"].toString() + " " + jsonObj["verb"].toString() + " " + jsonObj["object"].toString() + " at "
-                + QDateTime::fromString(jsonObj["timestamp"].toString(), Qt::ISODate).toString("MMM dd, yyyy hh:mm:ss t");
-    }
 }

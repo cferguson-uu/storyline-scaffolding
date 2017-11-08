@@ -73,7 +73,8 @@ SOURCES += main.cpp\
     undoedits.cpp \
     analyticslogwindow.cpp \
     linkerwindow.cpp \
-    analyticssocket.cpp
+    analyticssocket.cpp \
+    analyticshandler.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -110,7 +111,8 @@ HEADERS  += mainwindow.h \
     undoedits.h \
     analyticslogwindow.h \
     linkerwindow.h \
-    analyticssocket.h
+    analyticssocket.h \
+    analyticshandler.h
 
 RESOURCES += \
     res/icons.qrc

@@ -1122,8 +1122,23 @@ public:
     void editParameterInOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
 
+    ///
+    /// \brief Context menu used for linking
+    ///
     void contextMenuEvent(QContextMenuEvent *event);
 
+    ///
+    /// \brief set the locked/unlocked status of the node
+    ///
+    ///
+    /// \param [in] bool to set status
+    ///
+    void setLockedStatus(bool status);
+
+    ///
+    /// \brief get the locked/unlocked status of the node
+    ///
+    bool getLockedStatus();
 
 private:
     ///
@@ -1138,6 +1153,11 @@ private:
     /// When the node is already unlocked
     ///
     QHash<QUuid, NodeCommand> m_onUnlocked;
+
+    ///
+    /// \brief if the node is locked
+    ///
+    bool m_locked;
 
 signals:
     ///

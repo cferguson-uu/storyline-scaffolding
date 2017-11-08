@@ -26,6 +26,7 @@
 #include "graphstructures.h"
 #include "analyticslogwindow.h"
 #include "analyticssocket.h"
+#include "analyticshandler.h"
 
 #include <QMenuBar>
 
@@ -88,18 +89,18 @@ MainWindow::MainWindow(QWidget *parent)
     // create the Property Editor
     PropertyEditor* propertyEditor = new PropertyEditor(this);
 
+    //create the analytics systems
+    AnalyticsLogWindow* analyticsLog = new AnalyticsLogWindow(this);
+    AnalyticsHandler* analyticsHandler = new AnalyticsHandler(analyticsLog, this);
+
     // create the Main Controller
-    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, m_pUndoStack);
+    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, m_pUndoStack);
 
     // setup the main splitter
     m_mainSplitter = new QSplitter(Qt::Horizontal, this);
     m_mainSplitter->addWidget(propertyEditor);
     m_mainSplitter->addWidget(zodiacView);
     m_mainSplitter->setSizes({100, 900});
-
-    //create the analytics logger and the socket for receiving data
-    AnalyticsLogWindow* analyticsLog = new AnalyticsLogWindow(this);
-    AnalyticsSocket* analyticsSocket = new AnalyticsSocket(analyticsLog, this);
 
     //setup the second splitter
     m_secondSplitter = new QSplitter(Qt::Vertical, this);
@@ -111,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent)
     QMenu *analyticsMenu = menuBar()->addMenu(tr("&Analytics"));
     QAction *analyticsConnect = new QAction(tr("&Connect"), this);
     analyticsMenu->addAction(analyticsConnect);
-    connect(analyticsConnect, &QAction::triggered, [=]{analyticsSocket->SetUpSocket();});
+    connect(analyticsConnect, &QAction::triggered, [=]{analyticsHandler->connectToServer();});
 
     // create global actions
     QAction* newNarrativeNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Narrative Node"), this);

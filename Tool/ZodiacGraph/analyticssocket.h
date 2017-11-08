@@ -19,9 +19,12 @@ class AnalyticsSocket : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AnalyticsSocket(AnalyticsLogWindow* analyticsLog, QWidget *parent = 0);
+    explicit AnalyticsSocket(/*AnalyticsLogWindow* analyticsLog, */QWidget *parent = 0);
 
 signals:
+    void connectedCallback();
+    void disconnectedCallback();
+    void readMessage(QString message);
 
 public slots:
     void SetUpSocket();

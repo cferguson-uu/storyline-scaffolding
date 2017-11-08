@@ -10,12 +10,13 @@
 
 QString MainCtrl::s_defaultName = "Node ";
 
-MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, QUndoStack *undoStack)
+MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QUndoStack *undoStack)
     : QObject(parent)
     , m_scene(zodiac::SceneHandle(scene))
     , m_propertyEditor(propertyEditor)
     , m_nodes(QHash<zodiac::NodeHandle, NodeCtrl*>())
     , m_nodeIndex(1)            // name suffixes start at 1
+    , m_analytics(analyticsHandler)
     , m_pUndoStack(undoStack)
 {
     m_saveAndLoadManager.LoadNarrativeParamsAndCommands(qobject_cast<QWidget*>(parent));
@@ -26,6 +27,9 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
 
     connect(&m_scene, SIGNAL(selectionChanged(QList<zodiac::NodeHandle>)),
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));
+
+    connect(m_analytics, SIGNAL(unlockNode(QString)),
+            this, SLOT(unlockNode(QString)));
 }
 
 NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name, const QString& description, bool load)
@@ -1008,7 +1012,8 @@ void MainCtrl::loadNarrativeGraph()
                     yPos = (nodePos.y() + 200);
 
                 //also save all current narrative nodes to a separate list in case two parts of the same narrative are loaded separately, for requirements
-                currentNarSceneNodes.push_back(*(cNIt));
+                if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
+                currentNarSceneNodes.push_back((*cNIt));
 
             }
         }
@@ -1021,19 +1026,33 @@ void MainCtrl::loadNarrativeGraph()
             NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
             newNarNode->setPos(xPos, yPos);
 
-            if((*narIt).id == "a1_begins" || (*narIt).id == "a1_approach_house")
-                newNarNode->setIdleColor(QColor(0, 204, 0));
-            else
-                if((*narIt).id == "a1_near_main_door")
-                    newNarNode->setIdleColor(QColor(51, 51, 255));
-            else
-                    newNarNode->setIdleColor(QColor(255, 0, 0));
-
             loadNarrativeCommands((*narIt), newNarNode);
 
+            newNarSceneNodes.push_back(newNarNode);
+        }
+
+        //loop again for the requirements (necessary in case nodes aren't loaded in chronological order)
+        for(QList<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
+        {
             if((*narIt).requirements.type != REQ_NONE)
             {
                 //qDebug() << (*narIt).id << " requirements";
+
+                NodeCtrl* newNarNode = nullptr;
+
+                for(QList<NodeCtrl*>::iterator nodeIt = newNarSceneNodes.begin(); nodeIt != newNarSceneNodes.end(); ++nodeIt)
+                {
+                    if((*narIt).id == (*nodeIt)->getName())
+                    {
+                        newNarNode = (*nodeIt);
+                    }
+                }
+
+                if(!newNarNode)
+                {
+                    qDebug() << "Warning: node not found in list";
+                    continue;
+                }
 
                 zodiac::PlugHandle reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
                 loadRequirements((*narIt).requirements, reqOutPlug, newNarSceneNodes, currentNarSceneNodes);
@@ -1044,8 +1063,6 @@ void MainCtrl::loadNarrativeGraph()
                     (*plugIt)->setBaseColor(QColor(66, 134, 244));
                 }
             }
-
-            newNarSceneNodes.push_back(newNarNode);
         }
 
         if(currentNarSceneNodes.size() > 0)
@@ -1405,5 +1422,110 @@ void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle
         {
             (*plugIt)->setBaseColor(QColor(0, 184, 13));
         }
+    }
+}
+
+void MainCtrl::unlockNode(QString nodeName)
+{
+    QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
+    bool found = false;
+
+    for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+    {
+        if((*cNIt).getType() == zodiac::NODE_NARRATIVE && (*cNIt).getName() == nodeName)
+        {
+            found = true;
+
+            //change colour of node to green to show unlocked
+            (*cNIt).setIdleColor(QColor(0, 204, 0));
+
+            //check if other nodes are unlockable, turn them blue
+            if((*cNIt).getPlug("reqOut").isValid())
+            {
+                QList<zodiac::NodeHandle> reqNodes;
+                QList<zodiac::PlugHandle> reqPlugs = (*cNIt).getPlug("reqOut").getConnectedPlugs();
+
+                for(QList<zodiac::PlugHandle>::iterator plugIt = reqPlugs.begin(); plugIt != reqPlugs.end(); ++plugIt)
+                {
+                    reqNodes.push_back((*plugIt).getNode());
+                }
+
+                for(QList<zodiac::NodeHandle>::iterator rNIt = reqNodes.begin(); rNIt != reqNodes.end(); ++rNIt)
+                {
+                    if((*rNIt).getName() == "SEQ")
+                    {
+                        //check reqIn plug to see if all nodes are unlocked
+                        if(((*rNIt)).getPlug("reqIn").isValid())
+                        {
+                            bool seqUnlock = true;
+                            QList<zodiac::NodeHandle> seqInNodes;
+                            QList<zodiac::PlugHandle> seqInPlugs = (*rNIt).getPlug("reqIn").getConnectedPlugs();
+                            for(QList<zodiac::PlugHandle>::iterator plugIt = seqInPlugs.begin(); plugIt != seqInPlugs.end(); ++plugIt)
+                            {
+                                seqInNodes.push_back((*plugIt).getNode());
+                            }
+
+                            for(QList<zodiac::NodeHandle>::iterator sNIt = seqInNodes.begin(); sNIt != seqInNodes.end(); ++sNIt)
+                            {
+                                if((*sNIt).getIdleColor() != QColor(0, 204, 0)) //should replace with unlocked bool
+                                {   //remember to check for INV
+                                    seqUnlock = false;
+                                    break;
+                                }
+                            }
+
+                            //if true then use reqOut to change to blue
+                            if(seqUnlock)
+                            {
+                                QList<zodiac::NodeHandle> seqOutNodes;
+                                QList<zodiac::PlugHandle> seqOutPlugs = (*rNIt).getPlug("reqOut").getConnectedPlugs();
+                                for(QList<zodiac::PlugHandle>::iterator plugIt = seqOutPlugs.begin(); plugIt != seqOutPlugs.end(); ++plugIt)
+                                {
+                                    seqOutNodes.push_back((*plugIt).getNode());
+                                }
+
+                                for(QList<zodiac::NodeHandle>::iterator sNIt = seqOutNodes.begin(); sNIt != seqOutNodes.end(); ++sNIt)
+                                {
+                                    (*sNIt).setIdleColor(QColor(51, 51, 204));
+                                }
+                            }
+                        }
+                    }
+                    else
+                        if((*rNIt).getName() == "INV")
+                        {
+                            //node should be now locked
+                            //check for possible seq node
+                        }
+                        else
+                            {
+                                (*rNIt).setIdleColor(QColor(51, 51, 204));
+                            }
+                }
+            }
+
+            //change colour of story nodes to green as now unlocked
+            if(((*cNIt)).getPlug("storyOut").isValid())
+            {
+                QList<zodiac::NodeHandle> storyOutNodes;
+                QList<zodiac::PlugHandle> storyOutPlugs = (*cNIt).getPlug("storyOut").getConnectedPlugs();
+                for(QList<zodiac::PlugHandle>::iterator plugIt = storyOutPlugs.begin(); plugIt != storyOutPlugs.end(); ++plugIt)
+                {
+                    storyOutNodes.push_back((*plugIt).getNode());
+                }
+
+                for(QList<zodiac::NodeHandle>::iterator sNIt = storyOutNodes.begin(); sNIt != storyOutNodes.end(); ++sNIt)
+                {
+                    (*sNIt).setIdleColor(QColor(0, 204, 0));
+                }
+            }
+        }
+    }
+
+    if(!found)
+    {
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","Node unlocked which does not exist in the narrative graph.\nPlease ensure that the correct and complete graph is loaded");
+        messageBox.setFixedSize(500,200);
     }
 }

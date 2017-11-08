@@ -37,6 +37,7 @@
 
 #include "saveandload.h"
 #include "linkerwindow.h"
+#include "analyticshandler.h"
 
 class NodeCtrl;
 class PropertyEditor;
@@ -61,9 +62,10 @@ public: // methods
     /// \param [in] parent          Qt parent.
     /// \param [in] scene           Handle of a zodiac::Scene.
     /// \param [in] propertyEditor  Property editor.
+    /// \param [in] propertyEditor  Handler for analytics
     /// \param [in] undoStack       Undo stack for undo and redo.
     ///
-    explicit MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, QUndoStack *undoStack);
+    explicit MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QUndoStack *undoStack);
 
     ///
     /// \brief Creates a new node in the graph.
@@ -145,6 +147,11 @@ public slots:
     ///
     void showLinkerWindow(zodiac::NodeHandle &node);
 
+    ///
+    /// \brief Shows a node and associated ones being unlcoked
+    ///
+    void unlockNode(QString nodeName);
+
 private slots:
 
     ///
@@ -187,9 +194,14 @@ private: // members
     QUndoStack *m_pUndoStack;
 
     ///
-    /// \brief For linking narrative and story 1nodes
+    /// \brief For linking narrative and story nodes
     ///
     LinkerWindow *m_linkWindow = nullptr;
+
+    ///
+    /// \brief For analytics, "lighting up graph" etc.
+    ///
+    AnalyticsHandler *m_analytics;
 
     ///
     /// \brief handle the setting items (characters, locations, times)

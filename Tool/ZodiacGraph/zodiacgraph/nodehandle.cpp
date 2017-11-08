@@ -476,6 +476,37 @@ void NodeHandle::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QSt
     nNode->editParameterInOnUnlockedCommand(cmdKey, paramKey, value);
 }
 
+void NodeHandle::setLockedStatus(bool status)
+{
+    NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+    Q_ASSERT(nNode);
+#else
+    if(!m_isValid || !nNode){
+        return;
+    }
+
+#endif
+
+    nNode->setLockedStatus(status);
+}
+
+bool NodeHandle::getLockedStatus()
+{
+    NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+    Q_ASSERT(nNode);
+#else
+    if(!m_isValid || !nNode){
+        return;
+    }
+
+#endif
+    return nNode->getLockedStatus();
+}
+
 StoryNodeType NodeHandle::getStoryNodeType()
 {
     StoryNode *sNode = static_cast<StoryNode*>(m_node);
