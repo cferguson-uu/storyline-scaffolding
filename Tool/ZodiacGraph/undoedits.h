@@ -14,6 +14,7 @@
 
 class NodeProperties;
 class CommandRow;
+class PlugRow;
 enum CommandBlockTypes;
 
 class TextEditCommand : public QUndoCommand
@@ -181,4 +182,57 @@ private:
     PropertyEditor *m_PropEdit = nullptr;
 };
 
+class NodeRemoveLink : public QUndoCommand
+{
+public:
+    enum { Id = 6789 };
+
+    NodeRemoveLink(zodiac::Plug *outgoingPlug, zodiac::Plug *incomingPlug, PlugRow* row = nullptr, void (PlugRow::*removePlugConnection)(QPair<QLabel*, QPushButton*> &) = nullptr, QPair<QLabel*, QPushButton*> uiElements = QPair<QLabel*, QPushButton*>(), QUndoCommand *parent = 0);
+
+    void undo() override;
+    void redo() override;
+    int id() const override { return Id; }
+
+private:
+    zodiac::PlugHandle m_outgoingPlug;
+    zodiac::PlugHandle m_incomingPlug;
+    PlugRow* m_pRow;
+    void (PlugRow::*m_pRemovePlugConnection)(QPair<QLabel*, QPushButton*> &);
+    QPair<QLabel*, QPushButton*> m_uiElements;
+
+};
+
+class NodeAddLink : public QUndoCommand
+{
+public:
+    enum { Id = 9876 };
+
+    NodeAddLink(zodiac::PlugHandle &outgoingPlug, zodiac::PlugHandle &incomingPlug, QUndoCommand *parent = 0);
+
+    void undo() override;
+    void redo() override;
+    int id() const override { return Id; }
+
+private:
+    zodiac::PlugHandle m_outgoingPlug;
+    zodiac::PlugHandle m_incomingPlug;
+
+};
+
+class NodeAddLinks : public QUndoCommand
+{
+public:
+    enum { Id = 9876 };
+
+    NodeAddLinks(zodiac::PlugHandle &outgoingPlug, QList<zodiac::PlugHandle> &incomingPlugs, QUndoCommand *parent = 0);
+
+    void undo() override;
+    void redo() override;
+    int id() const override { return Id; }
+
+private:
+    zodiac::PlugHandle m_outgoingPlug;
+    QList<zodiac::PlugHandle> m_incomingPlugs;
+
+};
 #endif // UNDOEDITS_H

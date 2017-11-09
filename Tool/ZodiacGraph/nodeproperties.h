@@ -242,6 +242,13 @@ public: // methods
     PlugRow(NodeProperties *editor, zodiac::PlugHandle plug, QLabel *nameLabel,
             QPushButton *directionToggle, QPushButton *removalButton, QGridLayout *rowLayout);
 
+    ///
+    /// \brief remove a plug connection from the panel.
+    ///
+    /// \param [in] connection          QPair consisting of the label and button.
+    ///
+    void removePlugConnection(QPair<QLabel*, QPushButton*> &connection);
+
 private slots:
 
     ///

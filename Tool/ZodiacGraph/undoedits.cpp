@@ -7,19 +7,17 @@
 TextEditCommand::TextEditCommand(bool isDescription, const QString &oldText, const QString &newText, NodeCtrl* node, void (NodeCtrl::*nameChangeFunc)(const QString &), Collapsible *collapsible,
                                  QUndoCommand *parent)
     : QUndoCommand(parent)
+    ,m_NewText(newText)
+    ,m_OldText(oldText)
+    ,m_isDescription(isDescription)
+    ,m_pNameChangeFunc(nameChangeFunc)
+    ,m_Node(node)
 {
-    m_NewText = newText;
-    m_OldText = oldText;
-    m_isDescription = isDescription;
-
     if(collapsible)
     {
         m_Collapsible = collapsible;
         m_PropEdit = collapsible->getParent();
     }
-
-    m_pNameChangeFunc = nameChangeFunc;
-    m_Node = node;
 }
 
 void TextEditCommand::undo()
@@ -81,17 +79,16 @@ bool TextEditCommand::mergeWith(const QUndoCommand *command)
 ParamEditCommand::ParamEditCommand(const QString &newText, const QString &oldText, const QUuid &cmdKey, const QString &paramKey, NodeCtrl* node, void (NodeCtrl::*paramChangeFunc)(const QUuid &, const QString &, const QString &),
                                  Collapsible *collapsible, CommandBlockTypes type, QUndoCommand *parent)
     : QUndoCommand(parent)
+    ,m_NewText(newText)
+    ,m_OldText(oldText)
+    ,m_pParamChangeFunc(paramChangeFunc)
+    ,m_Node(node)
+    ,m_cmdKey(cmdKey)
+    ,m_paramKey(paramKey)
+    ,m_Collapsible(collapsible)
+    ,m_PropEdit(collapsible->getParent())
+    ,m_type(type)
 {
-    m_NewText = newText;
-    m_OldText = oldText;
-    m_pParamChangeFunc = paramChangeFunc;   //different for each command block so pointer needed
-    m_Node = node;
-    m_cmdKey = cmdKey;
-    m_paramKey = paramKey;
-
-    m_Collapsible = collapsible;
-    m_PropEdit = collapsible->getParent();
-    m_type = type;
 }
 
 void ParamEditCommand::undo()
@@ -241,31 +238,26 @@ CommandEditCommand::CommandEditCommand(QComboBox *cmdItem, const QString &oldVal
                                        void (NodeProperties::*addParams) (CommandBlockTypes, CommandRow*, const QUuid&),
                                        CommandRow *cmd, CommandBlockTypes type, QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, Collapsible *collapsible, QUndoCommand *parent)
     : QUndoCommand(parent)
-{
     //store command key and label value
-    m_CmdItem = cmdItem;
-    m_OldValue = oldValue;
-    m_NewValue = newValue;
-    m_OldText = oldText;
-    m_NewText = newText;
-    m_uniqueIdentifier = uniqueIdentifier;
-    m_Type = type;
-
-    //store pointers to instances needed to carry out update operations
-    m_Node = node;
-    m_pCmd = cmd;
-    m_pNodeProperties = nodeProperties;
-    m_Collapsible = collapsible;
-    m_PropEdit = collapsible->getParent();
-
-    //function pointers
-    m_pCmdDeleteFunc = cmdDeleteFunc;
-    m_pCmdAddFunc = CmdAddFunc;
-    m_pParamAddFunc = ParamAddFunc;
-    m_pAddParams = addParams;
-    m_pDeleteParams = deleteParams;
-    m_pGetCmdTable = getCmdTable;
-
+    ,m_CmdItem(cmdItem)
+    ,m_OldValue(oldValue)
+    ,m_NewValue(newValue)
+    ,m_OldText(oldText)
+    ,m_NewText(newText)
+    ,m_uniqueIdentifier(uniqueIdentifier)
+    ,m_Type(type)
+    ,m_Node(node)
+    ,m_pCmd(cmd)
+    ,m_pNodeProperties(nodeProperties)
+    ,m_Collapsible(collapsible)
+    ,m_PropEdit(collapsible->getParent())
+    ,m_pCmdDeleteFunc(cmdDeleteFunc)
+    ,m_pCmdAddFunc(CmdAddFunc)
+    ,m_pParamAddFunc(ParamAddFunc)
+    ,m_pAddParams(addParams)
+    ,m_pDeleteParams(deleteParams)
+    ,m_pGetCmdTable(getCmdTable)
+{
     //store old parameters, needed for undo but should not be done every redo;
     m_OldParameters = (m_Node->*m_pGetCmdTable)()[m_OldValue].parameters;
 }
@@ -354,18 +346,16 @@ bool CommandEditCommand::mergeWith(const QUndoCommand *command)
 CommandAddCommand:: CommandAddCommand(QGridLayout *grid, QHash<QUuid, CommandRow*> *commandRow, CommandBlockTypes type, CommandRow* (NodeProperties::*addCommand) (QGridLayout*, QHash<QUuid, CommandRow*>&, CommandBlockTypes, const QUuid&, zodiac::NodeCommand*),
                                       NodeProperties *nodeProperties, Collapsible *collapsible, NodeCtrl *node, QUndoCommand *parent)
     : QUndoCommand(parent)
+    ,m_pGrid(grid)
+    ,m_pCommandRow(commandRow)
+    ,m_pNodeProperties(nodeProperties)
+    ,m_pAddCommand(addCommand)
+    ,m_type(type)
+    ,m_pCmd(nullptr)
+    ,m_Collapsible(collapsible)
+    ,m_PropEdit(collapsible->getParent())
+    ,m_Node(node)
 {
-
-    m_pGrid = grid;
-    m_pCommandRow = commandRow;
-
-    m_pNodeProperties = nodeProperties;
-    m_pAddCommand = addCommand;
-    m_type = type;
-    m_pCmd = nullptr;
-    m_Collapsible = collapsible;
-    m_PropEdit = collapsible->getParent();
-    m_Node = node;
 }
 
 void CommandAddCommand::undo()
@@ -427,27 +417,22 @@ CommandDeleteCommand::CommandDeleteCommand(QHash<QUuid, CommandRow*> *commandRow
                                            NodeProperties *nodeProperties, CommandRow *cmd, const QString &value, const QString &text, void (CommandRow::*deleteParams)(), NodeCtrl *node, void (NodeCtrl::*cmdAddFunc) (const QUuid &, const QString&, const QString&),
                                            void (NodeCtrl::*paramAddFunc) (const QUuid&, const QString&, const QString&), QHash<QUuid, zodiac::NodeCommand> (NodeCtrl::*getCmdTable)(), QUuid uniqueIdentifier, Collapsible *collapsible, QUndoCommand *parent)
     : QUndoCommand(parent)
+    ,m_pCommandRow(commandRow)
+    ,m_pNodeProperties(nodeProperties)
+    ,m_pAddCommand(addCommand)
+    ,m_type(type)
+    ,m_pCmd(cmd)
+    ,m_CommandValue(value)
+    ,m_CommandText(text)
+    ,m_uniqueIdentifier(uniqueIdentifier)
+    ,m_pDeleteParams(deleteParams)
+    ,m_pNode(node)
+    ,m_pCmdAddFunc(cmdAddFunc)
+    ,m_pParamAddFunc(paramAddFunc)
+    ,m_pGetCmdTable(getCmdTable)
+    ,m_Collapsible(collapsible)
+    ,m_PropEdit(collapsible->getParent())
 {
-
-    m_pCommandRow = commandRow;
-    m_pNodeProperties = nodeProperties;
-    m_pAddCommand = addCommand;
-    m_type = type;
-    m_pCmd = cmd;  
-
-   m_CommandValue = value;
-   m_CommandText = text;
-   m_uniqueIdentifier = uniqueIdentifier;
-
-   m_pDeleteParams = deleteParams;
-
-   m_pNode = node;
-   m_pCmdAddFunc = cmdAddFunc;
-   m_pParamAddFunc = paramAddFunc;
-   m_pGetCmdTable = getCmdTable;
-
-   m_Collapsible = collapsible;
-   m_PropEdit = collapsible->getParent();
 }
 
 void CommandDeleteCommand::undo()
@@ -510,3 +495,67 @@ void CommandDeleteCommand::redo()
     m_pCmd->removeCommand();
 }
 
+///
+NodeRemoveLink::NodeRemoveLink(zodiac::Plug *outgoingPlug, zodiac::Plug *incomingPlug, PlugRow* row, void (PlugRow::*removePlugConnection)(QPair<QLabel*, QPushButton*> &), QPair<QLabel*, QPushButton*> uiElements,  QUndoCommand *parent)
+    : QUndoCommand(parent)
+    , m_outgoingPlug(outgoingPlug)
+    , m_incomingPlug(incomingPlug)
+    , m_pRow(row)
+    , m_pRemovePlugConnection(removePlugConnection)
+    , m_uiElements(uiElements)
+{
+
+}
+
+void NodeRemoveLink::undo()
+{
+    m_outgoingPlug.connectPlug(m_incomingPlug);
+}
+
+void NodeRemoveLink::redo()
+{
+    m_outgoingPlug.disconnectPlug(m_incomingPlug);
+
+    if(m_pRow)
+        (m_pRow->*m_pRemovePlugConnection)(m_uiElements);
+}
+
+///
+NodeAddLink::NodeAddLink(zodiac::PlugHandle &outgoingPlug, zodiac::PlugHandle &incomingPlug, QUndoCommand *parent)
+    : QUndoCommand(parent)
+    , m_outgoingPlug(outgoingPlug)
+    , m_incomingPlug(incomingPlug)
+{
+
+}
+
+void NodeAddLink::undo()
+{
+    m_outgoingPlug.disconnectPlug(m_incomingPlug);
+}
+
+void NodeAddLink::redo()
+{
+    m_outgoingPlug.connectPlug(m_incomingPlug);
+}
+
+///
+NodeAddLinks::NodeAddLinks(zodiac::PlugHandle &outgoingPlug, QList<zodiac::PlugHandle> &incomingPlugs, QUndoCommand *parent)
+    : QUndoCommand(parent)
+    , m_outgoingPlug(outgoingPlug)
+    , m_incomingPlugs(incomingPlugs)
+{
+
+}
+
+void NodeAddLinks::undo()
+{
+    for(QList<zodiac::PlugHandle>::iterator plugIt = m_incomingPlugs.begin(); plugIt != m_incomingPlugs.end(); ++plugIt)
+        m_outgoingPlug.disconnectPlug((*plugIt));
+}
+
+void NodeAddLinks::redo()
+{
+    for(QList<zodiac::PlugHandle>::iterator plugIt = m_incomingPlugs.begin(); plugIt != m_incomingPlugs.end(); ++plugIt)
+    m_outgoingPlug.connectPlug((*plugIt));
+}

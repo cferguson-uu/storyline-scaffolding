@@ -237,7 +237,6 @@ void NodeProperties::changeNodeDescription()
 
 CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, const QUuid &id, zodiac::NodeCommand *cmd)
 {
-    qDebug() << "test";
     int row = grid->rowCount();
 
     QGridLayout *commandBlockGrid = new QGridLayout();
@@ -299,8 +298,6 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
 
     QHash<QUuid,zodiac::NodeCommand> *hashPointer;
 
-    qDebug() << "cmdKey " << cmdKey;
-
     switch(type)
     {
         case CMD_UNLOCK:
@@ -319,10 +316,6 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
     //get parameters from the command pointer
     for(QList<Command>::iterator cmdIt = m_pCommands->begin(); cmdIt != m_pCommands->end(); ++cmdIt)
     {
-        qDebug() << "(*cmdIt).id " << (*cmdIt).id;
-        qDebug() << "hashPointer->value(cmdKey).id " << hashPointer->value(cmdKey).id;
-        qDebug() << "hashPointer->value(cmdKey).description " << hashPointer->value(cmdKey).description;
-
         if((*cmdIt).id == hashPointer->value(cmdKey).id)
             for(QList<Parameter>::iterator paramIt = (*cmdIt).commandParams.begin(); paramIt != (*cmdIt).commandParams.end(); ++paramIt)
             {
@@ -520,9 +513,13 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
             rowLayout->addWidget(connectionButton, row, 1);
             ++row;
 
-            connect(connectionButton, &QPushButton::released, [=]{});
+            zodiac::Plug *outgoing = plug.data();
+            zodiac::Plug *incoming = (*conIt).data();
+            QPair<QLabel*, QPushButton*> connection(connectionLabel, connectionButton);
 
-            m_storyConnections.push_back(qMakePair(connectionLabel, connectionButton));
+            connect(connectionButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new NodeRemoveLink(outgoing, incoming, this, &PlugRow::removePlugConnection, connection));});
+
+            m_storyConnections.push_back(connection);
         }
     }
 
@@ -550,9 +547,13 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
                     rowLayout->addWidget(connectionButton, row, 1);
                     ++row;
 
-                    connect(connectionButton, &QPushButton::released, [=]{});
+                    zodiac::Plug *outgoing = plug.data();
+                    zodiac::Plug *incoming = (*conIt).data();
+                    QPair<QLabel*, QPushButton*> connection(connectionLabel, connectionButton);
 
-                    m_narrativeConnections.push_back(qMakePair(connectionLabel, connectionButton));
+                    connect(connectionButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new NodeRemoveLink(outgoing, incoming, this, &PlugRow::removePlugConnection, connection));});
+
+                    m_narrativeConnections.push_back(connection);
                 }
             }
             else
@@ -568,9 +569,13 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
                 rowLayout->addWidget(connectionButton, row, 1);
                 ++row;
 
-                connect(connectionButton, &QPushButton::released, [=]{});
+                zodiac::Plug *outgoing = plug.data();
+                zodiac::Plug *incoming = (*conIt).data();
+                QPair<QLabel*, QPushButton*> connection(connectionLabel, connectionButton);
 
-                m_narrativeConnections.push_back(qMakePair(connectionLabel, connectionButton));
+                connect(connectionButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new NodeRemoveLink(outgoing, incoming, this, &PlugRow::removePlugConnection, connection));});
+
+                m_narrativeConnections.push_back(connection);
             }
         }
     }
@@ -598,6 +603,15 @@ void PlugRow::togglePlugDirection()
         return;
     }
     updateDirectionIcon();
+}
+
+void PlugRow::removePlugConnection(QPair<QLabel*, QPushButton*> &connection)
+{
+    //remove both elements
+    connection.first->deleteLater();
+    connection.second->deleteLater();
+
+    //remove from list
 }
 
 void PlugRow::removePlug()
