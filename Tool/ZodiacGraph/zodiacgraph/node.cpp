@@ -778,6 +778,7 @@ void Node::updateOutlinePen()
 NarrativeNode::NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load, const QUuid& uuid, QColor idleColor, QColor selectedColor, QColor outlineColor,
               QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
         : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
+        , m_locked(true)
 {
     if(load)
     {

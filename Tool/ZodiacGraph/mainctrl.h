@@ -237,6 +237,9 @@ private: // members
     void saveRequirementsChildren(NarRequirements *narReq, zodiac::NodeHandle &sceneNode);
     void saveStoryTags(NarNode *narNode, zodiac::NodeHandle &sceneNode);
 
+    void showUnlockableNodes(QList<zodiac::NodeHandle> &nodes);
+    bool areAllNodesUnlocked(QList<zodiac::NodeHandle> &nodes);
+
 private: // static members
 
     ///
