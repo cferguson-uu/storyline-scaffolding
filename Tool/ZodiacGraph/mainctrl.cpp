@@ -1372,6 +1372,50 @@ void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
      }*/
 }
 
+float MainCtrl::spaceOutStory(zodiac::NodeHandle &node, float xPos)
+{
+    float minX = INFINITY;
+    float maxX = INFINITY;
+
+    if(node.getPlug("storyOut").isValid())
+    {
+        QList<zodiac::PlugHandle> connectedPlugs = node.getPlug("storyOut").getConnectedPlugs();
+
+        if(!connectedPlugs.empty())
+        {
+            QList<zodiac::NodeHandle> childNodes;
+            for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++plugIt)
+            {
+                childNodes.push_back((*plugIt).getNode());
+            }
+
+            int i = 0;
+            for(QList<zodiac::NodeHandle>::iterator nodeIt = childNodes.begin(); nodeIt != childNodes.end(); ++nodeIt)
+            {
+                if((*nodeIt).getPlug("storyOut").isValid() && !(*nodeIt).getPlug("storyOut").getConnectedPlugs().empty())
+                    spaceOutStory((*nodeIt), i);
+
+                i+= 150;
+            }
+        }
+        else
+        {
+            node.setPos(xPos, node.getPos().y());
+
+            if(xPos < minX)
+                minX = xPos;
+            else
+                if(xPos > maxX)
+                    maxX = xPos;
+        }
+    }
+    else
+    {
+        qDebug() << "error";
+        return 0;
+    }
+}
+
 void MainCtrl::showLinkerWindow(zodiac::NodeHandle &node)
 {
     if(m_linkWindow)
@@ -1423,6 +1467,17 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
         {
             (*plugIt)->setBaseColor(QColor(66, 134, 244));
         }
+    }
+
+    //look for starting nodes (ones with no requirements) and space them out
+    QList<zodiac::NodeHandle> currentNodes = m_scene.getNodes();
+    for(QList<zodiac::NodeHandle>::iterator narIt = currentNodes.begin(); narIt != currentNodes.end(); ++narIt)
+    {
+        if((*narIt).getType() != zodiac::NODE_NARRATIVE)
+            continue;
+
+        if(!(*narIt).getPlug("reqOut").isValid())
+            spaceOutNarrative(new NodeCtrl(this, (*narIt)));
     }
 }
 

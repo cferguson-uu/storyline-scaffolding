@@ -951,7 +951,7 @@ StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &de
             QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_SUBGOAL, "SubGoal", "SubGoal", QPoint(100,100)); } );
         }
 
-    setDisplayName(getDisplayName());   //this will add prefix the current name
+    setDisplayName(getDisplayName());   //this will add prefix to the current name
 }
 
 QString StoryNode::getStoryNodePrefix()

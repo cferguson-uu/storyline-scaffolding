@@ -223,6 +223,8 @@ private: // members
     ///
     void loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states);
 
+    float spaceOutStory(zodiac::NodeHandle &node, float xPos);
+
     void saveSettingItem(zodiac::NodeHandle &settingGroup);
     void saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem = nullptr);
     void savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem = nullptr);
