@@ -47,6 +47,27 @@ NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& n
     NodeCtrl* nodeCtrl = new NodeCtrl(this, m_scene.createNode(nodeName, description, storyType, load));
     m_nodes.insert(nodeCtrl->getNodeHandle(), nodeCtrl);
 
+    //set up plugs for links between nodes
+    if(nodeCtrl->getType() == zodiac::NODE_NARRATIVE)
+    {
+        //add incoming plugs
+        nodeCtrl->addIncomingPlug("reqIn");
+
+        //add outgoing plugs
+        nodeCtrl->addOutgoingPlug("reqOut");
+        nodeCtrl->addOutgoingPlug("storyOut");
+    }
+    else
+        if(nodeCtrl->getType() == zodiac::NODE_STORY)
+        {
+            //add incoming plugs
+            nodeCtrl->addIncomingPlug("storyIn");
+            nodeCtrl->addIncomingPlug("narrativeIn");
+
+            //add outgoing plugs
+            nodeCtrl->addOutgoingPlug("storyOut");
+        }
+
     return nodeCtrl;
 }
 
@@ -1054,7 +1075,13 @@ void MainCtrl::loadNarrativeGraph()
                     continue;
                 }
 
-                zodiac::PlugHandle reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
+                zodiac::PlugHandle reqOutPlug;
+
+                if(newNarNode->getNodeHandle().getPlug("reqOut").isValid())
+                    reqOutPlug = newNarNode->getNodeHandle().getPlug("reqOut");
+                else
+                    reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
+
                 loadRequirements((*narIt).requirements, reqOutPlug, newNarSceneNodes, currentNarSceneNodes);
 
                 QSet<zodiac::PlugEdge*> edgeList = newNarNode->getNodeHandle().getPlug("reqOut").getEdges();
