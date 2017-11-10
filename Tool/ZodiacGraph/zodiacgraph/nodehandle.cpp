@@ -521,6 +521,20 @@ StoryNodeType NodeHandle::getStoryNodeType()
     return sNode->getStoryNodeType();
 }
 
+QString NodeHandle::getStoryNodePrefix()
+{
+    StoryNode *sNode = static_cast<StoryNode*>(m_node);
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+    Q_ASSERT(sNode);
+#else
+    if(!m_isValid || !sNode){
+        return STORY_ERROR;
+    }
+#endif
+    return sNode->getStoryNodePrefix();
+}
+
 const QColor& NodeHandle::getIdleColor()
 {
 #ifdef QT_DEBUG

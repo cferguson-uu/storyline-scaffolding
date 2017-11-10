@@ -1123,7 +1123,10 @@ public:
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
 
     ///
-    /// \brief Context menu used for linking
+    /// \brief Brings up a context menu to link nodes together
+    ///
+    /// \param [in] event   Menu Event.
+    ///
     ///
     void contextMenuEvent(QContextMenuEvent *event);
 
@@ -1175,7 +1178,24 @@ public:
               QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
               QColor labelBackgroundColor = QColor("#F84B28" /*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"));
 
+    ///
+    /// \brief Returns the type of story node
+    ///
+    ///
     StoryNodeType getStoryNodeType(){return m_storyNodeType;}
+
+    ///
+    /// \brief Returns the prefix for the story node
+    ///
+    ///
+    QString getStoryNodePrefix();
+
+    ///
+    /// \brief Brings up a context menu to add more nodes if applicable
+    ///
+    /// \param [in] event   Menu Event.
+    ///
+    ///
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:

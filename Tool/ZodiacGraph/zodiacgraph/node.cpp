@@ -31,6 +31,27 @@ static qreal angularDistance(qreal alpha, qreal beta);
 
 namespace zodiac {
 
+//prefixes
+//setting
+static const QString kPrefix_Characters = "CHAR_";
+static const QString kPrefix_Locations = "LOC_";
+static const QString kPrefix_Times = "TIM_";
+static const QString kPrefix_Detail = "DET_";
+
+//theme
+static const QString kPrefix_ThemeEvent = "TEV_";
+static const QString kPrefix_ThemeGoal = "TGO_";
+
+//plot
+static const QString kPrefix_Episode = "EP_";
+static const QString kPrefix_SubGoal = "SUBG_";
+static const QString kPrefix_Attempt = "ATT_";
+static const QString kPrefix_Outcome = "OUT_";
+
+//resolution
+static const QString kPrefix_ResolutionEvent = "REV_";
+static const QString kPrefix_ResolutionState = "RST_";
+
 qreal Node::s_coreRadius = 25.;
 //QColor Node::s_idleColor = QColor("#4b77a7");
 //QColor Node::s_selectedColor = QColor("#62abfa");
@@ -210,11 +231,14 @@ qreal Node::getPerimeterRadius() const
 
 void Node::setDisplayName(const QString& displayName)
 {
-    if(m_displayName == displayName){
-        return;
-    }
     m_displayName=displayName;
-    m_label->setText(m_displayName);
+
+    if(m_nodeType == NODE_STORY)
+        m_label->setText(static_cast<StoryNode*>(this)->getStoryNodePrefix() + m_displayName);
+    else
+        m_label->setText(m_displayName);
+
+
     for(Plug* plug : m_allPlugs){
         plug->updateEdgeLabels();
     }
@@ -900,12 +924,7 @@ bool NarrativeNode::getLockedStatus()
     return m_locked;
 }
 
-///
-/// \brief Brings up a context menu to add more nodes if applicable
-///
-/// \param [in] event   Menu Event.
-///
-///
+
 void NarrativeNode::contextMenuEvent(QContextMenuEvent *event)
 {
     //QMenu menu(this);
@@ -931,14 +950,43 @@ StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &de
             QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome", QPoint(0,100)); } );
             QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_SUBGOAL, "SubGoal", "SubGoal", QPoint(100,100)); } );
         }
+
+    setDisplayName(getDisplayName());   //this will add prefix the current name
 }
 
-///
-/// \brief Brings up a context menu to add more nodes if applicable
-///
-/// \param [in] event   Menu Event.
-///
-///
+QString StoryNode::getStoryNodePrefix()
+{
+    switch(m_storyNodeType)
+    {
+        case STORY_SETTING_CHARACTER:
+            return kPrefix_Characters;
+        case STORY_SETTING_LOCATION:
+            return kPrefix_Locations;
+        case STORY_SETTING_TIME:
+            return kPrefix_Times;
+        case STORY_ITEM_DETAILS:
+            return kPrefix_Detail;
+        case STORY_THEME_EVENT:
+            return kPrefix_ThemeEvent;
+        case STORY_THEME_GOAL:
+            return kPrefix_ThemeGoal;
+        case STORY_PLOT_EPISODE:
+            return kPrefix_Episode;
+        case STORY_PLOT_EPISODE_ATTEMPT:
+            return kPrefix_Attempt;
+        case STORY_PLOT_EPISODE_OUTCOME:
+            return kPrefix_Outcome;
+        case STORY_PLOT_EPISODE_SUBGOAL:
+            return kPrefix_SubGoal;
+        case STORY_RESOLUTION_EVENT:
+            return kPrefix_ResolutionEvent;
+        case STORY_RESOLUTION_STATE:
+            return kPrefix_ResolutionState;
+        default:
+            return "";
+    }
+}
+
 void StoryNode::contextMenuEvent(QContextMenuEvent *event)
 {
     //QMenu menu(this);

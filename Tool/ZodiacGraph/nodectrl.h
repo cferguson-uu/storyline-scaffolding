@@ -182,11 +182,30 @@ public: // methods
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
 
     ///
+    /// \brief set the locked/unlocked status of the node
+    ///
+    ///
+    /// \param [in] bool to set status
+    ///
+    void setLockedStatus(bool status){m_node.setLockedStatus(status);}
+
+    ///
+    /// \brief get the locked/unlocked status of the node
+    ///
+    bool getLockedStatus(){return m_node.getLockedStatus();}
+
+    ///
     /// \brief Get the type of story node
     ///
     /// \return Story node type
     ///
     zodiac::StoryNodeType getStoryNodeType(){return m_node.getStoryNodeType();}
+
+    ///
+    /// \brief Returns the prefix for the story node
+    ///
+    ///
+    QString getStoryNodePrefix(){return m_node.getStoryNodePrefix();}
 
     ///
     /// \brief Fill color of an idle Node core.

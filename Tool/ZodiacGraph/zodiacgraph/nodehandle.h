@@ -247,11 +247,6 @@ public: // methods
     void editParameterInOnUnlockCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
     void editParameterInOnFailCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
-    ///
-    /// \brief Gets the type of story node
-    ///
-    ///
-    StoryNodeType getStoryNodeType();
 
     ///
     /// \brief set the locked/unlocked status of the node
@@ -265,6 +260,18 @@ public: // methods
     /// \brief get the locked/unlocked status of the node
     ///
     bool getLockedStatus();
+
+    ///
+    /// \brief Gets the type of story node
+    ///
+    ///
+    StoryNodeType getStoryNodeType();
+
+    ///
+    /// \brief Returns the prefix for the story node
+    ///
+    ///
+    QString getStoryNodePrefix();
 
     ///
     /// \brief Sets the expansion of the node only if it is not currently forced open.
