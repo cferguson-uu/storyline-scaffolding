@@ -12,6 +12,17 @@
 
 QString NodeProperties::s_defaultPlugName = "plug";
 
+static const QString kName_ReqOut = "reqOut";
+static const QString kName_ReqOutFull = "Requires:";
+static const QString kName_ReqIn = "reqIn";
+static const QString kName_ReqInFull = "Provides:";
+static const QString kName_storyOut = "storyOut";
+static const QString kName_storyOutFull = "Story Parent:";
+static const QString kName_storyIn = "storyOut";
+static const QString kName_storyInFull = "Story Nodes:";
+static const QString kName_narrativeIn = "narrativeIn";
+static const QString kName_narrativeInFull = "Narrative Nodes:";
+
 NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, QList<Command> *commands, QUndoStack *undoStack)
     : QWidget(parent)
     , m_node(node)
@@ -30,21 +41,15 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, QList<Comman
 
     if(m_node->getType() == zodiac::NODE_NARRATIVE)
         constructNarrativeNodeProperties(mainLayout);
-
-    if(m_node->getType() == zodiac::NODE_STORY)
+    else
+        if(m_node->getType() == zodiac::NODE_STORY)
         constructStoryNodeProperties(mainLayout);
 
-    // define the add plug button
+    // define the plug layout
     m_plugLayout = new QGridLayout();
     m_plugLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
     m_plugLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
-    m_addPlugButton = new QPushButton(this);
-    m_addPlugButton->setIconSize(QSize(8, 8));
-    m_addPlugButton->setIcon(QIcon(":/icons/plus.svg"));
-    m_addPlugButton->setFlat(true);
-    m_plugLayout->addWidget(new QLabel("Plugs", this), 0, 0, 1, 2, Qt::AlignLeft);
-    m_plugLayout->addWidget(m_addPlugButton, 0, 2);
-    connect(m_addPlugButton, SIGNAL(pressed()), this, SLOT(createNewPlug()));
+    m_plugLayout->addWidget(new QLabel("<b>Plugs</b>", this), 0, 0, 1, 2, Qt::AlignLeft);
 
     // define the plugs
     for(zodiac::PlugHandle& plug : m_node->getPlugHandles()){
@@ -107,7 +112,7 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         m_addOnUnlockButton->setIconSize(QSize(8, 8));
         m_addOnUnlockButton->setIcon(QIcon(":/icons/plus.svg"));
         m_addOnUnlockButton->setFlat(true);
-        m_onUnlockLayout->addWidget(new QLabel("OnUnlock", this), 0, 0, 1, 2, Qt::AlignLeft);
+        m_onUnlockLayout->addWidget(new QLabel("<b>OnUnlock</b>", this), 0, 0, 1, 2, Qt::AlignLeft);
         m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
         connect(m_addOnUnlockButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockLayout, &m_onUnlockRows, CMD_UNLOCK, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
 
@@ -128,7 +133,7 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         m_addOnFailButton->setIconSize(QSize(8, 8));
         m_addOnFailButton->setIcon(QIcon(":/icons/plus.svg"));
         m_addOnFailButton->setFlat(true);
-        m_onFailLayout->addWidget(new QLabel("OnFail", this), 0, 0, 1, 2, Qt::AlignLeft);
+        m_onFailLayout->addWidget(new QLabel("<b>OnFail</b>", this), 0, 0, 1, 2, Qt::AlignLeft);
         m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
          connect(m_addOnFailButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onFailLayout, &m_onFailRows, CMD_FAIL, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
 
@@ -149,7 +154,7 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         m_addOnUnlockedButton->setIconSize(QSize(8, 8));
         m_addOnUnlockedButton->setIcon(QIcon(":/icons/plus.svg"));
         m_addOnUnlockedButton->setFlat(true);
-        m_onUnlockedLayout->addWidget(new QLabel("OnUnlocked", this), 0, 0, 1, 2, Qt::AlignLeft);
+        m_onUnlockedLayout->addWidget(new QLabel("<b>OnUnlocked</b>", this), 0, 0, 1, 2, Qt::AlignLeft);
         m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
         connect(m_addOnUnlockedButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockedLayout, &m_onUnlockedRows, CMD_UNLOCKED, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
 
@@ -429,45 +434,38 @@ void NodeProperties::changeCommand(QComboBox *commandField, CommandBlockTypes ty
      }
 }
 
-void NodeProperties::createNewPlug()
-{
-    // duplicate plug names are automatically resolved by the zodiac::Node
-    if(m_nextPlugIsIncoming){
-        addPlugRow(m_node->addIncomingPlug(s_defaultPlugName));
-    } else {
-        addPlugRow(m_node->addOutgoingPlug(s_defaultPlugName));
-    }
-    m_nextPlugIsIncoming = !m_nextPlugIsIncoming;
-}
-
 void NodeProperties::addPlugRow(zodiac::PlugHandle plug)
 {
     int row = m_plugLayout->rowCount();
 
     QGridLayout *rowLayout = new QGridLayout();
 
-    QPushButton* directionButton = new QPushButton(this);
-    directionButton->setIconSize(QSize(16, 16));
-    directionButton->setFlat(true);
-    directionButton->setStatusTip("Toggle the direction of the Plug from 'incoming' to 'outoing' and vice versa.");
-    //m_plugLayout->addWidget(directionButton, row, 0);
-    rowLayout->addWidget(directionButton, 0, 0);
+    QString name = plug.getName();
 
-    QLabel* plugName = new QLabel(plug.getName(), this);
+    //show full name for the plug, if none of these then original name will stick
+    if (name == kName_ReqOut)
+        name = "<i>" + kName_ReqOutFull + "</i>";
+    else
+        if (name == kName_ReqIn)
+            name = "<i>" + kName_ReqInFull + "</i>";
+        else
+            if (name == kName_storyOut)
+                name = "<i>" + kName_storyOutFull + "</i>";
+            else
+                if (name == kName_storyIn)
+                    name = "<i>" + kName_storyInFull + "</i>";
+                else
+                    if (name == kName_narrativeIn)
+                        name = "<i>" + kName_narrativeInFull + "</i>";
+
+
+    QLabel* plugName = new QLabel(name, this);
     //m_plugLayout->addWidget(plugName, row, 1);
-    rowLayout->addWidget(plugName, 0, 1);
-
-    QPushButton* removalButton = new QPushButton(this);
-    removalButton->setIcon(QIcon(":/icons/minus.svg"));
-    removalButton->setIconSize(QSize(8, 8));
-    removalButton->setFlat(true);
-    removalButton->setStatusTip("Delete the Plug from its Node");
-    //m_plugLayout->addWidget(removalButton, row, 2);
-    rowLayout->addWidget(removalButton, 0, 2);
+    rowLayout->addWidget(plugName, 0, 0);
 
     m_plugLayout->addLayout(rowLayout, row, 0);
 
-    m_plugRows.insert(plug.getName(), new PlugRow(this, plug, plugName, directionButton, removalButton, rowLayout));
+    m_plugRows.insert(plug.getName(), new PlugRow(this, plug, plugName, rowLayout));
 }
 
 void NodeProperties::removePlugRow(const QString& plugName)
@@ -482,22 +480,16 @@ void NodeProperties::removeCommandRow(const QUuid& commandId, QHash<QUuid, Comma
     commandRows->remove(commandId);
 }
 
-PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLabel,
-                 QPushButton* directionToggle, QPushButton* removalButton, QGridLayout *rowLayout)
+PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLabel, QGridLayout *rowLayout)
     : QObject(editor)
     , m_editor(editor)
     , m_plug(plug)
     , m_nameLabel(nameLabel)
-    , m_directionToggle(directionToggle)
-    , m_removalButton(removalButton)
 {
-    //connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renamePlug()));
-    connect(m_directionToggle, SIGNAL(clicked()), this, SLOT(togglePlugDirection()));
-    connect(m_removalButton, SIGNAL(clicked()), this, SLOT(removePlug()));
 
     int row = rowLayout->rowCount();
 
-    if(plug.getName() == "storyOut" || plug.getName() == "storyIn")
+    if(plug.getName() == kName_storyOut || plug.getName() == kName_storyIn)
     {
         QList<zodiac::PlugHandle> connections =  plug.getConnectedPlugs();
         for(QList<zodiac::PlugHandle>::iterator conIt = connections.begin(); conIt != connections.end(); ++conIt)
@@ -509,8 +501,8 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
             connectionButton->setFlat(true);
             connectionButton->setStatusTip("Delete the Connection");
 
-            rowLayout->addWidget(connectionLabel, row, 0);
-            rowLayout->addWidget(connectionButton, row, 1);
+            rowLayout->addWidget(connectionLabel, row, 1);
+            rowLayout->addWidget(connectionButton, row, 2);
             ++row;
 
             zodiac::Plug *outgoing = plug.data();
@@ -523,7 +515,7 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
         }
     }
 
-    if(plug.getName() == "reqOut" || plug.getName() == "reqIn")
+    if(plug.getName() == kName_ReqOut || plug.getName() == kName_ReqIn || plug.getName() == kName_narrativeIn)
     {
         QList<zodiac::PlugHandle> connections =  plug.getConnectedPlugs();
         for(QList<zodiac::PlugHandle>::iterator conIt = connections.begin(); conIt != connections.end(); ++conIt)
@@ -543,8 +535,8 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
                     connectionButton->setFlat(true);
                     connectionButton->setStatusTip("Delete the Connection");
 
-                    rowLayout->addWidget(connectionLabel, row, 0);
-                    rowLayout->addWidget(connectionButton, row, 1);
+                    rowLayout->addWidget(connectionLabel, row, 1);
+                    rowLayout->addWidget(connectionButton, row, 2);
                     ++row;
 
                     zodiac::Plug *outgoing = plug.data();
@@ -565,8 +557,8 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
                 connectionButton->setFlat(true);
                 connectionButton->setStatusTip("Delete the Connection");
 
-                rowLayout->addWidget(connectionLabel, row, 0);
-                rowLayout->addWidget(connectionButton, row, 1);
+                rowLayout->addWidget(connectionLabel, row, 1);
+                rowLayout->addWidget(connectionButton, row, 2);
                 ++row;
 
                 zodiac::Plug *outgoing = plug.data();
@@ -579,30 +571,11 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
             }
         }
     }
-
-    updateDirectionIcon();
 }
 
 void PlugRow::renamePlug()
 {
     m_nameLabel->setText(m_editor->getNode()->renamePlug(m_plug.getName(), m_nameLabel->text()));
-}
-
-void PlugRow::updateDirectionIcon()
-{
-    if(m_plug.isIncoming()){
-        m_directionToggle->setIcon(QIcon(":/icons/incoming.svg"));
-    } else {
-        m_directionToggle->setIcon(QIcon(":/icons/outgoing.svg"));
-    }
-}
-
-void PlugRow::togglePlugDirection()
-{
-    if(!m_editor->getNode()->togglePlugDirection(m_plug.getName())){
-        return;
-    }
-    updateDirectionIcon();
 }
 
 void PlugRow::removePlugConnection(QPair<QLabel*, QPushButton*> &connection)
@@ -612,31 +585,6 @@ void PlugRow::removePlugConnection(QPair<QLabel*, QPushButton*> &connection)
     connection.second->deleteLater();
 
     //remove from list
-}
-
-void PlugRow::removePlug()
-{
-    // do nothing, if the plug cannot be removed
-    if(!m_plug.isRemovable()){
-        return;
-    }
-
-    // unregister from the editor
-    m_editor->removePlugRow(m_plug.getName());
-
-    // remove widgets from the editor
-    QGridLayout* plugLayout = m_editor->getPlugLayout();
-    plugLayout->removeWidget(m_directionToggle);
-    plugLayout->removeWidget(m_nameLabel);
-    plugLayout->removeWidget(m_removalButton);
-
-    // delete the widgets, they are no longer needed
-    m_directionToggle->deleteLater();
-    m_nameLabel->deleteLater();
-    m_removalButton->deleteLater();
-
-    // finally, remove the plug from the logical node
-    m_editor->getNode()->removePlug(m_plug.getName());
 }
 
 CommandRow::CommandRow(NodeProperties* editor, QComboBox* nameEdit,

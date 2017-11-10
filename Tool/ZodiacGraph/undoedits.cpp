@@ -300,7 +300,20 @@ void CommandEditCommand::redo()
     m_Node->setSelected(true);
     m_Collapsible = m_PropEdit->getCollapsible(m_Node->getNodeHandle());
     m_pNodeProperties = m_Collapsible->getNodeProperties();
-    m_pCmd = m_pNodeProperties->getOnUnlockCmds()[m_uniqueIdentifier];
+
+    switch (m_Type)
+    {
+    case CMD_UNLOCK:
+        m_pCmd = m_pNodeProperties->getOnUnlockCmds()[m_uniqueIdentifier];
+        break;
+    case CMD_FAIL:
+        m_pCmd = m_pNodeProperties->getOnFailCmds()[m_uniqueIdentifier];
+        break;
+    case CMD_UNLOCKED:
+        m_pCmd = m_pNodeProperties->getOnUnlockedCmds()[m_uniqueIdentifier];
+        break;
+    }
+
     m_CmdItem = m_pCmd->getCommandBox();
 
     //only update the name if it is different (only on actual redo)

@@ -143,11 +143,6 @@ private slots:
     void changeNodeDescription();
 
     ///
-    /// \brief Called by pressing the add-plug button.
-    ///
-    void createNewPlug();
-
-    ///
     /// \brief Creates a new entry in the plug list of this property editor alongside its PlugRow.
     ///
     void addPlugRow(zodiac::PlugHandle plug);
@@ -176,11 +171,6 @@ private: // members
     /// \brief Layout of the widgets related to the plugs of the node.
     ///
     QGridLayout* m_plugLayout;
-
-    ///
-    /// \brief Button to add a new Plug to the node.
-    ///
-    QPushButton* m_addPlugButton;
 
     ///
     /// \brief All PlugRows contained in this editor.
@@ -235,12 +225,9 @@ public: // methods
     ///
     /// \param [in] editor          NodeProperties that this PlugRow is part of.
     /// \param [in] plug            Handle of the plug whose name to edit / display.
-    /// \param [in] nameEdit        Plug name edit.
-    /// \param [in] directionToggle Plug-direction toggle button.
-    /// \param [in] removalButton   Plug-removal button.
+    /// \param [in] nameLabel        Plug name label.
     ///
-    PlugRow(NodeProperties *editor, zodiac::PlugHandle plug, QLabel *nameLabel,
-            QPushButton *directionToggle, QPushButton *removalButton, QGridLayout *rowLayout);
+    PlugRow(NodeProperties *editor, zodiac::PlugHandle plug, QLabel *nameLabel, QGridLayout *rowLayout);
 
     ///
     /// \brief remove a plug connection from the panel.
@@ -256,22 +243,7 @@ private slots:
     ///
     void renamePlug();
 
-    ///
-    /// \brief Called when the toggle-Plug-direction button is pressed.
-    ///
-    void togglePlugDirection();
-
-    ///
-    /// \brief Called when the Plug-removal button is pressed.
-    ///
-    void removePlug();
-
 private: // methods
-
-    ///
-    /// \brief Single access point for setting the direction icon.
-    ///
-    void updateDirectionIcon();
 
 private: // members
 
@@ -289,16 +261,6 @@ private: // members
     /// \brief Plug name edit.
     ///
     QLabel* m_nameLabel;
-
-    ///
-    /// \brief Plug-direction toggle button.
-    ///
-    QPushButton* m_directionToggle;
-
-    ///
-    /// \brief Plug-removal button.
-    ///
-    QPushButton* m_removalButton;
 
     ///
     /// \brief List of story connections
