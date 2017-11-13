@@ -223,7 +223,9 @@ private: // members
     ///
     void loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states);
 
-    QPointF spaceOutStory(zodiac::NodeHandle &node, float &xPos, float &yPos);
+    void spaceOutStory();
+
+    float spaceOutChildNodes(zodiac::NodeHandle &node, float &xPos, float &yPos);
 
     void saveSettingItem(zodiac::NodeHandle &settingGroup);
     void saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem = nullptr);

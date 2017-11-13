@@ -414,7 +414,7 @@ void MainCtrl::loadStoryGraph()
             }
         }
 
-        zodiac::PlugHandle SettingNodeOutPlug = settingNode->getPlug("storyOut");   //create the outgoing plugs
+        zodiac::PlugHandle SettingNodeOutPlug = settingNode->getPlug("storyOut");   //get the outgoing plugs
         zodiac::PlugHandle ThemeNodeOutPlug = themeNode->getPlug("storyOut");
         zodiac::PlugHandle PlotNodeOutPlug = plotNode->getPlug("storyOut");
         zodiac::PlugHandle ResolutionNodeOutPlug = resolutionNode->getPlug("storyOut");
@@ -494,9 +494,7 @@ void MainCtrl::loadStoryGraph()
         loadResolution(resolutionNode, resEvents, resStates);
 
         //space out the graph properly
-        float xPos = 0;
-        float yPos = 0;
-        spaceOutStory(*startingNode, xPos, yPos);
+        spaceOutStory();
     }
 }
 
@@ -1129,11 +1127,55 @@ void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
      }*/
 }
 
-QPointF MainCtrl::spaceOutStory(zodiac::NodeHandle &node, float &xPos, float &yPos)
+void MainCtrl::spaceOutStory()
+{
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+
+    //find the main nodes
+    zodiac::NodeHandle startingNode;
+    zodiac::NodeHandle settingNode;
+    zodiac::NodeHandle themeNode;
+    zodiac::NodeHandle plotNode;
+    zodiac::NodeHandle resolutionNode;
+    //iterate through the list to find the nodes
+    for(QList<zodiac::NodeHandle>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+    {
+        if((*it).getType() == zodiac::NODE_STORY)
+        {
+            if((*it).getStoryNodeType() == zodiac::STORY_NAME)
+                startingNode = (*it); //get a pointer to the handle of the name node
+            else
+                if((*it).getStoryNodeType() == zodiac::STORY_SETTING)
+                    settingNode = (*it); //get a pointer to the handle of the settings node
+                else
+                    if((*it).getStoryNodeType() == zodiac::STORY_THEME)
+                        themeNode = (*it); //get a pointer to the handle of the theme node
+                    else
+                        if((*it).getStoryNodeType() == zodiac::STORY_PLOT)
+                            plotNode = (*it); //get a pointer to the handle of the plot node
+                        else
+                            if((*it).getStoryNodeType() == zodiac::STORY_RESOLUTION)
+                                resolutionNode = (*it); //get a pointer to the handle of the resolution node
+        }
+    }
+
+    float maxX = 0.0f;
+    float currentY = settingNode.getPos().y();  //all four nodes will be the same height
+    maxX = spaceOutChildNodes(settingNode, maxX, currentY);
+    maxX = spaceOutChildNodes(themeNode, maxX, currentY);
+    maxX = spaceOutChildNodes(plotNode, maxX, currentY);
+    maxX = spaceOutChildNodes(resolutionNode, maxX, currentY);
+
+    //centre starting node and then recentre the full graph
+    startingNode.setPos((settingNode.getPos().x() + themeNode.getPos().x() + plotNode.getPos().x() + resolutionNode.getPos().x())/4, startingNode.getPos().y());
+    startingNode.setPos(0, 0, true);
+
+}
+
+float MainCtrl::spaceOutChildNodes(zodiac::NodeHandle &node, float &xPos, float &yPos)
 {
     qDebug() << "space out " << node.getName();
 
-    float minX = INFINITY;
     float maxX = -INFINITY;
 
     if(node.getPlug("storyOut").isValid())
@@ -1155,21 +1197,16 @@ QPointF MainCtrl::spaceOutStory(zodiac::NodeHandle &node, float &xPos, float &yP
             float childPos = 0.0f;
             for(QList<zodiac::NodeHandle>::iterator nodeIt = childNodes.begin(); nodeIt != childNodes.end(); ++nodeIt)
             {
-                QPointF minMax = spaceOutStory((*nodeIt), nodeXPos, nodeYPos);
+                float childMaxX = spaceOutChildNodes((*nodeIt), nodeXPos, nodeYPos);
 
-                if(minMax.x() < minX)
-                    minX = minMax.x();
-
-                    if(minMax.y() > maxX)
-                        maxX = minMax.y();
+                    if(childMaxX > maxX)
+                        maxX = childMaxX;
 
                 childPos += (*nodeIt).getPos().x();
             }
-
-            qDebug() << "centre point" << (minX + maxX)/2;
             node.setPos(childPos/childNodes.size(), node.getPos().y());
 
-            xPos = maxX + 150;
+            xPos = maxX;
         }
         else
         {
@@ -1177,19 +1214,16 @@ QPointF MainCtrl::spaceOutStory(zodiac::NodeHandle &node, float &xPos, float &yP
 
             xPos += 150;
 
-            if(xPos < minX)
-                minX = xPos;
-
             if(xPos > maxX)
                     maxX = xPos;
         }
 
-        return QPointF(minX, maxX);
+        return maxX;
     }
     else
     {
         qDebug() << "error";
-        return QPointF();
+        return 0.0f;
     }
 }
 
