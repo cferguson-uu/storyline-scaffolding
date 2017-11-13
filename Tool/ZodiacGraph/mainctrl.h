@@ -206,24 +206,24 @@ private: // members
     ///
     /// \brief handle the setting items (characters, locations, times)
     ///
-    float loadSettingItem(NodeCtrl *parentNode, QList<SettingItem> items, zodiac::StoryNodeType childType);
+    void loadSettingItem(NodeCtrl *parentNode, QList<SettingItem> items, zodiac::StoryNodeType childType);
 
     ///
     /// \brief handle the theme items (events, goals)
     ///
-    QPointF loadThemeItem(NodeCtrl *parentNode, QList<EventGoal> items, zodiac::StoryNodeType childType);
+    void loadThemeItem(NodeCtrl *parentNode, QList<EventGoal> items, zodiac::StoryNodeType childType);
 
     ///
     /// \brief handle the plot items (episodes)
     ///
-    QPointF loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episodes);
+    void loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episodes);
 
     ///
     /// \brief handle the resolution items (events, states)
     ///
     void loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states);
 
-    float spaceOutStory(zodiac::NodeHandle &node, float xPos);
+    QPointF spaceOutStory(zodiac::NodeHandle &node, float &xPos, float &yPos);
 
     void saveSettingItem(zodiac::NodeHandle &settingGroup);
     void saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem = nullptr);
