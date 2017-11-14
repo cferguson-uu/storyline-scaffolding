@@ -30,6 +30,11 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
 
     connect(m_analytics, SIGNAL(unlockNode(QString)),
             this, SLOT(unlockNode(QString)));
+
+    connect(
+        m_analytics, &AnalyticsHandler::closeNodeProperties,
+        &m_scene, &zodiac::SceneHandle::deselectAll
+    );
 }
 
 NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name, const QString& description, bool load)

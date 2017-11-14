@@ -5,6 +5,7 @@
 #include "analyticssocket.h"
 #include <QObject>
 #include "zodiacgraph/node.h"
+#include "nodeproperties.h"
 
 class AnalyticsHandler : public QObject
 {
@@ -15,6 +16,7 @@ public:
 
 signals:
     void unlockNode(QString name);
+    void closeNodeProperties();
 
 public slots:
     void connected();

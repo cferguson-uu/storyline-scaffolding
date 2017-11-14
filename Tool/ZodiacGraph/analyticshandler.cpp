@@ -16,7 +16,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     , m_disconnectAction(disconnectAction)
 {
     connect(m_connectAction, &QAction::triggered, [=]{connectToServer();});
-    connect(m_disconnectAction, &QAction::triggered, [=]{connectToServer();});
+    connect(m_disconnectAction, &QAction::triggered, [=]{m_tcpSocket->disconnectFromServer();});
 
     m_disconnectAction->setEnabled(false);
 
@@ -34,6 +34,8 @@ void AnalyticsHandler::connected()
 {
     m_logWindow->initialiseLogFile();
     zodiac::Node::setAnalyticsMode(true);
+    NodeProperties::setAnalyticsMode(true);
+    closeNodeProperties();
 
     m_connectAction->setEnabled(false);
     m_disconnectAction->setEnabled(true);
@@ -43,6 +45,8 @@ void AnalyticsHandler::disconnected()
 {
     m_logWindow->closeLogFile();
     zodiac::Node::setAnalyticsMode(false);
+    NodeProperties::setAnalyticsMode(false);
+    closeNodeProperties();
 
     m_connectAction->setEnabled(true);
     m_disconnectAction->setEnabled(false);

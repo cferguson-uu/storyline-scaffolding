@@ -12,6 +12,8 @@
 
 QString NodeProperties::s_defaultPlugName = "plug";
 
+bool NodeProperties::s_analyticsMode = false;
+
 static const QString kName_ReqOut = "reqOut";
 static const QString kName_ReqOutFull = "Requires:";
 static const QString kName_ReqIn = "reqIn";
@@ -64,6 +66,9 @@ NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, QList<Comman
     removalButton->setStatusTip("Delete the Node");
     mainLayout->addWidget(removalButton);
     connect(removalButton, &QPushButton::released, [=]{m_node->remove();});
+
+    if(s_analyticsMode)
+        removalButton->setEnabled(false);
 }
 
 void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
@@ -99,6 +104,12 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         descriptionLayout->addWidget(new QLabel(descriptionLabel, this));
         descriptionLayout->addWidget(m_descriptionEdit);
 
+        if(s_analyticsMode)
+        {
+            m_nameEdit->setEnabled(false);
+            m_descriptionEdit->setEnabled(false);
+        }
+
         nameLayout->setContentsMargins(0, 4, 0, 0);
         mainLayout->addLayout(nameLayout);
         descriptionLayout->setContentsMargins(0, 4, 0, 0);
@@ -115,6 +126,9 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         m_onUnlockLayout->addWidget(new QLabel("<b>OnUnlock</b>", this), 0, 0, 1, 2, Qt::AlignLeft);
         m_onUnlockLayout->addWidget(m_addOnUnlockButton, 0, 2);
         connect(m_addOnUnlockButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockLayout, &m_onUnlockRows, CMD_UNLOCK, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
+
+        if(s_analyticsMode)
+            m_addOnUnlockButton->setEnabled(false);
 
         if(!m_node->getOnUnlockList().empty())
         {
@@ -135,7 +149,10 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         m_addOnFailButton->setFlat(true);
         m_onFailLayout->addWidget(new QLabel("<b>OnFail</b>", this), 0, 0, 1, 2, Qt::AlignLeft);
         m_onFailLayout->addWidget(m_addOnFailButton, 0, 2);
-         connect(m_addOnFailButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onFailLayout, &m_onFailRows, CMD_FAIL, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
+        connect(m_addOnFailButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onFailLayout, &m_onFailRows, CMD_FAIL, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
+
+        if(s_analyticsMode)
+            m_addOnFailButton->setEnabled(false);
 
         if(!m_node->getOnFailList().empty())
         {
@@ -157,6 +174,9 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         m_onUnlockedLayout->addWidget(new QLabel("<b>OnUnlocked</b>", this), 0, 0, 1, 2, Qt::AlignLeft);
         m_onUnlockedLayout->addWidget(m_addOnUnlockedButton, 0, 2);
         connect(m_addOnUnlockedButton, &QPushButton::released, [=]{m_pUndoStack->push(new CommandAddCommand(m_onUnlockedLayout, &m_onUnlockedRows, CMD_UNLOCKED, &NodeProperties::createNewCommandBlock, this, qobject_cast<Collapsible*>(parent()), m_node));});
+
+        if(s_analyticsMode)
+            m_addOnUnlockedButton->setEnabled(false);
 
         if(!m_node->getOnUnlockedList().empty())
         {
@@ -215,6 +235,12 @@ void NodeProperties::constructStoryNodeProperties(QVBoxLayout* mainLayout)
         mainLayout->addLayout(nameLayout);
         descriptionLayout->setContentsMargins(0, 4, 0, 0);
         mainLayout->addLayout(descriptionLayout);
+
+        if(s_analyticsMode)
+        {
+            m_nameEdit->setEnabled(false);
+            m_descriptionEdit->setEnabled(false);
+        }
 
     }
 }
@@ -284,7 +310,7 @@ CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid
     removalButton->setIcon(QIcon(":/icons/minus.svg"));
     removalButton->setIconSize(QSize(8, 8));
     removalButton->setFlat(true);
-    removalButton->setStatusTip("Delete the Plug from its Node");
+    removalButton->setStatusTip("Delete the Command from its Node");
     commandBlockGrid->addWidget(removalButton, 0, 2);
 
     grid->addLayout(commandBlockGrid, row, 0);
@@ -293,6 +319,12 @@ CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid
 
     AddParametersToCommand(type, commandRow[u], u);
     connect(commandBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { changeCommand(commandBox, type, commandRow[u], u); });
+
+    if(s_analyticsMode)
+    {
+        commandBox->setEnabled(false);
+        removalButton->setEnabled(false);
+    }
 
     return commandRow[u];
 }
@@ -366,6 +398,11 @@ void NodeProperties::AddParametersToCommand(CommandBlockTypes type, CommandRow *
                             m_node->addParameterToOnUnlockedCommand(cmdKey, (*paramIt).label, "");
                             break;
                     }
+
+                if(s_analyticsMode)
+                {
+                    text->setEnabled(false);
+                }
             }
     }
 }
@@ -509,6 +546,11 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
             zodiac::Plug *incoming = (*conIt).data();
             QPair<QLabel*, QPushButton*> connection(connectionLabel, connectionButton);
 
+            if(editor->s_analyticsMode)
+            {
+                connectionButton->setEnabled(false);
+            }
+
             connect(connectionButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new NodeRemoveLink(outgoing, incoming, this, &PlugRow::removePlugConnection, connection));});
 
             m_storyConnections.push_back(connection);
@@ -543,6 +585,11 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
                     zodiac::Plug *incoming = (*conIt).data();
                     QPair<QLabel*, QPushButton*> connection(connectionLabel, connectionButton);
 
+                    if(editor->s_analyticsMode)
+                    {
+                        connectionButton->setEnabled(false);
+                    }
+
                     connect(connectionButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new NodeRemoveLink(outgoing, incoming, this, &PlugRow::removePlugConnection, connection));});
 
                     m_narrativeConnections.push_back(connection);
@@ -564,6 +611,11 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
                 zodiac::Plug *outgoing = plug.data();
                 zodiac::Plug *incoming = (*conIt).data();
                 QPair<QLabel*, QPushButton*> connection(connectionLabel, connectionButton);
+
+                if(editor->s_analyticsMode)
+                {
+                    connectionButton->setEnabled(false);
+                }
 
                 connect(connectionButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new NodeRemoveLink(outgoing, incoming, this, &PlugRow::removePlugConnection, connection));});
 

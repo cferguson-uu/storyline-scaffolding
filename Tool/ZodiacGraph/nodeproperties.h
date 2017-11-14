@@ -89,6 +89,10 @@ public: // methods
     QGridLayout *getOnUnlockedGrid(){return m_onUnlockedLayout;}
     Collapsible* getParent(){return qobject_cast<Collapsible*>(parent());}
 
+public: // static
+
+    static void setAnalyticsMode(bool analyticsMode){s_analyticsMode = analyticsMode;}
+
 
 private: // for friend
 
@@ -207,6 +211,11 @@ private: // static members
     /// \brief Default plug name.
     ///
     static QString s_defaultPlugName;
+
+    ///
+    /// \brief Analytics mode to determine if anything is editable
+    ///
+    static bool s_analyticsMode;
 
 };
 
