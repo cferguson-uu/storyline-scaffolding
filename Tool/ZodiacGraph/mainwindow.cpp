@@ -78,6 +78,13 @@ MainWindow::MainWindow(QWidget *parent)
     mainToolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     addToolBar(Qt::TopToolBarArea, mainToolBar);
 
+    //create menu for analytics functions
+    QMenu *analyticsMenu = menuBar()->addMenu(tr("&Analytics"));
+    QAction *analyticsConnect = new QAction(tr("&Connect"), this);
+    QAction *analyticsDisconnect = new QAction(tr("&Disconnect"), this);
+    analyticsMenu->addAction(analyticsConnect);
+    analyticsMenu->addAction(analyticsDisconnect);
+
     // create the status bar
     statusBar();
 
@@ -91,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //create the analytics systems
     AnalyticsLogWindow* analyticsLog = new AnalyticsLogWindow(this);
-    AnalyticsHandler* analyticsHandler = new AnalyticsHandler(analyticsLog, this);
+    AnalyticsHandler* analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, this);
 
     // create the Main Controller
     m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, m_pUndoStack);
@@ -107,12 +114,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_secondSplitter->addWidget(m_mainSplitter);
     m_secondSplitter->addWidget(analyticsLog);
     m_secondSplitter->setSizes({900, 100});
-
-    //create menu for analytics functions
-    QMenu *analyticsMenu = menuBar()->addMenu(tr("&Analytics"));
-    QAction *analyticsConnect = new QAction(tr("&Connect"), this);
-    analyticsMenu->addAction(analyticsConnect);
-    connect(analyticsConnect, &QAction::triggered, [=]{analyticsHandler->connectToServer();});
 
     // create global actions
     QAction* newNarrativeNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Narrative Node"), this);

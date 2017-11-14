@@ -4,13 +4,14 @@
 #include "analyticslogwindow.h"
 #include "analyticssocket.h"
 #include <QObject>
+#include "zodiacgraph/node.h"
 
 class AnalyticsHandler : public QObject
 {
     Q_OBJECT
 
 public:
-    AnalyticsHandler(AnalyticsLogWindow *logger, QObject *parent);
+    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QObject *parent);
 
 signals:
     void unlockNode(QString name);
@@ -24,6 +25,9 @@ public slots:
 private:
     AnalyticsSocket *m_tcpSocket;
     AnalyticsLogWindow *m_logWindow;
+
+    QAction *m_connectAction;
+    QAction *m_disconnectAction;
 };
 
 #endif // ANALYTICSHANDLER_H

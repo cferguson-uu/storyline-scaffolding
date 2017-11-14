@@ -107,6 +107,12 @@ void AnalyticsSocket::disconnected()
     disconnectedCallback();
 }
 
+void AnalyticsSocket::disconnectFromServer()
+{
+    m_socket->disconnectFromHost();
+    disconnected();
+}
+
 void AnalyticsSocket::bytesWritten(qint64 bytes)
 {
     qDebug() << "Wrote: " << bytes;

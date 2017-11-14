@@ -143,6 +143,8 @@ NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type
 
     ParentNodeOutPlug.connectPlug(childNodeInPlug);
 
+    spaceOutStory();
+
     return child;
 }
 
@@ -1174,8 +1176,6 @@ void MainCtrl::spaceOutStory()
 
 float MainCtrl::spaceOutChildNodes(zodiac::NodeHandle &node, float &xPos, float &yPos)
 {
-    qDebug() << "space out " << node.getName();
-
     float maxX = -INFINITY;
 
     if(node.getPlug("storyOut").isValid())

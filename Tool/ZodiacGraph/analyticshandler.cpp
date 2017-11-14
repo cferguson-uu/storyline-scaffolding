@@ -8,11 +8,18 @@ static const QString kName_WithResult = " with result ";
 static const QString kName_At = " at ";
 static const QString kName_Timestamp = "timestamp";
 
-AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QObject *parent)
+AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QObject *parent)
     : QObject(parent)
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
+    , m_connectAction(connectAction)
+    , m_disconnectAction(disconnectAction)
 {
+    connect(m_connectAction, &QAction::triggered, [=]{connectToServer();});
+    connect(m_disconnectAction, &QAction::triggered, [=]{connectToServer();});
+
+    m_disconnectAction->setEnabled(false);
+
     connect(m_tcpSocket, SIGNAL(connectedCallback()), this, SLOT(connected()));
     connect(m_tcpSocket, SIGNAL(disconnectedCallback()), this, SLOT(disconnected()));
     connect(m_tcpSocket, SIGNAL(readMessage(QString)), this, SLOT(handleMessage(QString)));
@@ -26,11 +33,19 @@ void AnalyticsHandler::connectToServer()
 void AnalyticsHandler::connected()
 {
     m_logWindow->initialiseLogFile();
+    zodiac::Node::setAnalyticsMode(true);
+
+    m_connectAction->setEnabled(false);
+    m_disconnectAction->setEnabled(true);
 }
 
 void AnalyticsHandler::disconnected()
 {
     m_logWindow->closeLogFile();
+    zodiac::Node::setAnalyticsMode(false);
+
+    m_connectAction->setEnabled(true);
+    m_disconnectAction->setEnabled(false);
 }
 
 void AnalyticsHandler::handleMessage(QString message)

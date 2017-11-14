@@ -674,6 +674,13 @@ public: // static methods
     ///
     static inline void setCollapseCurve(QEasingCurve curve) {s_collapseCurve=curve;}
 
+    ///
+    /// \brief Sets a new easing animation curve for the collapse animation.
+    ///
+    /// \param [in] curve   New animation curve for Node collapse.
+    ///
+    static inline void setAnalyticsMode(bool inAnalytics) {s_inAnalyticsMode=inAnalytics;}
+
 protected: // methods
 
     ///
@@ -1031,6 +1038,11 @@ private: // static members
     /// \brief Used to determine, whether a mouse clicked on the Node was a click or a drag.
     ///
     static bool s_mouseWasDragged;
+
+    ///
+    /// \brief Used to handle behaviour when in analytics mode
+    ///
+    static bool s_inAnalyticsMode;
 
 };
 

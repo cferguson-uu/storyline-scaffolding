@@ -66,6 +66,7 @@ QEasingCurve Node::s_expandCurve = QEasingCurve::OutQuad;
 QEasingCurve Node::s_collapseCurve = QEasingCurve::OutQuad;
 //QPen Node::s_linePen = QPen(QBrush(s_outlineColor), s_outlineWidth);
 bool Node::s_mouseWasDragged = false;
+bool Node::s_inAnalyticsMode = false;
 
 Node::Node(Scene* scene, const QString &displayName, const QString &description, NodeType nodeType, const QUuid &uuid,
            QColor idleColor, QColor selectedColor, QColor outlineColor,
@@ -442,6 +443,9 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void Node::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
+    if(s_inAnalyticsMode)   //don't allow the nodes to be moved when in analytics mode
+        return;
+
     // if this method is called, then the mouse is being dragged
     s_mouseWasDragged = true;
 
