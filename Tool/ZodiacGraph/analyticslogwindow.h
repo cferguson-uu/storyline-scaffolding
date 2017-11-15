@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QJsonObject>
 
 class AnalyticsLogWindow : public QPlainTextEdit
@@ -19,10 +20,11 @@ public:
     void initialiseLogFile();
     void closeLogFile();
     void appendToWindow(const QString& text);
-    void appendToLogFile(const QString& text);
+    void appendToLogFile(const QJsonObject& obj);
 
 private:
     QFile m_logFile;
+    QString m_fileName;
     bool m_fileOpen;
 };
 

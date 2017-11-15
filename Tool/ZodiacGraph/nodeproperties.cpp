@@ -19,9 +19,9 @@ static const QString kName_ReqOutFull = "Requires:";
 static const QString kName_ReqIn = "reqIn";
 static const QString kName_ReqInFull = "Provides:";
 static const QString kName_storyOut = "storyOut";
-static const QString kName_storyOutFull = "Story Parent:";
+static const QString kName_storyOutFull = "Story Nodes:";
 static const QString kName_storyIn = "storyIn";
-static const QString kName_storyInFull = "Story Nodes:";
+static const QString kName_storyInFull = "Story Parent:";
 static const QString kName_narrativeIn = "narrativeIn";
 static const QString kName_narrativeInFull = "Narrative Nodes:";
 

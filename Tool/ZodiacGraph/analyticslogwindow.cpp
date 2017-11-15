@@ -16,20 +16,21 @@ AnalyticsLogWindow::~AnalyticsLogWindow()
 void AnalyticsLogWindow::initialiseLogFile()
 {
     QDateTime current = QDateTime::currentDateTime().toUTC();
+    m_fileName = current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".txt";
 
-    m_logFile.setFileName(current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".txt");
+    m_logFile.setFileName(m_fileName);
 
-    if (!m_logFile.open(QIODevice::ReadWrite))
+    /*if (!m_logFile.open(QIODevice::ReadWrite))
         qDebug() << "fail";
     else
+    {
         m_fileOpen = true;
+    }*/
 }
 
 void AnalyticsLogWindow::closeLogFile()
 {
-    m_logFile.write("\n}");
     m_logFile.close();
-
     m_fileOpen = false;
 }
 
@@ -39,16 +40,34 @@ void AnalyticsLogWindow::appendToWindow(const QString& text)
     this->verticalScrollBar()->setValue(this->verticalScrollBar()->maximum()); // Scrolls to the bottom
 }
 
-void AnalyticsLogWindow::appendToLogFile(const QString& text)
+void AnalyticsLogWindow::appendToLogFile(const QJsonObject& obj)
 {
-    if (m_logFile.size() == 0)
-        m_logFile.write(text.toLocal8Bit().constData()); // Logs to file
-    else
+    QJsonDocument jsonDoc;
+    QJsonArray jsonArray;
+
+    m_logFile.open(QIODevice::ReadWrite);   //open the file
+
+    if (m_logFile.size() > 0)   //if it's not empty then append the latest message to the array
     {
-        m_logFile.write(",\n");
-        m_logFile.write(text.toLocal8Bit().constData()); // Logs to file
+        QString settings;
+
+        QTextStream in(&m_logFile);     //read in file line by line
+           while (!in.atEnd())
+               settings += in.readLine();
+
+        jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+
+        if(jsonDoc.isArray())
+            jsonArray = jsonDoc.array();
     }
 
-    QTextStream outputStream(&m_logFile);
-    outputStream << text << "\n";
+    jsonArray.append(obj);      //append the object
+    jsonDoc.setArray(jsonArray);
+
+    m_logFile.resize(0);    //delete all data in the file
+
+    QTextStream outputStream(&m_logFile);   //write updated (or new) array then close the file
+    outputStream << jsonDoc.toJson();
+
+    m_logFile.close();
 }

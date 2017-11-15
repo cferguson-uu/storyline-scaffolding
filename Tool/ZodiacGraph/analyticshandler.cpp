@@ -88,6 +88,6 @@ void AnalyticsHandler::handleMessage(QString message)
 
         //output string to window and full JSON message to file
         m_logWindow->appendToWindow(sentence);
-        m_logWindow->appendToLogFile(message);
+        m_logWindow->appendToLogFile(jsonObj);
     }
 }
