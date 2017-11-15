@@ -32,10 +32,10 @@ void PropertyEditor::showNodes(const QList<zodiac::NodeHandle>& selection)
     // collect all collapsibles to remove
     QVector<zodiac::NodeHandle> removed;
     for(QHash<zodiac::NodeHandle, Collapsible*>::iterator i = m_nodes.begin(); i != m_nodes.end(); ++i){
-        if(!selection.contains(i.key())){
+        //if(!selection.contains(i.key())){
             m_layout->removeWidget(i.value());
             removed.append(i.key());
-        }
+        //}
     }
     // ... and remove them after the iteration has finished
     for(zodiac::NodeHandle node : removed){

@@ -183,6 +183,9 @@ void Scene::removeEdge(PlugEdge* edge)
     // emit signals
     emit fromPlug->getNode()->outputDisconnected(fromPlug, toPlug);
     emit toPlug->getNode()->inputDisconnected(toPlug, fromPlug);
+
+    //update the node properties so that the connection no longer shows
+    selectionChanged();
 }
 
 PlugEdge* Scene::getEdge(Plug* fromPlug, Plug* toPlug)
