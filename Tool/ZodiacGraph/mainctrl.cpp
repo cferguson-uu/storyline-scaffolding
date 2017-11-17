@@ -714,7 +714,25 @@ void MainCtrl::saveRequirements(NarNode *narNode, zodiac::NodeHandle &sceneNode)
             else
                 if(reqNode.getName() == "INV")
                 {
-                    m_saveAndLoadManager.addRequirementToNarrativeNode(narNode, "INV", reqNode.getName());
+                    QList<zodiac::PlugHandle> invPlugs = reqNode.getPlug("reqOut").getConnectedPlugs();
+
+                    if(invPlugs.size() < 1 || invPlugs.size() > 1)
+                    {
+                        qDebug() << "Error: should only be one node attached";
+                        continue;
+                    }
+                    else
+                    {
+                        zodiac::NodeHandle invReqNode = (*invPlugs.begin()).getNode();
+
+                        if(reqNode.getName() == "SEQ")
+                        {
+                            NarRequirements *newReq = m_saveAndLoadManager.addRequirementToNarrativeNode(narNode, "INV");
+                            saveRequirementsChildren(newReq, reqNode);  //call recursive function to handle rest of requirements
+                        }
+                        else
+                            m_saveAndLoadManager.addRequirementToNarrativeNode(narNode, "INV", invReqNode.getName());
+                    }
                 }
                 else    //is leaf
                 {
@@ -742,7 +760,25 @@ void MainCtrl::saveRequirementsChildren(NarRequirements *narReq, zodiac::NodeHan
             else
                 if(reqNode.getName() == "INV")
                 {
-                    m_saveAndLoadManager.addChildRequirement(narReq, "INV", reqNode.getName());
+                    QList<zodiac::PlugHandle> invPlugs = reqNode.getPlug("reqOut").getConnectedPlugs();
+
+                    if(invPlugs.size() < 1 || invPlugs.size() > 1)
+                    {
+                        qDebug() << "Error: should only be one node attached";
+                        continue;
+                    }
+                    else
+                    {
+                        zodiac::NodeHandle invReqNode = (*invPlugs.begin()).getNode();
+
+                        if(reqNode.getName() == "SEQ")
+                        {
+                            NarRequirements *newReq = m_saveAndLoadManager.addChildRequirement(narReq, "INV");
+                            saveRequirementsChildren(newReq, reqNode);  //call recursive function to handle rest of requirements
+                        }
+                        else
+                            m_saveAndLoadManager.addChildRequirement(narReq, "INV", invReqNode.getName());
+                    }
                 }
                 else    //is leaf
                 {

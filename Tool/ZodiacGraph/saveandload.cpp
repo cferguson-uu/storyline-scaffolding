@@ -875,6 +875,7 @@ NarNode *saveandload::addNarrativeNode(QString id, QString description)
     NarNode newNode;
     newNode.id = id;
     newNode.comments = description;
+    newNode.requirements.type = REQ_NONE; //will be changed if requirements are specified
 
     m_narrativeNodes.push_back(newNode);
 
@@ -1312,7 +1313,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
 
                     node["id"] = (*it).id;
 
-                    if(!((*it).requirements.id.isEmpty() && (*it).requirements.type == REQ_NONE && (*it).requirements.children.empty()))
+                    if((*it).requirements.type != REQ_NONE)
                     {
                         QJsonObject requirements;
                         WriteRequirements((*it).requirements, requirements, "requirements");
@@ -1366,13 +1367,14 @@ void saveandload::WriteRequirements(NarRequirements &req, QJsonObject &node, QSt
     if(req.type == REQ_SEQ)
         node["type"] = "SEQ";
 
-    if(req.type = REQ_LEAF)
+    if(req.type == REQ_LEAF)
         node["type"] = "LEAF";
 
-    if(req.type = REQ_INV)
+    if(req.type == REQ_INV)
         node["type"] = "INV";
 
-    node["id"] = req.id;
+    if(req.id != "")
+        node["id"] = req.id;
 
     if(!req.children.empty())
     {
