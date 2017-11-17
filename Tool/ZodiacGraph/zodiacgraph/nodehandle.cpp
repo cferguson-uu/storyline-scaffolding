@@ -500,7 +500,7 @@ bool NodeHandle::getLockedStatus()
     Q_ASSERT(nNode);
 #else
     if(!m_isValid || !nNode){
-        return;
+        return false;
     }
 
 #endif
@@ -540,7 +540,7 @@ const QColor& NodeHandle::getIdleColor()
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
 #else
-    if(!m_isValid || !sNode){
+    if(!m_isValid){
         return QColor();
     }
 #endif
@@ -552,7 +552,7 @@ void NodeHandle::setIdleColor(const QColor& color)
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
 #else
-    if(!m_isValid || !sNode){
+    if(!m_isValid){
         return;
     }
 #endif
@@ -564,7 +564,7 @@ const QColor& NodeHandle::getSelectedColor()
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
 #else
-    if(!m_isValid || !sNode){
+    if(!m_isValid){
         return QColor();
     }
 #endif
@@ -576,7 +576,7 @@ void NodeHandle::setSelectedColor(const QColor& color)
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
 #else
-    if(!m_isValid || !sNode){
+    if(!m_isValid){
         return;
     }
 #endif
@@ -588,7 +588,7 @@ const QColor& NodeHandle::getOutlineColor()
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
 #else
-    if(!m_isValid || !sNode){
+    if(!m_isValid){
         return QColor();
     }
 #endif
@@ -600,7 +600,7 @@ void NodeHandle::setOutlineColor(const QColor& color)
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
 #else
-    if(!m_isValid || !sNode){
+    if(!m_isValid){
         return;
     }
 #endif
@@ -612,7 +612,7 @@ void NodeHandle::setOutlineWidth(qreal width)
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
 #else
-    if(!m_isValid || !sNode){
+    if(!m_isValid){
         return;
     }
 #endif
