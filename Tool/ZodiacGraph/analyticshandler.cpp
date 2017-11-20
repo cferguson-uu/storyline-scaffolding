@@ -8,15 +8,18 @@ static const QString kName_WithResult = " with result ";
 static const QString kName_At = " at ";
 static const QString kName_Timestamp = "timestamp";
 
-AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QObject *parent)
+AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent)
     : QObject(parent)
+    , m_lostnessEditor(new LostnessEditor(qobject_cast<QWidget*>(parent)))
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
     , m_connectAction(connectAction)
     , m_disconnectAction(disconnectAction)
+    , m_editLostnessAction(editLostnessAction)
 {
     connect(m_connectAction, &QAction::triggered, [=]{connectToServer();});
     connect(m_disconnectAction, &QAction::triggered, [=]{m_tcpSocket->disconnectFromServer();});
+    connect(m_editLostnessAction, &QAction::triggered, [=]{m_lostnessEditor->showWindow();});
 
     m_disconnectAction->setEnabled(false);
 
@@ -77,8 +80,8 @@ void AnalyticsHandler::handleMessage(QString message)
         if(jsonObj.contains(kName_Result))
         {
             //if node was unlocked then show on graph
-            if(jsonObj[kName_Verb].toString() == "attempted" && jsonObj[kName_Result].toString() == "unlocked")
-                unlockNode(jsonObj[kName_Object].toString());
+            //if(jsonObj[kName_Verb].toString() == "attempted" && jsonObj[kName_Result].toString() == "unlocked")
+            //    unlockNode(jsonObj[kName_Object].toString());
 
             //append result to string
             sentence += kName_WithResult + jsonObj[kName_Result].toString();

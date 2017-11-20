@@ -74,7 +74,8 @@ SOURCES += main.cpp\
     analyticslogwindow.cpp \
     linkerwindow.cpp \
     analyticssocket.cpp \
-    analyticshandler.cpp
+    analyticshandler.cpp \
+    lostnesseditor.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -112,7 +113,8 @@ HEADERS  += mainwindow.h \
     analyticslogwindow.h \
     linkerwindow.h \
     analyticssocket.h \
-    analyticshandler.h
+    analyticshandler.h \
+    lostnesseditor.h
 
 RESOURCES += \
     res/icons.qrc

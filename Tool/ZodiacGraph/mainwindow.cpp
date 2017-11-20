@@ -80,8 +80,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     //create menu for analytics functions
     QMenu *analyticsMenu = menuBar()->addMenu(tr("&Analytics"));
+    QAction *lostnessEdit = new QAction(tr("&Edit Lostness Values"), this);
     QAction *analyticsConnect = new QAction(tr("&Connect"), this);
     QAction *analyticsDisconnect = new QAction(tr("&Disconnect"), this);
+    analyticsMenu->addAction(lostnessEdit);
     analyticsMenu->addAction(analyticsConnect);
     analyticsMenu->addAction(analyticsDisconnect);
 
@@ -97,8 +99,8 @@ MainWindow::MainWindow(QWidget *parent)
     PropertyEditor* propertyEditor = new PropertyEditor(this);
 
     //create the analytics systems
-    AnalyticsLogWindow* analyticsLog = new AnalyticsLogWindow(this);
-    AnalyticsHandler* analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, this);
+    AnalyticsLogWindow *analyticsLog = new AnalyticsLogWindow(this);
+    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, this);
 
     // create the Main Controller
     m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, m_pUndoStack);
