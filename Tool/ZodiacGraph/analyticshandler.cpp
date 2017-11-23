@@ -9,13 +9,13 @@ static const QString kName_At = " at ";
 static const QString kName_Timestamp = "timestamp";
 
 AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent)
-    : QObject(parent)
-    , m_lostnessEditor(new LostnessEditor(qobject_cast<QWidget*>(parent)))
+    : m_lostnessEditor(new LostnessEditor(qobject_cast<QWidget*>(parent)))
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
     , m_connectAction(connectAction)
     , m_disconnectAction(disconnectAction)
     , m_editLostnessAction(editLostnessAction)
+    , QObject(parent)
 {
     connect(m_connectAction, &QAction::triggered, [=]{connectToServer();});
     connect(m_disconnectAction, &QAction::triggered, [=]{m_tcpSocket->disconnectFromServer();});

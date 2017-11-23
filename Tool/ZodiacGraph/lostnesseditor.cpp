@@ -1,12 +1,23 @@
 #include "lostnesseditor.h"
 
 LostnessEditor::LostnessEditor(QWidget *parent)
-: QDialog(parent)
-, m_mainLayout(new QGridLayout)
+: m_mainLayout(new QGridLayout),
+  QDialog(parent)
 {
-    setLayout(m_mainLayout);
-    resize(QSize(200,100));
+    QVBoxLayout *parentLayout = new QVBoxLayout;
+    QScrollArea *scrollArea = new QScrollArea;
+    QWidget *widg = new QWidget();
+
+    m_mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+    m_mainLayout->setAlignment(Qt::AlignTop);
+    widg->setLayout(m_mainLayout);
+    scrollArea->setWidget(widg);
+
+    parentLayout->addWidget(scrollArea);
+    setLayout(parentLayout);
+
     setWindowTitle(tr("Curator Labels"));
+    resize(QSize(400,400));
 }
 
 void LostnessEditor::showWindow()
@@ -50,9 +61,9 @@ void LostnessEditor::loadCuratorLabels()
                 //close window?
             }
 
-            QJsonArray jsonArray = jsonDoc.array();
+            m_jsonArray = jsonDoc.array();
 
-            for(QJsonArray::iterator mainArrayIt = jsonArray.begin(); mainArrayIt != jsonArray.end(); ++mainArrayIt)
+            for(QJsonArray::iterator mainArrayIt = m_jsonArray.begin(); mainArrayIt != m_jsonArray.end(); ++mainArrayIt)
             {
                 if((*mainArrayIt).isObject())
                 {
@@ -142,7 +153,48 @@ void LostnessEditor::loadCuratorLabels()
 
 void LostnessEditor::saveCuratorLabels()
 {
+    QFile file(QFileDialog::getSaveFileName(this,
+                                                     QObject::tr("Save Curator Labels"), "",
+                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
 
+    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    {
+        if(file.open(QFile::WriteOnly))
+        {
+            QJsonDocument newJsonDoc;
+            QJsonArray newJsonArray;
+
+            for(QJsonArray::iterator mainArrayIt = m_jsonArray.begin(); mainArrayIt != m_jsonArray.end(); ++mainArrayIt)
+            {
+                if((*mainArrayIt).isObject())
+                {
+                    QJsonObject mainObj = (*mainArrayIt).toObject();
+
+                    foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+                    {
+                        if(curatorLabel->id->text() == mainObj["screen_id"].toString().toInt()) //add the minimum steps to the new file
+                        {
+                            mainObj["min_steps"] = curatorLabel->minSteps->text();
+                            break;
+                        }
+                    }
+                    newJsonArray.append(mainObj);   //append updated object to the new json file
+                }
+            }
+
+
+            newJsonDoc.setArray(newJsonArray);  //write new json array to file
+            file.write(newJsonDoc.toJson());
+        }
+        else
+        {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                messageBox.setFixedSize(500,200);
+        }
+    }
+    else
+        qDebug() << "Save aborted by user";
 }
 
 void LostnessEditor::showCuratorLabels()
@@ -167,5 +219,37 @@ void LostnessEditor::showCuratorLabels()
         m_mainLayout->addWidget(curatorLabel->minStepsLabel, row, 0);
         m_mainLayout->addWidget(curatorLabel->minSteps, row, 1);
         ++row;
+    }
+
+    m_saveBtn->setEnabled(true);
+}
+
+void LostnessEditor::hideCuratorLabels()
+{
+    foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+    {
+        curatorLabel->id->deleteLater();
+        curatorLabel->dependenciesLabel->deleteLater();
+        curatorLabel->minStepsLabel->deleteLater();
+        curatorLabel->minSteps->deleteLater();
+
+        foreach (QLabel* dependency, curatorLabel->narrativeDependencies)
+        {
+            dependency->deleteLater();
+        }
+    }
+
+    m_saveBtn->setEnabled(false);
+}
+
+void LostnessEditor::curatorTaskStarted(QString task)
+{
+    foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+    {
+        if(curatorLabel->id->text() == task)
+        {
+            qDebug () << "steps needed: " << curatorLabel->minSteps->text();
+            break;
+        }
     }
 }

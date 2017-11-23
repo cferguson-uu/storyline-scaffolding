@@ -12,6 +12,7 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QScrollArea>
 
 /*struct CuratorNarrativeDependency
 {
@@ -61,15 +62,19 @@ public:
     void loadCuratorLabels();
     void saveCuratorLabels();
     void showWindow();
+    void curatorTaskStarted(QString task);
 
 private:
     void showCuratorLabels();
+    void hideCuratorLabels();
 
     QGridLayout *m_mainLayout;
     QList<CuratorLabel*> m_curatorLabels;
 
     QPushButton *m_saveBtn;
     QPushButton *m_loadBtn;
+
+    QJsonArray m_jsonArray;
 };
 
 #endif // LOSTNESSEDITOR_H
