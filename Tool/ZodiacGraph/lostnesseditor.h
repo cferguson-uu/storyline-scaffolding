@@ -53,6 +53,9 @@ struct CuratorLabel
     QList<QLabel*> narrativeDependencies;
     QLabel* minStepsLabel;
     QLineEdit* minSteps;
+
+    QList<QString> uniqueNodesVisited;
+    int totalNumOfNodesVisited;
 };
 
 class LostnessEditor : public QDialog
@@ -62,7 +65,8 @@ public:
     void loadCuratorLabels();
     void saveCuratorLabels();
     void showWindow();
-    void curatorTaskStarted(QString task);
+    void nodeVisited(QString task, QString node);
+    float getLostnessValue(QString task);
 
 private:
     void showCuratorLabels();

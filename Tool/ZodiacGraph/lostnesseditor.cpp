@@ -242,14 +242,55 @@ void LostnessEditor::hideCuratorLabels()
     m_saveBtn->setEnabled(false);
 }
 
-void LostnessEditor::curatorTaskStarted(QString task)
+void LostnessEditor::nodeVisited(QString task, QString node)
 {
     foreach (CuratorLabel* curatorLabel, m_curatorLabels)
     {
         if(curatorLabel->id->text() == task)
         {
-            qDebug () << "steps needed: " << curatorLabel->minSteps->text();
+            bool found = false;
+
+            foreach (QString visitedNode, curatorLabel->uniqueNodesVisited)
+            {
+                if(visitedNode == node)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found)
+                curatorLabel->uniqueNodesVisited.push_back(node);
+            ++curatorLabel->totalNumOfNodesVisited;
             break;
         }
     }
+}
+
+float LostnessEditor::getLostnessValue(QString task)
+{
+    //R – Minimum number of nodes which need to be visited to complete a task
+    //S – Total number of nodes visited whilst searching
+    //N – Number of different nodes visited whilst searching
+    // L = sqrt[(N/S – 1)² + (R/N – 1)²]
+
+    foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+    {
+        if(curatorLabel->id->text() == task)
+        {
+            float firstHalf = curatorLabel->uniqueNodesVisited.size()/curatorLabel->totalNumOfNodesVisited - 1; //(N/S – 1)²
+            firstHalf *= firstHalf;
+
+            float secondHalf = curatorLabel->minSteps->text().toInt()/curatorLabel->uniqueNodesVisited.size() - 1;   //(R/N – 1)²
+            secondHalf *= secondHalf;
+
+            float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]
+            lostness = sqrt(lostness);
+
+            return lostness;
+        }
+    }
+
+    qDebug() << "Error: task not found";    //will end up here if the loop executes without finding the task
+    return -1;
 }
