@@ -33,6 +33,8 @@ private:
     QAction *m_connectAction;
     QAction *m_disconnectAction;
     QAction *m_editLostnessAction;
+
+    QList<QString> m_activeTasks;
 };
 
 #endif // ANALYTICSHANDLER_H
