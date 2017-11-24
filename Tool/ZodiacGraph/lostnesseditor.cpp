@@ -70,6 +70,7 @@ void LostnessEditor::loadCuratorLabels()
                     CuratorLabel *curatorLabel = new CuratorLabel;
                     curatorLabel->dependenciesLabel = new QLabel("Dependencies:");
                     curatorLabel->minStepsLabel = new QLabel("Minimum Steps:");
+                    curatorLabel->totalNumOfNodesVisited = 0;
 
                     QJsonObject mainObj = (*mainArrayIt).toObject();
 
@@ -101,15 +102,15 @@ void LostnessEditor::loadCuratorLabels()
                             }
                         }
 
-                        if(mainObj.contains("screen_id") && mainObj["screen_id"].isString())
-                            curatorLabel->id = new QLabel(mainObj["screen_id"].toString());
-                            //qDebug() << mainObj["screen_id"].toString();
-
-                        /*if(mainObj.contains("element_id") && mainObj["element_id"].isString())
-                            qDebug() << mainObj["element_id"].toString();
-
                         if(mainObj.contains("text_id") && mainObj["text_id"].isString())
-                            qDebug() << mainObj["text_id"].toString();
+                            curatorLabel->id = new QLabel(mainObj["text_id"].toString());
+                            //qDebug() << mainObj["text_id"].toString();
+
+                        /*if(mainObj.contains("screen_id") && mainObj["screen_id"].isString())
+                            qDebug() << mainObj["screen_id"].toString();
+
+                        if(mainObj.contains("element_id") && mainObj["element_id"].isString())
+                            qDebug() << mainObj["element_id"].toString();
 
                         if(mainObj.contains("subtitle") && mainObj["subtitle"].isString())
                             qDebug() << mainObj["subtitle"].toString();
@@ -278,6 +279,10 @@ float LostnessEditor::getLostnessValue(QString task)
     {
         if(curatorLabel->id->text() == task)
         {
+            qDebug() << "Minimum number of nodes: " << curatorLabel->minSteps->text().toInt();
+            qDebug() << "Total number of nodes visited: " << curatorLabel->totalNumOfNodesVisited;
+            qDebug() << "Number of different nodes visited: " << curatorLabel->uniqueNodesVisited.size();
+
             float firstHalf = curatorLabel->uniqueNodesVisited.size()/curatorLabel->totalNumOfNodesVisited - 1; //(N/S – 1)²
             firstHalf *= firstHalf;
 
@@ -287,6 +292,7 @@ float LostnessEditor::getLostnessValue(QString task)
             float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]
             lostness = sqrt(lostness);
 
+            qDebug() << "Lostness: " << lostness;
             return lostness;
         }
     }

@@ -17,6 +17,8 @@ static const QString kName_Unlocked = "unlocked";
 static const QString kName_Started = "started";
 static const QString kName_Completed = "completed";
 static const QString kName_JumpedTo = "jumped to";
+static const QString kName_PickedUp = "picked up";
+static const QString kName_Examined = "examined";
 
 AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent)
     : m_lostnessEditor(new LostnessEditor(qobject_cast<QWidget*>(parent)))
@@ -93,7 +95,8 @@ void AnalyticsHandler::handleMessage(QString message)
             m_activeTasks.removeAll(jsonObj[kName_Object].toString());
         }
 
-        if(jsonObj[kName_Verb].toString() == kName_JumpedTo && !m_activeTasks.empty())  //when visiting a node, update lostness value for active tasks
+        if(jsonObj[kName_Verb].toString() == kName_JumpedTo || jsonObj[kName_Verb].toString() == kName_PickedUp
+                && !m_activeTasks.empty())  //when visiting a node or picking up an item, update lostness value for active tasks
             foreach (QString task, m_activeTasks)
                 m_lostnessEditor->nodeVisited(task, jsonObj[kName_Object].toString());
 
@@ -115,7 +118,7 @@ void AnalyticsHandler::handleMessage(QString message)
 
             //append lostness to string
             sentence += kName_WithLostness;
-            sentence += jsonObj[kName_Lostness].toDouble();
+            sentence += QString::number(jsonObj[kName_Lostness].toDouble());
         }
 
         sentence += kName_At + QDateTime::fromString(jsonObj[kName_Timestamp].toString(), Qt::ISODate).toString("MMM dd, yyyy hh:mm:ss t");
