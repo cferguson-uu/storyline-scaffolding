@@ -75,7 +75,8 @@ SOURCES += main.cpp\
     linkerwindow.cpp \
     analyticssocket.cpp \
     analyticshandler.cpp \
-    lostnesseditor.cpp
+    lostnesseditor.cpp \
+    sequencematcher.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -114,7 +115,11 @@ HEADERS  += mainwindow.h \
     linkerwindow.h \
     analyticssocket.h \
     analyticshandler.h \
-    lostnesseditor.h
+    lostnesseditor.h \
+    sequencematcher.h
 
 RESOURCES += \
     res/icons.qrc
+
+INCLUDEPATH += \
+    D:/Boost

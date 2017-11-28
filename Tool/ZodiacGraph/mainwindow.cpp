@@ -8,6 +8,7 @@
 #include <QSplitter>
 #include <QStyleFactory>
 #include <QToolBar>
+#include <QMenuBar>
 
 #include "nodectrl.h"
 #include "mainctrl.h"
@@ -27,8 +28,6 @@
 #include "analyticslogwindow.h"
 #include "analyticssocket.h"
 #include "analyticshandler.h"
-
-#include <QMenuBar>
 
 //void createZodiacLogo(MainCtrl* mainCtrl);
 
