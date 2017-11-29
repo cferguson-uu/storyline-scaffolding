@@ -11,7 +11,7 @@
 #include <QMap>
 #include <QPair>
 #include <QDebug>
-#include <QFile>
+#include <QFileDialog>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -42,32 +42,25 @@ struct AnaHandler {
     }
     void set_events(QJsonArray events)
     {
-        qDebug() << "original size: " << events.size();
-        int i = 0;
-        int currentAction, currentObject;
         foreach (QJsonValue val, events)
         {
             if(val.isObject())
-            {
-                QJsonObject obj = val.toObject();
-
-                if(!(obj.contains("verb") && obj["verb"].isString() && obj.contains("object") && obj["object"].isString()))
-                    continue; //action doesn't have required fields
-
-                currentAction = m_ids->get_action_no(obj["verb"].toString());
-                currentObject = m_ids->get_object_no(obj["object"].toString());
-
-                if(currentAction == -1)
-                    continue; //ignored action
-                else
-                    ++i;
-
-                m_events.push_back(AnaEvent{ currentAction, currentObject });
-            }
-            else
-                qDebug () << "ff";
+                add_event(val.toObject());
         }
-        qDebug() << "new size: " << i;
+    }
+
+    void add_event(QJsonObject event)
+    {
+        if(!(event.contains("verb") && event["verb"].isString() && event.contains("object") && event["object"].isString()))
+            return; //action doesn't have required fields
+
+        int currentAction = m_ids->get_action_no(event["verb"].toString());
+        int currentObject = m_ids->get_object_no(event["object"].toString());
+
+        if(currentAction == -1)
+            return; //ignored action, don't add to the list
+
+        m_events.push_back(AnaEvent{ currentAction, currentObject });
     }
 
     AnaHandler(std::shared_ptr<AnaIds> ids)
@@ -92,11 +85,28 @@ class AnaCost {
     }
 };
 
-class SequenceMatcher
+class SequenceMatcher : public QWidget
 {
 public:
-    SequenceMatcher();
-    QVector<AnaEvent> read_events(QFile &file, std::shared_ptr<AnaIds> ids);
+    SequenceMatcher(QWidget *parent = 0);
+    QVector<AnaEvent> read_events(QJsonArray &array, std::shared_ptr<AnaIds> ids);
+    AnaEvent read_event(QJsonObject &object, std::shared_ptr<AnaIds> ids);
+    void compareSequencesFromFiles();
+    QJsonArray readSequenceFromFile();
+    float compareLatestUserSequence(QJsonObject &latestEventInUserSequence);
+    void loadPerfectSequence(QJsonArray seqArray);
+
+private:
+    std::shared_ptr<AnaIds> m_ids = std::make_shared<AnaIds>();
+
+    // Compute the similarity between the ground_truth and itself.
+    // This gives the maximal score.
+    // fac is used to make percentage scores relative to this maximal score.
+    double m_self_benefit;
+    double m_fac;
+
+    QVector<AnaEvent> m_perfectSequence;
+    QVector<AnaEvent> m_userSequence;
 };
 
 #endif // SEQUENCEMATCHER_H
