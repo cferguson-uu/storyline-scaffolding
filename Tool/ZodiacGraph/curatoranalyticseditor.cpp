@@ -1,6 +1,6 @@
-#include "lostnesseditor.h"
+#include "curatoranalyticseditor.h"
 
-LostnessEditor::LostnessEditor(QWidget *parent)
+CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
 : m_mainLayout(new QGridLayout),
   QDialog(parent)
 {
@@ -20,25 +20,30 @@ LostnessEditor::LostnessEditor(QWidget *parent)
     resize(QSize(400,400));
 }
 
-void LostnessEditor::showWindow()
+void CuratorAnalyticsEditor::showWindow()
 {
     m_saveBtn = new QPushButton("Save");
     m_loadBtn = new QPushButton("Load");
+    m_loadFullSequenceBtn = new QPushButton("Load Perfect Full Sequence");
     m_saveBtn->setMaximumSize(100, 25);
     m_loadBtn->setMaximumSize(100, 25);
+    m_loadBtn->setMaximumSize(200, 25);
 
     connect(m_saveBtn, &QPushButton::released, [=]{saveCuratorLabels();});
     connect(m_loadBtn, &QPushButton::released, [=]{loadCuratorLabels();});
+    connect(m_loadFullSequenceBtn, &QPushButton::released, [=]{});
 
     m_saveBtn->setEnabled(false);
+    m_loadFullSequenceBtn->setEnabled(false);
 
     m_mainLayout->addWidget(m_saveBtn, 0, 0);
     m_mainLayout->addWidget(m_loadBtn, 0, 1);
+    m_mainLayout->addWidget(m_loadFullSequenceBtn, 1, 0);
 
     show();
 }
 
-void LostnessEditor::loadCuratorLabels()
+void CuratorAnalyticsEditor::loadCuratorLabels()
 {
     QFile file(QFileDialog::getOpenFileName(this,
                                                      QObject::tr("Load Curator Labels"), "",
@@ -71,6 +76,10 @@ void LostnessEditor::loadCuratorLabels()
                     curatorLabel->dependenciesLabel = new QLabel("Dependencies:");
                     curatorLabel->minStepsLabel = new QLabel("Minimum Steps:");
                     curatorLabel->totalNumOfNodesVisited = 0;
+
+                    curatorLabel->addSequenceBtn = new QPushButton("Add Perfect Sequence");
+                    curatorLabel->sequenceStatus = new QLabel("Sequence Not Loaded");
+                    curatorLabel->sequenceStatus->setStyleSheet("QLabel { color : red }");
 
                     QJsonObject mainObj = (*mainArrayIt).toObject();
 
@@ -152,7 +161,7 @@ void LostnessEditor::loadCuratorLabels()
     }
 }
 
-void LostnessEditor::saveCuratorLabels()
+void CuratorAnalyticsEditor::saveCuratorLabels()
 {
     QFile file(QFileDialog::getSaveFileName(this,
                                                      QObject::tr("Save Curator Labels"), "",
@@ -198,7 +207,7 @@ void LostnessEditor::saveCuratorLabels()
         qDebug() << "Save aborted by user";
 }
 
-void LostnessEditor::showCuratorLabels()
+void CuratorAnalyticsEditor::showCuratorLabels()
 {
     int row = m_mainLayout->rowCount();
 
@@ -220,12 +229,17 @@ void LostnessEditor::showCuratorLabels()
         m_mainLayout->addWidget(curatorLabel->minStepsLabel, row, 0);
         m_mainLayout->addWidget(curatorLabel->minSteps, row, 1);
         ++row;
+
+        m_mainLayout->addWidget(curatorLabel->addSequenceBtn, row, 0);
+        m_mainLayout->addWidget(curatorLabel->sequenceStatus, row, 1);
+        ++row;
     }
 
     m_saveBtn->setEnabled(true);
+    m_loadFullSequenceBtn->setEnabled(true);
 }
 
-void LostnessEditor::hideCuratorLabels()
+void CuratorAnalyticsEditor::hideCuratorLabels()
 {
     foreach (CuratorLabel* curatorLabel, m_curatorLabels)
     {
@@ -241,9 +255,10 @@ void LostnessEditor::hideCuratorLabels()
     }
 
     m_saveBtn->setEnabled(false);
+    m_loadFullSequenceBtn->setEnabled(false);
 }
 
-void LostnessEditor::nodeVisited(QString task, QString node)
+void CuratorAnalyticsEditor::nodeVisited(QString task, QString node)
 {
     foreach (CuratorLabel* curatorLabel, m_curatorLabels)
     {
@@ -268,7 +283,7 @@ void LostnessEditor::nodeVisited(QString task, QString node)
     }
 }
 
-float LostnessEditor::getLostnessValue(QString task)
+float CuratorAnalyticsEditor::getLostnessValue(QString task)
 {
     //R – Minimum number of nodes which need to be visited to complete a task
     //S – Total number of nodes visited whilst searching
@@ -299,4 +314,39 @@ float LostnessEditor::getLostnessValue(QString task)
 
     qDebug() << "Error: task not found";    //will end up here if the loop executes without finding the task
     return -1;
+}
+
+QJsonArray CuratorAnalyticsEditor::readSequenceFromFile()
+{
+    QFile file(QFileDialog::getOpenFileName(this,
+                                                     QObject::tr("Load Sequence"), "",
+                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
+
+    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    {
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug()<<"Cannot open file "<<file.fileName()<<"\n";
+            return QJsonArray();
+        }
+        QString settings = file.readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+
+        if(jsonDoc.isArray())
+            return jsonDoc.array();
+        else
+        {
+            qDebug() << "JSON file" << file.fileName() << " is invalid";
+            return QJsonArray();
+        }
+    }
+    else
+    {
+        qDebug() << "Load aborted by user";
+        return QJsonArray();
+    }
+}
+
+void CuratorAnalyticsEditor::addSequenceToCuratorLabel()
+{
+    QJsonArray events = readSequenceFromFile();
 }

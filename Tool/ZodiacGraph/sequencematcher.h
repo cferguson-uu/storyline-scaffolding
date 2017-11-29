@@ -24,6 +24,7 @@ struct AnaEvent {
 struct AnaIds {
     int get_action_no(QString const &name) ;
     int get_object_no(QString const &name) ;
+    QSet<QString> getIgnoredActions() {return m_ignored_actions;}
     AnaIds();
   private:
     QSet<QString> m_ignored_actions;
@@ -89,12 +90,13 @@ class SequenceMatcher : public QWidget
 {
 public:
     SequenceMatcher(QWidget *parent = 0);
-    QVector<AnaEvent> read_events(QJsonArray &array, std::shared_ptr<AnaIds> ids);
-    AnaEvent read_event(QJsonObject &object, std::shared_ptr<AnaIds> ids);
+    QVector<AnaEvent> readEvents(QJsonArray &array, std::shared_ptr<AnaIds> ids);
+    AnaEvent readEvent(QJsonObject &object, std::shared_ptr<AnaIds> ids);
     void compareSequencesFromFiles();
     QJsonArray readSequenceFromFile();
     float compareLatestUserSequence(QJsonObject &latestEventInUserSequence);
     void loadPerfectSequence(QJsonArray seqArray);
+    QSet<QString> getIgnoredActions();
 
 private:
     std::shared_ptr<AnaIds> m_ids = std::make_shared<AnaIds>();

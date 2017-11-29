@@ -6,7 +6,7 @@
 #include <QObject>
 #include "zodiacgraph/node.h"
 #include "nodeproperties.h"
-#include "lostnesseditor.h"
+#include "curatoranalyticseditor.h"
 
 class AnalyticsHandler : public QObject
 {
@@ -28,7 +28,7 @@ public slots:
 private:
     AnalyticsSocket *m_tcpSocket;
     AnalyticsLogWindow *m_logWindow;
-    LostnessEditor *m_lostnessEditor;
+    CuratorAnalyticsEditor *m_curatorAnalyticsEditor;
 
     QAction *m_connectAction;
     QAction *m_disconnectAction;

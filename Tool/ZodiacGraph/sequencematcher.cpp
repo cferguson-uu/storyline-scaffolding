@@ -13,8 +13,8 @@ SequenceMatcher::SequenceMatcher(QWidget *parent)
 void SequenceMatcher::compareSequencesFromFiles()
 {
     // Read the two files.
-    auto events1 = read_events(readSequenceFromFile(), m_ids);
-    auto events2 = read_events(readSequenceFromFile(), m_ids);
+    auto events1 = readEvents(readSequenceFromFile(), m_ids);
+    auto events2 = readEvents(readSequenceFromFile(), m_ids);
 
     // Compute the similarity between the ground_truth and itself.
     // This gives the maximal score.
@@ -36,7 +36,7 @@ void SequenceMatcher::compareSequencesFromFiles()
 void SequenceMatcher::loadPerfectSequence(QJsonArray seqArray)
 {
     // Read the two files.
-    m_perfectSequence = read_events(seqArray, m_ids);
+    m_perfectSequence = readEvents(seqArray, m_ids);
 
     m_self_benefit = m_aligner.global_align(m_perfectSequence, m_perfectSequence).score;
     m_fac = 100.0 / m_self_benefit;
@@ -44,7 +44,7 @@ void SequenceMatcher::loadPerfectSequence(QJsonArray seqArray)
 
 float SequenceMatcher::compareLatestUserSequence(QJsonObject &latestEventInUserSequence)
 {
-    AnaEvent event = read_event(latestEventInUserSequence, m_ids);
+    AnaEvent event = readEvent(latestEventInUserSequence, m_ids);
 
     if(event.action == -1 && event.object == -1)
         return -1;  //event was not valid, ignore it
@@ -91,7 +91,7 @@ QJsonArray SequenceMatcher::readSequenceFromFile()
     }
 }
 
-QVector<AnaEvent> SequenceMatcher::read_events(
+QVector<AnaEvent> SequenceMatcher::readEvents(
         QJsonArray &array, std::shared_ptr<AnaIds> ids)
 {
     AnaHandler handler(ids);
@@ -100,7 +100,7 @@ QVector<AnaEvent> SequenceMatcher::read_events(
     return events;
 }
 
-AnaEvent SequenceMatcher::read_event(QJsonObject &object, std::shared_ptr<AnaIds> ids)
+AnaEvent SequenceMatcher::readEvent(QJsonObject &object, std::shared_ptr<AnaIds> ids)
 {
     AnaHandler handler(ids);
     handler.add_event(object);
@@ -158,4 +158,9 @@ int AnaIds::get_object_no(QString const &name)
     int result = m_next_object_no;
     add_object(name);
     return result;
+}
+
+QSet<QString> SequenceMatcher::getIgnoredActions()
+{
+    return m_ids->getIgnoredActions();
 }

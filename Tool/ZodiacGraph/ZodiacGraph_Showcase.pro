@@ -75,8 +75,8 @@ SOURCES += main.cpp\
     linkerwindow.cpp \
     analyticssocket.cpp \
     analyticshandler.cpp \
-    lostnesseditor.cpp \
-    sequencematcher.cpp
+    sequencematcher.cpp \
+    curatoranalyticseditor.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -115,8 +115,8 @@ HEADERS  += mainwindow.h \
     linkerwindow.h \
     analyticssocket.h \
     analyticshandler.h \
-    lostnesseditor.h \
-    sequencematcher.h
+    sequencematcher.h \
+    curatoranalyticseditor.h
 
 RESOURCES += \
     res/icons.qrc

@@ -1,5 +1,5 @@
-#ifndef LOSTNESSEDITOR_H
-#define LOSTNESSEDITOR_H
+#ifndef CURATORANALYTICSEDITOR_H
+#define CURATORANALYTICSEDITOR_H
 
 #include <QDialog>
 #include <QGridLayout>
@@ -14,27 +14,7 @@
 #include <QLineEdit>
 #include <QScrollArea>
 
-/*struct CuratorNarrativeDependency
-{
-    QString id;
-    QString subtitle;
-    QString screenId;
-    QString elementFrom;
-    QString elementTo;
-};
-
-struct CuratorLabel
-{
-    QList<CuratorNarrativeDependency> narrativeDependencies;
-    QString screenId;
-    QString elementId;
-    QString textId;
-    QString subtitle;
-    QString targetAlpha;
-    QString beginDep;
-    QString CompleteDep;
-    QString onProgressCompleted;
-};*/
+#include "sequencematcher.h"
 
 struct CuratorLabel
 {
@@ -56,17 +36,23 @@ struct CuratorLabel
 
     QList<QString> uniqueNodesVisited;
     int totalNumOfNodesVisited;
+
+    QPushButton *addSequenceBtn;
+    QLabel *sequenceStatus;
+    SequenceMatcher sequenceMatcher;
 };
 
-class LostnessEditor : public QDialog
+class CuratorAnalyticsEditor : public QDialog
 {
 public:
-    LostnessEditor(QWidget *parent = 0);
+    CuratorAnalyticsEditor(QWidget *parent = 0);
     void loadCuratorLabels();
     void saveCuratorLabels();
     void showWindow();
     void nodeVisited(QString task, QString node);
     float getLostnessValue(QString task);
+    QJsonArray readSequenceFromFile();
+    void addSequenceToCuratorLabel();
 
 private:
     void showCuratorLabels();
@@ -77,8 +63,9 @@ private:
 
     QPushButton *m_saveBtn;
     QPushButton *m_loadBtn;
+    QPushButton *m_loadFullSequenceBtn;
 
     QJsonArray m_jsonArray;
 };
 
-#endif // LOSTNESSEDITOR_H
+#endif // CuratorAnalyticsEditor_H

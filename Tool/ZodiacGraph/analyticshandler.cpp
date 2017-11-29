@@ -21,7 +21,7 @@ static const QString kName_PickedUp = "picked up";
 static const QString kName_Examined = "examined";
 
 AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent)
-    : m_lostnessEditor(new LostnessEditor(qobject_cast<QWidget*>(parent)))
+    : m_curatorAnalyticsEditor(new CuratorAnalyticsEditor(qobject_cast<QWidget*>(parent)))
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
     , m_connectAction(connectAction)
@@ -31,7 +31,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
 {
     connect(m_connectAction, &QAction::triggered, [=]{connectToServer();});
     connect(m_disconnectAction, &QAction::triggered, [=]{m_tcpSocket->disconnectFromServer();});
-    connect(m_editLostnessAction, &QAction::triggered, [=]{m_lostnessEditor->showWindow();});
+    connect(m_editLostnessAction, &QAction::triggered, [=]{m_curatorAnalyticsEditor->showWindow();});
 
     m_disconnectAction->setEnabled(false);
 
@@ -91,14 +91,14 @@ void AnalyticsHandler::handleMessage(QString message)
 
         if(jsonObj[kName_Verb].toString() == kName_Completed)   //task completed, get lostness value and remove from the list
         {
-            jsonObj[kName_Lostness] = m_lostnessEditor->getLostnessValue(jsonObj[kName_Object].toString());
+            jsonObj[kName_Lostness] = m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString());
             m_activeTasks.removeAll(jsonObj[kName_Object].toString());
         }
 
         if(jsonObj[kName_Verb].toString() == kName_JumpedTo || jsonObj[kName_Verb].toString() == kName_PickedUp
                 && !m_activeTasks.empty())  //when visiting a node or picking up an item, update lostness value for active tasks
             foreach (QString task, m_activeTasks)
-                m_lostnessEditor->nodeVisited(task, jsonObj[kName_Object].toString());
+                m_curatorAnalyticsEditor->nodeVisited(task, jsonObj[kName_Object].toString());
 
         //formulate human-readable string for log window
         QString sentence = jsonObj[kName_Actor].toString() + " " + jsonObj[kName_Verb].toString() + " " + jsonObj[kName_Object].toString();
