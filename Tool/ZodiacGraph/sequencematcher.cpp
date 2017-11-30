@@ -112,6 +112,18 @@ AnaEvent SequenceMatcher::readEvent(QJsonObject &object, std::shared_ptr<AnaIds>
         return AnaEvent{-1, -1};
 }
 
+QSet<QString> SequenceMatcher::getIgnoredActions()
+{
+    return m_ids->getIgnoredActions();
+}
+
+QJsonArray SequenceMatcher::getPerfectSequence()
+{
+    AnaHandler handler(m_ids);
+    handler.set_events(m_perfectSequence);
+    return handler.eventsToJson();
+}
+
 AnaIds::AnaIds()
     : m_next_action_no(1), m_next_object_no(1)
 {
@@ -149,6 +161,28 @@ int AnaIds::get_action_no(QString const &name)
     return result;
 }
 
+QString AnaIds::get_action_string(int num)
+{
+    for(QMap<QString,int>::iterator actionIt = m_known_actions.begin(); actionIt != m_known_actions.end(); ++actionIt)
+    {
+        if(actionIt.value() == num)
+            return actionIt.key();
+    }
+
+    return -1; //error
+}
+
+QString AnaIds::get_object_string(int num)
+{
+    for(QMap<QString,int>::iterator objectIt = m_known_actions.begin(); objectIt != m_known_actions.end(); ++objectIt)
+    {
+        if(objectIt.value() == num)
+            return objectIt.key();
+    }
+
+    return -1; //error
+}
+
 int AnaIds::get_object_no(QString const &name)
 {
     auto it = m_known_objects.find(name);
@@ -158,9 +192,4 @@ int AnaIds::get_object_no(QString const &name)
     int result = m_next_object_no;
     add_object(name);
     return result;
-}
-
-QSet<QString> SequenceMatcher::getIgnoredActions()
-{
-    return m_ids->getIgnoredActions();
 }

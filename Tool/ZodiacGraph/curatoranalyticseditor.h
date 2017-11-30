@@ -52,7 +52,10 @@ public:
     void nodeVisited(QString task, QString node);
     float getLostnessValue(QString task);
     QJsonArray readSequenceFromFile();
-    void addSequenceToCuratorLabel();
+    void addSequenceToAllCuratorLabels();
+    void addSequenceToSingleCuratorLabel(CuratorLabel *curatorLabel, QJsonArray events);
+    QJsonArray getSequenceRelatedToCuratorLabel(QJsonArray &array, QString curatorLabel);
+    void saveAllPerfectSequencesToFile();
 
 private:
     void showCuratorLabels();
@@ -64,6 +67,7 @@ private:
     QPushButton *m_saveBtn;
     QPushButton *m_loadBtn;
     QPushButton *m_loadFullSequenceBtn;
+    QPushButton *m_saveFullSequenceBtn;
 
     QJsonArray m_jsonArray;
 };

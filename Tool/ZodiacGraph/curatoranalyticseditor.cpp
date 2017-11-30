@@ -25,20 +25,31 @@ void CuratorAnalyticsEditor::showWindow()
     m_saveBtn = new QPushButton("Save");
     m_loadBtn = new QPushButton("Load");
     m_loadFullSequenceBtn = new QPushButton("Load Perfect Full Sequence");
+    m_saveFullSequenceBtn = new QPushButton("Save Perfect Full Sequence");
     m_saveBtn->setMaximumSize(100, 25);
     m_loadBtn->setMaximumSize(100, 25);
-    m_loadBtn->setMaximumSize(200, 25);
+    m_loadFullSequenceBtn->setMaximumSize(150, 25);
+    m_saveFullSequenceBtn->setMaximumSize(150, 25);
+    m_saveBtn->setMinimumSize(100, 25);
+    m_loadBtn->setMinimumSize(100, 25);
+    m_loadFullSequenceBtn->setMinimumSize(150, 25);
+    m_saveFullSequenceBtn->setMinimumSize(150, 25);
 
     connect(m_saveBtn, &QPushButton::released, [=]{saveCuratorLabels();});
     connect(m_loadBtn, &QPushButton::released, [=]{loadCuratorLabels();});
-    connect(m_loadFullSequenceBtn, &QPushButton::released, [=]{});
+    connect(m_loadFullSequenceBtn, &QPushButton::released, [=]{addSequenceToAllCuratorLabels();});
+    connect(m_saveFullSequenceBtn, &QPushButton::released, [=]{saveAllPerfectSequencesToFile();});
 
     m_saveBtn->setEnabled(false);
     m_loadFullSequenceBtn->setEnabled(false);
+    m_saveFullSequenceBtn->setEnabled(false);
 
     m_mainLayout->addWidget(m_saveBtn, 0, 0);
     m_mainLayout->addWidget(m_loadBtn, 0, 1);
     m_mainLayout->addWidget(m_loadFullSequenceBtn, 1, 0);
+    m_mainLayout->addWidget(m_saveFullSequenceBtn, 1, 1);
+
+    m_mainLayout->setAlignment(Qt::AlignLeft);
 
     show();
 }
@@ -78,6 +89,8 @@ void CuratorAnalyticsEditor::loadCuratorLabels()
                     curatorLabel->totalNumOfNodesVisited = 0;
 
                     curatorLabel->addSequenceBtn = new QPushButton("Add Perfect Sequence");
+                    connect(curatorLabel->addSequenceBtn, &QPushButton::released, [=]{addSequenceToSingleCuratorLabel(curatorLabel, readSequenceFromFile());});
+
                     curatorLabel->sequenceStatus = new QLabel("Sequence Not Loaded");
                     curatorLabel->sequenceStatus->setStyleSheet("QLabel { color : red }");
 
@@ -199,7 +212,7 @@ void CuratorAnalyticsEditor::saveCuratorLabels()
         else
         {
                 QMessageBox messageBox;
-                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                messageBox.critical(0,"Error","File could not be opened.");
                 messageBox.setFixedSize(500,200);
         }
     }
@@ -346,7 +359,92 @@ QJsonArray CuratorAnalyticsEditor::readSequenceFromFile()
     }
 }
 
-void CuratorAnalyticsEditor::addSequenceToCuratorLabel()
+void CuratorAnalyticsEditor::addSequenceToAllCuratorLabels()
 {
     QJsonArray events = readSequenceFromFile();
+
+    foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+    {
+        addSequenceToSingleCuratorLabel(curatorLabel, events);
+    }
+}
+
+void CuratorAnalyticsEditor::addSequenceToSingleCuratorLabel(CuratorLabel *curatorLabel, QJsonArray events)
+{
+    if(!events.empty())
+        return;
+
+    QJsonArray clEvents = getSequenceRelatedToCuratorLabel(events, curatorLabel->id->text());
+
+    if(!clEvents.empty())
+    {
+        curatorLabel->sequenceMatcher.loadPerfectSequence(clEvents);
+        curatorLabel->sequenceStatus->setText("Sequence Loaded");
+        curatorLabel->sequenceStatus->setStyleSheet("QLabel { color : green }");
+
+        if(!m_saveFullSequenceBtn->isEnabled())
+            m_saveFullSequenceBtn->setEnabled(true);
+    }
+}
+
+QJsonArray CuratorAnalyticsEditor::getSequenceRelatedToCuratorLabel(QJsonArray &array, QString curatorLabel)
+{
+    QJsonArray newArray;
+    bool addtoArray = true;
+
+    for(QJsonArray::iterator mainArrayIt = array.begin(); mainArrayIt != array.end(); ++mainArrayIt)
+    {
+        if((*mainArrayIt).isObject())
+        {
+            QJsonObject obj = (*mainArrayIt).toObject();
+
+            if(obj.contains("verb") && obj["verb"] == "started" && obj.contains("object") && obj["object"] == curatorLabel)
+            {
+                addtoArray = true;
+            }
+            else
+                if(obj.contains("verb") && obj["verb"] == "completed" && obj.contains("object") && obj["object"] == curatorLabel)
+                {
+                    newArray.append(obj);
+                    break;
+                }
+
+            if(addtoArray)
+                newArray.append(obj);
+        }
+    }
+    return newArray;
+}
+
+void CuratorAnalyticsEditor::saveAllPerfectSequencesToFile()
+{
+    QFile file(QFileDialog::getSaveFileName(this,
+                                                     QObject::tr("Save Perfect Sequences"), "",
+                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
+
+    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    {
+        if(file.open(QFile::WriteOnly))
+        {
+            QJsonDocument newJsonDoc;
+            QJsonArray newJsonArray;
+
+            foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+            {
+                QJsonArray sequence = curatorLabel->sequenceMatcher.getPerfectSequence();
+                if(!sequence.empty())
+                    newJsonArray.append(sequence);
+            }
+            newJsonDoc.setArray(newJsonArray);  //write new json array to file
+            file.write(newJsonDoc.toJson());
+        }
+        else
+        {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","File could not be opened.");
+                messageBox.setFixedSize(500,200);
+        }
+    }
+    else
+        qDebug() << "Save aborted by user";
 }

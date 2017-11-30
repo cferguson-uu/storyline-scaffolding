@@ -24,6 +24,8 @@ struct AnaEvent {
 struct AnaIds {
     int get_action_no(QString const &name) ;
     int get_object_no(QString const &name) ;
+    QString get_action_string(int num) ;
+    QString get_object_string(int num) ;
     QSet<QString> getIgnoredActions() {return m_ignored_actions;}
     AnaIds();
   private:
@@ -41,6 +43,7 @@ struct AnaHandler {
     {
         return m_events;
     }
+
     void set_events(QJsonArray events)
     {
         foreach (QJsonValue val, events)
@@ -62,6 +65,26 @@ struct AnaHandler {
             return; //ignored action, don't add to the list
 
         m_events.push_back(AnaEvent{ currentAction, currentObject });
+    }
+
+    void set_events(QVector<AnaEvent> events)
+    {
+        m_events = events;
+    }
+
+    QJsonArray eventsToJson()
+    {
+        QJsonArray array;
+
+        foreach (AnaEvent event, m_events)
+        {
+            QJsonObject obj;
+            obj["verb"] = m_ids->get_action_string(event.action);
+            obj["object"] = m_ids->get_object_string(event.object);
+            array.append(obj);
+        }
+
+        return array;
     }
 
     AnaHandler(std::shared_ptr<AnaIds> ids)
@@ -96,6 +119,7 @@ public:
     QJsonArray readSequenceFromFile();
     float compareLatestUserSequence(QJsonObject &latestEventInUserSequence);
     void loadPerfectSequence(QJsonArray seqArray);
+    QJsonArray getPerfectSequence();
     QSet<QString> getIgnoredActions();
 
 private:
