@@ -44,6 +44,9 @@ void SequenceMatcher::loadPerfectSequence(QJsonArray seqArray)
 
 float SequenceMatcher::compareLatestUserSequence(QJsonObject &latestEventInUserSequence)
 {
+    if(m_perfectSequence.empty())
+        return -1;  //don't compare if no perfect sequence
+
     AnaEvent event = readEvent(latestEventInUserSequence, m_ids);
 
     if(event.action == -1 && event.object == -1)

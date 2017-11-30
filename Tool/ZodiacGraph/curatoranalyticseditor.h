@@ -49,7 +49,7 @@ public:
     void loadCuratorLabels();
     void saveCuratorLabels();
     void showWindow();
-    void nodeVisited(QString task, QString node);
+    void nodeVisited(QString task, QJsonObject event);
     float getLostnessValue(QString task);
     QJsonArray readSequenceFromFile();
     void addSequenceToAllCuratorLabels();

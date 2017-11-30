@@ -95,10 +95,12 @@ void AnalyticsHandler::handleMessage(QString message)
             m_activeTasks.removeAll(jsonObj[kName_Object].toString());
         }
 
-        if(jsonObj[kName_Verb].toString() == kName_JumpedTo || jsonObj[kName_Verb].toString() == kName_PickedUp
-                && !m_activeTasks.empty())  //when visiting a node or picking up an item, update lostness value for active tasks
-            foreach (QString task, m_activeTasks)
-                m_curatorAnalyticsEditor->nodeVisited(task, jsonObj[kName_Object].toString());
+        /*if(jsonObj[kName_Verb].toString() == kName_JumpedTo || jsonObj[kName_Verb].toString() == kName_PickedUp
+                && !m_activeTasks.empty())  //when visiting a node or picking up an item, update lostness value for active tasks*/
+        //update lostness and sequence similarity values
+        foreach (QString task, m_activeTasks)
+            //m_curatorAnalyticsEditor->nodeVisited(task, jsonObj[kName_Object].toString());
+            m_curatorAnalyticsEditor->nodeVisited(task, jsonObj);
 
         //formulate human-readable string for log window
         QString sentence = jsonObj[kName_Actor].toString() + " " + jsonObj[kName_Verb].toString() + " " + jsonObj[kName_Object].toString();
