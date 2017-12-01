@@ -42,6 +42,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
 
 void AnalyticsHandler::connectToServer()
 {
+    checkForGraphs();
     m_tcpSocket->SetUpSocket();
 }
 

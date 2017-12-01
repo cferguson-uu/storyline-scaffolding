@@ -148,9 +148,14 @@ public slots:
     void showLinkerWindow(zodiac::NodeHandle &node);
 
     ///
-    /// \brief Shows a node and associated ones being unlcoked
+    /// \brief Shows a node and associated ones being unlocked
     ///
     void unlockNode(QString nodeName);
+
+    ///
+    /// \brief Checks that graphs are loaded before starting analytics
+    ///
+    void checkNarrativeAndStoryGraphsLoaded();
 
 private slots:
 

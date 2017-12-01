@@ -31,6 +31,9 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
     connect(m_analytics, SIGNAL(unlockNode(QString)),
             this, SLOT(unlockNode(QString)));
 
+    connect(m_analytics, SIGNAL(checkForGraphs()),
+            this, SLOT(checkNarrativeAndStoryGraphsLoaded()));
+
     connect(
         m_analytics, &AnalyticsHandler::closeNodeProperties,
         &m_scene, &zodiac::SceneHandle::deselectAll
@@ -1524,4 +1527,51 @@ bool MainCtrl::areAllNodesUnlocked(QList<zodiac::NodeHandle> &nodes)
     }
 
     return true;
+}
+
+void MainCtrl::checkNarrativeAndStoryGraphsLoaded()
+{
+    bool loadStory = true;
+    bool loadNarrative = true;
+
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+
+    foreach(zodiac::NodeHandle node, nodes)
+    {
+        if(node.getType() == zodiac::NODE_STORY)
+            loadStory = false;
+        else
+            if(node.getType() == zodiac::NODE_NARRATIVE)
+                loadNarrative = false;
+    }
+
+    if(loadStory)
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("No Story Graph Loaded");
+        msgBox.setText("Do you want to load a story graph before starting analytics?");
+        msgBox.setStandardButtons(QMessageBox::Yes);
+        msgBox.addButton(QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+
+        if(msgBox.exec() == QMessageBox::Yes)
+        {
+          loadStoryGraph();
+        }
+    }
+
+    if(loadNarrative)
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("No Narrative Graph Loaded");
+        msgBox.setText("Do you want to load a narrative graph before starting analytics?");
+        msgBox.setStandardButtons(QMessageBox::Yes);
+        msgBox.addButton(QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+
+        if(msgBox.exec() == QMessageBox::Yes)
+        {
+          loadNarrativeGraph();
+        }
+    }
 }

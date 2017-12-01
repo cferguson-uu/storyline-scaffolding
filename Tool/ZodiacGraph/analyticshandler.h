@@ -18,6 +18,7 @@ public:
 signals:
     void unlockNode(QString name);
     void closeNodeProperties();
+    void checkForGraphs();
 
 public slots:
     void connected();
