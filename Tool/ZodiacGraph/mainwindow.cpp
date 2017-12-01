@@ -28,6 +28,7 @@
 #include "analyticslogwindow.h"
 #include "analyticssocket.h"
 #include "analyticshandler.h"
+#include "analyticsproperties.h"
 
 //void createZodiacLogo(MainCtrl* mainCtrl);
 
@@ -99,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //create the analytics systems
     AnalyticsLogWindow *analyticsLog = new AnalyticsLogWindow(this);
+    //AnalyticsProperties *analyticsProperties = new AnalyticsProperties(this);
     AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, this);
 
     // create the Main Controller
