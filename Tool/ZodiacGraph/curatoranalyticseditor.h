@@ -56,6 +56,7 @@ public:
     void addSequenceToSingleCuratorLabel(CuratorLabel *curatorLabel, QJsonArray events);
     QJsonArray getSequenceRelatedToCuratorLabel(QJsonArray &array, QString curatorLabel);
     void saveAllPerfectSequencesToFile();
+    bool checkIfAnalyticsLoaded();
 
 private:
     void showCuratorLabels();

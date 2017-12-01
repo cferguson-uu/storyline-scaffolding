@@ -458,3 +458,61 @@ void CuratorAnalyticsEditor::saveAllPerfectSequencesToFile()
     else
         qDebug() << "Save aborted by user";
 }
+
+bool CuratorAnalyticsEditor::checkIfAnalyticsLoaded()
+{
+    bool loadLabels = true;
+    bool loadSequences = false;
+
+    if(!m_curatorLabels.empty())
+    {
+        loadLabels = false;
+
+        foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+        {
+            if(curatorLabel->sequenceMatcher.getPerfectSequence().empty())
+            {
+                loadSequences = true;
+                break;
+            }
+        }
+    }
+
+
+    if(loadLabels)
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("No Curator Labels Loaded");
+        msgBox.setText("Do you want to load the curator labels (in-game tasks) and perfect sequences before starting analytics?");
+        msgBox.setStandardButtons(QMessageBox::Yes);
+        msgBox.addButton(QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+
+        if(msgBox.exec() == QMessageBox::Yes)
+        {
+          showWindow();
+          return false;
+        }
+        else
+            return true;
+    }
+    else
+        if(loadSequences)
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Some/All Perfect Sequences Not Loaded");
+            msgBox.setText("Do you want to load perfect sequences for in-game tasks before starting analytics?");
+            msgBox.setStandardButtons(QMessageBox::Yes);
+            msgBox.addButton(QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::No);
+
+            if(msgBox.exec() == QMessageBox::Yes)
+            {
+              showWindow();
+              return false;
+            }
+            else
+                return true;
+        }
+    return true;
+}

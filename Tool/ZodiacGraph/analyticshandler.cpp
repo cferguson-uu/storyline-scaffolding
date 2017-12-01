@@ -43,7 +43,8 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
 void AnalyticsHandler::connectToServer()
 {
     checkForGraphs();
-    m_tcpSocket->SetUpSocket();
+    if(m_curatorAnalyticsEditor->checkIfAnalyticsLoaded())  //don't show the connect dialog if opening analytics dialog
+        m_tcpSocket->SetUpSocket();
 }
 
 void AnalyticsHandler::connected()
