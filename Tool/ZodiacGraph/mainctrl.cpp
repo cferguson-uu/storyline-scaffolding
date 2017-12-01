@@ -646,15 +646,9 @@ void MainCtrl::saveNarrativeGraph()
 
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
     {
-        if((*nodeIt).getType() == zodiac::NODE_NARRATIVE && !((*nodeIt).getName() == "SEQ" || (*nodeIt).getName() == "INV"))
+        if((*nodeIt).getPlug("reqOut").getConnectedPlugs().empty())
         {
-            zodiac::PlugHandle inPlug = (*nodeIt).getPlug("reqIn");
-            zodiac::PlugHandle outPlug = (*nodeIt).getPlug("reqOut");
-
-            if(outPlug.getConnectedPlugs().empty())
-            {
-                saveNarrativeNode((*nodeIt));
-            }
+            saveNarrativeNode((*nodeIt));
         }
     }
 
@@ -664,23 +658,24 @@ void MainCtrl::saveNarrativeGraph()
 
 void MainCtrl::saveNarrativeNode(zodiac::NodeHandle &node)
 {
-    NarNode *newNarrativeNode = m_saveAndLoadManager.addNarrativeNode(node.getName(), node.getDescription());
+    NarNode *newNarrativeNode = nullptr;
 
-    if(newNarrativeNode)    //will return nullptr if node already exists
+    if(node.getType() == zodiac::NODE_NARRATIVE && !(node.getName() == "SEQ" || node.getName() == "INV"))
+        newNarrativeNode = m_saveAndLoadManager.addNarrativeNode(node.getName(), node.getDescription());
+
+    if(newNarrativeNode)    //will return nullptr if node already exists or is a requirement decorator node
     {
         saveCommands(newNarrativeNode, node);
         saveRequirements(newNarrativeNode, node);
         saveStoryTags(newNarrativeNode, node);
+    }
 
-        QList<zodiac::PlugHandle> connectedPlugs = node.getPlug("reqIn").getConnectedPlugs();
+    QList<zodiac::PlugHandle> connectedPlugs = node.getPlug("reqIn").getConnectedPlugs();
 
-        foreach (zodiac::PlugHandle plug, connectedPlugs)
-        {
-            zodiac::NodeHandle newNode = plug.getNode();
-
-            if(newNode.getType() == zodiac::NODE_NARRATIVE && !(newNode.getName() == "SEQ" || newNode.getName() == "INV"))
-                saveNarrativeNode(newNode);
-        }
+    foreach (zodiac::PlugHandle plug, connectedPlugs)
+    {
+        zodiac::NodeHandle newNode = plug.getNode();
+        saveNarrativeNode(newNode);
     }
 }
 
