@@ -249,6 +249,8 @@ private: // members
     void showUnlockableNodes(QList<zodiac::NodeHandle> &nodes);
     bool areAllNodesUnlocked(QList<zodiac::NodeHandle> &nodes);
 
+    void saveNarrativeNode(zodiac::NodeHandle &node);
+
 private: // static members
 
     ///

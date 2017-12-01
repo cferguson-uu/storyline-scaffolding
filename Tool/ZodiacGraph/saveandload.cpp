@@ -855,6 +855,13 @@ void saveandload::LoadCommands(QJsonArray &jsonCommands)
 
 NarNode *saveandload::addNarrativeNode(QString id, QString description)
 {
+    //check if node already exists
+    foreach(NarNode node, m_narrativeNodes)
+    {
+        if(node.id == id)
+            return nullptr; //return nullptr if node exists
+    }
+
     //check if the prefix is new, if not then add it to the list
     QString prefix = id.section('_', 0, 0);
     bool prefixExists = false;

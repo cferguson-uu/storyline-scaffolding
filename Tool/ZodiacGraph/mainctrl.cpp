@@ -648,16 +648,40 @@ void MainCtrl::saveNarrativeGraph()
     {
         if((*nodeIt).getType() == zodiac::NODE_NARRATIVE && !((*nodeIt).getName() == "SEQ" || (*nodeIt).getName() == "INV"))
         {
-            NarNode *newNarrativeNode = m_saveAndLoadManager.addNarrativeNode((*nodeIt).getName(), (*nodeIt).getDescription());
+            zodiac::PlugHandle inPlug = (*nodeIt).getPlug("reqIn");
+            zodiac::PlugHandle outPlug = (*nodeIt).getPlug("reqOut");
 
-            saveCommands(newNarrativeNode, (*nodeIt));
-            saveRequirements(newNarrativeNode, (*nodeIt));
-            saveStoryTags(newNarrativeNode, (*nodeIt));
+            if(outPlug.getConnectedPlugs().empty())
+            {
+                saveNarrativeNode((*nodeIt));
+            }
         }
     }
 
     m_saveAndLoadManager.SaveNarrativeToFile(qobject_cast<QWidget*>(parent()));
 
+}
+
+void MainCtrl::saveNarrativeNode(zodiac::NodeHandle &node)
+{
+    NarNode *newNarrativeNode = m_saveAndLoadManager.addNarrativeNode(node.getName(), node.getDescription());
+
+    if(newNarrativeNode)    //will return nullptr if node already exists
+    {
+        saveCommands(newNarrativeNode, node);
+        saveRequirements(newNarrativeNode, node);
+        saveStoryTags(newNarrativeNode, node);
+
+        QList<zodiac::PlugHandle> connectedPlugs = node.getPlug("reqIn").getConnectedPlugs();
+
+        foreach (zodiac::PlugHandle plug, connectedPlugs)
+        {
+            zodiac::NodeHandle newNode = plug.getNode();
+
+            if(newNode.getType() == zodiac::NODE_NARRATIVE && !(newNode.getName() == "SEQ" || newNode.getName() == "INV"))
+                saveNarrativeNode(newNode);
+        }
+    }
 }
 
 void MainCtrl::saveCommands(NarNode *narNode, zodiac::NodeHandle &sceneNode)
