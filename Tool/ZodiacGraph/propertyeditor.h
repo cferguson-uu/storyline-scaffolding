@@ -32,6 +32,7 @@
 
 #include "zodiacgraph/nodehandle.h"
 #include "saveandload.h"
+#include "analyticsproperties.h"
 
 class Collapsible;
 class MainCtrl;
@@ -60,13 +61,26 @@ public: // methods
     ///
     void setMainCtrl(MainCtrl* mainCtrl) {Q_ASSERT(!m_mainCtrl); m_mainCtrl = mainCtrl;}
 
-    //the list of commands and parameters for editing the command block
+    ///
+    /// \brief Sets the list of commands and parameters for editing the command block
+    ///
+    /// \param [in] properties   The properties window
+    ///
+    void setAnalyticsProperties(AnalyticsProperties *properties);
+
+    ///
+    /// \brief Sets the list of commands and parameters for editing the command block
+    ///
+    /// \param [in] cmds   The command list
+    ///
     void setCommandList(QList<Command> *cmds) { m_pCommands = cmds;}
 
-    //undo stack for undo and redo
+    ///
+    /// \brief Sets undo stack for undo and redo
+    ///
+    /// \param [in] undoStack   The undo stack
+    ///
     void setUndoStack(QUndoStack *undoStack) { m_pUndoStack = undoStack;}
-
-    //undso stack for undo and redo
 
     ///
     /// \brief Shows 0-n NodeProperty%s in the PropertyEditor.
@@ -89,7 +103,9 @@ private: // members
     ///
     MainCtrl* m_mainCtrl;
 
-    //holds a pointer to the command list from the save and load class
+    ///
+    /// \brief Holds a pointer to the command list from the save and load class.
+    ///
     QList<Command> *m_pCommands;
 
     ///
@@ -102,7 +118,14 @@ private: // members
     ///
     QHash<zodiac::NodeHandle, Collapsible*> m_nodes;
 
-    //pointer to carry out undo functions
+    ///
+    /// \brief Pair for the analytics properties and the collapsible
+    ///
+    QPair<AnalyticsProperties*, Collapsible*> m_analyticsProperties;
+
+    ///
+    /// \brief Pointer to carry out undo functions
+    ///
     QUndoStack *m_pUndoStack;
 };
 

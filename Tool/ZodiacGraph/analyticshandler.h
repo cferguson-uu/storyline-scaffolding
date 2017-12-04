@@ -7,13 +7,14 @@
 #include "zodiacgraph/node.h"
 #include "nodeproperties.h"
 #include "curatoranalyticseditor.h"
+#include "analyticsproperties.h"
 
 class AnalyticsHandler : public QObject
 {
     Q_OBJECT
 
 public:
-    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent);
+    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, AnalyticsProperties *analyticsProperties, QObject *parent);
 
 signals:
     void unlockNode(QString name);
@@ -36,6 +37,8 @@ private:
     QAction *m_editLostnessAction;
 
     QList<QString> m_activeTasks;
+
+    AnalyticsProperties *m_pProperties;
 };
 
 #endif // ANALYTICSHANDLER_H

@@ -65,7 +65,7 @@ public: // methods
     /// \param [in] propertyEditor  Handler for analytics
     /// \param [in] undoStack       Undo stack for undo and redo.
     ///
-    explicit MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QUndoStack *undoStack);
+    explicit MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QUndoStack *undoStack, AnalyticsProperties *analyticsProperties);
 
     ///
     /// \brief Creates a new node in the graph.

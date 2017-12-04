@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QList>
+#include "zodiacgraph/nodehandle.h"
 
 class Collapsible;
 class QVBoxLayout;
@@ -22,7 +24,7 @@ public:// methods
     /// \param [in] parent  Collapsible parent object.
     ///
     AnalyticsProperties(Collapsible *parent);
-    void UpdateLinkerValues();
+    void UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes);
 
 private:
     QVBoxLayout* m_mainLayout;

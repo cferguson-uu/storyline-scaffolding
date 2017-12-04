@@ -48,7 +48,7 @@ void PropertyEditor::showNodes(const QList<zodiac::NodeHandle>& selection)
             Collapsible* collapsible = new Collapsible(this, this);
             NodeProperties *newNodeProperties = new NodeProperties(m_mainCtrl->getCtrlForHandle(node), collapsible, m_pCommands, m_pUndoStack);
             collapsible->setWidget(newNodeProperties, newNodeProperties);
-            m_layout->insertWidget(0, collapsible); // insert the new Collapsible at the top
+            m_layout->insertWidget(1, collapsible); // insert the new Collapsible at the top, underneath the analytics (1 rather than 0)
             m_nodes.insert(node, collapsible);
         }
     }
@@ -64,4 +64,15 @@ Collapsible* PropertyEditor::getCollapsible(zodiac::NodeHandle node)
         return nullptr;
     }
 
+}
+
+void PropertyEditor::setAnalyticsProperties(AnalyticsProperties *properties)
+{
+    Collapsible *collapsible = new Collapsible(this, this);
+    properties = new AnalyticsProperties(collapsible);
+    collapsible->setWidget(properties, nullptr);
+
+    m_analyticsProperties = qMakePair(properties, collapsible);
+
+    m_layout->insertWidget(0, collapsible); // insert the new Collapsible at the top
 }

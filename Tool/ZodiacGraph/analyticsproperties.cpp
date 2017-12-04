@@ -38,7 +38,7 @@ AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
     parent->updateTitle("Analytics");
 }
 
-void AnalyticsProperties::UpdateLinkerValues()
+void AnalyticsProperties::UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes)
 {
     float sNodesWithConnections = 0;
     float sNodesWithoutConnections = 0;
@@ -46,6 +46,47 @@ void AnalyticsProperties::UpdateLinkerValues()
     float nNodesWithConnections = 0;
     float nNodesWithoutConnections = 0;
     float nNodeAverageConnections = 0;
+    int numOfNNodes = 0;
+    int numOfSNodes = 0;
+
+    foreach(zodiac::NodeHandle node, nodes)
+    {
+        if(node.getType() == zodiac::NODE_STORY)
+        {
+            ++numOfSNodes;
+
+            int connections = node.getPlug("narrativeIn").connectionCount();
+
+            if(connections > 0)
+            {
+                ++sNodesWithConnections;
+                sNodeAverageConnections += connections;
+            }
+            else
+                ++sNodesWithoutConnections;
+        }
+        else
+            if(node.getType() == zodiac::NODE_NARRATIVE)
+            {
+                ++numOfNNodes;
+
+                int connections = node.getPlug("storyOut").connectionCount();
+
+                if(connections > 0)
+                {
+                    ++nNodesWithConnections;
+                    nNodeAverageConnections += connections;
+                }
+                else
+                    ++nNodesWithoutConnections;
+            }
+    }
+
+    if(numOfSNodes > 0)
+        sNodeAverageConnections /= numOfSNodes;
+
+    if(numOfNNodes > 0)
+        nNodeAverageConnections /= numOfNNodes;
 
     m_storyNodesWithConnections->setText(kName_StoryNodesWithConnection + QString::number(sNodesWithConnections));
     m_storyNodesWithoutConnections->setText(kName_StoryNodesWithoutConnection + QString::number(sNodesWithoutConnections));

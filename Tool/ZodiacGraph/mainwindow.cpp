@@ -100,11 +100,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     //create the analytics systems
     AnalyticsLogWindow *analyticsLog = new AnalyticsLogWindow(this);
-    //AnalyticsProperties *analyticsProperties = new AnalyticsProperties(this);
-    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, this);
+    AnalyticsProperties *analyticsProperties = nullptr;
+    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, analyticsProperties, this);
 
     // create the Main Controller
-    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, m_pUndoStack);
+    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, m_pUndoStack, analyticsProperties);
 
     // setup the main splitter
     m_mainSplitter = new QSplitter(Qt::Horizontal, this);
