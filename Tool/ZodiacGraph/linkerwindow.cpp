@@ -19,7 +19,7 @@ LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &
         {
             if((*nodeIt).getType() == zodiac::NODE_NARRATIVE)
             {
-                if((*nodeIt).getName() != "SEQ" && (*nodeIt).getName() != "SEQ")
+                if((*nodeIt).getName() != "SEQ" && (*nodeIt).getName() != "INV")
                     m_narrativeNodeList.push_back((*nodeIt));
             }
             else

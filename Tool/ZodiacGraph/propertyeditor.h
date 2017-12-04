@@ -96,6 +96,9 @@ public: // methods
     ///
     Collapsible *getCollapsible(zodiac::NodeHandle node);
 
+signals:
+    void UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes);
+
 private: // members
 
     ///

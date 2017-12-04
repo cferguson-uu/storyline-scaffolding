@@ -20,12 +20,12 @@ AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
     m_mainLayout->setSpacing(2);
     setLayout(m_mainLayout);
 
-    m_storyNodesWithConnections = new QLabel(kName_StoryNodesWithConnection);
-    m_storyNodesWithoutConnections = new QLabel(kName_StoryNodesWithoutConnection);
-    m_storyNodesAverageConnections = new QLabel(kName_StoryNodesAverageConnection);
-    m_narrativeNodesWithConnections = new QLabel(kName_NarrativeNodesWithConnection);
-    m_narrativeNodesWithoutConnections = new QLabel(kName_NarrativeNodesWithoutConnection);
-    m_narrativeNodesAverageConnections = new QLabel(kName_NarrativeNodesAverageConnection);
+    m_storyNodesWithConnections = new QLabel(kName_StoryNodesWithConnection + QString::number(0));
+    m_storyNodesWithoutConnections = new QLabel(kName_StoryNodesWithoutConnection + QString::number(0));
+    m_storyNodesAverageConnections = new QLabel(kName_StoryNodesAverageConnection + QString::number(0));
+    m_narrativeNodesWithConnections = new QLabel(kName_NarrativeNodesWithConnection + QString::number(0));
+    m_narrativeNodesWithoutConnections = new QLabel(kName_NarrativeNodesWithoutConnection + QString::number(0));
+    m_narrativeNodesAverageConnections = new QLabel(kName_NarrativeNodesAverageConnection + QString::number(0));
 
     m_mainLayout->addWidget(m_storyNodesWithConnections);
     m_mainLayout->addWidget(m_storyNodesWithoutConnections);
@@ -53,32 +53,43 @@ void AnalyticsProperties::UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes)
     {
         if(node.getType() == zodiac::NODE_STORY)
         {
-            ++numOfSNodes;
-
-            int connections = node.getPlug("narrativeIn").connectionCount();
-
-            if(connections > 0)
+            if(node.getStoryNodeType() != zodiac::STORY_NAME && node.getStoryNodeType() != zodiac::STORY_SETTING && node.getStoryNodeType() != zodiac::STORY_SETTING_CHARACTER_GROUP &&
+                    node.getStoryNodeType() != zodiac::STORY_SETTING_LOCATION_GROUP && node.getStoryNodeType() != zodiac::STORY_SETTING_TIME_GROUP && node.getStoryNodeType() != zodiac::STORY_THEME&&
+                    node.getStoryNodeType() != zodiac::STORY_THEME_EVENT_GROUP && node.getStoryNodeType() != zodiac::STORY_THEME_GOAL_GROUP && node.getStoryNodeType() != zodiac::STORY_PLOT &&
+                    node.getStoryNodeType() != zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP && node.getStoryNodeType() != zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP &&
+                    node.getStoryNodeType() != zodiac::STORY_RESOLUTION && node.getStoryNodeType() != zodiac::STORY_RESOLUTION_EVENT_GROUP &&
+                    node.getStoryNodeType() != zodiac::STORY_RESOLUTION_STATE_GROUP)
             {
-                ++sNodesWithConnections;
-                sNodeAverageConnections += connections;
+                ++numOfSNodes;
+
+                int connections = node.getPlug("narrativeIn").connectionCount();
+
+                if(connections > 0)
+                {
+                    ++sNodesWithConnections;
+                    sNodeAverageConnections += connections;
+                }
+                else
+                    ++sNodesWithoutConnections;
             }
-            else
-                ++sNodesWithoutConnections;
         }
         else
             if(node.getType() == zodiac::NODE_NARRATIVE)
             {
-                ++numOfNNodes;
-
-                int connections = node.getPlug("storyOut").connectionCount();
-
-                if(connections > 0)
+                if(node.getName() != "SEQ" && node.getName() != "INV")
                 {
-                    ++nNodesWithConnections;
-                    nNodeAverageConnections += connections;
+                    ++numOfNNodes;
+
+                    int connections = node.getPlug("storyOut").connectionCount();
+
+                    if(connections > 0)
+                    {
+                        ++nNodesWithConnections;
+                        nNodeAverageConnections += connections;
+                    }
+                    else
+                        ++nNodesWithoutConnections;
                 }
-                else
-                    ++nNodesWithoutConnections;
             }
     }
 

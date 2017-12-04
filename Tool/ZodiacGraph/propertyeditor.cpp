@@ -75,4 +75,8 @@ void PropertyEditor::setAnalyticsProperties(AnalyticsProperties *properties)
     m_analyticsProperties = qMakePair(properties, collapsible);
 
     m_layout->insertWidget(0, collapsible); // insert the new Collapsible at the top
+
+    //connect to allow values to be updated
+    connect(this, SIGNAL(UpdateLinkerValues(QList<zodiac::NodeHandle>&)),
+            properties, SLOT(UpdateLinkerValues(QList<zodiac::NodeHandle>&)));
 }

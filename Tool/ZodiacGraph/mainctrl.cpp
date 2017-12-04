@@ -77,6 +77,8 @@ NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& n
             nodeCtrl->addOutgoingPlug("storyOut");
         }
 
+    m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
+
     return nodeCtrl;
 }
 
@@ -131,6 +133,7 @@ void MainCtrl::createDefaultNode()
 void MainCtrl::selectionChanged(QList<zodiac::NodeHandle> selection)
 {
     m_propertyEditor->showNodes(selection);
+    m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
 }
 
 NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type, QString name, QString description, QPoint &pos, bool relative, bool load)
@@ -506,6 +509,8 @@ void MainCtrl::loadStoryGraph()
 
         //space out the graph properly
         spaceOutStory();
+
+        m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
     }
 }
 
@@ -925,6 +930,8 @@ void MainCtrl::loadNarrativeGraph()
 
         //space out new nodes
         spaceOutNarrative((*newNarSceneNodes.begin()));
+
+        m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
     }
 }
 
@@ -1354,6 +1361,8 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
         if(!(*narIt).getPlug("reqOut").isValid())
             spaceOutNarrative(new NodeCtrl(this, (*narIt)));
     }
+
+    m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
 }
 
 void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList)
@@ -1379,6 +1388,8 @@ void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle
         {
             (*plugIt)->setBaseColor(QColor(0, 184, 13));
         }
+
+        m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
     }
 }
 

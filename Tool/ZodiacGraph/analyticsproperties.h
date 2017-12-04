@@ -24,6 +24,8 @@ public:// methods
     /// \param [in] parent  Collapsible parent object.
     ///
     AnalyticsProperties(Collapsible *parent);
+
+public slots:
     void UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes);
 
 private:
