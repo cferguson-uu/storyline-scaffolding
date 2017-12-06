@@ -152,6 +152,12 @@ signals:
     ///
     void selectionChanged(QList<zodiac::NodeHandle> selection);
 
+    ///
+    /// \brief Emitted when the analytics properties collapsible needs updating
+    ///
+    ///
+    void updateAnalyticsProperties();
+
 private: // methods
 
     ///

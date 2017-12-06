@@ -80,6 +80,8 @@ bool Scene::removeNode(Node* node)
     removeItem(node);
     node->deleteLater();
 
+    updateAnalyticsProperties(); //send signal to update analytics collapsible
+
     return true;
 }
 
@@ -184,8 +186,9 @@ void Scene::removeEdge(PlugEdge* edge)
     emit fromPlug->getNode()->outputDisconnected(fromPlug, toPlug);
     emit toPlug->getNode()->inputDisconnected(toPlug, fromPlug);
 
-    //update the node properties so that the connection no longer shows
+    //update the node properties and analytics so that the connection no longer shows
     selectionChanged();
+    updateAnalyticsProperties();
 }
 
 PlugEdge* Scene::getEdge(Plug* fromPlug, Plug* toPlug)

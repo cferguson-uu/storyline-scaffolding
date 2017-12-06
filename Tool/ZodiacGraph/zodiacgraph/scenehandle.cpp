@@ -75,6 +75,7 @@ void SceneHandle::connectSignals()
     }
     connect(m_scene, SIGNAL(destroyed()), this, SLOT(sceneWasDestroyed()));
     connect(m_scene, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
+    connect(m_scene, SIGNAL(updateAnalyticsProperties()), this, SIGNAL(updateAnalyticsProperties()));
 }
 
 void SceneHandle::updateSelection()

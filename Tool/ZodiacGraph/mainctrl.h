@@ -157,6 +157,11 @@ public slots:
     ///
     void checkNarrativeAndStoryGraphsLoaded();
 
+    ///
+    /// \brief Updates the analytics collapsible
+    ///
+    void updateAnalyticsProperties();
+
 private slots:
 
     ///

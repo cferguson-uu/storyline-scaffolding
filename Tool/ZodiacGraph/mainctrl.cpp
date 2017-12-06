@@ -29,6 +29,9 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
     connect(&m_scene, SIGNAL(selectionChanged(QList<zodiac::NodeHandle>)),
             this, SLOT(selectionChanged(QList<zodiac::NodeHandle>)));
 
+    connect(&m_scene, SIGNAL(updateAnalyticsProperties()),
+            this, SLOT(updateAnalyticsProperties()));
+
     connect(m_analytics, SIGNAL(unlockNode(QString)),
             this, SLOT(unlockNode(QString)));
 
@@ -1605,4 +1608,9 @@ void MainCtrl::checkNarrativeAndStoryGraphsLoaded()
           loadNarrativeGraph();
         }
     }
+}
+
+void MainCtrl::updateAnalyticsProperties()
+{
+    m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
 }
