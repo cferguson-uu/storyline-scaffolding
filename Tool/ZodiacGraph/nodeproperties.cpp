@@ -28,7 +28,6 @@ static const QString kName_narrativeInFull = "Narrative Nodes:";
 NodeProperties::NodeProperties(NodeCtrl *node, Collapsible *parent, QList<Command> *commands, QUndoStack *undoStack)
     : QWidget(parent)
     , m_node(node)
-    , m_nextPlugIsIncoming(true)
     , m_pCommands(commands)
     , m_pUndoStack(undoStack)
 {

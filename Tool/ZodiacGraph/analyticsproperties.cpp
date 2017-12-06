@@ -1,8 +1,10 @@
 #include "analyticsproperties.h"
 
 #include <QVBoxLayout>
+#include <QGridLayout>
 
 #include "collapsible.h"
+#include "curatoranalyticseditor.h"
 
 static const QString kName_StoryNodesWithConnection = "Number of Story Nodes With Connections: ";
 static const QString kName_StoryNodesWithoutConnection = "Number of Story Nodes Without Connections: ";
@@ -106,4 +108,60 @@ void AnalyticsProperties::UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes)
     m_narrativeNodesWithoutConnections->setText(kName_NarrativeNodesWithoutConnection + QString::number(nNodesWithoutConnections));
     m_narrativeNodesAverageConnections->setText(kName_NarrativeNodesAverageConnection + QString::number(nNodeAverageConnections));
 
+}
+
+void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
+{
+    if(curatorLabels.empty())
+        return;
+
+    // define the curator layout
+    m_curatorLayout = new QGridLayout();
+    m_curatorLabelLayoutLabel = new QLabel("Curator Labels", this);
+    m_curatorLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
+    m_curatorLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
+    m_curatorLayout->addWidget(m_curatorLabelLayoutLabel, 0, 0, 1, 2, Qt::AlignLeft);
+
+    //parse the list of curator labels
+    foreach (CuratorLabel *curatorLabel, curatorLabels)
+    {
+
+    }
+}
+
+void AnalyticsProperties::addCuratorLabelRow(CuratorLabel *curatorLabel)
+{
+    /*
+    QLabel* id;
+    QList<QLabel*> narrativeDependencies;
+    QLineEdit* minSteps;
+    SequenceMatcher sequenceMatcher;
+    */
+
+    //qMakePair<QString, bool>("", false); // for dependencies
+
+    int row = m_curatorLayout->rowCount();
+
+    QGridLayout *rowLayout = new QGridLayout();
+
+    QLabel* plugName = new QLabel(curatorLabel->id->text(), this);
+
+    rowLayout->addWidget(plugName, 0, 0);
+
+    m_curatorLayout->addLayout(rowLayout, row, 0);
+
+    m_curatorRows.insert(plugName->text(), new CuratorRow(this, plugName, rowLayout));
+}
+
+void AnalyticsProperties::removePlugRow(const QString& curatorLabelName)
+{
+    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    m_curatorRows.remove(curatorLabelName);
+}
+
+CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout)
+    : QObject(editor)
+    , m_nameLabel(nameLabel)
+{
+    int row = rowLayout->rowCount();
 }

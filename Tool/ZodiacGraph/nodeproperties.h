@@ -181,13 +181,6 @@ private: // members
     ///
     QHash<QString, PlugRow*> m_plugRows;
 
-    ///
-    /// \brief Hitting the add-Plug button creates incoming and outgoing Plug%s alternately.
-    ///
-    /// This flag keeps track of what is next.
-    ///
-    bool m_nextPlugIsIncoming;
-
     QGridLayout* m_onUnlockLayout;
     QPushButton* m_addOnUnlockButton;
     QHash<QUuid, CommandRow*> m_onUnlockRows;
