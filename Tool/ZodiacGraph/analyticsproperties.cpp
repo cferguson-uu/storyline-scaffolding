@@ -125,43 +125,89 @@ void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
     //parse the list of curator labels
     foreach (CuratorLabel *curatorLabel, curatorLabels)
     {
-
+        addCuratorLabelRow(curatorLabel);
     }
 }
 
 void AnalyticsProperties::addCuratorLabelRow(CuratorLabel *curatorLabel)
 {
-    /*
-    QLabel* id;
-    QList<QLabel*> narrativeDependencies;
-    QLineEdit* minSteps;
-    SequenceMatcher sequenceMatcher;
-    */
-
-    //qMakePair<QString, bool>("", false); // for dependencies
-
     int row = m_curatorLayout->rowCount();
 
     QGridLayout *rowLayout = new QGridLayout();
 
     QLabel* plugName = new QLabel(curatorLabel->id->text(), this);
 
+    // add names of all dependencies, set to false as not accessed yet
+    QList<QPair<QString, bool>> dependenciesList;
+    foreach (QLabel* dependency, curatorLabel->narrativeDependencies)
+    {
+        qMakePair<QString, bool>(dependency->text(), false);
+    }
+
     rowLayout->addWidget(plugName, 0, 0);
 
     m_curatorLayout->addLayout(rowLayout, row, 0);
 
-    m_curatorRows.insert(plugName->text(), new CuratorRow(this, plugName, rowLayout));
+    m_curatorRows.insert(plugName->text(), new CuratorRow(this, plugName, rowLayout, dependenciesList));
 }
 
-void AnalyticsProperties::removePlugRow(const QString& curatorLabelName)
+void AnalyticsProperties::removeCuratorRow(const QString& curatorLabelName)
 {
+    //if it exists, delete all of the widgets and remove from the list
     Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    m_curatorRows[curatorLabelName]->removeRow();
+    m_curatorRows[curatorLabelName]->deleteLater();
     m_curatorRows.remove(curatorLabelName);
 }
 
-CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout)
-    : QObject(editor)
-    , m_nameLabel(nameLabel)
+void AnalyticsProperties::removeAllCuratorRows()
 {
-    int row = rowLayout->rowCount();
+    for(QHash<QString, CuratorRow*>::iterator curatorIt = m_curatorRows.begin(); curatorIt != m_curatorRows.end(); ++curatorIt)
+    {
+        curatorIt.value()->removeRow();
+        curatorIt.value()->deleteLater();
+    }
+
+    m_curatorRows.clear();  //clear list of pointers
+}
+
+CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QList<QPair<QString, bool>> &dependenciesList)
+    : QObject(editor)
+    , m_rowLayout(rowLayout)
+    , m_nameLabel(nameLabel)
+    , m_progressLabel(new QLabel("Progress:"))
+    , m_progressBar(new QProgressBar())
+    , m_dependencies(dependenciesList)
+    , m_lostnessLabel(new QLabel("Lostness:"))
+    , m_lostnessBar(new QProgressBar())
+    , m_lostnessValue(0)
+    , m_similarityLabel(new QLabel("Lostness:"))
+    , m_similarityBar(new QProgressBar())
+    , m_similarityValue(0)
+{
+    int row = m_rowLayout->rowCount();
+
+    m_rowLayout->addWidget(m_progressLabel, row, 0);
+    m_rowLayout->addWidget(m_progressBar, row, 1);
+    ++row;
+
+    m_rowLayout->addWidget(m_lostnessLabel, row, 0);
+    m_rowLayout->addWidget(m_lostnessBar, row, 1);
+    ++row;
+
+    m_rowLayout->addWidget(m_similarityLabel, row, 0);
+    m_rowLayout->addWidget(m_similarityBar, row, 1);
+    ++row;
+}
+
+void CuratorRow::removeRow()
+{
+    m_rowLayout->deleteLater();
+    m_nameLabel->deleteLater();
+    m_progressLabel->deleteLater();
+    m_progressBar->deleteLater();
+    m_lostnessLabel->deleteLater();
+    m_lostnessBar->deleteLater();
+    m_similarityLabel->deleteLater();
+    m_similarityBar->deleteLater();
 }

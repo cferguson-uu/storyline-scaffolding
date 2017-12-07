@@ -37,6 +37,11 @@ public:// methods
     ///
     void StartAnalyticsMode(QList<CuratorLabel*> curatorLabels);
 
+    ///
+    /// \brief Remove all curator rows from being displayed
+    ///
+    void removeAllCuratorRows();
+
 public slots:
     ///
     /// \brief Updates the values for links between story and narrative nodes
@@ -56,9 +61,9 @@ private:
     ///
     /// \brief Removes a  CuratorRow from the editor.
     ///
-    /// \param [in] plugName    Name of the plug to remove.
+    /// \param [in] curatorLabelName    Name of the curator label to remove.
     ///
-    void removeCuratorRow(const QString& plugName);
+    void removeCuratorRow(const QString& curatorLabelName);
 
     ///
     /// \brief Main Layout
@@ -126,9 +131,19 @@ public: // methods
     /// \param [in] editor          AnalyticsProperties that this CuratorRow is part of.
     /// \param [in] nameLabel        Curator label name.
     ///
-    CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout);
+    CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QList<QPair<QString, bool>> &dependenciesList);
+
+    ///
+    /// \brief Remove all widgets from the row
+    ///
+    void removeRow();
 
 private:
+
+    ///
+    /// \brief Layout for this curator label row
+    ///
+    QGridLayout* m_rowLayout;
 
     ///
     /// \brief Name
@@ -148,12 +163,17 @@ private:
     ///
     /// \brief Lostness label
     ///
-    QLabel* m_LostnessLabel;
+    QLabel* m_lostnessLabel;
 
     ///
     /// \brief Lostness Bar, gives visual feedback on how "lost the user is"
     ///
-    QProgressBar* m_LostnessBar;
+    QProgressBar* m_lostnessBar;
+
+    ///
+    /// \brief The current value of lostness
+    ///
+    float m_lostnessValue;
 
     ///
     /// \brief Similarity label
@@ -164,6 +184,11 @@ private:
     /// \brief Similarity Bar, gives visual feedback on how well the player is matching the perfect sequence
     ///
     QProgressBar* m_similarityBar;
+
+    ///
+    /// \brief The current value of similarity
+    ///
+    float m_similarityValue;
 
     ///
     /// \brief List of narrative dependencies with bool to show if achieved

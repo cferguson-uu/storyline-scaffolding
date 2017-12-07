@@ -57,6 +57,7 @@ public:
     QJsonArray getSequenceRelatedToCuratorLabel(QJsonArray &array, QString curatorLabel);
     void saveAllPerfectSequencesToFile();
     bool checkIfAnalyticsLoaded();
+    QList<CuratorLabel*> getCuratorLabels(){return m_curatorLabels;}
 
 private:
     void showCuratorLabels();
