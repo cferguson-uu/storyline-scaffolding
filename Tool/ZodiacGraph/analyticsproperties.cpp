@@ -139,10 +139,10 @@ void AnalyticsProperties::addCuratorLabelRow(CuratorLabel *curatorLabel)
     QLabel* plugName = new QLabel(curatorLabel->id->text(), this);
 
     // add names of all dependencies, set to false as not accessed yet
-    QList<QPair<QString, bool>> dependenciesList;
+    QHash<QString, bool> dependenciesList;
     foreach (QLabel* dependency, curatorLabel->narrativeDependencies)
     {
-        qMakePair<QString, bool>(dependency->text(), false);
+        dependenciesList[dependency->text()] = false;
     }
 
     rowLayout->addWidget(plugName, 0, 0);
@@ -172,7 +172,25 @@ void AnalyticsProperties::removeAllCuratorRows()
     m_curatorRows.clear();  //clear list of pointers
 }
 
-CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QList<QPair<QString, bool>> &dependenciesList)
+void AnalyticsProperties::updateProgressOfCuratorLabel(QString curatorLabelName, QString dependencyName)
+{
+    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    m_curatorRows[curatorLabelName]->updateProgress(dependencyName);
+}
+
+void AnalyticsProperties::updateLostnessOfCuratorLabel(QString curatorLabelName, float newValue)
+{
+    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    m_curatorRows[curatorLabelName]->updateLostness(newValue);
+}
+
+void AnalyticsProperties::updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue)
+{
+    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    m_curatorRows[curatorLabelName]->updateSimilarity(newValue);
+}
+
+CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QHash<QString, bool> &dependenciesList)
     : QObject(editor)
     , m_rowLayout(rowLayout)
     , m_nameLabel(nameLabel)
@@ -181,10 +199,8 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_dependencies(dependenciesList)
     , m_lostnessLabel(new QLabel("Lostness:"))
     , m_lostnessBar(new QProgressBar())
-    , m_lostnessValue(0)
     , m_similarityLabel(new QLabel("Similarity:"))
     , m_similarityBar(new QProgressBar())
-    , m_similarityValue(0)
 {
     int row = m_rowLayout->rowCount();
 
@@ -214,4 +230,33 @@ void CuratorRow::removeRow()
     m_lostnessBar->deleteLater();
     m_similarityLabel->deleteLater();
     m_similarityBar->deleteLater();
+}
+
+void CuratorRow::updateProgress(QString dependencyName)
+{
+    if(m_dependencies.contains(dependencyName))
+    {
+        m_dependencies[dependencyName] = true;
+
+        float progress(0);
+
+        for(QHash<QString,bool>::iterator depIt = m_dependencies.begin(); depIt != m_dependencies.end(); ++depIt)
+        {
+            if(depIt.value())   //if dependency has been found, increase progress
+                ++progress;
+        }
+
+        progress = progress/m_dependencies.size() * 100;    //get progress and update bar
+        m_progressBar->setValue(progress);
+    }
+}
+
+void CuratorRow::updateLostness(float newValue)
+{
+    m_lostnessBar->setValue(newValue);
+}
+
+void CuratorRow::updateSimilarity(float newValue)
+{
+    m_similarityBar->setValue(newValue);
 }

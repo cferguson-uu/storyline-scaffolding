@@ -42,6 +42,21 @@ public:// methods
     ///
     void removeAllCuratorRows();
 
+    ///
+    /// \brief Update the progress of a curator label row
+    ///
+    void updateProgressOfCuratorLabel(QString curatorLabelName, QString dependencyName);
+
+    ///
+    /// \brief Update the lostness of a curator label row
+    ///
+    void updateLostnessOfCuratorLabel(QString curatorLabelName, float newValue);
+
+    ///
+    /// \brief Update the similarity of a curator label row
+    ///
+    void updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue);
+
 public slots:
     ///
     /// \brief Updates the values for links between story and narrative nodes
@@ -115,8 +130,10 @@ private:
     ///
     QHash<QString, CuratorRow*> m_curatorRows;
 
+    ///
+    /// \brief Add a curator label to the layout
+    ///
     void addCuratorLabelRow(CuratorLabel *curatorLabel);
-    void removePlugRow(const QString& curatorLabelName);
 };
 
 class CuratorRow : public QObject
@@ -131,12 +148,27 @@ public: // methods
     /// \param [in] editor          AnalyticsProperties that this CuratorRow is part of.
     /// \param [in] nameLabel        Curator label name.
     ///
-    CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QList<QPair<QString, bool>> &dependenciesList);
+    CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QHash<QString, bool> &dependenciesList);
 
     ///
     /// \brief Remove all widgets from the row
     ///
     void removeRow();
+
+    ///
+    /// \brief Update the progress bar if there is a dependency match
+    ///
+    void updateProgress(QString dependencyName);
+
+    ///
+    /// \brief Update the lostness bar
+    ///
+    void updateLostness(float newValue);
+
+    ///
+    /// \brief Update the similarity bar
+    ///
+    void updateSimilarity(float newValue);
 
 private:
 
@@ -171,11 +203,6 @@ private:
     QProgressBar* m_lostnessBar;
 
     ///
-    /// \brief The current value of lostness
-    ///
-    float m_lostnessValue;
-
-    ///
     /// \brief Similarity label
     ///
     QLabel* m_similarityLabel;
@@ -186,14 +213,9 @@ private:
     QProgressBar* m_similarityBar;
 
     ///
-    /// \brief The current value of similarity
-    ///
-    float m_similarityValue;
-
-    ///
     /// \brief List of narrative dependencies with bool to show if achieved
     ///
-    QList<QPair<QString, bool>> m_dependencies;
+    QHash<QString, bool> m_dependencies;
 };
 
 #endif // ANALYTICSPROPERTIES_H
