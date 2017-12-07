@@ -330,8 +330,25 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
             float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]
             lostness = sqrt(lostness);
 
+            lostness *= 100;    //from decimal to percentage
+
             qDebug() << "Lostness: " << lostness;
             return lostness;
+        }
+    }
+
+    qDebug() << "Error: task not found";    //will end up here if the loop executes without finding the task
+    return -1;
+}
+
+
+float CuratorAnalyticsEditor::getSimilarityValue(QString task)
+{
+    foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+    {
+        if(curatorLabel->id->text() == task)
+        {
+            return curatorLabel->sequenceMatcher.compareUserandPerfectSequences();
         }
     }
 

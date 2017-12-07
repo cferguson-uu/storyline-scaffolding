@@ -172,6 +172,19 @@ void AnalyticsProperties::removeAllCuratorRows()
     m_curatorRows.clear();  //clear list of pointers
 }
 
+bool AnalyticsProperties::getCuratorLabelStarted(QString curatorLabelName)
+{
+    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    return m_curatorRows[curatorLabelName]->getStarted();
+}
+
+void AnalyticsProperties::setCuratorLabelStarted(QString curatorLabelName, bool started)
+{
+    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    m_curatorRows[curatorLabelName]->setStarted(started);
+
+}
+
 void AnalyticsProperties::updateProgressOfCuratorLabel(QString curatorLabelName, QString dependencyName)
 {
     Q_ASSERT(m_curatorRows.contains(curatorLabelName));
@@ -195,12 +208,14 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_rowLayout(rowLayout)
     , m_nameLabel(nameLabel)
     , m_progressLabel(new QLabel("Progress:"))
-    , m_progressBar(new QProgressBar())
+    , m_progressBar(new QProgressBar(0))
     , m_dependencies(dependenciesList)
     , m_lostnessLabel(new QLabel("Lostness:"))
-    , m_lostnessBar(new QProgressBar())
+    , m_lostnessBar(new QProgressBar(0))
     , m_similarityLabel(new QLabel("Similarity:"))
-    , m_similarityBar(new QProgressBar())
+    , m_similarityBar(new QProgressBar(0))
+    , m_started(false)
+    , m_completed(false)
 {
     int row = m_rowLayout->rowCount();
 
@@ -230,6 +245,11 @@ void CuratorRow::removeRow()
     m_lostnessBar->deleteLater();
     m_similarityLabel->deleteLater();
     m_similarityBar->deleteLater();
+}
+
+void CuratorRow::setStarted(bool started)
+{
+    m_started = started;
 }
 
 void CuratorRow::updateProgress(QString dependencyName)

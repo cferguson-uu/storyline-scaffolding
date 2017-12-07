@@ -43,6 +43,16 @@ public:// methods
     void removeAllCuratorRows();
 
     ///
+    /// \brief Get the started status of a curator label
+    ///
+    bool getCuratorLabelStarted(QString curatorLabelName);
+
+    ///
+    /// \brief Set the started status of a curator label
+    ///
+    void setCuratorLabelStarted(QString curatorLabelName, bool started);
+
+    ///
     /// \brief Update the progress of a curator label row
     ///
     void updateProgressOfCuratorLabel(QString curatorLabelName, QString dependencyName);
@@ -146,7 +156,7 @@ public: // methods
     /// \brief Constructor.
     ///
     /// \param [in] editor          AnalyticsProperties that this CuratorRow is part of.
-    /// \param [in] nameLabel        Curator label name.
+    /// \param [in] nameLabel       Curator label name.
     ///
     CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QHash<QString, bool> &dependenciesList);
 
@@ -154,6 +164,16 @@ public: // methods
     /// \brief Remove all widgets from the row
     ///
     void removeRow();
+
+    ///
+    /// \brief Has the task been started?
+    ///
+    bool getStarted(){return m_started;}
+
+    ///
+    /// \brief Set the task as started
+    ///
+    void setStarted(bool started);
 
     ///
     /// \brief Update the progress bar if there is a dependency match
@@ -216,6 +236,16 @@ private:
     /// \brief List of narrative dependencies with bool to show if achieved
     ///
     QHash<QString, bool> m_dependencies;
+
+    ///
+    /// \brief Whether or not the task has been started
+    ///
+    bool m_started;
+
+    ///
+    /// \brief Whether or not the task has been completed
+    ///
+    bool m_completed;
 };
 
 #endif // ANALYTICSPROPERTIES_H

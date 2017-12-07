@@ -51,6 +51,7 @@ public:
     void showWindow();
     void nodeVisited(QString task, QJsonObject event);
     float getLostnessValue(QString task);
+    float getSimilarityValue(QString task);
     QJsonArray readSequenceFromFile();
     void addSequenceToAllCuratorLabels();
     void addSequenceToSingleCuratorLabel(CuratorLabel *curatorLabel, QJsonArray events);

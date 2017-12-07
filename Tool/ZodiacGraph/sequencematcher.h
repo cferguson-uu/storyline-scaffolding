@@ -118,6 +118,7 @@ public:
     void compareSequencesFromFiles();
     QJsonArray readSequenceFromFile();
     float compareLatestUserSequence(QJsonObject &latestEventInUserSequence);
+    float compareUserandPerfectSequences();
     void loadPerfectSequence(QJsonArray seqArray);
     QJsonArray getPerfectSequence();
     QSet<QString> getIgnoredActions();

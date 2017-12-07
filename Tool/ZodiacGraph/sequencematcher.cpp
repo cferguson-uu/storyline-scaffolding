@@ -64,6 +64,21 @@ float SequenceMatcher::compareLatestUserSequence(QJsonObject &latestEventInUserS
     }
 }
 
+float SequenceMatcher::compareUserandPerfectSequences()
+{
+    if(m_perfectSequence.empty())
+        return -1;  //don't compare if no perfect sequence
+
+    for (auto cur = m_userSequence.begin(); true; ++cur)
+    {
+        boost::sub_range<QVector<AnaEvent> > sub(m_userSequence.begin(), cur);
+        double benefit = m_aligner.cut_first_end_off_align(m_perfectSequence, sub).score;
+        //qDebug() << "Score is: " << m_fac*benefit << "%\n";
+        if (cur == m_userSequence.end())
+            return m_fac*benefit;
+    }
+}
+
 QJsonArray SequenceMatcher::readSequenceFromFile()
 {
     QFile file(QFileDialog::getOpenFileName(this,

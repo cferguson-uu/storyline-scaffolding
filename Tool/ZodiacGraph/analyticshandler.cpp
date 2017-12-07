@@ -95,38 +95,40 @@ void AnalyticsHandler::handleMessage(QString message)
             return;
         }
 
-        if(jsonObj[kName_Verb].toString() == kName_Started) //add new task to active list
-            m_activeTasks.push_back(jsonObj[kName_Object].toString());
-
-        if(jsonObj[kName_Verb].toString() == kName_Completed)   //task completed, get lostness value and remove from the list
+        if(jsonObj[kName_Verb].toString() == kName_Started) //add new task to active list and set as started in properties
         {
-            jsonObj[kName_Lostness] = m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString());
-            m_activeTasks.removeAll(jsonObj[kName_Object].toString());
+            m_activeTasks.push_back(jsonObj[kName_Object].toString());
+            m_pProperties->setCuratorLabelStarted(jsonObj[kName_Object].toString(), true);
         }
 
-        /*if(jsonObj[kName_Verb].toString() == kName_JumpedTo || jsonObj[kName_Verb].toString() == kName_PickedUp
-                && !m_activeTasks.empty())  //when visiting a node or picking up an item, update lostness value for active tasks*/
-        //update lostness and sequence similarity values
-        foreach (QString task, m_activeTasks)
-            //m_curatorAnalyticsEditor->nodeVisited(task, jsonObj[kName_Object].toString());
+        if(jsonObj[kName_Verb].toString() == kName_Completed)   //task completed, get lostness value, remove from the list and update properties
+        {
+            jsonObj[kName_Lostness] = m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString());
+            m_activeTasks.removeAll(jsonObj[kName_Object].toString());    
+            m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString()));
+        }
+
+        foreach (QString task, m_activeTasks)   //update lostness and sequence similarity values and check progress
+        {
             m_curatorAnalyticsEditor->nodeVisited(task, jsonObj);
+
+            if(m_pProperties->getCuratorLabelStarted(task)) //can't do anything unless task is started
+            {
+                m_pProperties->updateProgressOfCuratorLabel(task, jsonObj[kName_Object].toString());
+                m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
+            }
+        }
 
         //formulate human-readable string for log window
         QString sentence = jsonObj[kName_Actor].toString() + " " + jsonObj[kName_Verb].toString() + " " + jsonObj[kName_Object].toString();
 
         if(jsonObj.contains(kName_Result))
         {
-            //if node was unlocked then show on graph
-            //if(jsonObj[kName_Verb].toString() == kName_Attempted && jsonObj[kName_Result].toString() == kName_Unlocked)
-                //unlockNode(jsonObj[kName_Object].toString());
-
-            //append result to string
-            sentence += kName_WithResult + jsonObj[kName_Result].toString();
+            sentence += kName_WithResult + jsonObj[kName_Result].toString();    //append result to string
         }
 
         if(jsonObj.contains(kName_Lostness))
         {
-
             //append lostness to string
             sentence += kName_WithLostness;
             sentence += QString::number(jsonObj[kName_Lostness].toDouble());
