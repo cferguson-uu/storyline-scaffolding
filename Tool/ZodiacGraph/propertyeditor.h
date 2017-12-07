@@ -62,11 +62,10 @@ public: // methods
     void setMainCtrl(MainCtrl* mainCtrl) {Q_ASSERT(!m_mainCtrl); m_mainCtrl = mainCtrl;}
 
     ///
-    /// \brief Sets the list of commands and parameters for editing the command block
+    /// \brief Sets up the list of commands and parameters for editing the command block
     ///
-    /// \param [in] properties   The properties window
     ///
-    void setAnalyticsProperties(AnalyticsProperties *properties);
+    void setupAnalyticsProperties();
 
     ///
     /// \brief Sets the list of commands and parameters for editing the command block
@@ -95,6 +94,14 @@ public: // methods
     /// \param [in] selection   Handles of nodes to grab correct properties%s.
     ///
     Collapsible *getCollapsible(zodiac::NodeHandle node);
+
+    ///
+    /// \brief Gets the analytics properties
+    ///
+    AnalyticsProperties* getAnalyticsProperties()
+    {
+        return m_analyticsProperties.first;
+    }
 
 signals:
     void UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes);

@@ -20,14 +20,13 @@ static const QString kName_JumpedTo = "jumped to";
 static const QString kName_PickedUp = "picked up";
 static const QString kName_Examined = "examined";
 
-AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, AnalyticsProperties *analyticsProperties, QObject *parent)
+AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent)
     : m_curatorAnalyticsEditor(new CuratorAnalyticsEditor(qobject_cast<QWidget*>(parent)))
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
     , m_connectAction(connectAction)
     , m_disconnectAction(disconnectAction)
     , m_editLostnessAction(editLostnessAction)
-    , m_pProperties(analyticsProperties)
     , QObject(parent)
 {
     connect(m_connectAction, &QAction::triggered, [=]{connectToServer();});
@@ -39,6 +38,11 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     connect(m_tcpSocket, SIGNAL(connectedCallback()), this, SLOT(connected()));
     connect(m_tcpSocket, SIGNAL(disconnectedCallback()), this, SLOT(disconnected()));
     connect(m_tcpSocket, SIGNAL(readMessage(QString)), this, SLOT(handleMessage(QString)));
+}
+
+void AnalyticsHandler::setAnalyticsProperties(AnalyticsProperties *properties)
+{
+    m_pProperties = properties;
 }
 
 void AnalyticsHandler::connectToServer()
@@ -54,7 +58,8 @@ void AnalyticsHandler::connected()
     zodiac::Node::setAnalyticsMode(true);
     NodeProperties::setAnalyticsMode(true);
     closeNodeProperties();
-    m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
+    if(m_pProperties)
+        m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
 
     m_connectAction->setEnabled(false);
     m_disconnectAction->setEnabled(true);

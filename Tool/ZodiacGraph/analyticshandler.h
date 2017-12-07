@@ -14,7 +14,9 @@ class AnalyticsHandler : public QObject
     Q_OBJECT
 
 public:
-    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, AnalyticsProperties *analyticsProperties, QObject *parent);
+    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent);
+
+    void setAnalyticsProperties(AnalyticsProperties *properties);
 
 signals:
     void unlockNode(QString name);

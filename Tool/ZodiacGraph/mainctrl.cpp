@@ -10,7 +10,7 @@
 
 QString MainCtrl::s_defaultName = "Node ";
 
-MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QUndoStack *undoStack, AnalyticsProperties *analyticsProperties)
+MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QUndoStack *undoStack)
     : QObject(parent)
     , m_scene(zodiac::SceneHandle(scene))
     , m_propertyEditor(propertyEditor)
@@ -22,7 +22,8 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
     m_saveAndLoadManager.LoadNarrativeParamsAndCommands(qobject_cast<QWidget*>(parent));
 
     m_propertyEditor->setMainCtrl(this);
-    m_propertyEditor->setAnalyticsProperties(analyticsProperties);
+    m_analytics->setAnalyticsProperties(m_propertyEditor->getAnalyticsProperties());
+
     m_propertyEditor->setCommandList(m_saveAndLoadManager.GetCommandListPointer());
     m_propertyEditor->setUndoStack(undoStack);
 

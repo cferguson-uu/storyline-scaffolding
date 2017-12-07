@@ -25,10 +25,7 @@
 #include "zodiacgraph/view.h"
 
 #include "graphstructures.h"
-#include "analyticslogwindow.h"
-#include "analyticssocket.h"
 #include "analyticshandler.h"
-#include "analyticsproperties.h"
 
 //void createZodiacLogo(MainCtrl* mainCtrl);
 
@@ -100,11 +97,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     //create the analytics systems
     AnalyticsLogWindow *analyticsLog = new AnalyticsLogWindow(this);
-    AnalyticsProperties *analyticsProperties = nullptr;
-    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, analyticsProperties, this);
+    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, this);
 
     // create the Main Controller
-    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, m_pUndoStack, analyticsProperties);
+    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, m_pUndoStack);
 
     // setup the main splitter
     m_mainSplitter = new QSplitter(Qt::Horizontal, this);

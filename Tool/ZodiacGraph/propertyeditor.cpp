@@ -23,6 +23,9 @@ PropertyEditor::PropertyEditor(QWidget *parent)
     m_layout = new QVBoxLayout(viewWidget);
     m_layout->setContentsMargins(QMargins(4,0,0,0));
     m_layout->addStretch();
+
+    //set up the analytics properties
+    setupAnalyticsProperties();
 }
 
 void PropertyEditor::showNodes(const QList<zodiac::NodeHandle>& selection)
@@ -66,10 +69,10 @@ Collapsible* PropertyEditor::getCollapsible(zodiac::NodeHandle node)
 
 }
 
-void PropertyEditor::setAnalyticsProperties(AnalyticsProperties *properties)
+void PropertyEditor::setupAnalyticsProperties()
 {
     Collapsible *collapsible = new Collapsible(this, this);
-    properties = new AnalyticsProperties(collapsible);
+    AnalyticsProperties *properties = new AnalyticsProperties(collapsible);
     collapsible->setWidget(properties, nullptr);
 
     m_analyticsProperties = qMakePair(properties, collapsible);

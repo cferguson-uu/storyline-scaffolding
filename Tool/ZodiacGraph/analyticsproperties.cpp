@@ -116,11 +116,12 @@ void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
         return;
 
     // define the curator layout
-    m_curatorLayout = new QGridLayout();
+    m_curatorLayout = new QGridLayout(this);
     m_curatorLabelLayoutLabel = new QLabel("Curator Labels", this);
     m_curatorLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
     m_curatorLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
     m_curatorLayout->addWidget(m_curatorLabelLayoutLabel, 0, 0, 1, 2, Qt::AlignLeft);
+    m_mainLayout->addLayout(m_curatorLayout);
 
     //parse the list of curator labels
     foreach (CuratorLabel *curatorLabel, curatorLabels)
@@ -181,23 +182,26 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_lostnessLabel(new QLabel("Lostness:"))
     , m_lostnessBar(new QProgressBar())
     , m_lostnessValue(0)
-    , m_similarityLabel(new QLabel("Lostness:"))
+    , m_similarityLabel(new QLabel("Similarity:"))
     , m_similarityBar(new QProgressBar())
     , m_similarityValue(0)
 {
     int row = m_rowLayout->rowCount();
 
-    m_rowLayout->addWidget(m_progressLabel, row, 0);
-    m_rowLayout->addWidget(m_progressBar, row, 1);
-    ++row;
+    //add all widgets to the layout
+    m_rowLayout->addWidget(m_progressLabel, row, 0, 1, 1, Qt::AlignLeft);
+    m_rowLayout->addWidget(m_progressBar, row, 1, 1, 5, Qt::AlignRight);
 
-    m_rowLayout->addWidget(m_lostnessLabel, row, 0);
-    m_rowLayout->addWidget(m_lostnessBar, row, 1);
-    ++row;
+    m_rowLayout->addWidget(m_lostnessLabel, ++row, 0, 1, 1, Qt::AlignLeft);
+    m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
 
-    m_rowLayout->addWidget(m_similarityLabel, row, 0);
-    m_rowLayout->addWidget(m_similarityBar, row, 1);
-    ++row;
+    m_rowLayout->addWidget(m_similarityLabel, ++row, 0, 1, 1, Qt::AlignLeft);
+    m_rowLayout->addWidget(m_similarityBar, row, 1, 1, 5, Qt::AlignRight);
+
+    //make labels minimum size to fit text
+    m_progressLabel->setMaximumSize(m_progressLabel->fontMetrics().width(m_progressLabel->text()), m_progressLabel->fontMetrics().height());
+    m_lostnessLabel->setMaximumSize(m_lostnessLabel->fontMetrics().width(m_lostnessLabel->text()), m_lostnessLabel->fontMetrics().height());
+    m_similarityLabel->setMaximumSize(m_similarityLabel->fontMetrics().width(m_similarityLabel->text()), m_similarityLabel->fontMetrics().height());
 }
 
 void CuratorRow::removeRow()
