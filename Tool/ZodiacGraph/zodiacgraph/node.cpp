@@ -358,11 +358,6 @@ void Node::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     painter->setClipRect(option->exposedRect);
 
     // draw the node a different color, if it is selected
-    /*if(isSelected()){
-        painter->setBrush(s_selectedColor);
-    } else {
-        painter->setBrush(s_idleColor);
-    }*/
     if(isSelected()){
         painter->setBrush(m_selectedColor);
     } else {

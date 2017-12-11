@@ -1429,10 +1429,10 @@ void MainCtrl::unlockNode(QString nodeName)
             }
 
             //check if other nodes are unlockable, turn them blue
-            if((*cNIt).getPlug("reqOut").isValid())
+            if((*cNIt).getPlug("reqIn").isValid())
             {
                 QList<zodiac::NodeHandle> reqNodes;
-                QList<zodiac::PlugHandle> reqPlugs = (*cNIt).getPlug("reqOut").getConnectedPlugs();
+                QList<zodiac::PlugHandle> reqPlugs = (*cNIt).getPlug("reqIn").getConnectedPlugs();
 
                 //get all nodes which require node to be unlocked first
                 for(QList<zodiac::PlugHandle>::iterator plugIt = reqPlugs.begin(); plugIt != reqPlugs.end(); ++plugIt)
@@ -1461,21 +1461,21 @@ void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
     {
         if((*rNIt).getName() == "SEQ")
         {
-            //check reqIn plug to see if all nodes are unlocked
-            if(((*rNIt)).getPlug("reqIn").isValid())
+            //check reqOut plug to see if all nodes are unlocked
+            if(((*rNIt)).getPlug("reqOut").isValid())
             {
                 QList<zodiac::NodeHandle> seqInNodes;
-                QList<zodiac::PlugHandle> seqInPlugs = (*rNIt).getPlug("reqIn").getConnectedPlugs();
+                QList<zodiac::PlugHandle> seqInPlugs = (*rNIt).getPlug("reqOut").getConnectedPlugs();
                 for(QList<zodiac::PlugHandle>::iterator plugIt = seqInPlugs.begin(); plugIt != seqInPlugs.end(); ++plugIt)
                 {
                     seqInNodes.push_back((*plugIt).getNode());
                 }
 
-                //if true then use reqOut to change to blue
+                //if true then use reqIn to change to blue
                 if(areAllNodesUnlocked(seqInNodes))
                 {
                     QList<zodiac::NodeHandle> seqOutNodes;
-                    QList<zodiac::PlugHandle> seqOutPlugs = (*rNIt).getPlug("reqOut").getConnectedPlugs();
+                    QList<zodiac::PlugHandle> seqOutPlugs = (*rNIt).getPlug("reqIn").getConnectedPlugs();
                     for(QList<zodiac::PlugHandle>::iterator plugIt = seqOutPlugs.begin(); plugIt != seqOutPlugs.end(); ++plugIt)
                     {
                         seqOutNodes.push_back((*plugIt).getNode());

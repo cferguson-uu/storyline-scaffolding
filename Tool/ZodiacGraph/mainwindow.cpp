@@ -189,6 +189,7 @@ void MainWindow::readSettings()
     // apply custom palette and style
     QPalette palette;
     settings.beginGroup("palette");
+
     palette.setColor(QPalette::Window, settings.value("window", "#353535").toString());
     palette.setColor(QPalette::WindowText, settings.value("windowText", "#E0E2E4").toString());
     palette.setColor(QPalette::Base, settings.value("base", "#191919").toString());
@@ -278,7 +279,8 @@ void MainWindow::readSettings()
     settings.endGroup();
 
     settings.beginGroup("view");
-    zodiac::View::setBackgroundColor(settings.value("backgroundColor", "#191919").toString());
+    zodiac::View::setBackgroundColor(QColor("#565656"));
+    //zodiac::View::setBackgroundColor(settings.value("backgroundColor", "#565656").toString());
     settings.endGroup();
 
     settings.endGroup(); // zodiac
