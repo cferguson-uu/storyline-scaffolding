@@ -321,6 +321,10 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
             qDebug() << "Total number of nodes visited: " << curatorLabel->totalNumOfNodesVisited;
             qDebug() << "Number of different nodes visited: " << curatorLabel->uniqueNodesVisited.size();
 
+            //avoid div 0 errors
+            if(curatorLabel->totalNumOfNodesVisited == 0)   //no nodes visited so lostness cannot be determined
+                return -1;
+
             float firstHalf = curatorLabel->uniqueNodesVisited.size()/curatorLabel->totalNumOfNodesVisited - 1; //(N/S – 1)²
             firstHalf *= firstHalf;
 

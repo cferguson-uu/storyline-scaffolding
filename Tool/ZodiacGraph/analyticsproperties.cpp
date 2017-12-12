@@ -208,12 +208,12 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_rowLayout(rowLayout)
     , m_nameLabel(nameLabel)
     , m_progressLabel(new QLabel("Progress:"))
-    , m_progressBar(new QProgressBar(0))
+    , m_progressBar(new QProgressBar())
     , m_dependencies(dependenciesList)
     , m_lostnessLabel(new QLabel("Lostness:"))
-    , m_lostnessBar(new QProgressBar(0))
+    , m_lostnessBar(new QProgressBar())
     , m_similarityLabel(new QLabel("Similarity:"))
-    , m_similarityBar(new QProgressBar(0))
+    , m_similarityBar(new QProgressBar())
     , m_started(false)
     , m_completed(false)
 {
@@ -233,6 +233,11 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     m_progressLabel->setMaximumSize(m_progressLabel->fontMetrics().width(m_progressLabel->text()), m_progressLabel->fontMetrics().height());
     m_lostnessLabel->setMaximumSize(m_lostnessLabel->fontMetrics().width(m_lostnessLabel->text()), m_lostnessLabel->fontMetrics().height());
     m_similarityLabel->setMaximumSize(m_similarityLabel->fontMetrics().width(m_similarityLabel->text()), m_similarityLabel->fontMetrics().height());
+
+    //set values so percentage text shows on progress bars
+    m_progressBar->setValue(0.0f);
+    m_lostnessBar->setValue(0.0f);
+    m_similarityBar->setValue(0.0f);
 }
 
 void CuratorRow::removeRow()
@@ -273,10 +278,12 @@ void CuratorRow::updateProgress(QString dependencyName)
 
 void CuratorRow::updateLostness(float newValue)
 {
-    m_lostnessBar->setValue(newValue);
+    if(newValue > 0) //don't set value if error has occurred
+        m_lostnessBar->setValue(newValue);
 }
 
 void CuratorRow::updateSimilarity(float newValue)
 {
-    m_similarityBar->setValue(newValue);
+    if(newValue > 0) //don't set value if error has occurred
+        m_similarityBar->setValue(newValue);
 }

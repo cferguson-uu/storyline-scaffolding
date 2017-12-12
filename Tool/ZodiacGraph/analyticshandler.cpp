@@ -13,6 +13,8 @@ static const QString kName_Lostness = "lostness";
 
 //verbs
 static const QString kName_Attempted = "attempted";
+static const QString kName_Unlock = "unlock";
+static const QString kName_Fail = "fail";
 static const QString kName_Unlocked = "unlocked";
 static const QString kName_Started = "started";
 static const QString kName_Completed = "completed";
@@ -81,63 +83,96 @@ void AnalyticsHandler::handleMessage(QString message)
     //check if the JSON data is correct
     QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
 
-    if(jsonDoc.isNull() || !jsonDoc.isObject() || jsonDoc.isEmpty())    //check if json string is properly formatted
+    if(jsonDoc.isNull() || jsonDoc.isEmpty())
     {
         qDebug() << "Problem with JSON string";
         return;
     }
-    else
+
+    if(jsonDoc.isArray())
     {
-        QJsonObject jsonObj = jsonDoc.object();
-        if(!jsonObj.contains(kName_Actor) || !jsonObj.contains(kName_Verb) || !jsonObj.contains(kName_Object) || !jsonObj.contains(kName_Timestamp))
+        QJsonArray jsonArray = jsonDoc.array();
+        foreach(QJsonValue jsonVal, jsonArray)
+        {
+            if(jsonVal.isObject())
+                handleObject(jsonVal.toObject());
+        }
+    }
+    else
+        if(jsonDoc.isObject())
+        {
+          handleObject(jsonDoc.object());
+        }
+        else
         {
             qDebug() << "Problem with JSON string";
-            return;
         }
+}
 
-        if(jsonObj[kName_Verb].toString() == kName_Started) //add new task to active list and set as started in properties
-        {
-            m_activeTasks.push_back(jsonObj[kName_Object].toString());
-            m_pProperties->setCuratorLabelStarted(jsonObj[kName_Object].toString(), true);
-        }
 
-        if(jsonObj[kName_Verb].toString() == kName_Completed)   //task completed, get lostness value, remove from the list and update properties
-        {
-            jsonObj[kName_Lostness] = m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString());
-            m_activeTasks.removeAll(jsonObj[kName_Object].toString());    
-            m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString()));
-        }
-
-        foreach (QString task, m_activeTasks)   //update lostness and sequence similarity values and check progress
-        {
-            m_curatorAnalyticsEditor->nodeVisited(task, jsonObj);
-
-            if(m_pProperties->getCuratorLabelStarted(task)) //can't do anything unless task is started
-            {
-                m_pProperties->updateProgressOfCuratorLabel(task, jsonObj[kName_Object].toString());
-                m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
-            }
-        }
-
-        //formulate human-readable string for log window
-        QString sentence = jsonObj[kName_Actor].toString() + " " + jsonObj[kName_Verb].toString() + " " + jsonObj[kName_Object].toString();
-
-        if(jsonObj.contains(kName_Result))
-        {
-            sentence += kName_WithResult + jsonObj[kName_Result].toString();    //append result to string
-        }
-
-        if(jsonObj.contains(kName_Lostness))
-        {
-            //append lostness to string
-            sentence += kName_WithLostness;
-            sentence += QString::number(jsonObj[kName_Lostness].toDouble());
-        }
-
-        sentence += kName_At + QDateTime::fromString(jsonObj[kName_Timestamp].toString(), Qt::ISODate).toString("MMM dd, yyyy hh:mm:ss t");
-
-        //output string to window and full JSON message to file
-        m_logWindow->appendToWindow(sentence);
-        m_logWindow->appendToLogFile(jsonObj);
+void AnalyticsHandler::handleObject(QJsonObject jsonObj)
+{
+    if(!jsonObj.contains(kName_Actor) || !jsonObj.contains(kName_Verb) || !jsonObj.contains(kName_Object) || !jsonObj.contains(kName_Timestamp))
+    {
+        qDebug() << "Problem with JSON object";
+        return;
     }
+
+    if(jsonObj[kName_Verb].toString() == kName_Started) //add new task to active list and set as started in properties
+    {
+        m_activeTasks.push_back(jsonObj[kName_Object].toString());
+        m_pProperties->setCuratorLabelStarted(jsonObj[kName_Object].toString(), true);
+    }
+
+    if(jsonObj[kName_Verb].toString() == kName_Completed)   //task completed, get lostness value, remove from the list and update properties
+    {
+        jsonObj[kName_Lostness] = m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString());
+        m_activeTasks.removeAll(jsonObj[kName_Object].toString());
+        m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString()));
+    }
+
+    foreach (QString task, m_activeTasks)   //update lostness and sequence similarity values and check progress
+    {
+        m_curatorAnalyticsEditor->nodeVisited(task, jsonObj);
+
+        if(m_pProperties->getCuratorLabelStarted(task)) //can't do anything unless task is started
+        {
+            if(jsonObj[kName_Verb].toString() == kName_Attempted && jsonObj[kName_Result].toString() == kName_Unlock)   //if node unlocked, update curator label progress
+                m_pProperties->updateProgressOfCuratorLabel(task, jsonObj[kName_Object].toString());
+
+            m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
+            m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessValue(task));
+        }
+    }
+
+    if(jsonObj[kName_Verb].toString() == kName_Attempted && jsonObj[kName_Result].toString() == kName_Unlock)   //light up node in scene to show unlocked
+    {
+        unlockNode(jsonObj[kName_Object].toString());
+    }
+
+    handleTextOutput(jsonObj);
+}
+
+void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj)
+{
+    //formulate human-readable string for log window
+    QString sentence = jsonObj[kName_Actor].toString() + " " + jsonObj[kName_Verb].toString() + " " + jsonObj[kName_Object].toString();
+
+    if(jsonObj.contains(kName_Result))
+    {
+        sentence += kName_WithResult + jsonObj[kName_Result].toString();    //append result to string
+    }
+
+    if(jsonObj.contains(kName_Lostness))
+    {
+        //append lostness to string
+        sentence += kName_WithLostness;
+        sentence += QString::number(jsonObj[kName_Lostness].toDouble());
+    }
+
+    sentence += kName_At + QDateTime::fromString(jsonObj[kName_Timestamp].toString(), Qt::ISODate).toString("MMM dd, yyyy hh:mm:ss t");
+
+    //output string to window and full JSON message to file
+    m_logWindow->appendToWindow(sentence);
+    m_logWindow->appendToLogFile(jsonObj);
 }

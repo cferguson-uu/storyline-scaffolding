@@ -1,4 +1,5 @@
 #include "analyticslogwindow.h"
+#include <QDir>
 
 AnalyticsLogWindow::AnalyticsLogWindow(QWidget *parent)
     : QPlainTextEdit(parent)
@@ -16,7 +17,7 @@ AnalyticsLogWindow::~AnalyticsLogWindow()
 void AnalyticsLogWindow::initialiseLogFile()
 {
     QDateTime current = QDateTime::currentDateTime().toUTC();
-    m_fileName = current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".json";
+    m_fileName = "logs/" + current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".json";
 
     m_logFile.setFileName(m_fileName);
 

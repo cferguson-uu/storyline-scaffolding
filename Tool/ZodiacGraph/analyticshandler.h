@@ -30,6 +30,14 @@ public slots:
     void connectToServer();
 
 private:
+    ///
+    /// \brief The layout to be used by CuratorRows to place their widgets.
+    ///
+    /// \param [in] json object to parse
+    void handleObject(QJsonObject jsonObj);
+
+    void handleTextOutput(QJsonObject &jsonObj);
+
     AnalyticsSocket *m_tcpSocket;
     AnalyticsLogWindow *m_logWindow;
     CuratorAnalyticsEditor *m_curatorAnalyticsEditor;
