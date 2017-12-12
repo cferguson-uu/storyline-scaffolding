@@ -455,7 +455,7 @@ public: // methods
     ///
     /// \param [in] color   New idle color of the node core.
     ///
-    inline void setIdleColor(const QColor& color) {m_idleColor = color;}
+    inline void setIdleColor(const QColor& color) {m_idleColor = color; update();}
 
     ///
     /// \brief Fill color of a selected Node core.
@@ -469,7 +469,7 @@ public: // methods
     ///
     /// \param [in] color   New selected color of the node core.
     ///
-    inline void setSelectedColor(const QColor& color) {m_selectedColor = color;}
+    inline void setSelectedColor(const QColor& color) {m_selectedColor = color; update();}
 
     ///
     /// \brief The color used to draw the outline around the node core.
@@ -483,14 +483,14 @@ public: // methods
     ///
     /// \param [in] color   New core outline color.
     ///
-    inline void setOutlineColor(const QColor& color) {m_outlineColor = color; updateOutlinePen();}
+    inline void setOutlineColor(const QColor& color) {m_outlineColor = color; updateOutlinePen(); update();}
 
     ///
     /// \brief Sets a new width of the outline around the node core in pixels.
     ///
     /// \param [in] width   New core outline width;
     ///
-    inline void setOutlineWidth(qreal width) {s_outlineWidth = qMax(0.,width); updateOutlinePen();}    
+    inline void setOutlineWidth(qreal width) {s_outlineWidth = qMax(0.,width); updateOutlinePen(); update();}
 
     ///
     /// \brief Updates all edges connecting to any Plug of this Node.
