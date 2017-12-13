@@ -39,10 +39,11 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
     connect(m_analytics, SIGNAL(checkForGraphs()),
             this, SLOT(checkNarrativeAndStoryGraphsLoaded()));
 
-    connect(
-        m_analytics, &AnalyticsHandler::closeNodeProperties,
-        &m_scene, &zodiac::SceneHandle::deselectAll
-    );
+    connect(m_analytics, &AnalyticsHandler::closeNodeProperties,
+        &m_scene, &zodiac::SceneHandle::deselectAll);
+
+    connect(m_analytics, &AnalyticsHandler::lockAllNodes,
+        this, &MainCtrl::lockAllNodes);
 }
 
 NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name, const QString& description, bool load)
@@ -1310,48 +1311,182 @@ void MainCtrl::showLinkerWindow(zodiac::NodeHandle &node)
         m_linkWindow = nullptr;
     }
 
-    m_linkWindow = new LinkerWindow(node, m_scene.getNodes(), this, &MainCtrl::linkNarrativeNodes, &MainCtrl::linkStoryNodes, qobject_cast<QWidget*>(parent()));
+    m_linkWindow = new LinkerWindow(node, m_scene.getNodes(), qobject_cast<QWidget*>(parent()));
     m_linkWindow->show();
+
+    connect(m_linkWindow, SIGNAL(linkNarrativeNodes(zodiac::NodeHandle&, QList<zodiac::NodeHandle>&, QList<zodiac::NodeHandle>&)),
+            this, SLOT(linkNarrativeNodes(zodiac::NodeHandle&, QList<zodiac::NodeHandle>&, QList<zodiac::NodeHandle>&)));
+
+    connect(m_linkWindow, SIGNAL(linkStoryNodes(zodiac::NodeHandle&, QList<zodiac::NodeHandle>&)),
+            this, SLOT(linkStoryNodes(zodiac::NodeHandle&, QList<zodiac::NodeHandle>&)));
 }
 
-void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList)
+void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, QList<zodiac::NodeHandle> &inverseNodeList)
 {
     //if node list is more than one, make a seq node then link them
-    zodiac::NodeHandle *nodePtr;
+    zodiac::NodeHandle *nodePtr = &node;
 
-    if(nodeList.size() > 1)
+    if(!nodeList.empty())
     {
-        nodePtr = &createNode(zodiac::STORY_NONE, "SEQ", "")->getNodeHandle();
-        nodePtr->setIdleColor(QColor(255, 204, 0));
-        nodePtr->setSelectedColor(QColor(255, 153, 0));
-
-        nodePtr->createIncomingPlug("reqIn");
-
-        if(node.getPlug("reqOut").isValid())
-            node.getPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
-        else
-            node.createOutgoingPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
-    }
-    else
-        nodePtr = &node;
-
-    for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++ nodeIt)
-    {
-        //if inverse then add an inverse node - will add later
-
-        //make plugs and connections
-        if(!(*nodeIt).getPlug("reqIn").isValid())
-            (*nodeIt).createIncomingPlug("reqIn");
-
-        if(nodePtr->getPlug("reqOut").isValid())
-            nodePtr->getPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
-        else
-            nodePtr->createOutgoingPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
-
-        QSet<zodiac::PlugEdge*> edgeList = nodePtr->getPlug("reqOut").getEdges();
-        for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
+        if(nodeList.size() > 1 || nodePtr->getPlug("reqOut").connectionCount() != 0) //use seq if more than one connection
         {
-            (*plugIt)->setBaseColor(QColor(66, 134, 244));
+            //check for existing sequence node
+            if(nodePtr->getPlug("reqOut").isValid())
+            {
+                QList<zodiac::PlugHandle> connectedPlugs = nodePtr->getPlug("reqOut").getConnectedPlugs();
+
+                foreach(zodiac::PlugHandle plug, connectedPlugs)
+                {
+                    if(plug.getNode().getName() == "SEQ")
+                    {
+                        nodePtr = &plug.getNode();
+                        break;
+                    }
+                }
+            }
+
+            if(nodePtr->getName() != "SEQ")
+            {
+                //check if node already exists to add to the sequence
+                QList<zodiac::NodeHandle> connectedNodes;   //should only be one but add list in case
+                if(nodePtr->getPlug("reqOut").isValid())
+                    if(nodePtr->getPlug("reqOut").connectionCount() > 0)
+                    {
+                        QList<zodiac::PlugHandle> connectedPlugs = nodePtr->getPlug("reqOut").getConnectedPlugs();
+
+                        foreach(zodiac::PlugHandle plug, connectedPlugs)
+                        {
+                            connectedNodes.push_back(plug.getNode());
+                        }
+                    }
+
+                nodePtr = &createNode(zodiac::STORY_NONE, "SEQ", "")->getNodeHandle();
+                nodePtr->setIdleColor(QColor(255, 204, 0));
+                nodePtr->setSelectedColor(QColor(255, 153, 0));
+
+                nodePtr->createIncomingPlug("reqIn");
+
+                if(node.getPlug("reqOut").isValid())
+                    node.getPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
+                else
+                    node.createOutgoingPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
+
+                foreach(zodiac::NodeHandle connectedNode, connectedNodes)
+                {//disconnect from previous node and connect to new sequence node
+                    connectedNode.getPlug("reqIn").disconnectPlug(node.getPlug("reqOut"));
+                    connectedNode.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
+                }
+            }
+        }
+
+        for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++ nodeIt)
+        {
+            //make plugs and connections
+            if(!(*nodeIt).getPlug("reqIn").isValid())
+                (*nodeIt).createIncomingPlug("reqIn");
+
+            if(nodePtr->getPlug("reqOut").isValid())
+                nodePtr->getPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
+            else
+                nodePtr->createOutgoingPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
+
+            QSet<zodiac::PlugEdge*> edgeList = nodePtr->getPlug("reqOut").getEdges();
+            for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
+            {
+                (*plugIt)->setBaseColor(QColor(66, 134, 244));
+            }
+        }
+    }
+
+    if(!inverseNodeList.empty())
+    {
+        if(nodePtr->getName() != "SEQ" && nodePtr->getPlug("reqOut").connectionCount() != 0)
+        {
+            //will need to create sequence
+        }
+
+        zodiac::NodeHandle *oldNodePtr = nodePtr;
+
+        //check for existing inverse node
+        if(nodePtr->getPlug("reqOut").isValid())
+        {
+            QList<zodiac::PlugHandle> connectedPlugs = nodePtr->getPlug("reqOut").getConnectedPlugs();
+
+            foreach(zodiac::PlugHandle plug, connectedPlugs)
+            {
+                if(plug.getNode().getName() == "INV")
+                {
+                    nodePtr = &plug.getNode();
+                    break;
+                }
+            }
+        }
+
+        if(nodePtr->getName() != "INV")
+        {
+            nodePtr = &createNode(zodiac::STORY_NONE, "INV", "")->getNodeHandle();
+            nodePtr->setIdleColor(QColor(255, 204, 0));
+            nodePtr->setSelectedColor(QColor(255, 153, 0));
+
+            nodePtr->createIncomingPlug("reqIn");
+
+            if(oldNodePtr->getPlug("reqOut").isValid())
+                oldNodePtr->getPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
+            else
+                oldNodePtr->createOutgoingPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
+        }
+
+        if(inverseNodeList.size() > 1 || nodePtr->getPlug("reqOut").connectionCount() != 0)
+        {
+            //check if node already exists to add to the sequence
+            QList<zodiac::NodeHandle> connectedNodes;   //should only be one but add list in case
+            if(nodePtr->getPlug("reqOut").isValid())
+                if(nodePtr->getPlug("reqOut").connectionCount() > 0)
+                {
+                    QList<zodiac::PlugHandle> connectedPlugs = nodePtr->getPlug("reqOut").getConnectedPlugs();
+
+                    foreach(zodiac::PlugHandle plug, connectedPlugs)
+                    {
+                        connectedNodes.push_back(plug.getNode());
+                    }
+                }
+
+            oldNodePtr = nodePtr;
+
+            nodePtr = &createNode(zodiac::STORY_NONE, "SEQ", "")->getNodeHandle();
+            nodePtr->setIdleColor(QColor(255, 204, 0));
+            nodePtr->setSelectedColor(QColor(255, 153, 0));
+
+            nodePtr->createIncomingPlug("reqIn");
+
+            if(oldNodePtr->getPlug("reqOut").isValid())
+                oldNodePtr->getPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
+            else
+                oldNodePtr->createOutgoingPlug("reqOut").connectPlug(nodePtr->getPlug("reqIn"));
+
+            foreach(zodiac::NodeHandle connectedNode, connectedNodes)
+            {//disconnect from previous node and connect to new sequence node
+                connectedNode.getPlug("reqIn").disconnectPlug(node.getPlug("reqOut"));
+                connectedNode.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
+            }
+        }
+
+        for(QList<zodiac::NodeHandle>::iterator nodeIt = inverseNodeList.begin(); nodeIt != inverseNodeList.end(); ++ nodeIt)
+        {
+            //make plugs and connections
+            if(!(*nodeIt).getPlug("reqIn").isValid())
+                (*nodeIt).createIncomingPlug("reqIn");
+
+            if(nodePtr->getPlug("reqOut").isValid())
+                nodePtr->getPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
+            else
+                nodePtr->createOutgoingPlug("reqOut").connectPlug((*nodeIt).getPlug("reqIn"));
+
+            QSet<zodiac::PlugEdge*> edgeList = nodePtr->getPlug("reqOut").getEdges();
+            for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
+            {
+                (*plugIt)->setBaseColor(QColor(66, 134, 244));
+            }
         }
     }
 
@@ -1397,6 +1532,27 @@ void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle
     }
 }
 
+void MainCtrl::lockAllNodes()
+{
+    QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
+
+    for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+    {
+        (*cNIt).setIdleColor(QColor("#ff1800"));
+    }
+}
+
+void MainCtrl::resetAllNodes()
+{
+    QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
+
+    for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+    {
+        (*cNIt).setIdleColor(QColor("#4b77a7"));
+        (*cNIt).setLockedStatus(true);
+    }
+}
+
 void MainCtrl::unlockNode(QString nodeName)
 {
     QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
@@ -1410,7 +1566,7 @@ void MainCtrl::unlockNode(QString nodeName)
 
             //unlocked change colour of node to green to show unlocked
             (*cNIt).setLockedStatus(false);
-            (*cNIt).setIdleColor(QColor(0, 204, 0));
+            (*cNIt).setIdleColor(QColor("#00cc00"));
 
             //change colour of story nodes to green as now unlocked
             if(((*cNIt)).getPlug("storyOut").isValid())
@@ -1424,7 +1580,7 @@ void MainCtrl::unlockNode(QString nodeName)
 
                 for(QList<zodiac::NodeHandle>::iterator sNIt = storyOutNodes.begin(); sNIt != storyOutNodes.end(); ++sNIt)
                 {
-                    (*sNIt).setIdleColor(QColor(0, 204, 0));
+                    (*sNIt).setIdleColor(QColor("#00cc00"));
                 }
             }
 
@@ -1449,9 +1605,9 @@ void MainCtrl::unlockNode(QString nodeName)
 
     if(!found)
     {
-        QMessageBox messageBox;
+        /*QMessageBox messageBox;
         messageBox.critical(0,"Error","Node unlocked which does not exist in the narrative graph.\nPlease ensure that the correct and complete graph is loaded");
-        messageBox.setFixedSize(500,200);
+        messageBox.setFixedSize(500,200);*/
     }
 }
 
@@ -1493,7 +1649,7 @@ void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
             }
             else
                 {
-                    (*rNIt).setIdleColor(QColor(51, 51, 204));
+                    (*rNIt).setIdleColor(QColor("#3333cc"));
                 }
     }
 }

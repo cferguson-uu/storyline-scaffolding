@@ -16,9 +16,11 @@ class LinkerWindow : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, MainCtrl *controller,
-                          void (MainCtrl::*linkNarrative) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&),
-                          void (MainCtrl::*linkStory) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&), QWidget *parent = 0);
+    explicit LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, QWidget *parent = 0);
+
+signals:
+    void linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, QList<zodiac::NodeHandle> &inverseNodeList);
+    void linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList);
 
 private:
     zodiac::NodeHandle m_mainNode;
@@ -29,10 +31,6 @@ private:
 
     QPushButton *m_saveBtn;
     QPushButton *m_cancelBtn;
-
-    MainCtrl *m_pController;
-    void (MainCtrl::*m_pLinkNarrative) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&);
-    void (MainCtrl::*m_pLinkStory) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&);
 };
 
 class NodeTab : public QWidget
@@ -42,7 +40,7 @@ class NodeTab : public QWidget
 public:
     explicit NodeTab(QList<zodiac::NodeHandle>, zodiac::NodeType, QWidget *parent = 0);
 
-    QList<zodiac::NodeHandle> getSelectedNodes();
+    QList<zodiac::NodeHandle> getCheckedNodes(QList<zodiac::NodeHandle> &inverseNodes = QList<zodiac::NodeHandle>());
 
 private:
     QList<zodiac::NodeHandle> m_nodeList;

@@ -36,6 +36,11 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("REVEAL VR - Storyline Scaffolding Tool");
     setWindowIcon(QIcon(":/icons/reveal_logo.png"));
 
+    /*QFont f = QGuiApplication::font();
+    int defaultFontSize = f.pointSize();
+    f.setPointSize(defaultFontSize + 3);
+    QApplication::setFont(f);*/
+
     //set up the undo functions
     m_pUndoStack->setUndoLimit(10); //don't allow too many undos
     m_pUndoAction = m_pUndoStack->createUndoAction(this, tr("&Undo"));

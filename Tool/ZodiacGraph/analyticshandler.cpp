@@ -60,6 +60,7 @@ void AnalyticsHandler::connected()
     zodiac::Node::setAnalyticsMode(true);
     NodeProperties::setAnalyticsMode(true);
     closeNodeProperties();
+    lockAllNodes();
     if(m_pProperties)
         m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
 

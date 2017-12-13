@@ -20,6 +20,7 @@ public:
 
 signals:
     void unlockNode(QString name);
+    void lockAllNodes();
     void closeNodeProperties();
     void checkForGraphs();
 

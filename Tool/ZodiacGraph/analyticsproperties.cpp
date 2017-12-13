@@ -238,6 +238,8 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     m_progressBar->setValue(0.0f);
     m_lostnessBar->setValue(0.0f);
     m_similarityBar->setValue(0.0f);
+
+    m_nameLabel->setStyleSheet("QLabel { color : red; }");  //red to show that it hasn't started
 }
 
 void CuratorRow::removeRow()
@@ -255,6 +257,7 @@ void CuratorRow::removeRow()
 void CuratorRow::setStarted(bool started)
 {
     m_started = started;
+    m_nameLabel->setStyleSheet("QLabel { color : yellow; }");
 }
 
 void CuratorRow::updateProgress(QString dependencyName)
@@ -273,6 +276,9 @@ void CuratorRow::updateProgress(QString dependencyName)
 
         progress = progress/m_dependencies.size() * 100;    //get progress and update bar
         m_progressBar->setValue(progress);
+
+        if(progress == 100) //change colour to green to show completed
+            m_nameLabel->setStyleSheet("QLabel { color : green; }");
     }
 }
 

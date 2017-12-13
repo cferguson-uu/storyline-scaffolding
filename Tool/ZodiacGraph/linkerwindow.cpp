@@ -3,14 +3,9 @@
 
 #include <QScrollArea>
 
-LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, MainCtrl *controller,
-                           void (MainCtrl::*linkNarrative) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&),
-                           void (MainCtrl::*linkStory) (zodiac::NodeHandle&, QList<zodiac::NodeHandle>&), QWidget *parent)
+LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, QWidget *parent)
     : QDialog(parent)
     , m_mainNode(node)
-    , m_pController(controller)
-    , m_pLinkNarrative(linkNarrative)
-    , m_pLinkStory(linkStory)
 {
     //separate both types of nodes
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
@@ -46,7 +41,15 @@ LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &
     m_saveBtn = new QPushButton("Save");
     m_cancelBtn = new QPushButton("Cancel");
 
-    connect(m_saveBtn, &QPushButton::released, [=]{m_pController->linkNarrativeNodes(m_mainNode, narrativeTab->getSelectedNodes()); m_pController->linkStoryNodes(m_mainNode, storyTab->getSelectedNodes()); this->hide();});
+    connect(m_saveBtn, &QPushButton::released, [=]
+    {
+        QList<zodiac::NodeHandle> inverseNodes;
+        QList<zodiac::NodeHandle> leafNodes = narrativeTab->getCheckedNodes(inverseNodes);
+        linkNarrativeNodes(m_mainNode, leafNodes, inverseNodes);
+        linkStoryNodes(m_mainNode, storyTab->getCheckedNodes());
+        this->hide();
+    });
+
     connect(m_cancelBtn, &QPushButton::released, [=]{this->hide();});
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -73,6 +76,10 @@ NodeTab::NodeTab(QList<zodiac::NodeHandle> nodeList, zodiac::NodeType nodeType, 
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
     {
         QCheckBox *checkBox = new QCheckBox((*nodeIt).getName());
+
+        if(m_nodeType == zodiac::NODE_NARRATIVE)    //to allow inverse
+            checkBox->setTristate(true);
+
         m_checkboxes.push_back(checkBox);
         nodeLayout->addWidget(checkBox, x, y);
 
@@ -98,20 +105,23 @@ NodeTab::NodeTab(QList<zodiac::NodeHandle> nodeList, zodiac::NodeType nodeType, 
 
 }
 
-QList<zodiac::NodeHandle> NodeTab::getSelectedNodes()
+QList<zodiac::NodeHandle> NodeTab::getCheckedNodes(QList<zodiac::NodeHandle> &inverseNodes)
 {
     QList<zodiac::NodeHandle> checkedNodes;
 
     for(QList<QCheckBox*>::iterator checkboxIt = m_checkboxes.begin(); checkboxIt != m_checkboxes.end(); ++checkboxIt)
     {
-        if((*checkboxIt)->isChecked())
-            for(QList<zodiac::NodeHandle>::iterator nodeIt = m_nodeList.begin(); nodeIt != m_nodeList.end(); ++nodeIt)
+        for(QList<zodiac::NodeHandle>::iterator nodeIt = m_nodeList.begin(); nodeIt != m_nodeList.end(); ++nodeIt)
+        {
+            if((*nodeIt).getName() == (*checkboxIt)->text())
             {
-                if((*nodeIt).getName() == (*checkboxIt)->text())
-                {
+                if((*checkboxIt)->checkState() == Qt::Checked)
                     checkedNodes.push_back((*nodeIt));
-                }
+                else
+                    if((*checkboxIt)->checkState() == Qt::PartiallyChecked)
+                        inverseNodes.push_back((*nodeIt));
             }
+        }
     }
 
     return checkedNodes;

@@ -103,10 +103,6 @@ public: // methods
     ///
     bool shutdown();
 
-    void linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList);
-
-    void linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList);
-
 public slots:
 
     ///
@@ -161,6 +157,10 @@ public slots:
     /// \brief Updates the analytics collapsible
     ///
     void updateAnalyticsProperties();
+
+    void linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, QList<zodiac::NodeHandle> &inverseNodeList);
+
+    void linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList);
 
 private slots:
 
@@ -250,6 +250,9 @@ private: // members
     void saveRequirements(NarNode *narNode, zodiac::NodeHandle &sceneNode);
     void saveRequirementsChildren(NarRequirements *narReq, zodiac::NodeHandle &sceneNode);
     void saveStoryTags(NarNode *narNode, zodiac::NodeHandle &sceneNode);
+
+    void lockAllNodes();
+    void resetAllNodes();
 
     void showUnlockableNodes(QList<zodiac::NodeHandle> &nodes);
     bool areAllNodesUnlocked(QList<zodiac::NodeHandle> &nodes);
