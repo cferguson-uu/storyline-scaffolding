@@ -95,10 +95,14 @@ NodeTab::NodeTab(QList<zodiac::NodeHandle> nodeList, zodiac::NodeType nodeType, 
               }
             }
 
-            addStoryCheckboxes(settingNode, x, y, nodeLayout);
-            addStoryCheckboxes(themeNode, x, y, nodeLayout);
-            addStoryCheckboxes(plotNode, x, y, nodeLayout);
-            addStoryCheckboxes(resolutionNode, x, y, nodeLayout);
+            //only load story if it exists
+            if(settingNode.isValid() && themeNode.isValid() && plotNode.isValid() && resolutionNode.isValid())
+            {
+                addStoryCheckboxes(settingNode, x, y, nodeLayout);
+                addStoryCheckboxes(themeNode, x, y, nodeLayout);
+                addStoryCheckboxes(plotNode, x, y, nodeLayout);
+                addStoryCheckboxes(resolutionNode, x, y, nodeLayout);
+            }
         }
 
     nodeLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -148,19 +152,22 @@ void NodeTab::addNarrativeCheckboxes(QList<zodiac::NodeHandle> &nodeList, int& x
 {
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
     {
-        QCheckBox *checkBox = new QCheckBox((*nodeIt).getName());
-
-        checkBox->setTristate(true);
-
-        m_checkboxes.push_back(qMakePair(checkBox, (*nodeIt)));
-        nodeLayout->addWidget(checkBox, x, y);
-
-        ++x;
-
-        if(x > 12)
+        if(!(*nodeIt).isNodeDecorator())
         {
-            x = 0;
-            ++y;
+            QCheckBox *checkBox = new QCheckBox((*nodeIt).getName());
+
+            checkBox->setTristate(true);
+
+            m_checkboxes.push_back(qMakePair(checkBox, (*nodeIt)));
+            nodeLayout->addWidget(checkBox, x, y);
+
+            ++x;
+
+            if(x > 12)
+            {
+                x = 0;
+                ++y;
+            }
         }
     }
 }

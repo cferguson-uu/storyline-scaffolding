@@ -24,6 +24,7 @@
 #include "straightedge.h"
 
 #include <QTimer>
+#include <QDebug>
 
 static void fireAnimation(QPropertyAnimation& animation, qreal targetValue, qreal startValue, qreal duration, const QEasingCurve& curve);
 static zodiac::Plug* findClosestPlug(const QPointF& pos, const QSet<zodiac::Plug*> &plugs, zodiac::Plug* closest);
@@ -816,6 +817,9 @@ bool Node::isNodeDecorator()
                     sNode->getStoryNodeType() == zodiac::STORY_RESOLUTION || sNode->getStoryNodeType() == zodiac::STORY_RESOLUTION_EVENT_GROUP ||
                     sNode->getStoryNodeType() == zodiac::STORY_RESOLUTION_STATE_GROUP);
         }
+
+    qDebug() << "Error, not a narrative or story node";
+    return false;
 }
 
 NarrativeNode::NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load, const QUuid& uuid, QColor idleColor, QColor selectedColor, QColor outlineColor,
