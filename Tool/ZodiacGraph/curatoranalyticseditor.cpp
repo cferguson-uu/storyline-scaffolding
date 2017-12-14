@@ -149,11 +149,11 @@ void CuratorAnalyticsEditor::loadCuratorLabels()
                         if(mainObj.contains("on_progress_completed") && mainObj["on_progress_completed"].isString())
                             qDebug() << mainObj["on_progress_completed"].toString();*/
 
+
+                        curatorLabel->minSteps = new QSpinBox();
+
                         if(mainObj.contains("min_steps") && mainObj["min_steps"].isString())
-                            curatorLabel->minSteps = new QLineEdit(mainObj["min_steps"].toString());
-                            //qDebug() << mainObj["screen_id"].toString();
-                        else
-                            curatorLabel->minSteps = new QLineEdit();
+                            curatorLabel->minSteps->setValue(mainObj["min_steps"].toDouble());
                     }
                     m_curatorLabels.push_back(curatorLabel);
                 }
@@ -197,7 +197,7 @@ void CuratorAnalyticsEditor::saveCuratorLabels()
                     {
                         if(curatorLabel->id->text() == mainObj["screen_id"].toString().toInt()) //add the minimum steps to the new file
                         {
-                            mainObj["min_steps"] = curatorLabel->minSteps->text();
+                            mainObj["min_steps"] = curatorLabel->minSteps->value();
                             break;
                         }
                     }
@@ -317,7 +317,7 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
     {
         if(curatorLabel->id->text() == task)
         {
-            qDebug() << "Minimum number of nodes: " << curatorLabel->minSteps->text().toInt();
+            qDebug() << "Minimum number of nodes: " << curatorLabel->minSteps->value();
             qDebug() << "Total number of nodes visited: " << curatorLabel->totalNumOfNodesVisited;
             qDebug() << "Number of different nodes visited: " << curatorLabel->uniqueNodesVisited.size();
 
@@ -328,7 +328,7 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
             float firstHalf = curatorLabel->uniqueNodesVisited.size()/curatorLabel->totalNumOfNodesVisited - 1; //(N/S – 1)²
             firstHalf *= firstHalf;
 
-            float secondHalf = curatorLabel->minSteps->text().toInt()/curatorLabel->uniqueNodesVisited.size() - 1;   //(R/N – 1)²
+            float secondHalf = curatorLabel->minSteps->value()/curatorLabel->uniqueNodesVisited.size() - 1;   //(R/N – 1)²
             secondHalf *= secondHalf;
 
             float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]

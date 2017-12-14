@@ -13,6 +13,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QScrollArea>
+#include <QSpinBox>
 
 #include "sequencematcher.h"
 
@@ -32,7 +33,7 @@ struct CuratorLabel
     QLabel* dependenciesLabel;
     QList<QLabel*> narrativeDependencies;
     QLabel* minStepsLabel;
-    QLineEdit* minSteps;
+    QSpinBox* minSteps;
 
     QList<QString> uniqueNodesVisited;
     int totalNumOfNodesVisited;
