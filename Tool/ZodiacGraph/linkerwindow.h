@@ -45,7 +45,10 @@ public:
 private:
     QList<zodiac::NodeHandle> m_nodeList;
     zodiac::NodeType m_nodeType;
-    QList<QCheckBox*> m_checkboxes;
+    QList<QPair<QCheckBox*, zodiac::NodeHandle>> m_checkboxes;
+
+    void addStoryCheckboxes(zodiac::NodeHandle &node, int &x, int &y, QGridLayout *nodeLayout);
+    void addNarrativeCheckboxes(QList<zodiac::NodeHandle> &nodeList, int& x, int& y, QGridLayout *nodeLayout);
 };
 
 #endif // LINKERWINDOW_H
