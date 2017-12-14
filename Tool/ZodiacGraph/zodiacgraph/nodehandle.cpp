@@ -847,4 +847,17 @@ void NodeHandle::nodeWasDestroyed()
     this->disconnect();
 }
 
+
+bool NodeHandle::isNodeDecorator()
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#else
+    if(!m_isValid){
+        return false;
+    }
+#endif
+    return m_node->isNodeDecorator();
+}
+
 } // namespace zodiac

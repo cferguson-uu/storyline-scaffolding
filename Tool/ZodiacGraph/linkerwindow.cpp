@@ -10,24 +10,20 @@ LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &
     //separate both types of nodes
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
     {
+        if((*nodeIt).isNodeDecorator())
+            continue;
+
         if((*nodeIt).getName() != node.getName())
         {
             if((*nodeIt).getType() == zodiac::NODE_NARRATIVE)
             {
-                if((*nodeIt).getName() != "SEQ" && (*nodeIt).getName() != "INV")
-                    m_narrativeNodeList.push_back((*nodeIt));
+                m_narrativeNodeList.push_back((*nodeIt));
             }
-            else
-                if((*nodeIt).getType() == zodiac::NODE_STORY)
-                {
-                    if((*nodeIt).getStoryNodeType() != zodiac::STORY_NAME && (*nodeIt).getStoryNodeType() != zodiac::STORY_SETTING && (*nodeIt).getStoryNodeType() != zodiac::STORY_SETTING_CHARACTER_GROUP &&
-                            (*nodeIt).getStoryNodeType() != zodiac::STORY_SETTING_LOCATION_GROUP && (*nodeIt).getStoryNodeType() != zodiac::STORY_SETTING_TIME_GROUP && (*nodeIt).getStoryNodeType() != zodiac::STORY_THEME&&
-                            (*nodeIt).getStoryNodeType() != zodiac::STORY_THEME_EVENT_GROUP && (*nodeIt).getStoryNodeType() != zodiac::STORY_THEME_GOAL_GROUP && (*nodeIt).getStoryNodeType() != zodiac::STORY_PLOT &&
-                            (*nodeIt).getStoryNodeType() != zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP && (*nodeIt).getStoryNodeType() != zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP &&
-                            (*nodeIt).getStoryNodeType() != zodiac::STORY_RESOLUTION && (*nodeIt).getStoryNodeType() != zodiac::STORY_RESOLUTION_EVENT_GROUP &&
-                            (*nodeIt).getStoryNodeType() != zodiac::STORY_RESOLUTION_STATE_GROUP)
-                    m_storyNodeList.push_back((*nodeIt));
-                }
+        else
+            if((*nodeIt).getType() == zodiac::NODE_STORY)
+            {
+                m_storyNodeList.push_back((*nodeIt));
+            }
         }
     }
 

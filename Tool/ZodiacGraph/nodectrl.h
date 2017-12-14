@@ -343,6 +343,11 @@ public: // methods
     ///
     void setSelected(bool isSelected);
 
+    ///
+    /// \brief Returns if node is a decorator (story group, sequence, inverter etc.)
+    ///
+    bool isNodeDecorator();
+
 public slots:
 
     ///

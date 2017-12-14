@@ -392,6 +392,11 @@ public: // methods
     ///
     void setOutlineWidth(qreal width);
 
+    ///
+    /// \brief Returns if node is a decorator (story group, sequence, inverter etc.)
+    ///
+    bool isNodeDecorator();
+
 signals:
 
     ///

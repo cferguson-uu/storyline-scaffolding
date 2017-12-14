@@ -331,3 +331,8 @@ void NodeCtrl::outputDisconnected(PlugHandle myOutput, PlugHandle otherInput)
     m_plugs[myOutput].removeOne(otherInput);
     Q_ASSERT(m_plugs[myOutput].count(otherInput) == 0);
 }
+
+bool NodeCtrl::isNodeDecorator()
+{
+    return m_node.isNodeDecorator();
+}

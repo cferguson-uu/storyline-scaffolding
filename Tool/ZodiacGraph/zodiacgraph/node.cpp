@@ -798,6 +798,26 @@ void Node::updateOutlinePen()
     m_linePen = QPen(QBrush(m_outlineColor), s_outlineWidth);
 }
 
+bool Node::isNodeDecorator()
+{
+    if(m_nodeType == zodiac::NODE_NARRATIVE)
+    {
+        return(m_displayName == "SEQ" || m_displayName == "INV");
+    }
+    else
+        if(m_nodeType == zodiac::NODE_STORY)
+        {
+             StoryNode *sNode = static_cast<StoryNode*>(this);
+
+            return(sNode->getStoryNodeType() == zodiac::STORY_NAME || sNode->getStoryNodeType() == zodiac::STORY_SETTING || sNode->getStoryNodeType() == zodiac::STORY_SETTING_CHARACTER_GROUP ||
+                    sNode->getStoryNodeType() == zodiac::STORY_SETTING_LOCATION_GROUP || sNode->getStoryNodeType() == zodiac::STORY_SETTING_TIME_GROUP || sNode->getStoryNodeType() == zodiac::STORY_THEME||
+                    sNode->getStoryNodeType() == zodiac::STORY_THEME_EVENT_GROUP || sNode->getStoryNodeType() == zodiac::STORY_THEME_GOAL_GROUP || sNode->getStoryNodeType() == zodiac::STORY_PLOT ||
+                    sNode->getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP || sNode->getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP ||
+                    sNode->getStoryNodeType() == zodiac::STORY_RESOLUTION || sNode->getStoryNodeType() == zodiac::STORY_RESOLUTION_EVENT_GROUP ||
+                    sNode->getStoryNodeType() == zodiac::STORY_RESOLUTION_STATE_GROUP);
+        }
+}
+
 NarrativeNode::NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load, const QUuid& uuid, QColor idleColor, QColor selectedColor, QColor outlineColor,
               QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
         : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
