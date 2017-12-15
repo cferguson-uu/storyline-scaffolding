@@ -35,7 +35,7 @@ struct CuratorLabel
     QLabel* minStepsLabel;
     QSpinBox* minSteps;
 
-    QList<QString> uniqueNodesVisited;
+    QList<QPair<QString, QString>> uniqueNodesVisited;
     int totalNumOfNodesVisited;
 
     QPushButton *addSequenceBtn;

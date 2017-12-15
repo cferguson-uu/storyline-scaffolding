@@ -273,30 +273,25 @@ void CuratorAnalyticsEditor::hideCuratorLabels()
 
 void CuratorAnalyticsEditor::nodeVisited(QString task, QJsonObject event)
 {
-    //when visiting a node or picking up an item, update lostness value for active tasks
-    bool updateLostness = event["verb"].toString() == "jumped to" || event["verb"].toString() == "picked up";
-
     foreach (CuratorLabel* curatorLabel, m_curatorLabels)
     {
         if(curatorLabel->id->text() == task)
         {
-            if(updateLostness)  //update the lostness depending on if the player has jumped to a node or picked something up
+            bool found = false;
+
+            for(QList<QPair<QString, QString>>::iterator visitedIt = curatorLabel->uniqueNodesVisited.begin(); visitedIt != curatorLabel->uniqueNodesVisited.end(); ++visitedIt)
             {
-                bool found = false;
-
-                foreach (QString visitedNode, curatorLabel->uniqueNodesVisited)
+                if((*visitedIt).first == event["object"].toString() && (*visitedIt).second == event["verb"].toString())
                 {
-                    if(visitedNode == event["object"].toString())
-                    {
-                        found = true;
-                        break;
-                    }
+                    found = true;
+                    break;
                 }
-
-                if(!found)
-                    curatorLabel->uniqueNodesVisited.push_back(event["object"].toString());
-                ++curatorLabel->totalNumOfNodesVisited;
             }
+
+            if(!found)
+                curatorLabel->uniqueNodesVisited.push_back(qMakePair(event["object"].toString(), event["verb"].toString()));
+
+            ++curatorLabel->totalNumOfNodesVisited;
 
             //update the sequence for sequence similarity
             curatorLabel->sequenceMatcher.compareLatestUserSequence(event); //this will return the sequence matching value
