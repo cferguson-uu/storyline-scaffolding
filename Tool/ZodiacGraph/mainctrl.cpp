@@ -870,32 +870,15 @@ void MainCtrl::loadNarrativeGraph()
 
     if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
     {
-        float xPos = 0;
-        float yPos = 0;
-
         QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
         QList<zodiac::NodeHandle> currentNarSceneNodes;
 
-        if(currentNodes.size() > 0)    //make sure that narrative graph is placed below other nodes (such as story graph)
+        for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
         {
-            xPos = INFINITY;
-            yPos = -INFINITY;
+            //also save all current narrative nodes to a separate list in case two parts of the same narrative are loaded separately, for requirements
+            if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
+            currentNarSceneNodes.push_back((*cNIt));
 
-            for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
-            {
-                QPointF nodePos = (*cNIt).getPos();
-
-                if(nodePos.x() < xPos)
-                    xPos = nodePos.x();
-
-                if(nodePos.y() > yPos)
-                    yPos = (nodePos.y() + 200);
-
-                //also save all current narrative nodes to a separate list in case two parts of the same narrative are loaded separately, for requirements
-                if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
-                currentNarSceneNodes.push_back((*cNIt));
-
-            }
         }
 
         QList<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
@@ -904,7 +887,6 @@ void MainCtrl::loadNarrativeGraph()
         for(QList<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
         {
             NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
-            newNarNode->setPos(xPos, yPos);
 
             loadNarrativeCommands((*narIt), newNarNode);
 
@@ -951,18 +933,7 @@ void MainCtrl::loadNarrativeGraph()
             }
         }
 
-        if(currentNarSceneNodes.size() > 0)
-        {
-            //look for starting nodes (ones with no requirements) and space them out
-            for(QList<zodiac::NodeHandle>::iterator narIt = currentNarSceneNodes.begin(); narIt != currentNarSceneNodes.end(); ++narIt)
-            {
-                if(!(*narIt).getPlug("reqOut").isValid())
-                    spaceOutNarrative(new NodeCtrl(this, (*narIt)));
-            }
-        }
-
-        //space out new nodes
-        spaceOutNarrative((*newNarSceneNodes.begin()));
+        spaceOutFullNarrative();
 
         m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
     }
@@ -1165,8 +1136,51 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
     }
 }
 
-void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
+void MainCtrl::spaceOutFullNarrative()
 {
+    float xPos = INFINITY;
+    float yPos = INFINITY;
+
+    QList<zodiac::NodeHandle> nodeList = m_scene.getNodes();
+
+    //loop through story nodes to get lowest, leftist point or use 0,0 if none exist
+    if(m_createStoryAction->isEnabled())  //enabled if no story
+    {
+        xPos = 0.0f;
+        yPos = 0.0f;
+    }
+    else
+        for(QList<zodiac::NodeHandle>::iterator stoIt = nodeList.begin(); stoIt != nodeList.end(); ++stoIt)
+        {
+            if((*stoIt).getType() == zodiac::NODE_STORY)
+            {
+                QPointF nodePos = (*stoIt).getPos();
+
+                if(nodePos.x() < xPos)
+                    xPos = nodePos.x();
+
+                if(nodePos.y() < yPos)
+                    yPos = nodePos.y();
+            }
+        }
+
+    //space out new nodes
+    for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
+    {
+        if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getPlug("reqOut").connectionCount() == 0)
+        {
+            (*narIt).setPos(xPos, yPos);
+
+            /*yPos = */spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)));
+
+            yPos +- 100;
+        }
+    }
+}
+
+void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode)
+{
+    //float minY = INFINITY;
     //qDebug() << sceneNode->getName();
     //qDebug() << sceneNode->getPos();
 
@@ -1180,20 +1194,21 @@ void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
         if(connectedPlugs.size() > 0)
         {
             float averageY = 0;
-
-            //qDebug() << "Connected Nodes:" << inPlug.getConnectedPlugs().size();
-
-            float y = sceneNode->getPos().y() + (connectedPlugs.size() / -50);
+            float y = sceneNode->getPos().y();
 
             for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
             {
                 NodeCtrl* childNode = new NodeCtrl(this, (*plugIt).getNode());
 
                 childNode->setPos(sceneNode->getPos().x() + 150, y);
-                spaceOutNarrative(childNode);
+                //childNode->setPos(sceneNode->getPos().x() + 150, sceneNode->getPos().y());
+                spaceOutNarrativeChildren(childNode);
 
                 averageY += childNode->getPos().y();
-                y += 100;
+                y += 150;
+
+               // if(y < minY)
+               //     minY = y;
             }
 
             //averageY /= connectedPlugs.size();
@@ -1203,6 +1218,9 @@ void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
             sceneNode->setPos(sceneNode->getPos().x(), averageY/connectedPlugs.size());
         }
     }
+
+    //if(sceneNode->getPos().y() < minY)
+        //minY = sceneNode->getPos().y();
 
      /*if(outPlug.isValid() && outPlug.isOutgoing())
      {
@@ -1231,6 +1249,8 @@ void MainCtrl::spaceOutNarrative(NodeCtrl* sceneNode)
              sceneNode->setPos(sceneNode->getPos().x(), averageY);
          }
      }*/
+
+    //return YPos;
 }
 
 void MainCtrl::spaceOutStory()
@@ -1559,16 +1579,7 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
         }
     }
 
-    //look for starting nodes (ones with no requirements) and space them out
-    QList<zodiac::NodeHandle> currentNodes = m_scene.getNodes();
-    for(QList<zodiac::NodeHandle>::iterator narIt = currentNodes.begin(); narIt != currentNodes.end(); ++narIt)
-    {
-        if((*narIt).getType() != zodiac::NODE_NARRATIVE)
-            continue;
-
-        if(!(*narIt).getPlug("reqOut").isValid())
-            spaceOutNarrative(new NodeCtrl(this, (*narIt)));
-    }
+    spaceOutFullNarrative();
 
     m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
 }

@@ -168,22 +168,31 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::displayAbout()
 {
     QMessageBox aboutBox;
-    aboutBox.setWindowTitle("About the ZodiacGraph Showcase Application");
+    aboutBox.setWindowTitle("About the REVEAL Storyline Scaffolding Tool");
     aboutBox.setText(
         "<h3>About this Application</h3>"
-        "This example demonstrates how to use the <b>ZodiacGraph</b> both as a user and (on the source level) as a "
-        "module of your own application."
+
+        "This storyline scaffolding tool is designed for developing Educational Environmental Narrative games. It enables a game narrative (game logic) and a game story "
+        "(according to story grammar theory) to be created simulataneously. The node graph interface allows both graphs to be visualised and linked together to show where story "
+        "information is contained in the narrative graph, ensuring that the full story is included."
+
+        "<br><br>The tool is also effective as an analytical tool, showing the performance of the player, such as how lost they are and how close they are to the perfect sequence, depending "
+        "on set parameters, as well as highlighting the parts of the narrative and story that a player has accessed, showing the topics that have been learned."
+
+        "<br><br>Created with funding from the European Union's Horizon 2020 Research and Innovation Programme."
 
         "<h3>License</h3>"
+        "<b>Storyline Scaffolding Tool</b> is developed by <a href=\"http://www.revealvr.eu\" title=\"revealvr.eu\">The REVEAL Consortium</a> "
+        "and licensed under <a href=\"http://creativecommons.org/licenses/by/3.0/\" title=\"Creative Commons BY 4.0 International\">CC BY 4.0</a>.<br><br>"
         "<b>ZodiacGraph</b> is developed by <a href=\"http://www.clemens-sielaff.com\" title=\"clemens-sielaff.com\">Clemens Sielaff</a> "
-        "and released under the terms of the <a href=\"https://opensource.org/licenses/MIT\" title=\"MIT License</a>."
+        "and released under the terms of the <a href=\"https://opensource.org/licenses/MIT\" title=\"MIT License\">MIT License</a>."
 
         "<h3>Icons</h3>"
         "Icons from <a href=\"http://www.flaticon.com\" title=\"Flaticon\">www.flaticon.com</a>, licensed under <a href=\"http://creativecommons.org/licenses/by/3.0/\" title=\"Creative Commons BY 3.0\">CC BY 3.0</a><br>"
         "&#8594; Arrows, Plus, Minus & Bucket Icons made by <a href=\"http://www.freepik.com\" title=\"Freepik\">Freepik</a><br>"
         "&#8594; Door Icons made by <a href=\"http://www.icomoon.io\" title=\"Icomoon\">Icomoon</a><br>"
         "&#8594; Questionmark Icon made by <a href=\"http://www.danielbruce.se\" title=\"Daniel Bruce\">Daniel Bruce</a><br>"
-        "&#8594; Play Icon made by <a href=\"http://yanlu.de\" title=\"Yannick\">Yannick</a>"
+        "&#8594; Play Icon made by <a href=\"http://yanlu.de\" title=\"Yannick\">Yannick</a><br>"
          );
     aboutBox.exec();
 }

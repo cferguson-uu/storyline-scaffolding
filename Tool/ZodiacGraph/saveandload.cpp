@@ -1106,7 +1106,6 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
                 }
 
                 readNodeList(jsonDoc.array());
-                //return true;
             }
             else
             {
@@ -1120,6 +1119,14 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
     else
     {
         qDebug() << "Load aborted by user";
+        return false;
+    }
+
+    if(m_narrativeNodes.empty())
+    {
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","Empty narrative loaded.");
+        messageBox.setFixedSize(500,200);
         return false;
     }
 
