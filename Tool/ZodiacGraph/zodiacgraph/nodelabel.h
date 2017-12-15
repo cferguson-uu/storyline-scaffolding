@@ -94,7 +94,7 @@ public: // methods
     ///
     /// \param [in] color    New color used to draw the label text.
     ///
-    inline void setTextColor(const QColor& color) {m_textColor=color;}
+    inline void setTextColor(const QColor& color) {m_textColor=color; update();}
 
     ///
     /// \brief Color used to fill the label background.
@@ -108,7 +108,7 @@ public: // methods
     ///
     /// \param [in] color    New color used to fill the label background.
     ///
-    inline void setBackgroundColor(const QColor& color) {m_backgroundColor=color;}
+    inline void setBackgroundColor(const QColor& color) {m_backgroundColor=color; update();}
 
     ///
     /// \brief Color used to draw the label outline.
