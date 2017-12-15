@@ -329,9 +329,11 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
             float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]
             lostness = sqrt(lostness);
 
+            qDebug() << "Lostness decimal: " << lostness;
+
             lostness *= 100;    //from decimal to percentage
 
-            qDebug() << "Lostness: " << lostness;
+            qDebug() << "Lostness percentage: " << lostness;
             return lostness;
         }
     }

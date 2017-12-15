@@ -386,9 +386,9 @@ public: // methods
     ///
     /// \brief Tests, whether this Node could currently be removed from the Scene.
     ///
-    /// \return <i>true</i> if the node has no PlugEdge%s connected -- <i>false</i> otherwise.
+    /// \return <i>true</i> if the node has no node%s connected to necessary plugs -- <i>false</i> otherwise.
     ///
-    inline bool isRemovable() const {return m_straightEdges.size()==0;}
+    bool isRemovable() const;
 
     ///
     /// \brief The current Expansions state of this Node.
@@ -1216,7 +1216,18 @@ public:
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
+    ///
+    /// \brief Type of story node that this node is
+    ///
     StoryNodeType m_storyNodeType;
+
+    ///
+    /// \brief Checks if the node has a child with this name
+    ///
+    /// \param [in] nodeName    Name of the child node
+    ///
+    bool doesStoryChildExist(QString nodeName);
+
 signals:
     ///
     /// \brief Emitted, when context menu is used to create another story node

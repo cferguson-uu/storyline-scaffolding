@@ -98,13 +98,20 @@ bool MainCtrl::deleteNode(NodeCtrl* node)
 #endif
 
     if(!node->isRemovable()){
-        // nodes with connections cannot be deleted
+        // nodes with storyOut or reqIn connections cannot be deleted
         return false;
     }
 
-    // disconnect and delete the node
-    node->disconnect();
+    // disconnected all plugs, disconnect and delete the node
     zodiac::NodeHandle handle = node->getNodeHandle();
+
+    QList<zodiac::PlugHandle> plugs = handle.getPlugs();
+    foreach (zodiac::PlugHandle plug, plugs)
+    {
+        plug.disconnectAll();
+    }
+
+    node->disconnect();
     m_nodes.remove(handle);
     bool result = handle.remove();
     Q_ASSERT(result);
