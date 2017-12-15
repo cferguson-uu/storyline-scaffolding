@@ -79,6 +79,11 @@ void PlugEdge::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if(event->buttons() & View::getRemovalButton()){
         // remove the edge on removal click
         event->accept();
+
+        //don't delete if both story nodes
+        if(getStartPlug()->getName() == "storyOut" && getEndPlug()->getName() == "storyIn")
+            return;
+
         m_scene->removeEdge(this);
 
     } else {

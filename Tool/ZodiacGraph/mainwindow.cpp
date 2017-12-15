@@ -105,7 +105,9 @@ MainWindow::MainWindow(QWidget *parent)
     AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, this);
 
     // create the Main Controller
-    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, m_pUndoStack);
+    //create action early to send to mainctrl so it can be disabled (only 1 story graph can exist)
+    QAction* newStoryNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Story Graph"), this);
+    m_mainCtrl = new MainCtrl(this, zodiacScene, propertyEditor, analyticsHandler, newStoryNodeAction, m_pUndoStack);
 
     // setup the main splitter
     m_mainSplitter = new QSplitter(Qt::Horizontal, this);
@@ -126,7 +128,6 @@ MainWindow::MainWindow(QWidget *parent)
     mainToolBar->addAction(newNarrativeNodeAction);
     connect(newNarrativeNodeAction, &QAction::triggered, [=]{m_mainCtrl->createDefaultNode(); });
 
-    QAction* newStoryNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Story Graph"), this);
     newStoryNodeAction->setShortcuts(QKeySequence::New);
     newStoryNodeAction->setStatusTip(tr("Create a new Story Node"));
     mainToolBar->addAction(newStoryNodeAction);

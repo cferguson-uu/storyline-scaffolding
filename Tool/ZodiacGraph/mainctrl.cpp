@@ -10,13 +10,14 @@
 
 QString MainCtrl::s_defaultName = "Node ";
 
-MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QUndoStack *undoStack)
+MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QAction* newStoryNodeAction, QUndoStack *undoStack)
     : QObject(parent)
     , m_scene(zodiac::SceneHandle(scene))
     , m_propertyEditor(propertyEditor)
     , m_nodes(QHash<zodiac::NodeHandle, NodeCtrl*>())
     , m_nodeIndex(1)            // name suffixes start at 1
     , m_analytics(analyticsHandler)
+    , m_createStoryAction(newStoryNodeAction)
     , m_pUndoStack(undoStack)
 {
     m_saveAndLoadManager.LoadNarrativeParamsAndCommands(qobject_cast<QWidget*>(parent));
@@ -114,6 +115,23 @@ bool MainCtrl::deleteNode(NodeCtrl* node)
     node->disconnect();
     m_nodes.remove(handle);
     bool result = handle.remove();
+
+    //if no more story nodes, allow a new graph to be created
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+    bool noStoryNodes = true;
+
+    foreach (zodiac::NodeHandle node, nodes)
+    {
+        if(node.getType() == zodiac::NODE_STORY)
+        {
+            noStoryNodes = false;
+            break;
+        }
+    }
+
+    if(noStoryNodes)
+         m_createStoryAction->setEnabled(true);
+
     Q_ASSERT(result);
     return result;
 }
@@ -199,6 +217,8 @@ void MainCtrl::createStoryGraph(QString storyName)
     nameNodeOutPlug.connectPlug(plotNodeInPlug);
     zodiac::PlugHandle resolutionNodeInPlug = resolutionNode->getNodeHandle().getPlug("storyIn");
     nameNodeOutPlug.connectPlug(resolutionNodeInPlug);
+
+    m_createStoryAction->setEnabled(false);
 }
 
 void MainCtrl::saveStoryGraph()

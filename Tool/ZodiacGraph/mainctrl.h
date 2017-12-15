@@ -62,10 +62,11 @@ public: // methods
     /// \param [in] parent          Qt parent.
     /// \param [in] scene           Handle of a zodiac::Scene.
     /// \param [in] propertyEditor  Property editor.
-    /// \param [in] propertyEditor  Handler for analytics
+    /// \param [in] analyticsHandler  Handler for analytics
+    /// \param [in] newStoryNodeAction  Action for creating story node
     /// \param [in] undoStack       Undo stack for undo and redo.
     ///
-    explicit MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QUndoStack *undoStack);
+    explicit MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* propertyEditor, AnalyticsHandler* analyticsHandler, QAction* newStoryNodeAction, QUndoStack *undoStack);
 
     ///
     /// \brief Creates a new node in the graph.
@@ -212,6 +213,11 @@ private: // members
     /// \brief For analytics, "lighting up graph" etc.
     ///
     AnalyticsHandler *m_analytics;
+
+    ///
+    /// \brief For creating story node, only used to enable and disable
+    ///
+    QAction *m_createStoryAction;
 
     ///
     /// \brief handle the setting items (characters, locations, times)
