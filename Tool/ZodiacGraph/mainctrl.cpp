@@ -185,7 +185,8 @@ NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type
 
     ParentNodeOutPlug.connectPlug(childNodeInPlug);
 
-    spaceOutStory();
+    if(!load)
+        spaceOutStory();
 
     return child;
 }
@@ -551,14 +552,14 @@ void MainCtrl::loadSettingItem(NodeCtrl *parentNode, QList<SettingItem> items, z
     //add each item to the tree
     for(QList<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
-        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(parentNode->getPos().x(), 150));
+        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(parentNode->getPos().x(), 150), true, true);
 
         if((*itemIt).details.size() > 0)
         {
             //add all the details for the items
             for(QList<SimpleNode>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
             {
-                createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(childNode->getPos().x(), 150));
+                createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(childNode->getPos().x(), 150), true, true);
             }
         }
     }
@@ -569,7 +570,7 @@ void MainCtrl::loadThemeItem(NodeCtrl* parentNode, QList<EventGoal> items, zodia
     //add each item to the tree
     for(QList<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
     {
-        NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(parentNode->getPos().x(), 150));
+        NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(parentNode->getPos().x(), 150), true, true);
 
         //if sub-item then load those too
         if((*itemIt).subItems.size() > 0)
@@ -591,13 +592,13 @@ void MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episo
     {
         NodeCtrl *episodeNode = createStoryNode(parentNodeCtrl, zodiac::STORY_PLOT_EPISODE, (*epIt).id, (*epIt).description, QPoint(parentNodeCtrl->getPos().x(), 150), true, true);
 
-        NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt Group", QPoint(0, 150));
+        NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt Group", QPoint(0, 150), true, true);
         //handle attempts
         if((*epIt).attempts.size() > 0 || (*epIt).attemptSubEpisodes.size() > 0)
         {
             for(QList<SimpleNode>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
             {
-                createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, (*attIt).description, QPoint(attemptGroupNode->getPos().x(), 150));
+                createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, (*attIt).description, QPoint(attemptGroupNode->getPos().x(), 150), true, true);
             }
 
             if((*epIt).attemptSubEpisodes.size() > 0)
@@ -616,13 +617,13 @@ void MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episo
             }
         }
 
-        NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome Group", QPoint(episodeNode->getPos().x(), 150));
+        NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome Group", QPoint(episodeNode->getPos().x(), 150), true, true);
         if((*epIt).outcomes.size() > 0 || (*epIt).outcomeSubEpisodes.size() > 0)
         {
             //handle outcomes
             for(QList<SimpleNode>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
             {
-                createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, (*outIt).description, QPoint(outcomeGroupNode->getPos().x(), 150));
+                createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, (*outIt).description, QPoint(outcomeGroupNode->getPos().x(), 150), true, true);
             }
 
             if((*epIt).outcomeSubEpisodes.size() > 0)
@@ -643,7 +644,7 @@ void MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episo
         }
 
         //handle sub-goal
-        createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).subGoal.id, (*epIt).subGoal.description, QPoint(episodeNode->getPos().x(), 150));
+        createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).subGoal.id, (*epIt).subGoal.description, QPoint(episodeNode->getPos().x(), 150), true, true);
     }
 }
 
@@ -657,7 +658,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
 
         for(QList<EventGoal>::iterator evIt = events.begin(); evIt != events.end(); ++evIt)
         {
-            createStoryNode(eventNode, zodiac::STORY_RESOLUTION_EVENT, (*evIt).id, (*evIt).description, QPoint(eventNode->getPos().x(), 150));
+            createStoryNode(eventNode, zodiac::STORY_RESOLUTION_EVENT, (*evIt).id, (*evIt).description, QPoint(eventNode->getPos().x(), 150), true, true);
         }
     }
 
@@ -669,7 +670,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
 
         for(QList<SimpleNode>::iterator stIt = states.begin(); stIt != states.end(); ++stIt)
         {
-            createStoryNode(stateNode, zodiac::STORY_RESOLUTION_STATE, (*stIt).id, (*stIt).description, QPoint(stateNode->getPos().x(), 150));
+            createStoryNode(stateNode, zodiac::STORY_RESOLUTION_STATE, (*stIt).id, (*stIt).description, QPoint(stateNode->getPos().x(), 150), true, true);
         }
 
     }
