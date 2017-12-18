@@ -1139,7 +1139,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
 void MainCtrl::spaceOutFullNarrative()
 {
     float xPos = INFINITY;
-    float yPos = INFINITY;
+    float yPos = -INFINITY;
 
     QList<zodiac::NodeHandle> nodeList = m_scene.getNodes();
 
@@ -1159,10 +1159,12 @@ void MainCtrl::spaceOutFullNarrative()
                 if(nodePos.x() < xPos)
                     xPos = nodePos.x();
 
-                if(nodePos.y() < yPos)
+                if(nodePos.y() > yPos)
                     yPos = nodePos.y();
             }
         }
+
+    //float maxY = -INFINITY;
 
     //space out new nodes
     for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
@@ -1171,16 +1173,15 @@ void MainCtrl::spaceOutFullNarrative()
         {
             (*narIt).setPos(xPos, yPos);
 
-            /*yPos = */spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)));
+            spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)), yPos);
 
-            yPos +- 100;
+            yPos += 150;
         }
     }
 }
 
-void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode)
+void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY)
 {
-    //float minY = INFINITY;
     //qDebug() << sceneNode->getName();
     //qDebug() << sceneNode->getPos();
 
@@ -1194,7 +1195,7 @@ void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode)
         if(connectedPlugs.size() > 0)
         {
             float averageY = 0;
-            float y = sceneNode->getPos().y();
+            float y = maxY;//sceneNode->getPos().y();
 
             for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
             {
@@ -1202,13 +1203,13 @@ void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode)
 
                 childNode->setPos(sceneNode->getPos().x() + 150, y);
                 //childNode->setPos(sceneNode->getPos().x() + 150, sceneNode->getPos().y());
-                spaceOutNarrativeChildren(childNode);
+                spaceOutNarrativeChildren(childNode, y);
 
                 averageY += childNode->getPos().y();
                 y += 150;
 
-               // if(y < minY)
-               //     minY = y;
+                if(y < maxY)
+                    maxY = y;
             }
 
             //averageY /= connectedPlugs.size();
