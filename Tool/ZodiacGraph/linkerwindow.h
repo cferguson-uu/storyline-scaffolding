@@ -23,6 +23,8 @@ signals:
     void linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList);
 
 private:
+    QList<zodiac::NodeHandle> LinkerWindow::getConnectedPlugs(zodiac::NodeHandle &node, QString plugName);
+
     zodiac::NodeHandle m_mainNode;
     QList<zodiac::NodeHandle> m_narrativeNodeList;
     QList<zodiac::NodeHandle> m_storyNodeList;

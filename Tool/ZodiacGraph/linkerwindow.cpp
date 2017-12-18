@@ -7,19 +7,45 @@ LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &
     : QDialog(parent)
     , m_mainNode(node)
 {
-    //separate both types of nodes
-    for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
+    QList<zodiac::NodeHandle> connectedNarrativeNodes = getConnectedPlugs(node, "reqIn");
+    QList<zodiac::NodeHandle> connectedStoryNodes = getConnectedPlugs(node, "storyOut");
+
+    //separate both types of nodes and filter out existing connections
+    foreach (zodiac::NodeHandle listNode, nodeList)
     {
-        if((*nodeIt).getName() != node.getName())
+        bool found = false;
+
+        if(listNode.getName() != node.getName())
         {
-            if((*nodeIt).getType() == zodiac::NODE_NARRATIVE)
+            if(listNode.getType() == zodiac::NODE_NARRATIVE)
             {
-                m_narrativeNodeList.push_back((*nodeIt));
+                foreach (zodiac::NodeHandle node, connectedNarrativeNodes)  //don't show already linked node
+                {
+                    if(listNode.getName() ==  node.getName())
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                    m_narrativeNodeList.push_back(listNode);
             }
         else
-            if((*nodeIt).getType() == zodiac::NODE_STORY)
+            if(listNode.getType() == zodiac::NODE_STORY)
             {
-                m_storyNodeList.push_back((*nodeIt));
+
+                foreach (zodiac::NodeHandle node, connectedStoryNodes)  //don't show already linked node
+                {
+                    if(node.getStoryNodePrefix() + listNode.getName() ==  node.getStoryNodePrefix() + node.getName())
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                m_storyNodeList.push_back(listNode);
             }
         }
     }
@@ -54,6 +80,24 @@ LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &
     setWindowTitle(tr("Link Nodes to ") + node.getName());
 }
 
+QList<zodiac::NodeHandle> LinkerWindow::getConnectedPlugs(zodiac::NodeHandle &node, QString plugName)
+{
+    QList<zodiac::NodeHandle> connectedNodes;
+    QList<zodiac::PlugHandle> &connectedPlugs = node.getPlug(plugName).getConnectedPlugs();
+
+    foreach (zodiac::PlugHandle plug, connectedPlugs)
+    {
+        if(plug.getNode().getName() == "SEQ" || plug.getNode().getName() == "INV")
+        {
+            connectedNodes.append(getConnectedPlugs(plug.getNode(), plugName));
+        }
+        else
+            connectedNodes.push_back(plug.getNode());
+    }
+
+    return connectedNodes;
+}
+
 NodeTab::NodeTab(QList<zodiac::NodeHandle> nodeList, zodiac::NodeType nodeType, QWidget *parent)
     : QWidget(parent)
     , m_nodeList(nodeList)
@@ -67,7 +111,9 @@ NodeTab::NodeTab(QList<zodiac::NodeHandle> nodeList, zodiac::NodeType nodeType, 
     int y = 0;
 
     if(m_nodeType == zodiac::NODE_NARRATIVE)
+    {
         addNarrativeCheckboxes(nodeList, x, y, nodeLayout);
+    }
     else
         if(m_nodeType == zodiac::NODE_STORY)
         {
