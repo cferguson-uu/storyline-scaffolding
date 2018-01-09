@@ -52,10 +52,10 @@ LinkerWindow::LinkerWindow(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &
 
     m_tabWidget = new QTabWidget;
 
-    NodeTab* narrativeTab = new NodeTab(m_narrativeNodeList, zodiac::NODE_NARRATIVE, parent);
     NodeTab* storyTab = new NodeTab(m_storyNodeList, zodiac::NODE_STORY, parent);
-    m_tabWidget->addTab(narrativeTab, tr("Narrative"));
+    NodeTab* narrativeTab = new NodeTab(m_narrativeNodeList, zodiac::NODE_NARRATIVE, parent);
     m_tabWidget->addTab(storyTab, tr("Story"));
+    m_tabWidget->addTab(narrativeTab, tr("Narrative"));
 
     m_saveBtn = new QPushButton("Save");
     m_cancelBtn = new QPushButton("Cancel");
