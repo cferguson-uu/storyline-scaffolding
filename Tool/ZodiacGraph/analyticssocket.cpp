@@ -120,9 +120,9 @@ void AnalyticsSocket::bytesWritten(qint64 bytes)
 
 void AnalyticsSocket::readyRead()
 {
-    qDebug() << "Reading...";
+    //qDebug() << "Reading...";
     QString data = m_socket->readAll();
-    qDebug() << data;
+    //qDebug() << data;
     //qDebug() << m_socket->readAll();
     //m_analyticsLog->appendMessage(data);
     //m_socket->write(data.toStdString().c_str());

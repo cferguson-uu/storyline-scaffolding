@@ -273,6 +273,15 @@ void CuratorAnalyticsEditor::hideCuratorLabels()
 
 void CuratorAnalyticsEditor::nodeVisited(QString task, QJsonObject event)
 {
+    qDebug() << event["verb"].toString();
+    qDebug() << event["object"].toString();
+
+    //just want to be logging what the player has visited, picked up, examined etc.
+    if((event["verb"].toString() != "jumped to") && (event["verb"].toString() != "picked up") && (event["verb"].toString() != "examined"))
+        return;
+
+    qDebug() << "yes";
+
     foreach (CuratorLabel* curatorLabel, m_curatorLabels)
     {
         if(curatorLabel->id->text() == task)
