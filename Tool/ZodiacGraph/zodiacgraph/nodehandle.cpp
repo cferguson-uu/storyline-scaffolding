@@ -760,7 +760,7 @@ void NodeHandle::setPos(qreal x, qreal y, bool updateChildren, bool updateParent
     {
         QPointF difference = m_node->pos() - oldPos;    //get difference between the two positions
 
-        //get all outgoing plugs and iterate
+        //get all incoming plugs and iterate
         QList<PlugHandle> plugs = getPlugs();
         for(QList<PlugHandle>::iterator plugIt = plugs.begin(); plugIt != plugs.end(); ++plugIt)
         {
@@ -772,7 +772,7 @@ void NodeHandle::setPos(qreal x, qreal y, bool updateChildren, bool updateParent
                 {
                     NodeHandle newNode = (*connectedPlugIt).getNode();
                     QPointF newNodePos = newNode.getPos() + difference;    //add the difference to the old node position to move it relative to the parent
-                    newNode.setPos(newNodePos.x(), newNodePos.y(), true);
+                    newNode.setPos(newNodePos.x(), newNodePos.y(), false, true);
                 }
             }
         }
