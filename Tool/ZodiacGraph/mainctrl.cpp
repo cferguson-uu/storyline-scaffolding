@@ -1164,26 +1164,19 @@ void MainCtrl::spaceOutFullNarrative()
             }
         }
 
-    //float maxY = -INFINITY;
-
     //space out new nodes
     for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
     {
         if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getPlug("reqOut").connectionCount() == 0)
         {
             (*narIt).setPos(xPos, yPos);
-
             spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)), yPos);
-
-            yPos += 150;
         }
     }
 }
 
 void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY)
 {
-    //qDebug() << sceneNode->getName();
-    //qDebug() << sceneNode->getPos();
 
     zodiac::PlugHandle inPlug = sceneNode->getNodeHandle().getPlug("reqIn");
     zodiac::PlugHandle outPlug = sceneNode->getNodeHandle().getPlug("reqOut");
@@ -1195,63 +1188,26 @@ void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY)
         if(connectedPlugs.size() > 0)
         {
             float averageY = 0;
-            float y = maxY;//sceneNode->getPos().y();
+            float y = maxY;
 
             for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
             {
                 NodeCtrl* childNode = new NodeCtrl(this, (*plugIt).getNode());
 
                 childNode->setPos(sceneNode->getPos().x() + 150, y);
-                //childNode->setPos(sceneNode->getPos().x() + 150, sceneNode->getPos().y());
                 spaceOutNarrativeChildren(childNode, y);
 
                 averageY += childNode->getPos().y();
-                y += 150;
 
-                if(y < maxY)
+                if(y > maxY)
                     maxY = y;
+
+                y += 150;
             }
-
-            //averageY /= connectedPlugs.size();
-
-            //qDebug() << sceneNode->getName() << "old Y" << sceneNode->getPos().y() << "new Y" << averageY/connectedPlugs.size();
 
             sceneNode->setPos(sceneNode->getPos().x(), averageY/connectedPlugs.size());
         }
     }
-
-    //if(sceneNode->getPos().y() < minY)
-        //minY = sceneNode->getPos().y();
-
-     /*if(outPlug.isValid() && outPlug.isOutgoing())
-     {
-         QList<zodiac::PlugHandle> connectedPlugs = outPlug.getConnectedPlugs();
-
-         if(connectedPlugs.size() > 1)
-         {
-             qDebug() << sceneNode->getName() << outPlug.getConnectedPlugs().size();
-
-             float averageY = 0;
-             float maxX = -INFINITY;
-
-             for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
-             {
-                 QPointF nodePos = (*plugIt).getNode().getPos();
-
-                 averageY += nodePos.y();
-
-                 if(nodePos.x() > maxX)
-                     maxX = nodePos.x();
-             }
-
-             averageY /= connectedPlugs.size();
-
-             //sceneNode->setPos(maxX + 150, averageY);
-             sceneNode->setPos(sceneNode->getPos().x(), averageY);
-         }
-     }*/
-
-    //return YPos;
 }
 
 void MainCtrl::spaceOutStory()
