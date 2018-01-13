@@ -1171,15 +1171,33 @@ void MainCtrl::spaceOutFullNarrative()
         {
             (*narIt).setPos(xPos, yPos);
             spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)), yPos);
+
+            yPos += 150;
+        }
+    }
+
+    for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
+    {
+        if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getPlug("reqOut").connectionCount() > 1)
+        {
+            QList<zodiac::PlugHandle> connectedPlugs = (*narIt).getPlug("reqOut").getConnectedPlugs();
+            float averageY = 0;
+            qDebug() << (*narIt).getName() << "current = " << (*narIt).getPos().y();
+
+            for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
+            {
+                averageY += (*plugIt).getNode().getPos().y();
+            }
+
+            (*narIt).setPos((*narIt).getPos().x(), averageY/connectedPlugs.size(), false, true);
+            qDebug() << (*narIt).getName() << "new = " << (*narIt).getPos().y();
         }
     }
 }
 
 void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY)
 {
-
     zodiac::PlugHandle inPlug = sceneNode->getNodeHandle().getPlug("reqIn");
-    zodiac::PlugHandle outPlug = sceneNode->getNodeHandle().getPlug("reqOut");
 
     if(inPlug.isValid() && inPlug.isIncoming())
     {
