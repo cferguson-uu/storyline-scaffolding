@@ -1164,15 +1164,18 @@ void MainCtrl::spaceOutFullNarrative()
             }
         }
 
+    float oldYPos = yPos;
+
     //space out new nodes
     for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
     {
         if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getPlug("reqOut").connectionCount() == 0)
         {
             (*narIt).setPos(xPos, yPos);
-            spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)), yPos);
+            spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)), yPos, xPos);
 
-            yPos += 150;
+            yPos = oldYPos;
+            xPos += 150;
         }
     }
 
@@ -1182,7 +1185,6 @@ void MainCtrl::spaceOutFullNarrative()
         {
             QList<zodiac::PlugHandle> connectedPlugs = (*narIt).getPlug("reqOut").getConnectedPlugs();
             float averageY = 0;
-            qDebug() << (*narIt).getName() << "current = " << (*narIt).getPos().y();
 
             for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
             {
@@ -1190,12 +1192,11 @@ void MainCtrl::spaceOutFullNarrative()
             }
 
             (*narIt).setPos((*narIt).getPos().x(), averageY/connectedPlugs.size(), false, true);
-            qDebug() << (*narIt).getName() << "new = " << (*narIt).getPos().y();
         }
     }
 }
 
-void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY)
+void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY, float &maxX)
 {
     zodiac::PlugHandle inPlug = sceneNode->getNodeHandle().getPlug("reqIn");
 
@@ -1213,12 +1214,15 @@ void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY)
                 NodeCtrl* childNode = new NodeCtrl(this, (*plugIt).getNode());
 
                 childNode->setPos(sceneNode->getPos().x() + 150, y);
-                spaceOutNarrativeChildren(childNode, y);
+                spaceOutNarrativeChildren(childNode, y, maxX);
 
                 averageY += childNode->getPos().y();
 
                 if(y > maxY)
                     maxY = y;
+
+                if(childNode->getPos().x() > maxX)
+                    maxX = childNode->getPos().x();
 
                 y += 150;
             }
@@ -1346,6 +1350,9 @@ void MainCtrl::showLinkerWindow(zodiac::NodeHandle &node)
 
 void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList, QList<zodiac::NodeHandle> &inverseNodeList)
 {
+    if(nodeList.isEmpty() && inverseNodeList.isEmpty()) //ignore if both lists empty
+        return;
+
     //if node list is more than one, make a seq node then link them
     zodiac::NodeHandle *nodePtr = &node;
 

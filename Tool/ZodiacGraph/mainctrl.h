@@ -252,7 +252,7 @@ private: // members
     void loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, QList<zodiac::NodeHandle> &currentNarSceneNodes);
 
     void spaceOutFullNarrative();
-    void spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY);
+    void spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY, float &maxX);
 
     void saveCommands(NarNode *narNode, zodiac::NodeHandle &sceneNode);
     void saveRequirements(NarNode *narNode, zodiac::NodeHandle &sceneNode);
