@@ -1160,7 +1160,7 @@ void MainCtrl::spaceOutFullNarrative()
                     xPos = nodePos.x();
 
                 if(nodePos.y() > yPos)
-                    yPos = nodePos.y();
+                    yPos = nodePos.y() + 150; //add 150 to ensure the nodes are underneath
             }
         }
 
