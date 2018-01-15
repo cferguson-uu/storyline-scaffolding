@@ -75,10 +75,12 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
     //Set initial label names
     QString nameLabel = "Name";
     QString descriptionLabel = "Description";
+    QString FileNameLabel = "Filename";
 
     // define the name and description layout
     QHBoxLayout* nameLayout = new QHBoxLayout();
     QHBoxLayout* descriptionLayout = new QHBoxLayout();
+    QHBoxLayout* fileNameLayout = new QHBoxLayout();
 
     if(m_node->getName() == "SEQ" || m_node->getName() == "INV")
     {
@@ -98,10 +100,16 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         m_nameEdit = new QLineEdit(m_node->getName(), this);
         connect(m_nameEdit, SIGNAL(editingFinished()), this, SLOT(renameNode()));
         nameLayout->addWidget(m_nameEdit);
+
         m_descriptionEdit = new QLineEdit(m_node->getDescription(), this);
         connect(m_descriptionEdit, SIGNAL(editingFinished()), this, SLOT(changeNodeDescription()));
         descriptionLayout->addWidget(new QLabel(descriptionLabel, this));
         descriptionLayout->addWidget(m_descriptionEdit);
+
+        m_fileNameEdit = new QLineEdit(m_node->getFileName(), this);
+        connect(m_fileNameEdit, SIGNAL(editingFinished()), this, SLOT(changeNodeFileName()));
+        fileNameLayout->addWidget(new QLabel(FileNameLabel, this));
+        fileNameLayout->addWidget(m_fileNameEdit);
 
         if(s_analyticsMode)
         {
@@ -113,6 +121,7 @@ void NodeProperties::constructNarrativeNodeProperties(QVBoxLayout* mainLayout)
         mainLayout->addLayout(nameLayout);
         descriptionLayout->setContentsMargins(0, 4, 0, 0);
         mainLayout->addLayout(descriptionLayout);
+        mainLayout->addLayout(fileNameLayout);
 
         // define the on_unlock block
         m_onUnlockLayout = new QGridLayout();
@@ -263,6 +272,16 @@ void NodeProperties::changeNodeDescription()
     }
 
     m_pUndoStack->push(new TextEditCommand(true, m_node->getDescription(), newDescription, m_node, &NodeCtrl::changeDescription, qobject_cast<Collapsible*>(parent())));
+}
+
+void NodeProperties::changeNodeFileName()
+{
+    QString newFileName = m_fileNameEdit->text();
+    if(m_node->getFileName() == newFileName){
+        return;
+    }
+
+    m_pUndoStack->push(new TextEditCommand(true, m_node->getFileName(), newFileName, m_node, &NodeCtrl::setFileName, qobject_cast<Collapsible*>(parent())));
 }
 
 CommandRow *NodeProperties::createNewCommandBlock(QGridLayout *grid, QHash<QUuid, CommandRow*> &commandRow, CommandBlockTypes type, const QUuid &id, zodiac::NodeCommand *cmd)

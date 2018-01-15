@@ -198,6 +198,7 @@ struct NarNode
 {
     QString comments;
     QString id;
+    QString fileName;
 
     NarRequirements requirements;
 

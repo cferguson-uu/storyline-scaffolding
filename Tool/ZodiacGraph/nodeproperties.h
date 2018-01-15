@@ -147,6 +147,11 @@ private slots:
     void changeNodeDescription();
 
     ///
+    /// \brief Called by the filename edit, when the description of the node was changed through user input.
+    ///
+    void changeNodeFileName();
+
+    ///
     /// \brief Creates a new entry in the plug list of this property editor alongside its PlugRow.
     ///
     void addPlugRow(zodiac::PlugHandle plug);
@@ -170,6 +175,11 @@ private: // members
     /// \brief Node description edit.
     ///
     QLineEdit* m_descriptionEdit;
+
+    ///
+    /// \brief Node filename edit.
+    ///
+    QLineEdit* m_fileNameEdit;
 
     ///
     /// \brief Layout of the widgets related to the plugs of the node.

@@ -853,7 +853,7 @@ void saveandload::LoadCommands(QJsonArray &jsonCommands)
     }
 }
 
-NarNode *saveandload::addNarrativeNode(QString id, QString description)
+NarNode *saveandload::addNarrativeNode(QString id, QString description, QString fileName)
 {
     //check if node already exists
     foreach(NarNode node, m_narrativeNodes)
@@ -862,26 +862,26 @@ NarNode *saveandload::addNarrativeNode(QString id, QString description)
             return nullptr; //return nullptr if node exists
     }
 
-    //check if the prefix is new, if not then add it to the list
-    QString prefix = id.section('_', 0, 0);
-    bool prefixExists = false;
-    for(QVector<QString>::iterator it = m_prefixes.begin(); it!= m_prefixes.end(); ++it)
-        if((*it) == prefix)
+    //check if the filename is new, if not then add it to the list
+    bool fileNameExists = false;
+    for(QVector<QString>::iterator it = m_fileNames.begin(); it!= m_fileNames.end(); ++it)
+        if((*it) == fileName)
         {
-            prefixExists = true;
+            fileNameExists = true;
             break;
         }
 
-    if(!prefixExists)
+    if(!fileNameExists)
     {
-        qDebug() << "Prefix" << prefix << "added";
-        m_prefixes.push_back(prefix);
+        qDebug() << "Filename" << fileName << "added";
+        m_fileNames.push_back(fileName);
     }
 
     //create the node
     NarNode newNode;
     newNode.id = id;
     newNode.comments = description;
+    newNode.fileName = fileName;
     newNode.requirements.type = REQ_NONE; //will be changed if requirements are specified
 
     m_narrativeNodes.push_back(newNode);
@@ -1081,7 +1081,7 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
             if(file.open(QIODevice::ReadOnly | QIODevice::Text))
             {
                 QFileInfo fileInfo(file.fileName());
-                QString filename(fileInfo.fileName());
+                QString filename(fileInfo.fileName());//get filename from path
 
                 settings = file.readAll();
                 file.close();
@@ -1105,7 +1105,7 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
                     return false;
                 }
 
-                readNodeList(jsonDoc.array());
+                readNodeList(jsonDoc.array(), filename);
             }
             else
             {
@@ -1133,7 +1133,7 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
     return true;    //will return true unless error found
 }
 
-void saveandload::readNodeList(QJsonArray &jsonNodeList)
+void saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
 {
     foreach (const QJsonValue &value, jsonNodeList)
     {
@@ -1151,6 +1151,8 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList)
         if(obj.contains("id"))
             //qDebug() << obj["id"].toString();
             (*it).id = obj["id"].toString();
+
+        (*it).fileName = fileName;
 
         if(obj.contains("on_unlock") && obj["on_unlock"].isArray())
             //qDebug() << obj["on_unlock"].toString();
@@ -1305,9 +1307,9 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarComman
 
 void saveandload::SaveNarrativeToFile(QWidget *widget)
 {
-    for(QVector<QString>::iterator prefixIt = m_prefixes.begin(); prefixIt!= m_prefixes.end(); ++prefixIt)
+    for(QVector<QString>::iterator fileNameIt = m_fileNames.begin(); fileNameIt!= m_fileNames.end(); ++fileNameIt)
     {
-        QString windowTitle = "Save narrative graph with prefix " + (*prefixIt);
+        QString windowTitle = "Save narrative graph with filename " + (*fileNameIt);
         QFile file(QFileDialog::getSaveFileName(widget,
                                                              QObject::tr(windowTitle.toStdString().c_str()), "",
                                                             QObject:: tr("JSON File (*.json);;All Files (*)")));
@@ -1321,7 +1323,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
 
             for(QList<NarNode>::iterator it = m_narrativeNodes.begin(); it != m_narrativeNodes.end(); ++it)
             {
-                if((*it).id.section('_', 0, 0) == (*prefixIt))
+                if((*it).fileName == (*fileNameIt))
                 {
                     QJsonObject node;
 
@@ -1372,7 +1374,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
             }
         }
         else
-            qDebug() << "Save of" << (*prefixIt) << "nodes aborted by user";
+            qDebug() << "Save of" << (*fileNameIt) << "nodes aborted by user";
     }
 }
 
@@ -1445,5 +1447,5 @@ void saveandload::WriteCommandBlock(QList<NarCommand> cmd, QJsonArray &block)
 void saveandload::DeleteAllNarrativeItems()
 {
     m_narrativeNodes.clear();
-    m_prefixes.clear();
+    m_fileNames.clear();
 }

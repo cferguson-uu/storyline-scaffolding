@@ -262,6 +262,16 @@ public: // methods
     bool getLockedStatus();
 
     ///
+    /// \brief get the fileame of a narrative node
+    ///
+    QString getFileName();
+
+    ///
+    /// \brief set the fileame of a narrative node
+    ///
+    void setFileName(const QString &fileName);
+
+    ///
     /// \brief Gets the type of story node
     ///
     ///

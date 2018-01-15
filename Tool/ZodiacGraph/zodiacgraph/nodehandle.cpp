@@ -507,6 +507,36 @@ bool NodeHandle::getLockedStatus()
     return nNode->getLockedStatus();
 }
 
+QString NodeHandle::getFileName()
+{
+    NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+    Q_ASSERT(nNode);
+#else
+    if(!m_isValid || !nNode){
+        return "";
+    }
+
+#endif
+    return nNode->getFileName();
+}
+
+void NodeHandle::setFileName(const QString &fileName)
+{
+    NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+    Q_ASSERT(nNode);
+#else
+    if(!m_isValid || !nNode){
+        return;
+    }
+
+#endif
+    nNode->setFileName(fileName);
+}
+
 StoryNodeType NodeHandle::getStoryNodeType()
 {
     StoryNode *sNode = static_cast<StoryNode*>(m_node);

@@ -338,13 +338,13 @@ protected: // static members
     ///
     static QPen s_pen;*/
 
-    qreal m_width = 2.5;
-    QColor m_color = QColor("#cc5d4e");
-    qreal m_secondaryFadeInDuration = 200.;
-    qreal m_secondaryFadeOutDuration = 400.;
-    QEasingCurve m_secondaryFadeInCurve = QEasingCurve::OutQuart;
-    QEasingCurve m_secondaryFadeOutCurve = QEasingCurve::InCubic;
-    QPen BaseEdge::m_pen = QPen(QBrush(m_color), m_width, Qt::SolidLine, Qt::RoundCap);
+    qreal m_width;
+    QColor m_color;
+    qreal m_secondaryFadeInDuration;
+    qreal m_secondaryFadeOutDuration;
+    QEasingCurve m_secondaryFadeInCurve;
+    QEasingCurve m_secondaryFadeOutCurve;
+    QPen BaseEdge::m_pen;
 
 private: // members
 

@@ -1160,6 +1160,16 @@ public:
     ///
     bool getLockedStatus();
 
+    ///
+    /// \brief get the fileame of a narrative node
+    ///
+    inline QString getFileName(){return m_fileName;}
+
+    ///
+    /// \brief set the fileame of a narrative node
+    ///
+    inline void setFileName(const QString &fileName){m_fileName = fileName;}
+
 private:
     ///
     /// \brief The various command blocks that are attached to the node
@@ -1167,9 +1177,15 @@ private:
     /// When the node is unlocked
     ///
     QHash<QUuid, NodeCommand> m_onUnlock;
+
+    ///
+    /// \brief The various command blocks that are attached to the node
     /// When the node is not unlockable yet
     ///
     QHash<QUuid, NodeCommand> m_onFail;
+
+    ///
+    /// \brief The various command blocks that are attached to the node
     /// When the node is already unlocked
     ///
     QHash<QUuid, NodeCommand> m_onUnlocked;
@@ -1178,6 +1194,11 @@ private:
     /// \brief if the node is locked
     ///
     bool m_locked;
+
+    ///
+    /// \brief the filename for this node
+    ///
+    QString m_fileName;
 
 signals:
     ///

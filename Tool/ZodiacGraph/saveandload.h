@@ -72,7 +72,7 @@ public:
     QList<Command> *GetCommandListPointer(){return &m_commands;}
 
     //setter functions
-    NarNode *addNarrativeNode(QString id, QString description);
+    NarNode *addNarrativeNode(QString id, QString description, QString fileName);
 
     NarCommand *addOnUnlock(NarNode *node, QString cmdId, QString cmdDescription);
     NarCommand *addOnFail(NarNode *node, QString cmdId, QString cmdDescription);
@@ -131,7 +131,7 @@ private:
 
     //narrative
     //load functions
-    void readNodeList(QJsonArray &jsonNodeList);
+    void readNodeList(QJsonArray &jsonNodeList, QString fileName);
     void readRequirements(QJsonObject &requirements, NarNode &node);
     void readRequirementsChildren(QJsonObject &children, NarRequirements &req);
     void readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarCommand> &cmdList);
@@ -142,7 +142,7 @@ private:
 
     QList<NarNode> m_narrativeNodes;
 
-    QVector<QString> m_prefixes;
+    QVector<QString> m_fileNames;
 };
 
 #endif // SAVEANDLOAD_H

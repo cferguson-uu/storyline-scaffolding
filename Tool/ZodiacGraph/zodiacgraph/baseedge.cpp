@@ -10,14 +10,6 @@
 
 namespace zodiac {
 
-/*qreal BaseEdge::s_width = 2.5;
-QColor BaseEdge::s_color = QColor("#cc5d4e");
-qreal BaseEdge::s_secondaryFadeInDuration = 200.;
-qreal BaseEdge::s_secondaryFadeOutDuration = 400.;
-QEasingCurve BaseEdge::s_secondaryFadeInCurve = QEasingCurve::OutQuart;
-QEasingCurve BaseEdge::s_secondaryFadeOutCurve = QEasingCurve::InCubic;
-QPen BaseEdge::s_pen = QPen(QBrush(s_color), s_width, Qt::SolidLine, Qt::RoundCap);*/
-
 BaseEdge::BaseEdge(Scene* scene)
     : QGraphicsObject(nullptr)
     , m_scene(scene)

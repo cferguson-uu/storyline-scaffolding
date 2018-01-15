@@ -685,7 +685,7 @@ void MainCtrl::saveNarrativeGraph()
 
     for(QList<zodiac::NodeHandle>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
     {
-        if((*nodeIt).getPlug("reqOut").getConnectedPlugs().empty())
+        if((*nodeIt).getType() == zodiac::NODE_NARRATIVE && (*nodeIt).getPlug("reqOut").getConnectedPlugs().empty())
         {
             saveNarrativeNode((*nodeIt));
         }
@@ -700,7 +700,7 @@ void MainCtrl::saveNarrativeNode(zodiac::NodeHandle &node)
     NarNode *newNarrativeNode = nullptr;
 
     if(node.getType() == zodiac::NODE_NARRATIVE && !(node.getName() == "SEQ" || node.getName() == "INV"))
-        newNarrativeNode = m_saveAndLoadManager.addNarrativeNode(node.getName(), node.getDescription());
+        newNarrativeNode = m_saveAndLoadManager.addNarrativeNode(node.getName(), node.getDescription(), node.getFileName());
 
     if(newNarrativeNode)    //will return nullptr if node already exists or is a requirement decorator node
     {
@@ -878,7 +878,6 @@ void MainCtrl::loadNarrativeGraph()
             //also save all current narrative nodes to a separate list in case two parts of the same narrative are loaded separately, for requirements
             if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
             currentNarSceneNodes.push_back((*cNIt));
-
         }
 
         QList<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
@@ -887,6 +886,7 @@ void MainCtrl::loadNarrativeGraph()
         for(QList<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
         {
             NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
+            newNarNode->setFileName((*narIt).fileName);
 
             loadNarrativeCommands((*narIt), newNarNode);
 

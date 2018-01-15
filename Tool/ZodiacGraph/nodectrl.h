@@ -348,6 +348,16 @@ public: // methods
     ///
     bool isNodeDecorator();
 
+    ///
+    /// \brief Returns filename for a narrative node
+    ///
+    inline QString getFileName(){return m_node.getFileName();}
+
+    ///
+    /// \brief Sets filename for a narrative node
+    ///
+    inline void setFileName(const QString &fileName){m_node.setFileName(fileName);}
+
 public slots:
 
     ///
