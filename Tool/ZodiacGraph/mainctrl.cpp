@@ -859,7 +859,7 @@ void MainCtrl::saveStoryTags(NarNode *narNode, zodiac::NodeHandle &sceneNode)
         {
             zodiac::NodeHandle storyNode = (*sPlugIt).getNode();
 
-            m_saveAndLoadManager.addStoryTagToNarrativeNode(narNode, storyNode.getName());
+            m_saveAndLoadManager.addStoryTagToNarrativeNode(narNode, storyNode.getStoryNodePrefix() + storyNode.getName());
         }
     }
 }
@@ -889,6 +889,8 @@ void MainCtrl::loadNarrativeGraph()
             newNarNode->setFileName((*narIt).fileName);
 
             loadNarrativeCommands((*narIt), newNarNode);
+
+            loadStoryTags(newNarNode, (*narIt).storyTags);
 
             newNarSceneNodes.push_back(newNarNode);
         }
@@ -1132,6 +1134,32 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
         for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
         {
             (*plugIt)->setBaseColor(QColor(66, 134, 244));
+        }
+    }
+}
+
+void MainCtrl::loadStoryTags(NodeCtrl* narrativeNode, QList<QString> storyTags)
+{
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+
+    foreach (QString tag, storyTags)
+    {
+        foreach (zodiac::NodeHandle storyNode, nodes)
+        {
+            if(storyNode.getType() == zodiac::NODE_STORY)
+            {
+                if(storyNode.getStoryNodePrefix() + storyNode.getName() == tag)
+                {
+                    narrativeNode->getNodeHandle().getPlug("storyOut").connectPlug(storyNode.getPlug("narrativeIn"));
+
+                    storyNode.setLabelBackgroundColor(QColor(2, 202, 0));
+                    QSet<zodiac::PlugEdge*> edgeList = narrativeNode->getNodeHandle().getPlug("storyOut").getEdges();
+                    for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
+                    {
+                        (*plugIt)->setBaseColor(QColor(0, 184, 13));
+                    }
+                }
+            }
         }
     }
 }

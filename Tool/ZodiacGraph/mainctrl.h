@@ -250,6 +250,7 @@ private: // members
 
     void loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode);
     void loadRequirements(NarRequirements &requirements, zodiac::PlugHandle &parentReqOutPlug, QList<NodeCtrl*> &sceneNodes, QList<zodiac::NodeHandle> &currentNarSceneNodes);
+    void loadStoryTags(NodeCtrl* narrativeNode, QList<QString> storyTags);
 
     void spaceOutFullNarrative();
     void spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY, float &maxX);

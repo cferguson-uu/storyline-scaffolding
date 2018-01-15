@@ -1170,6 +1170,9 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
             readRequirements(obj["requirements"].toObject(), (*it));
         else
             (*it).requirements.type = REQ_NONE; //set requirements to none if it doesn't have any
+
+        if(obj.contains("story_tags") && obj["story_tags"].isArray())
+            readStoryTags(obj["story_tags"].toArray(), (*it));
     }
 }
 
@@ -1305,6 +1308,18 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarComman
     }
 }
 
+void saveandload::readStoryTags(QJsonArray &jsonStoryTags, NarNode &node)
+{
+    foreach (const QJsonValue &value, jsonStoryTags)
+    {
+        if(value.isString())
+        {
+            QString tag = value.toString();
+            node.storyTags.push_back(tag);
+        }
+    }
+}
+
 void saveandload::SaveNarrativeToFile(QWidget *widget)
 {
     for(QVector<QString>::iterator fileNameIt = m_fileNames.begin(); fileNameIt!= m_fileNames.end(); ++fileNameIt)
@@ -1355,6 +1370,13 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
                         QJsonArray onUnlockedBlock;
                         WriteCommandBlock((*it).onUnlockedCommands, onUnlockedBlock);
                         node["on_unlocked"] = onUnlockedBlock;
+                    }
+
+                    if(!(*it).storyTags.empty())
+                    {
+                        QJsonArray storyTagArray;
+                        writeStoryTags((*it).storyTags, storyTagArray);
+                        node["story_tags"] = storyTagArray;
                     }
 
                     nodeList.push_back(node);
@@ -1441,6 +1463,14 @@ void saveandload::WriteCommandBlock(QList<NarCommand> cmd, QJsonArray &block)
             }
         }
         block.push_back(com);
+    }
+}
+
+void saveandload::writeStoryTags(QList<QString> storyTags, QJsonArray &tagArray)
+{
+    foreach (QString tag, storyTags)
+    {
+        tagArray.push_back(tag);
     }
 }
 

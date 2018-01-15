@@ -135,10 +135,12 @@ private:
     void readRequirements(QJsonObject &requirements, NarNode &node);
     void readRequirementsChildren(QJsonObject &children, NarRequirements &req);
     void readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarCommand> &cmdList);
+    void readStoryTags(QJsonArray &jsonStoryTags, NarNode &node);
 
     //save
     void WriteCommandBlock(QList<NarCommand> cmd, QJsonArray &block);
     void WriteRequirements(NarRequirements &req, QJsonObject &node, QString objectName);
+    void writeStoryTags(QList<QString> storyTags, QJsonArray &tagArray);
 
     QList<NarNode> m_narrativeNodes;
 
