@@ -10,18 +10,19 @@
 
 namespace zodiac {
 
-BaseEdge::BaseEdge(Scene* scene)
+BaseEdge::BaseEdge(Scene* scene, QColor color)
     : QGraphicsObject(nullptr)
     , m_scene(scene)
     , m_arrow(nullptr)
     , m_path(QPainterPath())
     , m_secondaryOpacity(0.)
     , m_label(nullptr)
+    , m_color(color)
 {
     m_scene->addItem(this);
 
     m_width = 2.5;
-    m_color = QColor("#cc5d4e");
+    //m_color = QColor("#cc5d4e");
     m_secondaryFadeInDuration = 200.;
     m_secondaryFadeOutDuration = 400.;
     m_secondaryFadeInCurve = QEasingCurve::OutQuart;
@@ -114,12 +115,12 @@ QPainterPath BaseEdge::shape() const
 
 void BaseEdge::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    /*if(m_label){
+    if(m_label){
         m_secondaryFadeIn.setStartValue(m_secondaryOpacity);
         m_secondaryFadeIn.setDuration((1.0-m_secondaryOpacity)*m_secondaryFadeInDuration);
         m_secondaryFadeIn.setEasingCurve(m_secondaryFadeInCurve);
         m_secondaryFadeIn.start();
-    }*/
+    }
     QGraphicsObject::hoverEnterEvent(event);
 }
 

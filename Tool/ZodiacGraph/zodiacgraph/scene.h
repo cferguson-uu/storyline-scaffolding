@@ -130,7 +130,7 @@ public: // methods
     ///
     /// \return                 New PlugEdge or <i>nullptr</i>, if the PlugEdge could not be created.
     ///
-    PlugEdge* createEdge(Plug* fromPlug, Plug* toPlug);
+    PlugEdge* createEdge(Plug* fromPlug, Plug* toPlug, QColor edgeColor);
 
     ///
     /// \brief Removes a PlugEdge from the Scene, disconnecting its two Plug%s.

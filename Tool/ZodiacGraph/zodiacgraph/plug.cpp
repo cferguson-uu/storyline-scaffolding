@@ -280,9 +280,9 @@ void Plug::releaseDrawEdge()
     // if there is a plug targeted at the moment of release, add an edge
     if(s_dragTargetPlug){
         if(drawEdge->isReversed()){
-            nodeScene->createEdge(s_dragTargetPlug, this);
+            nodeScene->createEdge(s_dragTargetPlug, this, drawEdge->getBaseColor());
         } else {
-            nodeScene->createEdge(this, s_dragTargetPlug);
+            nodeScene->createEdge(this, s_dragTargetPlug, drawEdge->getBaseColor());
         }
         s_dragTargetPlug->setHighlight(false);
         s_dragTargetPlug = nullptr;

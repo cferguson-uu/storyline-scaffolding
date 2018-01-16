@@ -2,6 +2,9 @@
 #include "nodeproperties.h"
 #include "propertyeditor.h"
 
+#include "zodiacgraph/plug.h"
+#include "zodiacgraph/plugedge.h"
+
 #include <QDebug>
 
 TextEditCommand::TextEditCommand(bool isDescription, const QString &oldText, const QString &newText, NodeCtrl* node, void (NodeCtrl::*nameChangeFunc)(const QString &), Collapsible *collapsible,
@@ -509,20 +512,31 @@ void CommandDeleteCommand::redo()
 }
 
 ///
-NodeRemoveLink::NodeRemoveLink(zodiac::Plug *outgoingPlug, zodiac::Plug *incomingPlug, PlugRow* row, void (PlugRow::*removePlugConnection)(QPair<QLabel*, QPushButton*> &), QPair<QLabel*, QPushButton*> uiElements,  QUndoCommand *parent)
+NodeRemoveLink::NodeRemoveLink(zodiac::Plug *outgoingPlug, zodiac::Plug *incomingPlug, PlugRow* row, void (PlugRow::*removePlugConnection)(QPair<QLabel*, QPushButton*> &), QPair<QLabel*, QPushButton*> uiElements, QUndoCommand *parent)
     : QUndoCommand(parent)
     , m_outgoingPlug(outgoingPlug)
     , m_incomingPlug(incomingPlug)
     , m_pRow(row)
     , m_pRemovePlugConnection(removePlugConnection)
     , m_uiElements(uiElements)
+    , m_edgeColor(QColor("#cc5d4e")) //default as precaution
 {
+    QSet<zodiac::PlugEdge*> edges = outgoingPlug->getEdges();
+
+    foreach (zodiac::PlugEdge *edge, edges)
+    {
+        if(edge->getEndPlug() == incomingPlug)
+        {
+            m_edgeColor = edge->getBaseColor();
+            break;
+        }
+    }
 
 }
 
 void NodeRemoveLink::undo()
 {
-    m_outgoingPlug.connectPlug(m_incomingPlug);
+    m_outgoingPlug.connectPlug(m_incomingPlug, m_edgeColor);
 }
 
 void NodeRemoveLink::redo()
@@ -534,10 +548,11 @@ void NodeRemoveLink::redo()
 }
 
 ///
-NodeAddLink::NodeAddLink(zodiac::PlugHandle &outgoingPlug, zodiac::PlugHandle &incomingPlug, QUndoCommand *parent)
+NodeAddLink::NodeAddLink(zodiac::PlugHandle &outgoingPlug, zodiac::PlugHandle &incomingPlug, QColor color, QUndoCommand *parent)
     : QUndoCommand(parent)
     , m_outgoingPlug(outgoingPlug)
     , m_incomingPlug(incomingPlug)
+    , m_edgeColor(color)
 {
 
 }
@@ -549,14 +564,15 @@ void NodeAddLink::undo()
 
 void NodeAddLink::redo()
 {
-    m_outgoingPlug.connectPlug(m_incomingPlug);
+    m_outgoingPlug.connectPlug(m_incomingPlug, m_edgeColor);
 }
 
 ///
-NodeAddLinks::NodeAddLinks(zodiac::PlugHandle &outgoingPlug, QList<zodiac::PlugHandle> &incomingPlugs, QUndoCommand *parent)
+NodeAddLinks::NodeAddLinks(zodiac::PlugHandle &outgoingPlug, QList<zodiac::PlugHandle> &incomingPlugs, QColor color, QUndoCommand *parent)
     : QUndoCommand(parent)
     , m_outgoingPlug(outgoingPlug)
     , m_incomingPlugs(incomingPlugs)
+    , m_edgeColor(color)
 {
 
 }
@@ -570,5 +586,5 @@ void NodeAddLinks::undo()
 void NodeAddLinks::redo()
 {
     for(QList<zodiac::PlugHandle>::iterator plugIt = m_incomingPlugs.begin(); plugIt != m_incomingPlugs.end(); ++plugIt)
-    m_outgoingPlug.connectPlug((*plugIt));
+    m_outgoingPlug.connectPlug((*plugIt), m_edgeColor);
 }

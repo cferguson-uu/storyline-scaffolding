@@ -24,7 +24,7 @@ EdgeGroup::EdgeGroup(Scene* scene,
     , m_bentEdgesCount(0)
 {
     // create an invisible StraightEdge
-    m_straightEdge = new StraightEdge(m_scene, this, fromNode, toNode);
+    m_straightEdge = new StraightEdge(m_scene, this, fromNode, toNode, QColor("#cc5d4e"));
     m_straightEdge->setVisible(false);
 
     // let the StraightEdge request removal of this group

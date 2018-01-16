@@ -468,7 +468,7 @@ void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     // toggle forced expansion on double-click
     if(event->buttons() & View::getSelectionButton()){
-        toggleForcedExpansion();
+        //toggleForcedExpansion();
     }
     QGraphicsObject::mouseDoubleClickEvent(event);
 }
@@ -527,7 +527,7 @@ void Node::aboutToExpandAfresh()
 
 void Node::setExpansion(NodeExpansion newState)
 {
-    if(newState == m_expansionState){
+    /*if(newState == m_expansionState){
         return;
     }
 
@@ -569,7 +569,7 @@ void Node::setExpansion(NodeExpansion newState)
     }
 
     m_lastExpansionState = m_expansionState;
-    m_expansionState = newState;
+    m_expansionState = newState;*/
 }
 
 void Node::updateConnectedEdges()
@@ -593,10 +593,10 @@ void Node::updateIncomingSpread(qreal expansion)
     // update the perimeter opacity
     m_perimeter->setOpacity(qMax(m_outgoingExpansionFactor, m_incomingExpansionFactor)*Perimeter::getMaxOpacity());
 
-    // update the plugs
+    /*// update the plugs
     for(Plug* plug : m_incomingPlugs){
         plug->updateExpansion(m_incomingExpansionFactor);
-    }
+    }*/
 }
 
 void Node::updateOutgoingSpread(qreal expansion)
@@ -607,10 +607,10 @@ void Node::updateOutgoingSpread(qreal expansion)
     // update the perimeter opacity
     m_perimeter->setOpacity(qMax(m_outgoingExpansionFactor, m_incomingExpansionFactor)*Perimeter::getMaxOpacity());
 
-    // update the plugs
+    /*// update the plugs
     for(Plug* plug : m_outgoingPlugs){
         plug->updateExpansion(m_outgoingExpansionFactor);
-    }
+    }*/
 }
 
 void Node::arrangePlugs()
@@ -785,11 +785,11 @@ void Node::adjustRadius()
     // update the shape and position of all plugs
     for(Plug* plug : m_incomingPlugs){
         plug->defineShape(plug->getNormal(), getPlugAngle());
-        plug->updateExpansion(m_incomingExpansionFactor);
+        //plug->updateExpansion(m_incomingExpansionFactor);
     }
     for(Plug* plug : m_outgoingPlugs){
         plug->defineShape(plug->getNormal(), getPlugAngle());
-        plug->updateExpansion(m_outgoingExpansionFactor);
+        //plug->updateExpansion(m_outgoingExpansionFactor);
     }
 }
 

@@ -22,7 +22,7 @@ Scene::Scene(QObject *parent)
     , m_edgeGroupPairs(QSet<EdgeGroupPair*>())
 {
     // add the draw edge to the scene
-    m_drawEdge = new DrawEdge(this);
+    m_drawEdge = new DrawEdge(this, QColor("#cc5d4e"));
     m_drawEdge->setVisible(false);
 }
 
@@ -85,7 +85,7 @@ bool Scene::removeNode(Node* node)
     return true;
 }
 
-PlugEdge* Scene::createEdge(Plug* fromPlug, Plug* toPlug)
+PlugEdge* Scene::createEdge(Plug* fromPlug, Plug* toPlug, QColor edgeColor)
 {
     // only allow edges between different plugs of different nodes
     Node* fromNode = fromPlug->getNode();
@@ -117,7 +117,7 @@ PlugEdge* Scene::createEdge(Plug* fromPlug, Plug* toPlug)
     } else {
 
         // ... or create a new edge group pair for it
-        EdgeGroupPair* newGroupPair = new EdgeGroupPair(this, fromNode, toNode);
+        EdgeGroupPair* newGroupPair = new EdgeGroupPair(this, fromNode, toNode, edgeColor);
         m_edgeGroupPairs.insert(newGroupPair);
 
         edgeGroup = newGroupPair->getFirstGroup();
@@ -128,7 +128,7 @@ PlugEdge* Scene::createEdge(Plug* fromPlug, Plug* toPlug)
     }
 
     // create the new edge
-    PlugEdge* newEdge = new PlugEdge(this, fromPlug, toPlug, edgeGroup);
+    PlugEdge* newEdge = new PlugEdge(this, fromPlug, toPlug, edgeGroup, edgeColor);
     m_edges.insert(QPair<Plug*, Plug*>(fromPlug, toPlug), newEdge);
 
     // emit signals

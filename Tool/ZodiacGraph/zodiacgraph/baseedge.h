@@ -86,7 +86,7 @@ public: // methods
     ///
     /// \param [in] scene   Scene containing this BaseEdge.
     ///
-    explicit BaseEdge(Scene* scene);
+    explicit BaseEdge(Scene* scene, QColor color/* = QColor("#cc5d4e")*/);
 
     ///
     /// \brief Destructor.

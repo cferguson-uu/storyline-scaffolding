@@ -145,7 +145,7 @@ QList<PlugHandle> PlugHandle::getConnectedPlugs() const
     return result;
 }
 
-bool PlugHandle::connectPlug(PlugHandle other)
+bool PlugHandle::connectPlug(PlugHandle other, QColor edgeColor)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(m_isValid);
@@ -155,9 +155,9 @@ bool PlugHandle::connectPlug(PlugHandle other)
     }
 #endif
     if(m_plug->getDirection() == PlugDirection::OUT){
-        return m_plug->getNode()->getScene()->createEdge(m_plug, other.data()) != nullptr;
+        return m_plug->getNode()->getScene()->createEdge(m_plug, other.data(), edgeColor) != nullptr;
     } else {
-        return m_plug->getNode()->getScene()->createEdge(other.data(), m_plug) != nullptr;
+        return m_plug->getNode()->getScene()->createEdge(other.data(), m_plug, edgeColor) != nullptr;
     }
 }
 

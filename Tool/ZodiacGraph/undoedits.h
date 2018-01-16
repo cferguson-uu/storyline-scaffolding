@@ -199,6 +199,7 @@ private:
     PlugRow* m_pRow;
     void (PlugRow::*m_pRemovePlugConnection)(QPair<QLabel*, QPushButton*> &);
     QPair<QLabel*, QPushButton*> m_uiElements;
+    QColor m_edgeColor;
 
 };
 
@@ -207,7 +208,7 @@ class NodeAddLink : public QUndoCommand
 public:
     enum { Id = 9876 };
 
-    NodeAddLink(zodiac::PlugHandle &outgoingPlug, zodiac::PlugHandle &incomingPlug, QUndoCommand *parent = 0);
+    NodeAddLink(zodiac::PlugHandle &outgoingPlug, zodiac::PlugHandle &incomingPlug, QColor color, QUndoCommand *parent = 0);
 
     void undo() override;
     void redo() override;
@@ -216,6 +217,7 @@ public:
 private:
     zodiac::PlugHandle m_outgoingPlug;
     zodiac::PlugHandle m_incomingPlug;
+    QColor m_edgeColor;
 
 };
 
@@ -224,7 +226,7 @@ class NodeAddLinks : public QUndoCommand
 public:
     enum { Id = 9876 };
 
-    NodeAddLinks(zodiac::PlugHandle &outgoingPlug, QList<zodiac::PlugHandle> &incomingPlugs, QUndoCommand *parent = 0);
+    NodeAddLinks(zodiac::PlugHandle &outgoingPlug, QList<zodiac::PlugHandle> &incomingPlugs, QColor color, QUndoCommand *parent = 0);
 
     void undo() override;
     void redo() override;
@@ -233,6 +235,7 @@ public:
 private:
     zodiac::PlugHandle m_outgoingPlug;
     QList<zodiac::PlugHandle> m_incomingPlugs;
+    QColor m_edgeColor;
 
 };
 #endif // UNDOEDITS_H

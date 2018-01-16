@@ -33,6 +33,7 @@
 ///
 
 #include "edgegroupinterface.h"
+#include <QColor>
 
 namespace zodiac {
 
@@ -58,7 +59,7 @@ public: // methods
     /// \param [in] nodeA   One Node in the group.
     /// \param [in] nodeB   The other Node in the group (direction does not matter).
     ///
-    explicit EdgeGroupPair(Scene* scene, Node* nodeA, Node* nodeB);
+    explicit EdgeGroupPair(Scene* scene, Node* nodeA, Node* nodeB, QColor color);
 
     ///
     /// \brief Destructor.

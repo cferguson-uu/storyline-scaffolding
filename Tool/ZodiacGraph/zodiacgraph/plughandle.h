@@ -172,7 +172,7 @@ public: // methods
     ///
     /// \return             <i>true</i> if the connection was created -- <i>false</i> otherwise.
     ///
-    bool connectPlug(PlugHandle other);
+    bool connectPlug(PlugHandle other, QColor edgeColor);
 
     ///
     /// \brief Disconnects the managed Plug from another one.

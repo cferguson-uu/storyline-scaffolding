@@ -7,6 +7,10 @@
 #include "propertyeditor.h"
 #include "zodiacgraph/nodehandle.h"
 
+QColor storyLinkColor("#cc5d4e");
+QColor narrativeLinkColor("#4286f4");
+QColor storyNarrativeLinkColor("#00b80d");
+
 
 QString MainCtrl::s_defaultName = "Node ";
 
@@ -183,7 +187,7 @@ NodeCtrl* MainCtrl::createStoryNode(NodeCtrl *parent, zodiac::StoryNodeType type
 
     zodiac::PlugHandle childNodeInPlug = child->getNodeHandle().getPlug("storyIn");
 
-    ParentNodeOutPlug.connectPlug(childNodeInPlug);
+    ParentNodeOutPlug.connectPlug(childNodeInPlug, storyLinkColor);
 
     if(!load)
         spaceOutStory();
@@ -211,13 +215,13 @@ void MainCtrl::createStoryGraph(QString storyName)
     zodiac::PlugHandle nameNodeOutPlug = nameNode->getNodeHandle().getPlug("storyOut");
 
     zodiac::PlugHandle settingNodeInPlug = settingNode->getNodeHandle().getPlug("storyIn");
-    nameNodeOutPlug.connectPlug(settingNodeInPlug);
+    nameNodeOutPlug.connectPlug(settingNodeInPlug, storyLinkColor);
     zodiac::PlugHandle themeNodeInPlug = themeNode->getNodeHandle().getPlug("storyIn");
-    nameNodeOutPlug.connectPlug(themeNodeInPlug);
+    nameNodeOutPlug.connectPlug(themeNodeInPlug, storyLinkColor);
     zodiac::PlugHandle plotNodeInPlug = plotNode->getNodeHandle().getPlug("storyIn");
-    nameNodeOutPlug.connectPlug(plotNodeInPlug);
+    nameNodeOutPlug.connectPlug(plotNodeInPlug, storyLinkColor);
     zodiac::PlugHandle resolutionNodeInPlug = resolutionNode->getNodeHandle().getPlug("storyIn");
-    nameNodeOutPlug.connectPlug(resolutionNodeInPlug);
+    nameNodeOutPlug.connectPlug(resolutionNodeInPlug, storyLinkColor);
 
     m_createStoryAction->setEnabled(false);
 }
@@ -475,7 +479,7 @@ void MainCtrl::loadStoryGraph()
             characterNode = createNode(zodiac::STORY_SETTING_CHARACTER_GROUP, "Characters", "Characters Group");
 
             zodiac::PlugHandle characterNodeInPlug = characterNode->getNodeHandle().getPlug("storyIn");
-            SettingNodeOutPlug.connectPlug(characterNodeInPlug);
+            SettingNodeOutPlug.connectPlug(characterNodeInPlug, storyLinkColor);
 
             loadSettingItem(characterNode, chars, zodiac::STORY_SETTING_CHARACTER);
         }
@@ -488,7 +492,7 @@ void MainCtrl::loadStoryGraph()
             locationNode = createNode(zodiac::STORY_SETTING_LOCATION_GROUP, "Locations", "Locations Group");
 
             zodiac::PlugHandle locationNodeInPlug = locationNode->getNodeHandle().getPlug("storyIn");
-            SettingNodeOutPlug.connectPlug(locationNodeInPlug);
+            SettingNodeOutPlug.connectPlug(locationNodeInPlug, storyLinkColor);
 
             loadSettingItem(locationNode, locs, zodiac::STORY_SETTING_LOCATION);
         }
@@ -501,7 +505,7 @@ void MainCtrl::loadStoryGraph()
             timeNode = createNode(zodiac::STORY_SETTING_TIME_GROUP, "Times", "Times Group");
 
             zodiac::PlugHandle timeNodeInPlug = timeNode->getNodeHandle().getPlug("storyIn");
-            SettingNodeOutPlug.connectPlug(timeNodeInPlug);
+            SettingNodeOutPlug.connectPlug(timeNodeInPlug, storyLinkColor);
 
             loadSettingItem(timeNode, times, zodiac::STORY_SETTING_TIME);
         }
@@ -514,7 +518,7 @@ void MainCtrl::loadStoryGraph()
             //create group node then load the events and all sub-events
             eventNode = createNode(zodiac::STORY_THEME_EVENT_GROUP, "Events", "Events Group");
             zodiac::PlugHandle parentNodeInPlug = eventNode->getNodeHandle().getPlug("storyIn");
-            ThemeNodeOutPlug.connectPlug(parentNodeInPlug);
+            ThemeNodeOutPlug.connectPlug(parentNodeInPlug, storyLinkColor);
 
             loadThemeItem(eventNode, events, zodiac::STORY_THEME_EVENT);
         }
@@ -526,7 +530,7 @@ void MainCtrl::loadStoryGraph()
             //same as events but goals
             goalNode = createNode(zodiac::STORY_THEME_GOAL_GROUP, "Goals", "Goals Group");
             zodiac::PlugHandle parentNodeInPlug = goalNode->getNodeHandle().getPlug("storyIn");
-            ThemeNodeOutPlug.connectPlug(parentNodeInPlug);
+            ThemeNodeOutPlug.connectPlug(parentNodeInPlug, storyLinkColor);
 
             loadThemeItem(goalNode, goals, zodiac::STORY_THEME_GOAL);
         }
@@ -654,7 +658,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
     {
         NodeCtrl *eventNode = createNode(zodiac::STORY_RESOLUTION_EVENT_GROUP, "Event", "Group of Events");
         zodiac::PlugHandle eventNodeInPlug = eventNode->getNodeHandle().getPlug("storyIn");
-        resolutionNode->getPlug("storyOut").connectPlug(eventNodeInPlug);
+        resolutionNode->getPlug("storyOut").connectPlug(eventNodeInPlug, storyLinkColor);
 
         for(QList<EventGoal>::iterator evIt = events.begin(); evIt != events.end(); ++evIt)
         {
@@ -666,7 +670,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
     {
         NodeCtrl *stateNode = createNode(zodiac::STORY_RESOLUTION_STATE_GROUP, "State", "Group of States");
         zodiac::PlugHandle stateNodeInPlug = stateNode->getNodeHandle().getPlug("storyIn");
-        resolutionNode->getPlug("storyOut").connectPlug(stateNodeInPlug);
+        resolutionNode->getPlug("storyOut").connectPlug(stateNodeInPlug, storyLinkColor);
 
         for(QList<SimpleNode>::iterator stIt = states.begin(); stIt != states.end(); ++stIt)
         {
@@ -926,12 +930,6 @@ void MainCtrl::loadNarrativeGraph()
                     reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
 
                 loadRequirements((*narIt).requirements, reqOutPlug, newNarSceneNodes, currentNarSceneNodes);
-
-                QSet<zodiac::PlugEdge*> edgeList = newNarNode->getNodeHandle().getPlug("reqOut").getEdges();
-                for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-                {
-                    (*plugIt)->setBaseColor(QColor(66, 134, 244));
-                }
             }
         }
 
@@ -1006,7 +1004,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                         nodeReqInPlug = (*nodeIt)->getNodeHandle().getPlug("reqIn");
                     else
                         nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn");
-                    parentReqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                    parentReqOutPlug.connectPlug(nodeReqInPlug, narrativeLinkColor);  //link plugs
                     found  = true;
                     break;
                 }
@@ -1026,7 +1024,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                             nodeReqInPlug = (*nodeIt).getPlug("reqIn");
                         else
                             nodeReqInPlug = (*nodeIt).createIncomingPlug("reqIn");
-                        parentReqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                        parentReqOutPlug.connectPlug(nodeReqInPlug, narrativeLinkColor);  //link plugs
                         found  = true;
                         break;
                     }
@@ -1061,7 +1059,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
         else
             reqInPlug = newRequirementNode->addIncomingPlug("reqIn");
 
-        parentReqOutPlug.connectPlug(reqInPlug);
+        parentReqOutPlug.connectPlug(reqInPlug, narrativeLinkColor);
 
         zodiac::PlugHandle reqOutPlug;
 
@@ -1085,7 +1083,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                         nodeReqInPlug = (*nodeIt)->getNodeHandle().getPlug("reqIn");
                     else
                         nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn");
-                    reqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                    reqOutPlug.connectPlug(nodeReqInPlug, narrativeLinkColor);  //link plugs
                     found  = true;
                     break;
                 }
@@ -1103,7 +1101,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                             nodeReqInPlug = (*nodeIt).getPlug("reqIn");
                         else
                             nodeReqInPlug = (*nodeIt).createIncomingPlug("reqIn");
-                        parentReqOutPlug.connectPlug(nodeReqInPlug);  //link plugs
+                        parentReqOutPlug.connectPlug(nodeReqInPlug, narrativeLinkColor);  //link plugs
                         found  = true;
                         break;
                     }
@@ -1129,12 +1127,6 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                 loadRequirements((*reqIt), reqOutPlug, sceneNodes, currentNarSceneNodes);
             }
         }
-
-        QSet<zodiac::PlugEdge*> edgeList = newRequirementNode->getNodeHandle().getPlug("reqOut").getEdges();
-        for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-        {
-            (*plugIt)->setBaseColor(QColor(66, 134, 244));
-        }
     }
 }
 
@@ -1150,14 +1142,9 @@ void MainCtrl::loadStoryTags(NodeCtrl* narrativeNode, QList<QString> storyTags)
             {
                 if(storyNode.getStoryNodePrefix() + storyNode.getName() == tag)
                 {
-                    narrativeNode->getNodeHandle().getPlug("storyOut").connectPlug(storyNode.getPlug("narrativeIn"));
+                    narrativeNode->getNodeHandle().getPlug("storyOut").connectPlug(storyNode.getPlug("narrativeIn"), storyNarrativeLinkColor);
 
                     storyNode.setLabelBackgroundColor(QColor(2, 202, 0));
-                    QSet<zodiac::PlugEdge*> edgeList = narrativeNode->getNodeHandle().getPlug("storyOut").getEdges();
-                    for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-                    {
-                        (*plugIt)->setBaseColor(QColor(0, 184, 13));
-                    }
                 }
             }
         }
@@ -1418,31 +1405,13 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
                 nodePtr->setIdleColor(QColor(255, 204, 0));
                 nodePtr->setSelectedColor(QColor(255, 153, 0));
 
-                node.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
+                node.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
 
                 foreach(zodiac::NodeHandle connectedNode, connectedNodes)   //disconnect from previous node and connect to new sequence node
                 {
                     connectedNode.getPlug("reqIn").disconnectPlug(node.getPlug("reqOut"));
-                    connectedNode.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
+                    connectedNode.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
                 }
-
-                QSet<zodiac::PlugEdge*> edgeList = node.getPlug("reqIn").getEdges();
-                for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-                {
-                    (*plugIt)->setBaseColor(QColor(66, 134, 244));
-                }
-
-            }
-        }
-
-        for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++ nodeIt)
-        {
-            nodePtr->getPlug("reqIn").connectPlug((*nodeIt).getPlug("reqOut"));
-
-            QSet<zodiac::PlugEdge*> edgeList = nodePtr->getPlug("reqIn").getEdges();
-            for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-            {
-                (*plugIt)->setBaseColor(QColor(66, 134, 244));
             }
         }
     }
@@ -1495,20 +1464,13 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
                 nodePtr->setIdleColor(QColor(255, 204, 0));
                 nodePtr->setSelectedColor(QColor(255, 153, 0));
 
-                node.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
+                node.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
 
                 foreach(zodiac::NodeHandle connectedNode, connectedNodes)
                 {//disconnect from previous node and connect to new sequence node
                     connectedNode.getPlug("reqIn").disconnectPlug(oldNodePtr->getPlug("reqOut"));
-                    connectedNode.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
+                    connectedNode.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
                 }
-
-                QSet<zodiac::PlugEdge*> edgeList = oldNodePtr->getPlug("reqIn").getEdges();
-                for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-                {
-                    (*plugIt)->setBaseColor(QColor(66, 134, 244));
-                }
-
             }
         }
 
@@ -1520,13 +1482,7 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
             nodePtr->setIdleColor(QColor(255, 204, 0));
             nodePtr->setSelectedColor(QColor(255, 153, 0));
 
-            oldNodePtr->getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
-
-            QSet<zodiac::PlugEdge*> edgeList = oldNodePtr->getPlug("reqIn").getEdges();
-            for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-            {
-                (*plugIt)->setBaseColor(QColor(66, 134, 244));
-            }
+            oldNodePtr->getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
         }
 
         if(inverseNodeList.size() > 1 || nodePtr->getPlug("reqIn").connectionCount() > 0)
@@ -1549,24 +1505,18 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
             nodePtr->setIdleColor(QColor(255, 204, 0));
             nodePtr->setSelectedColor(QColor(255, 153, 0));
 
-            oldNodePtr->getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
+            oldNodePtr->getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
 
             foreach(zodiac::NodeHandle connectedNode, connectedNodes)
             {//disconnect from previous node and connect to new sequence node
                 connectedNode.getPlug("reqIn").disconnectPlug(oldNodePtr->getPlug("reqOut"));
-                connectedNode.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"));
+                connectedNode.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
             }
         }
 
         for(QList<zodiac::NodeHandle>::iterator nodeIt = inverseNodeList.begin(); nodeIt != inverseNodeList.end(); ++ nodeIt)
         {
-            nodePtr->getPlug("reqIn").connectPlug((*nodeIt).getPlug("reqOut"));
-
-            QSet<zodiac::PlugEdge*> edgeList = nodePtr->getPlug("reqIn").getEdges();
-            for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-            {
-                (*plugIt)->setBaseColor(QColor(66, 134, 244));
-            }
+            nodePtr->getPlug("reqIn").connectPlug((*nodeIt).getPlug("reqOut"), narrativeLinkColor);
         }
     }
 
@@ -1587,16 +1537,9 @@ void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle
             if(!(*nodeIt).getPlug("narrativeIn").isValid())
                 (*nodeIt).createIncomingPlug("narrativeIn");
 
-            node.getPlug("storyOut").connectPlug((*nodeIt).getPlug("narrativeIn")); //connect nodes
+            node.getPlug("storyOut").connectPlug((*nodeIt).getPlug("narrativeIn"), storyNarrativeLinkColor); //connect nodes
 
             (*nodeIt).setLabelBackgroundColor(QColor(2, 202, 0));
-        }
-
-
-        QSet<zodiac::PlugEdge*> edgeList = node.getPlug("storyOut").getEdges();
-        for(QSet<zodiac::PlugEdge*>::iterator plugIt = edgeList.begin(); plugIt != edgeList.end(); ++plugIt)
-        {
-            (*plugIt)->setBaseColor(QColor(0, 184, 13));
         }
 
         m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
