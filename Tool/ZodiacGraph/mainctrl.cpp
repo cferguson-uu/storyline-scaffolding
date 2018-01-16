@@ -964,7 +964,7 @@ void MainCtrl::loadNarrativeGraph()
 
         for(QList<NodeCtrl*>::iterator narIt = startingNodes.begin(); narIt != startingNodes.end(); ++narIt)
         {
-            if(((*narIt)->getType() == zodiac::NODE_NARRATIVE) && (*narIt)->getNodeHandle().getPlug("reqOut").connectionCount() == 0)
+            if((*narIt)->getNodeHandle().getPlug("reqOut").connectionCount() == 0)
             {
                 (*narIt)->setPos(xPos, yPos);
                 spaceOutNarrativeChildren((*narIt), yPos, xPos);
@@ -974,11 +974,13 @@ void MainCtrl::loadNarrativeGraph()
             }
         }
 
-        for(QList<NodeCtrl*>::iterator narIt = startingNodes.begin(); narIt != startingNodes.end(); ++narIt)
+        currentNodes =  m_scene.getNodes();
+        //iterate full list to centre nodes with multiple requirements (shoud just be SEQ nodes)
+        for(QList<zodiac::NodeHandle>::iterator narIt = currentNodes.begin(); narIt != currentNodes.end(); ++narIt)
         {
-            if(((*narIt)->getType() == zodiac::NODE_NARRATIVE) && (*narIt)->getNodeHandle().getPlug("reqOut").connectionCount() > 1)
+            if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getPlug("reqOut").connectionCount() > 1)
             {
-                QList<zodiac::PlugHandle> connectedPlugs = (*narIt)->getNodeHandle().getPlug("reqOut").getConnectedPlugs();
+                QList<zodiac::PlugHandle> connectedPlugs = (*narIt).getPlug("reqOut").getConnectedPlugs();
                 float averageY = 0;
 
                 for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
@@ -986,7 +988,7 @@ void MainCtrl::loadNarrativeGraph()
                     averageY += (*plugIt).getNode().getPos().y();
                 }
 
-                (*narIt)->getNodeHandle().setPos((*narIt)->getNodeHandle().getPos().x(), averageY/connectedPlugs.size(), false, true);
+                (*narIt).setPos((*narIt).getPos().x(), averageY/connectedPlugs.size(), false, true);
             }
         }
 
