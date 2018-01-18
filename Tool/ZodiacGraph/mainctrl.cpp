@@ -660,10 +660,12 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
         zodiac::PlugHandle eventNodeInPlug = eventNode->getNodeHandle().getPlug("storyIn");
         resolutionNode->getPlug("storyOut").connectPlug(eventNodeInPlug, storyLinkColor);
 
-        for(QList<EventGoal>::iterator evIt = events.begin(); evIt != events.end(); ++evIt)
+        loadThemeItem(eventNode, events, zodiac::STORY_RESOLUTION_EVENT);
+
+        /*for(QList<EventGoal>::iterator evIt = events.begin(); evIt != events.end(); ++evIt)
         {
             createStoryNode(eventNode, zodiac::STORY_RESOLUTION_EVENT, (*evIt).id, (*evIt).description, QPoint(eventNode->getPos().x(), 150), true, true);
-        }
+        }*/
     }
 
    if(states.size() > 0)

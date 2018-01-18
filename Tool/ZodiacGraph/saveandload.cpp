@@ -314,13 +314,15 @@ void saveandload::ReadResolution(QJsonObject &jsonResolution)
         QList<EventGoal>::iterator evIt = m_resolution.events.end();
         --evIt;
 
-        QJsonObject jsonEvent = eventValue.toObject();
+        ReadEventGoal(eventValue.toObject(), kName_SubEvents, (*evIt));
+
+        /*QJsonObject jsonEvent = eventValue.toObject();
 
         (*evIt).id = jsonEvent[kName_Id].toString().section('_', 1);
         qDebug() << jsonEvent[kName_Id].toString().section('_', 1);
 
         (*evIt).description = jsonEvent[kName_Description].toString();
-        qDebug() << jsonEvent[kName_Description].toString();
+        qDebug() << jsonEvent[kName_Description].toString();*/
     }
 
     QJsonArray jsonStates = jsonResolution[kName_States].toArray();
