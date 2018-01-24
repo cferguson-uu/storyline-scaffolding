@@ -49,6 +49,9 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
 
     connect(m_analytics, &AnalyticsHandler::lockAllNodes,
         this, &MainCtrl::lockAllNodes);
+
+    connect(m_analytics, &AnalyticsHandler::resetNodes,
+        this, &MainCtrl::resetAllNodes);
 }
 
 NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name, const QString& description, bool load)
@@ -1572,7 +1575,8 @@ void MainCtrl::lockAllNodes()
         {
             QList<zodiac::PlugHandle> InvInPlugs = (*iNIt).getPlug("reqOut").getConnectedPlugs();
             //this should only return one node
-            if(InvInPlugs.size() > 1) qDebug() << "Error: more than one node without a sequencer";
+            if(InvInPlugs.size() > 1)
+                qDebug() << "Error: more than one node without a sequencer";
             for(QList<zodiac::PlugHandle>::iterator plugIt = InvInPlugs.begin(); plugIt != InvInPlugs.end(); ++plugIt)
             {
                 if((*plugIt).getNode().getName() == "SEQ")
@@ -1625,9 +1629,18 @@ void MainCtrl::resetAllNodes()
 
     for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
     {
-        (*cNIt).setIdleColor(QColor("#4b77a7"));
-        (*cNIt).setSelectedColor(QColor("#62abfa"));
-        (*cNIt).setLockedStatus(true);
+        if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
+        {
+            (*cNIt).setIdleColor(QColor("#4b77a7"));
+            (*cNIt).setSelectedColor(QColor("#62abfa"));
+            (*cNIt).setLockedStatus(true);
+        }
+        else
+            if((*cNIt).getType() == zodiac::NODE_STORY)
+            {
+                (*cNIt).setIdleColor(QColor("#4b77a7"));
+                (*cNIt).setSelectedColor(QColor("#62abfa"));
+            }
     }
 }
 

@@ -107,8 +107,19 @@ private: // members
     ///
     QSplitter* m_secondSplitter;
 
+    ///
+    /// \brief Undo stack which holds all actions to undo
+    ///
     QUndoStack *m_pUndoStack;
+
+    ///
+    /// \brief Action to undo an action
+    ///
     QAction *m_pUndoAction;
+
+    ///
+    /// \brief Action to redo an action
+    ///
     QAction *m_pRedoAction;
 
 };

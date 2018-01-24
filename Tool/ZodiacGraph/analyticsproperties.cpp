@@ -16,6 +16,8 @@ static const QString kName_NarrativeNodesAverageConnection = "Average Number of 
 AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
 : QWidget(parent)
 , m_mainLayout(new QVBoxLayout(this))
+, m_curatorLayout(nullptr)
+, m_curatorLabelLayoutLabel(nullptr)
 {
     // define the main layout
     m_mainLayout->setContentsMargins(2,2,2,2);
@@ -128,6 +130,18 @@ void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
     {
         addCuratorLabelRow(curatorLabel);
     }
+}
+
+void AnalyticsProperties::StopAnalyticsMode()
+{
+    //remove all of the curator labels, the main label and layout
+    removeAllCuratorRows();
+
+    if(m_curatorLabelLayoutLabel)
+        m_curatorLabelLayoutLabel->deleteLater();
+
+    if(m_curatorLayout)
+        m_curatorLayout->deleteLater();
 }
 
 void AnalyticsProperties::addCuratorLabelRow(CuratorLabel *curatorLabel)

@@ -29,6 +29,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     , m_connectAction(connectAction)
     , m_disconnectAction(disconnectAction)
     , m_editLostnessAction(editLostnessAction)
+    , m_analyticsEnabled(false)
     , QObject(parent)
 {
     connect(m_connectAction, &QAction::triggered, [=]{connectToServer();});
@@ -40,6 +41,9 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     connect(m_tcpSocket, SIGNAL(connectedCallback()), this, SLOT(connected()));
     connect(m_tcpSocket, SIGNAL(disconnectedCallback()), this, SLOT(disconnected()));
     connect(m_tcpSocket, SIGNAL(readMessage(QString)), this, SLOT(handleMessage(QString)));
+
+
+    connect(m_curatorAnalyticsEditor, SIGNAL(finished(int)), this, SLOT(showCuratorLabels()));
 }
 
 void AnalyticsHandler::setAnalyticsProperties(AnalyticsProperties *properties)
@@ -49,21 +53,13 @@ void AnalyticsHandler::setAnalyticsProperties(AnalyticsProperties *properties)
 
 void AnalyticsHandler::connectToServer()
 {
-    checkForGraphs();
-    if(m_curatorAnalyticsEditor->checkIfAnalyticsLoaded())  //don't show the connect dialog if opening analytics dialog
-        m_tcpSocket->SetUpSocket();
+    startAnalyticsMode();
+    m_tcpSocket->SetUpSocket();
 }
 
 void AnalyticsHandler::connected()
 {
     m_logWindow->initialiseLogFile();
-    zodiac::Node::setAnalyticsMode(true);
-    NodeProperties::setAnalyticsMode(true);
-    closeNodeProperties();
-    lockAllNodes();
-    if(m_pProperties)
-        m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
-
     m_connectAction->setEnabled(false);
     m_disconnectAction->setEnabled(true);
 }
@@ -71,12 +67,47 @@ void AnalyticsHandler::connected()
 void AnalyticsHandler::disconnected()
 {
     m_logWindow->closeLogFile();
+    m_connectAction->setEnabled(true);
+    m_disconnectAction->setEnabled(false);
+}
+
+void AnalyticsHandler::startAnalyticsMode()
+{
+    checkForGraphs();
+
+    if(m_curatorAnalyticsEditor->checkIfAnalyticsLoaded()) //wait for this to be completed before running the next function
+        if(m_pProperties)   //show curator labels
+            m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
+
+
+    zodiac::Node::setAnalyticsMode(true);
+    NodeProperties::setAnalyticsMode(true);
+    closeNodeProperties();
+    lockAllNodes(); //show all nodes as locked (haven't been unlocked yet)
+
+    m_analyticsEnabled = true;
+}
+
+void AnalyticsHandler::stopAnalyticsMode()
+{
     zodiac::Node::setAnalyticsMode(false);
     NodeProperties::setAnalyticsMode(false);
     closeNodeProperties();
+    resetNodes();   //return nodes to their edit state
 
-    m_connectAction->setEnabled(true);
-    m_disconnectAction->setEnabled(false);
+    if(m_pProperties)   //hide curator labels
+        m_pProperties->StopAnalyticsMode();
+
+    m_analyticsEnabled = false;
+}
+
+void AnalyticsHandler::showCuratorLabels()
+{
+    if(!m_analyticsEnabled)
+        return; //callback from curator label editor if called when analytics is starting
+
+    if(m_pProperties)   //show curator labels
+        m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
 }
 
 void AnalyticsHandler::handleMessage(QString message)
@@ -109,7 +140,6 @@ void AnalyticsHandler::handleMessage(QString message)
             qDebug() << "Problem with JSON string";
         }
 }
-
 
 void AnalyticsHandler::handleObject(QJsonObject jsonObj)
 {

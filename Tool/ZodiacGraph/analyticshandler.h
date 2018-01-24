@@ -17,10 +17,13 @@ public:
     AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent);
 
     void setAnalyticsProperties(AnalyticsProperties *properties);
+    void startAnalyticsMode();
+    void stopAnalyticsMode();
 
 signals:
     void unlockNode(QString name);
     void lockAllNodes();
+    void resetNodes();
     void closeNodeProperties();
     void checkForGraphs();
 
@@ -29,6 +32,7 @@ public slots:
     void disconnected();
     void handleMessage(QString message);
     void connectToServer();
+    void showCuratorLabels();
 
 private:
     ///
@@ -50,6 +54,8 @@ private:
     QList<QString> m_activeTasks;
 
     AnalyticsProperties *m_pProperties;
+
+    bool m_analyticsEnabled;
 };
 
 #endif // ANALYTICSHANDLER_H

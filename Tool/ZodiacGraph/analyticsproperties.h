@@ -38,6 +38,11 @@ public:// methods
     void StartAnalyticsMode(QList<CuratorLabel*> curatorLabels);
 
     ///
+    /// \brief Remove all of the properties for in-game analytics
+    ///
+    void StopAnalyticsMode();
+
+    ///
     /// \brief Remove all curator rows from being displayed
     ///
     void removeAllCuratorRows();
