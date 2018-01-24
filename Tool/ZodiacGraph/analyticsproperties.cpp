@@ -174,32 +174,47 @@ void AnalyticsProperties::removeAllCuratorRows()
 
 bool AnalyticsProperties::getCuratorLabelStarted(QString curatorLabelName)
 {
+    if(m_curatorRows.isEmpty())
+        return false;
+
     Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     return m_curatorRows[curatorLabelName]->getStarted();
 }
 
 void AnalyticsProperties::setCuratorLabelStarted(QString curatorLabelName, bool started)
 {
-    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    if(m_curatorRows.isEmpty())
+        return;
+
+   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->setStarted(started);
 
 }
 
 void AnalyticsProperties::updateProgressOfCuratorLabel(QString curatorLabelName, QString dependencyName)
 {
-    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    if(m_curatorRows.isEmpty())
+        return;
+
+   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->updateProgress(dependencyName);
 }
 
 void AnalyticsProperties::updateLostnessOfCuratorLabel(QString curatorLabelName, float newValue)
 {
-    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    if(m_curatorRows.isEmpty())
+        return;
+
+   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->updateLostness(newValue);
 }
 
 void AnalyticsProperties::updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue)
 {
-    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    if(m_curatorRows.isEmpty())
+        return;
+
+   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->updateSimilarity(newValue);
 }
 
