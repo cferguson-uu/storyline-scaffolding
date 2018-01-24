@@ -1328,7 +1328,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
     {
         QString windowTitle = "Save narrative graph with filename " + (*fileNameIt);
         QFile file(QFileDialog::getSaveFileName(widget,
-                                                             QObject::tr(windowTitle.toStdString().c_str()), "",
+                                                             QObject::tr(windowTitle.toStdString().c_str()), (*fileNameIt),
                                                             QObject:: tr("JSON File (*.json);;All Files (*)")));
 
         if(!file.fileName().isEmpty()&& !file.fileName().isNull())
