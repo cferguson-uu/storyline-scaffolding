@@ -18,6 +18,8 @@ AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
 , m_mainLayout(new QVBoxLayout(this))
 , m_curatorLayout(nullptr)
 , m_curatorLabelLayoutLabel(nullptr)
+, m_fullGameProgressLabel(nullptr)
+, m_fullGameProgressBar(nullptr)
 {
     // define the main layout
     m_mainLayout->setContentsMargins(2,2,2,2);
@@ -119,10 +121,19 @@ void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
 
     // define the curator layout
     m_curatorLayout = new QGridLayout(this);
-    m_curatorLabelLayoutLabel = new QLabel("Curator Labels", this);
+    m_fullGameProgressLayout = new QGridLayout(this);
+    m_fullGameProgressLabel = new QLabel("Game Progress", this);
+    m_fullGameProgressBar = new QProgressBar(this);
+    m_fullGameProgressBar->setValue(0);
+    m_curatorLabelLayoutLabel = new QLabel("<b>Curator Labels</b>", this);
     m_curatorLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
     m_curatorLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
-    m_curatorLayout->addWidget(m_curatorLabelLayoutLabel, 0, 0, 1, 2, Qt::AlignLeft);
+
+    m_fullGameProgressLayout->addWidget(m_fullGameProgressLabel, 0, 0, 1, 1, Qt::AlignLeft);
+    m_fullGameProgressLayout->addWidget(m_fullGameProgressBar, 0, 1, 1, 1, Qt::AlignLeft);
+
+    m_curatorLayout->addLayout(m_fullGameProgressLayout, 0, 0);
+    m_curatorLayout->addWidget(m_curatorLabelLayoutLabel, 1, 0, 1, 2, Qt::AlignLeft);
     m_mainLayout->addLayout(m_curatorLayout);
 
     //parse the list of curator labels
@@ -130,6 +141,8 @@ void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
     {
         addCuratorLabelRow(curatorLabel);
     }
+
+    m_curatorLayout->setAlignment(Qt::AlignLeft);
 }
 
 void AnalyticsProperties::StopAnalyticsMode()
@@ -212,6 +225,21 @@ void AnalyticsProperties::updateProgressOfCuratorLabel(QString curatorLabelName,
 
    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->updateProgress(dependencyName);
+    updateFullGameProgress();
+}
+
+void AnalyticsProperties::updateFullGameProgress()
+{
+    float averageProgress = 0;
+
+    foreach (CuratorRow *curatorRow, m_curatorRows)
+    {
+        averageProgress += curatorRow->getProgress();
+    }
+
+    averageProgress /= m_curatorRows.size();
+
+    m_fullGameProgressBar->setValue(averageProgress);
 }
 
 void AnalyticsProperties::updateLostnessOfCuratorLabel(QString curatorLabelName, float newValue)
@@ -309,6 +337,12 @@ void CuratorRow::updateProgress(QString dependencyName)
         if(progress == 100) //change colour to green to show completed
             m_nameLabel->setStyleSheet("QLabel { color : green; }");
     }
+}
+
+
+int CuratorRow::getProgress()
+{
+    return m_progressBar->value();
 }
 
 void CuratorRow::updateLostness(float newValue)

@@ -359,7 +359,7 @@ void Node::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     painter->setClipRect(option->exposedRect);
 
     // draw the node a different color, if it is selected
-    if(isSelected()){
+    if(isSelected() || isUnderMouse()){
         painter->setBrush(m_selectedColor);
     } else {
         painter->setBrush(m_idleColor);
@@ -866,6 +866,7 @@ void NarrativeNode::removeOnUnlockCommand(const QUuid& key)
 {
     m_onUnlock.remove(key);
 }
+
 void NarrativeNode::removeOnFailCommand(const QUuid& key)
 {
     m_onFail.remove(key);

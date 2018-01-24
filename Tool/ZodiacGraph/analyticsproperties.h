@@ -96,6 +96,11 @@ private:
     void removeCuratorRow(const QString& curatorLabelName);
 
     ///
+    /// \brief Use curator labels to find the total progress of the game
+    ///
+    void updateFullGameProgress();
+
+    ///
     /// \brief Main Layout
     ///
     QVBoxLayout* m_mainLayout;
@@ -149,6 +154,21 @@ private:
     /// \brief Add a curator label to the layout
     ///
     void addCuratorLabelRow(CuratorLabel *curatorLabel);
+
+    ///
+    /// \brief Layout for the full game progress widgets
+    ///
+    QGridLayout* m_fullGameProgressLayout;
+
+    ///
+    /// \brief Progress label for the full game
+    ///
+    QLabel* m_fullGameProgressLabel;
+
+    ///
+    /// \brief Progress Bar, gives visual feedback of the completion of the game
+    ///
+    QProgressBar* m_fullGameProgressBar;
 };
 
 class CuratorRow : public QObject
@@ -186,6 +206,11 @@ public: // methods
     void updateProgress(QString dependencyName);
 
     ///
+    /// \brief Get the progress of the curator label
+    ///
+    int getProgress();
+
+    ///
     /// \brief Update the lostness bar
     ///
     void updateLostness(float newValue);
@@ -196,7 +221,6 @@ public: // methods
     void updateSimilarity(float newValue);
 
 private:
-
     ///
     /// \brief Layout for this curator label row
     ///
