@@ -58,19 +58,34 @@ MainWindow::MainWindow(QWidget *parent)
     QMenu *storyMenu = menuBar()->addMenu(tr("&Story Graph"));
     QAction* saveStory = new QAction(tr("&Save Story"), this);
     QAction* loadStory = new QAction(tr("&Load Story"), this);
+    QAction* showStoryLinks = new QAction(tr("&Show Story Links"), this);
     storyMenu->addAction(saveStory);
     storyMenu->addAction(loadStory);
+    storyMenu->addAction(showStoryLinks);
+    showStoryLinks->setCheckable(true);
+    showStoryLinks->setChecked(true);    //all links will be shown by default
     connect(saveStory, &QAction::triggered, [=]{m_mainCtrl->saveStoryGraph();});
     connect(loadStory, &QAction::triggered, [=]{m_mainCtrl->loadStoryGraph();});
+    connect(showStoryLinks, &QAction::toggled, [=](bool checked) {m_mainCtrl->changeStoryVisibility(checked, zodiac::NODE_STORY);});
 
     //create menu for narrative graph functions
     QMenu *narrativeMenu = menuBar()->addMenu(tr("&Narrative Graph"));
     QAction* saveNarrative = new QAction(tr("&Save Narrative"), this);
     QAction* loadNarrative = new QAction(tr("&Load Narrative"), this);
+    QAction* showRequirementsLinks = new QAction(tr("&Show Requirements Links"), this);
+    QAction* showNarStoryLinks = new QAction(tr("&Show Story Links"), this);
+    showRequirementsLinks->setCheckable(true);
+    showNarStoryLinks->setCheckable(true);
+    showRequirementsLinks->setChecked(true);    //all links will be shown by default
+    showNarStoryLinks->setChecked(true);
     narrativeMenu->addAction(saveNarrative);
     narrativeMenu->addAction(loadNarrative);
+    narrativeMenu->addAction(showRequirementsLinks);
+    narrativeMenu->addAction(showNarStoryLinks);
     connect(saveNarrative, &QAction::triggered, [=]{m_mainCtrl->saveNarrativeGraph();});
     connect(loadNarrative, &QAction::triggered, [=]{m_mainCtrl->loadNarrativeGraph();});
+    connect(showRequirementsLinks, &QAction::toggled, [=](bool checked) {m_mainCtrl->changeReqVisibility(checked);});
+    connect(showNarStoryLinks, &QAction::toggled, [=](bool checked) {m_mainCtrl->changeStoryVisibility(checked, zodiac::NODE_NARRATIVE);});
 
     // create the main toolbar
     QToolBar* mainToolBar = new QToolBar(this);

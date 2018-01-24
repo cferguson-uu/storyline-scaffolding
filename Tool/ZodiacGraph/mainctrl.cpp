@@ -1931,3 +1931,46 @@ void MainCtrl::updateAnalyticsProperties()
 {
     m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
 }
+
+void MainCtrl::changeReqVisibility(bool show)
+{
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+
+    foreach (zodiac::NodeHandle node, nodes)
+    {
+        if(node.getType() == zodiac::NODE_NARRATIVE)
+        {
+            QSet<zodiac::PlugEdge *> outEdges = node.getPlug("reqOut").getEdges();
+
+            foreach (zodiac::PlugEdge *outEdge, outEdges)
+            {
+                 outEdge->setVisible(show);
+            }
+
+            QSet<zodiac::PlugEdge *> inEdges = node.getPlug("reqIn").getEdges();
+
+            foreach (zodiac::PlugEdge *inEdge, inEdges)
+            {
+                 inEdge->setVisible(show);
+            }
+        }
+    }
+}
+
+void MainCtrl::changeStoryVisibility(bool show, zodiac::NodeType type)
+{
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+
+    foreach (zodiac::NodeHandle node, nodes)
+    {
+        if(node.getType() == type)
+        {
+            QSet<zodiac::PlugEdge *> outEdges = node.getPlug("storyOut").getEdges();
+
+            foreach (zodiac::PlugEdge *outEdge, outEdges)
+            {
+                 outEdge->setVisible(show);
+            }
+        }
+    }
+}

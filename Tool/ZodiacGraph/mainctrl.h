@@ -104,6 +104,21 @@ public: // methods
     ///
     bool shutdown();
 
+    ///
+    /// \brief Changes the visibility of links between narrative nodes
+    ///
+    /// \param [in] show  Boolean of whether to show or hide links
+    ///
+    void changeReqVisibility(bool show);
+
+    ///
+    /// \brief Changes the visibility of links between narrative/story and story nodes
+    ///
+    /// \param [in] show  Boolean of whether to show or hide links
+    /// \param [in] nodeType  node type of which group of nodes to target
+    ///
+    void changeStoryVisibility(bool show, zodiac::NodeType type);
+
 public slots:
 
     ///
