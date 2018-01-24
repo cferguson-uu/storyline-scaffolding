@@ -839,7 +839,7 @@ bool Node::isRemovable() const
 NarrativeNode::NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load, const QUuid& uuid, QColor idleColor, QColor selectedColor, QColor outlineColor,
               QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
         : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
-        , m_locked(true)
+        , m_lockStatus(LOCKED)
 {
     if(load)
     {
@@ -952,14 +952,14 @@ void NarrativeNode::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const 
     m_onUnlocked[cmdKey].parameters[paramKey] = value;
 }
 
-void NarrativeNode::setLockedStatus(bool status)
+void NarrativeNode::setLockedStatus(LockStatus status)
 {
-    m_locked = status;
+    m_lockStatus = status;
 }
 
-bool NarrativeNode::getLockedStatus()
+LockStatus NarrativeNode::getLockedStatus()
 {
-    return m_locked;
+    return m_lockStatus;
 }
 
 

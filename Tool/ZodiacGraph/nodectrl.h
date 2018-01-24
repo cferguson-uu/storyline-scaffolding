@@ -182,12 +182,12 @@ public: // methods
     void editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QString& paramKey, const QString& value);
 
     ///
-    /// \brief set the locked/unlocked status of the node
+    /// \brief set the locked/unlockable/unlocked status of the node
     ///
     ///
-    /// \param [in] bool to set status
+    /// \param [in] LockStatus to set status
     ///
-    void setLockedStatus(bool status){m_node.setLockedStatus(status);}
+    void setLockedStatus(zodiac::LockStatus status){m_node.setLockedStatus(status);}
 
     ///
     /// \brief get the locked/unlocked status of the node

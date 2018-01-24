@@ -476,7 +476,7 @@ void NodeHandle::editParameterInOnUnlockedCommand(const QUuid& cmdKey, const QSt
     nNode->editParameterInOnUnlockedCommand(cmdKey, paramKey, value);
 }
 
-void NodeHandle::setLockedStatus(bool status)
+void NodeHandle::setLockedStatus(LockStatus status)
 {
     NarrativeNode *nNode = static_cast<NarrativeNode*>(m_node);
 #ifdef QT_DEBUG

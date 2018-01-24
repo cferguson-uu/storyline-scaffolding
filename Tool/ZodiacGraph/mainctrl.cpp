@@ -1565,8 +1565,26 @@ void MainCtrl::lockAllNodes()
             continue;
         }
 
-        (*cNIt).setIdleColor(QColor("#ff1800"));
-        (*cNIt).setSelectedColor(QColor("#ff331e"));
+        if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
+        {
+            if((*cNIt).getPlug("reqOut").connectionCount() == 0)    //unlockable if no requirements
+            {
+                (*cNIt).setLockedStatus(zodiac::UNLOCKABLE);
+                (*cNIt).setIdleColor(QColor("#3333cc"));
+                (*cNIt).setIdleColor(QColor("#4949cc"));
+            }
+            else
+            {
+                (*cNIt).setLockedStatus(zodiac::LOCKED);
+                (*cNIt).setIdleColor(QColor("#ff1800"));
+                (*cNIt).setSelectedColor(QColor("#ff331e"));
+            }
+        }
+        else
+        {
+            (*cNIt).setIdleColor(QColor("#ff1800"));
+            (*cNIt).setSelectedColor(QColor("#ff331e"));
+        }
     }
 
     for(QList<zodiac::NodeHandle>::iterator iNIt = invNodes.begin(); iNIt != invNodes.end(); ++iNIt)
@@ -1594,11 +1612,13 @@ void MainCtrl::lockAllNodes()
                         //if true then lock node, otherwise it's still unlockable
                         if(areAllNodesUnlocked(seqInNodes))
                         {
+                            (*iNIt).setLockedStatus(zodiac::LOCKED);
                             (*iNIt).setIdleColor(QColor("#ff1800"));
                             (*iNIt).setSelectedColor(QColor("#ff331e"));
                         }
                         else
                         {
+                            (*iNIt).setLockedStatus(zodiac::UNLOCKABLE);
                             (*iNIt).setIdleColor(QColor("#3333cc"));
                             (*iNIt).setIdleColor(QColor("#4949cc"));
                         }
@@ -1608,12 +1628,14 @@ void MainCtrl::lockAllNodes()
                 {
                     if((*plugIt).getNode().getLockedStatus())
                     {
+                        (*iNIt).setLockedStatus(zodiac::UNLOCKABLE);
                         (*iNIt).setIdleColor(QColor("#3333cc"));    //node locked, unlockable
                         (*iNIt).setIdleColor(QColor("#4949cc"));
                     }
                     else
                     {
-                        (*iNIt).setIdleColor(QColor("#ff1800"));        //node unlocked, lock
+                        (*iNIt).setLockedStatus(zodiac::LOCKED);
+                        (*iNIt).setIdleColor(QColor("#ff1800"));        //node unlocked, locked
                         (*iNIt).setSelectedColor(QColor("#ff331e"));
                     }
                 }
@@ -1633,7 +1655,7 @@ void MainCtrl::resetAllNodes()
         {
             (*cNIt).setIdleColor(QColor("#4b77a7"));
             (*cNIt).setSelectedColor(QColor("#62abfa"));
-            (*cNIt).setLockedStatus(true);
+            (*cNIt).setLockedStatus(zodiac::LOCKED);
         }
         else
             if((*cNIt).getType() == zodiac::NODE_STORY)
@@ -1656,7 +1678,7 @@ void MainCtrl::unlockNode(QString nodeName)
             found = true;
 
             //unlocked change colour of node to green to show unlocked
-            (*cNIt).setLockedStatus(false);
+            (*cNIt).setLockedStatus(zodiac::UNLOCKED);
             (*cNIt).setIdleColor(QColor("#00cc00"));
             (*cNIt).setSelectedColor(QColor("#5bff5b"));
 
@@ -1761,11 +1783,13 @@ void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
                                 //if true then lock node, otherwise it's still unlockable
                                 if(areAllNodesUnlocked(seqInNodes))
                                 {
+                                    (*rNIt).setLockedStatus(zodiac::LOCKED);
                                     (*rNIt).setIdleColor(QColor("#ff1800"));
                                     (*rNIt).setSelectedColor(QColor("#ff331e"));
                                 }
                                 else
                                 {
+                                    (*rNIt).setLockedStatus(zodiac::UNLOCKABLE);
                                     (*rNIt).setIdleColor(QColor("#3333cc"));    //unlockable
                                     (*rNIt).setIdleColor(QColor("#4949cc"));
                                 }
@@ -1773,6 +1797,7 @@ void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
                         }
                         else
                         {
+                            (*rNIt).setLockedStatus(zodiac::LOCKED);
                             (*rNIt).setIdleColor(QColor("#ff1800"));    //lock it
                             (*rNIt).setSelectedColor(QColor("#ff331e"));
                         }
@@ -1782,6 +1807,7 @@ void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
             }
             else
             {
+                (*rNIt).setLockedStatus(zodiac::UNLOCKABLE);
                 (*rNIt).setIdleColor(QColor("#3333cc"));
                 (*rNIt).setIdleColor(QColor("#4949cc"));
             }

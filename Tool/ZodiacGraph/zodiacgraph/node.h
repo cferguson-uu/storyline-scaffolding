@@ -66,7 +66,7 @@ struct NodeCommand
 ///
 /// \enum type of node
 ///
-/// A Node is either a narrative or stry node.
+/// A Node is either a narrative or story node.
 ///
 enum NodeType
 {
@@ -74,6 +74,11 @@ enum NodeType
     NODE_NARRATIVE
 };
 
+///
+/// \enum StoryNodeType
+///
+/// Describes which type of story node the node is
+///
 enum StoryNodeType
 {
     STORY_NAME,
@@ -104,6 +109,18 @@ enum StoryNodeType
     STORY_RESOLUTION_STATE_GROUP,
     STORY_NONE,
     STORY_ERROR
+};
+
+///
+/// \enum LockStatus
+///
+/// Describes whether a node is locked, can be unlocked (unlockable), or unlocked
+///
+enum LockStatus
+{
+    LOCKED,
+    UNLOCKABLE,
+    UNLOCKED
 };
 
 ///
@@ -1148,17 +1165,17 @@ public:
     void contextMenuEvent(QContextMenuEvent *event);
 
     ///
-    /// \brief set the locked/unlocked status of the node
+    /// \brief set the locked/unlockable/unlocked status of the node
     ///
     ///
-    /// \param [in] bool to set status
+    /// \param [in] LockStatus to set status
     ///
-    void setLockedStatus(bool status);
+    void setLockedStatus(LockStatus status);
 
     ///
     /// \brief get the locked/unlocked status of the node
     ///
-    bool getLockedStatus();
+    LockStatus getLockedStatus();
 
     ///
     /// \brief get the fileame of a narrative node
@@ -1191,9 +1208,9 @@ private:
     QHash<QUuid, NodeCommand> m_onUnlocked;
 
     ///
-    /// \brief if the node is locked
+    /// \brief the lock status of the node
     ///
-    bool m_locked;
+    LockStatus m_lockStatus;
 
     ///
     /// \brief the filename for this node
