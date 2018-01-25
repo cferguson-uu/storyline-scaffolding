@@ -77,7 +77,8 @@ SOURCES += main.cpp\
     analyticshandler.cpp \
     sequencematcher.cpp \
     curatoranalyticseditor.cpp \
-    analyticsproperties.cpp
+    analyticsproperties.cpp \
+    narrativefilesorter.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -118,7 +119,8 @@ HEADERS  += mainwindow.h \
     analyticshandler.h \
     sequencematcher.h \
     curatoranalyticseditor.h \
-    analyticsproperties.h
+    analyticsproperties.h \
+    narrativefilesorter.h
 
 RESOURCES += \
     res/icons.qrc

@@ -564,7 +564,6 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
                 connectionButton->setFlat(true);
                 connectionButton->setStatusTip("Delete the Connection");
                 rowLayout->addWidget(connectionButton, row, 2);
-
             }
 
             ++row;
@@ -576,7 +575,7 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
             if(editor->s_analyticsMode)
             {
                 if(connectionButton)
-                connectionButton->setEnabled(false);
+                    connectionButton->setEnabled(false);
             }
 
             if(connectionButton)
