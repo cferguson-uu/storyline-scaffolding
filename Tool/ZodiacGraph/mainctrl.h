@@ -165,9 +165,9 @@ public slots:
     void unlockNode(QString nodeName);
 
     ///
-    /// \brief Checks that graphs are loaded before starting analytics
+    /// \brief Checks that a graph is loaded before starting a process
     ///
-    void checkNarrativeAndStoryGraphsLoaded();
+    void checkGraphLoaded(zodiac::NodeType type);
 
     ///
     /// \brief Updates the analytics collapsible

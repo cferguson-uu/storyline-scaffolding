@@ -41,8 +41,10 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
     connect(m_analytics, SIGNAL(unlockNode(QString)),
             this, SLOT(unlockNode(QString)));
 
-    connect(m_analytics, SIGNAL(checkForGraphs()),
-            this, SLOT(checkNarrativeAndStoryGraphsLoaded()));
+    connect(
+        m_analytics, &AnalyticsHandler::checkForGraphs,
+        [=]{ checkGraphLoaded(zodiac::NODE_STORY); checkGraphLoaded(zodiac::NODE_NARRATIVE); }
+    );
 
     connect(m_analytics, &AnalyticsHandler::closeNodeProperties,
         &m_scene, &zodiac::SceneHandle::deselectAll);
@@ -873,6 +875,8 @@ void MainCtrl::saveStoryTags(NarNode *narNode, zodiac::NodeHandle &sceneNode)
 
 void MainCtrl::loadNarrativeGraph()
 {
+    checkGraphLoaded(zodiac::NODE_STORY);   //story graph should be loaded first
+
     m_saveAndLoadManager.DeleteAllNarrativeItems(); //reset the holder
 
     if(m_saveAndLoadManager.LoadNarrativeFromFile(qobject_cast<QWidget*>(parent())))
@@ -1880,49 +1884,47 @@ bool MainCtrl::areAllNodesUnlocked(QList<zodiac::NodeHandle> &nodes)
     return true;
 }
 
-void MainCtrl::checkNarrativeAndStoryGraphsLoaded()
+void MainCtrl::checkGraphLoaded(zodiac::NodeType type)
 {
-    bool loadStory = true;
-    bool loadNarrative = true;
-
     QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+    bool loadGraph = true;
 
     foreach(zodiac::NodeHandle node, nodes)
     {
-        if(node.getType() == zodiac::NODE_STORY)
-            loadStory = false;
-        else
-            if(node.getType() == zodiac::NODE_NARRATIVE)
-                loadNarrative = false;
-    }
-
-    if(loadStory)
-    {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("No Story Graph Loaded");
-        msgBox.setText("Do you want to load a story graph before starting analytics?");
-        msgBox.setStandardButtons(QMessageBox::Yes);
-        msgBox.addButton(QMessageBox::No);
-        msgBox.setDefaultButton(QMessageBox::No);
-
-        if(msgBox.exec() == QMessageBox::Yes)
+        if(node.getType() == type)
         {
-          loadStoryGraph();
+            loadGraph = false;
+            break;  //some kind of graph exists, no need to continue
         }
     }
 
-    if(loadNarrative)
+    if(loadGraph)
     {
         QMessageBox msgBox;
-        msgBox.setWindowTitle("No Narrative Graph Loaded");
-        msgBox.setText("Do you want to load a narrative graph before starting analytics?");
+
+        if(type == zodiac::NODE_NARRATIVE)
+        {
+            msgBox.setWindowTitle("No Narrative Graph Loaded");
+            msgBox.setText("Do you want to load a narrative graph before continuing?");
+        }
+        else
+            if(type == zodiac::NODE_STORY)
+            {
+                msgBox.setWindowTitle("No Story Graph Loaded");
+                msgBox.setText("Do you want to load a story graph before continuing");
+            }
+
         msgBox.setStandardButtons(QMessageBox::Yes);
         msgBox.addButton(QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);
 
         if(msgBox.exec() == QMessageBox::Yes)
         {
-          loadNarrativeGraph();
+            if(type == zodiac::NODE_NARRATIVE)
+                loadNarrativeGraph();
+            else
+                if(type == zodiac::NODE_STORY)
+                    loadStoryGraph();
         }
     }
 }

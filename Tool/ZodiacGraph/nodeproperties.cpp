@@ -550,14 +550,23 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
         for(QList<zodiac::PlugHandle>::iterator conIt = connections.begin(); conIt != connections.end(); ++conIt)
         {
             QLabel *connectionLabel = new QLabel((*conIt).getNode().getName());
-            QPushButton* connectionButton = new QPushButton();
-            connectionButton->setIcon(QIcon(":/icons/minus.svg"));
-            connectionButton->setIconSize(QSize(8, 8));
-            connectionButton->setFlat(true);
-            connectionButton->setStatusTip("Delete the Connection");
-
             rowLayout->addWidget(connectionLabel, row, 1);
-            rowLayout->addWidget(connectionButton, row, 2);
+
+            QPushButton* connectionButton;
+
+            if(plug.getNode().getType() == zodiac::NODE_STORY)
+                connectionButton = nullptr;
+            else
+            {
+                connectionButton = new QPushButton();
+                connectionButton->setIcon(QIcon(":/icons/minus.svg"));
+                connectionButton->setIconSize(QSize(8, 8));
+                connectionButton->setFlat(true);
+                connectionButton->setStatusTip("Delete the Connection");
+                rowLayout->addWidget(connectionButton, row, 2);
+
+            }
+
             ++row;
 
             zodiac::Plug *outgoing = plug.data();
@@ -566,10 +575,12 @@ PlugRow::PlugRow(NodeProperties* editor, zodiac::PlugHandle plug, QLabel* nameLa
 
             if(editor->s_analyticsMode)
             {
+                if(connectionButton)
                 connectionButton->setEnabled(false);
             }
 
-            connect(connectionButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new NodeRemoveLink(outgoing, incoming, this, &PlugRow::removePlugConnection, connection));});
+            if(connectionButton)
+                connect(connectionButton, &QPushButton::released, [=]{m_editor->getUndoStack()->push(new NodeRemoveLink(outgoing, incoming, this, &PlugRow::removePlugConnection, connection));});
 
             m_storyConnections.push_back(connection);
         }
