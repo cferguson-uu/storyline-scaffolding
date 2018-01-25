@@ -38,6 +38,7 @@
 #include "saveandload.h"
 #include "linkerwindow.h"
 #include "analyticshandler.h"
+#include "narrativefilesorter.h"
 
 class NodeCtrl;
 class PropertyEditor;
@@ -178,6 +179,8 @@ public slots:
 
     void linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle> &nodeList);
 
+    void spaceOutNarrative(QVector<QString> fileNames);
+
 private slots:
 
     ///
@@ -223,6 +226,11 @@ private: // members
     /// \brief For linking narrative and story nodes
     ///
     LinkerWindow *m_linkWindow = nullptr;
+
+    ///
+    /// \brief For linking narrative and story nodes
+    ///
+    NarrativeFileSorter *m_narrativeSorter = nullptr;
 
     ///
     /// \brief For analytics, "lighting up graph" etc.

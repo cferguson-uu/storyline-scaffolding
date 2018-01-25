@@ -86,6 +86,8 @@ public:
 
     void DeleteAllNarrativeItems();
 
+    inline QVector<QString> getFileNames(){return m_fileNames;}
+
 private:
     //story
 

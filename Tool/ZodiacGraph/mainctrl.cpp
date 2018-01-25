@@ -21,6 +21,7 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
     , m_nodes(QHash<zodiac::NodeHandle, NodeCtrl*>())
     , m_nodeIndex(1)            // name suffixes start at 1
     , m_analytics(analyticsHandler)
+    , m_narrativeSorter(new NarrativeFileSorter(qobject_cast<QWidget*>(parent)))
     , m_createStoryAction(newStoryNodeAction)
     , m_pUndoStack(undoStack)
 {
@@ -41,10 +42,8 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
     connect(m_analytics, SIGNAL(unlockNode(QString)),
             this, SLOT(unlockNode(QString)));
 
-    connect(
-        m_analytics, &AnalyticsHandler::checkForGraphs,
-        [=]{ checkGraphLoaded(zodiac::NODE_STORY); checkGraphLoaded(zodiac::NODE_NARRATIVE); }
-    );
+    connect(m_analytics, &AnalyticsHandler::checkForGraphs,
+        [=]{ checkGraphLoaded(zodiac::NODE_STORY); checkGraphLoaded(zodiac::NODE_NARRATIVE);});
 
     connect(m_analytics, &AnalyticsHandler::closeNodeProperties,
         &m_scene, &zodiac::SceneHandle::deselectAll);
@@ -54,6 +53,9 @@ MainCtrl::MainCtrl(QObject *parent, zodiac::Scene* scene, PropertyEditor* proper
 
     connect(m_analytics, &AnalyticsHandler::resetNodes,
         this, &MainCtrl::resetAllNodes);
+
+    connect(m_narrativeSorter, SIGNAL(loadOrderedNarrative(QVector<QString>)),
+            this, SLOT(spaceOutNarrative(QVector<QString>)));
 }
 
 NodeCtrl* MainCtrl::createNode(zodiac::StoryNodeType storyType, const QString& name, const QString& description, bool load)
@@ -925,7 +927,7 @@ void MainCtrl::loadNarrativeGraph()
 
                 if(!newNarNode)
                 {
-                    qDebug() << "Warning: node not found in list";
+                    qDebug() << "Warning: node -"+ (*narIt).id +"- not found in recently loaded list";
                     continue;
                 }
 
@@ -1160,6 +1162,35 @@ void MainCtrl::loadStoryTags(NodeCtrl* narrativeNode, QList<QString> storyTags)
 
 void MainCtrl::spaceOutFullNarrative()
 {
+    QList<zodiac::NodeHandle> nodeList = m_scene.getNodes();
+
+    QVector<QString> oldFileNames = m_narrativeSorter->getOrderedList();
+    QVector<QString> newFileNames;
+
+    foreach(zodiac::NodeHandle node, nodeList)
+    {
+        if(node.getType() == zodiac::NODE_STORY || node.isNodeDecorator())
+            continue;
+
+        if(node.getFileName() == "")
+            qDebug() << node.getName() << "has no filename";
+
+        if(!newFileNames.contains(node.getFileName()))
+            newFileNames.push_back(node.getFileName());
+    }
+
+    if(oldFileNames.size() <= 1 && std::is_permutation(oldFileNames.begin(), oldFileNames.end(), newFileNames.begin()))
+    {
+        spaceOutNarrative(newFileNames);
+    }
+    else
+    {
+        m_narrativeSorter->showWindow(newFileNames);
+    }
+}
+
+void MainCtrl::spaceOutNarrative(QVector<QString> fileNames)
+{
     float xPos = INFINITY;
     float yPos = -INFINITY;
 
@@ -1188,18 +1219,19 @@ void MainCtrl::spaceOutFullNarrative()
 
     float oldYPos = yPos;
 
-    //space out new nodes
-    for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
-    {
-        if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getPlug("reqOut").connectionCount() == 0)
+    //space out nodes
+    foreach (QString fileName, fileNames)
+        for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
         {
-            (*narIt).setPos(xPos, yPos);
-            spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)), yPos, xPos);
+            if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getFileName() == fileName && (*narIt).getPlug("reqOut").connectionCount() == 0)
+            {
+                (*narIt).setPos(xPos, yPos);
+                spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)), yPos, xPos);
 
-            yPos = oldYPos;
-            xPos += 150;
+                yPos = oldYPos;
+                xPos += 150;
+            }
         }
-    }
 
     for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
     {
@@ -1421,6 +1453,13 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
                 }
             }
         }
+
+        for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++ nodeIt)
+        {
+            nodePtr->getPlug("reqIn").connectPlug((*nodeIt).getPlug("reqOut"), narrativeLinkColor);
+            if((*nodeIt).getFileName() == "")
+                (*nodeIt).setFileName(node.getFileName());
+        }
     }
 
     if(!inverseNodeList.empty())
@@ -1524,6 +1563,8 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
         for(QList<zodiac::NodeHandle>::iterator nodeIt = inverseNodeList.begin(); nodeIt != inverseNodeList.end(); ++ nodeIt)
         {
             nodePtr->getPlug("reqIn").connectPlug((*nodeIt).getPlug("reqOut"), narrativeLinkColor);
+            if((*nodeIt).getFileName() == "")
+                (*nodeIt).setFileName(node.getFileName());
         }
     }
 

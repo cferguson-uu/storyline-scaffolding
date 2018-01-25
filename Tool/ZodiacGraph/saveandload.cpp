@@ -1061,17 +1061,11 @@ void saveandload::LoadNarrativeParamsAndCommands(QWidget *widget)
 bool saveandload::LoadNarrativeFromFile(QWidget *widget)
 {
     QString settings;
-    /*QFile file;
-
-    file.setFileName(QFileDialog::getOpenFileName(widget,
-                                                     QObject::tr("Load Narrative File"), "",
-                                                     QObject::tr("JSON File (*.json);;All Files (*)")));*/
 
     QStringList filenames = QFileDialog::getOpenFileNames(widget,
                                                      QObject::tr("Load Narrative File"), "",
                                                      QObject::tr("JSON File (*.json);;All Files (*)"));
 
-    //if(!file.fileName().isEmpty()&& !file.fileName().isNull())
     if(!filenames.isEmpty())
     {
         for (int i =0; i<filenames.count(); i++)
@@ -1082,6 +1076,7 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
             {
                 QFileInfo fileInfo(file.fileName());
                 QString filename(fileInfo.fileName());//get filename from path
+                m_fileNames.push_back(filename);
 
                 settings = file.readAll();
                 file.close();
