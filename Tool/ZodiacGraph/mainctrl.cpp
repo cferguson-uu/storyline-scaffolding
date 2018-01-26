@@ -337,10 +337,13 @@ void MainCtrl::saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem)
         if(eventGoalNode.getType() == zodiac::STORY_THEME_EVENT)
             eventGoalItem = m_saveAndLoadManager.addEvent(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
         else
-            if(eventGoalNode.getType() == zodiac::STORY_THEME_GOAL)
-                eventGoalItem = m_saveAndLoadManager.addGoal(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
+            if(eventGoalNode.getType() == zodiac::STORY_RESOLUTION_EVENT)
+                eventGoalItem = m_saveAndLoadManager.addResolutionEvent(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
             else
-                return; //error
+                if(eventGoalNode.getType() == zodiac::STORY_THEME_GOAL)
+                    eventGoalItem = m_saveAndLoadManager.addGoal(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
+                else
+                    return; //error
 
             if(parent.getPlug("storyOut").connectionCount() > 0)
                 saveThemeItem(eventGoalNode, eventGoalItem);
@@ -418,13 +421,7 @@ void MainCtrl::saveResolution(zodiac::NodeHandle &parent)
                 return; //error
     }
 
-    QList<zodiac::PlugHandle> eventPlugs = eventGroupNode.getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator eventPlugIt = eventPlugs.begin(); eventPlugIt != eventPlugs.end(); ++eventPlugIt)
-    {
-        zodiac::NodeHandle eventNode = (*eventPlugIt).getNode();
-
-        m_saveAndLoadManager.addResolutionEvent(eventNode.getName(), eventNode.getDescription());
-    }
+    saveThemeItem(eventGroupNode);  //use theme function as resolution event identical to theme event
 
     QList<zodiac::PlugHandle> statePlugs = eventGroupNode.getPlug("storyOut").getConnectedPlugs();
     for(QList<zodiac::PlugHandle>::iterator statePlugIt = statePlugs.begin(); statePlugIt != statePlugs.end(); ++statePlugIt)
@@ -667,10 +664,7 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
         zodiac::PlugHandle eventNodeInPlug = eventNode->getNodeHandle().getPlug("storyIn");
         resolutionNode->getPlug("storyOut").connectPlug(eventNodeInPlug, storyLinkColor);
 
-        for(QList<EventGoal>::iterator evIt = events.begin(); evIt != events.end(); ++evIt)
-        {
-            createStoryNode(eventNode, zodiac::STORY_RESOLUTION_EVENT, (*evIt).id, (*evIt).description, QPoint(eventNode->getPos().x(), 150), true, true);
-        }
+        loadThemeItem(eventNode, events, zodiac::STORY_RESOLUTION_EVENT);
     }
 
    if(states.size() > 0)

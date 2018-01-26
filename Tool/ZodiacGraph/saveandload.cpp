@@ -308,19 +308,14 @@ void saveandload::ReadResolution(QJsonObject &jsonResolution)
 
     QJsonArray jsonEvents = jsonResolution[kName_Events].toArray();
 
+
     foreach (const QJsonValue &eventValue, jsonEvents)
     {
         m_resolution.events.push_back(EventGoal());
         QList<EventGoal>::iterator evIt = m_resolution.events.end();
         --evIt;
 
-        QJsonObject jsonEvent = eventValue.toObject();
-
-        (*evIt).id = jsonEvent[kName_Id].toString().section('_', 1);
-        qDebug() << jsonEvent[kName_Id].toString().section('_', 1);
-
-        (*evIt).description = jsonEvent[kName_Description].toString();
-        qDebug() << jsonEvent[kName_Description].toString();
+        ReadEventGoal(eventValue.toObject(), kName_SubEvents, (*evIt)); //same as loading them event so use the same function
     }
 
     QJsonArray jsonStates = jsonResolution[kName_States].toArray();
@@ -539,22 +534,8 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
 
 void saveandload::WriteResolution(QJsonObject &jsonResolution)
 {
-    if(!m_resolution.events.empty())
-    {
-        QJsonArray jsonEvents;
-
-        for(QList<EventGoal>::iterator it = m_resolution.events.begin(); it != m_resolution.events.end(); ++it)
-        {
-            QJsonObject jsonEvent;
-
-            jsonEvent[kName_Id] = QString(kPrefix_ResolutionEvent + "_" + (*it).id);
-            jsonEvent[kName_Description] = (*it).description;
-
-            jsonEvents.append(jsonEvent);
-        }
-
-        jsonResolution[kName_Events] = jsonEvents;
-    }
+    //use theme function for this, resolution events are identical
+    WriteEventGoals(jsonResolution, m_resolution.events, "events", "subEvents", kPrefix_ResolutionEvent);
 
     if(!m_resolution.states.empty())
     {
@@ -790,13 +771,34 @@ SimpleNode *saveandload::addOutcome(QString id, QString description, Episode* pa
     return nullptr; //if a problem
 }
 
-void saveandload::addResolutionEvent(QString id, QString description)
+EventGoal *saveandload::addResolutionEvent(QString id, QString description, EventGoal* parent)
 {
     EventGoal newEvent;
-    newEvent.id = id;
-    newEvent.description = description;
+        newEvent.id = id;
+        newEvent.description = description;
 
-    m_resolution.events.push_back(newEvent);
+        if(parent != nullptr)
+        {
+            parent->subItems.push_back(newEvent);
+
+            for(QList<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
+            {
+                if((*it).id == newEvent.id)
+                    return &(*it);
+            }
+        }
+        else
+        {
+            m_resolution.events.push_back(newEvent);
+
+            for(QList<EventGoal>::iterator it = m_events.begin(); it!= m_events.end(); ++it)
+            {
+                if((*it).id == newEvent.id)
+                    return &(*it);
+            }
+        }
+
+        return nullptr; //if a problem
 }
 
 void saveandload::addResolutionState(QString id, QString description)
@@ -1321,7 +1323,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
     {
         QString windowTitle = "Save narrative graph with filename " + (*fileNameIt);
         QFile file(QFileDialog::getSaveFileName(widget,
-                                                             QObject::tr(windowTitle.toStdString().c_str()), "",
+                                                             QObject::tr(windowTitle.toStdString().c_str()), (*fileNameIt),
                                                             QObject:: tr("JSON File (*.json);;All Files (*)")));
 
         if(!file.fileName().isEmpty()&& !file.fileName().isNull())

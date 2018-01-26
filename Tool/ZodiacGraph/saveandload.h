@@ -53,7 +53,7 @@ public:
     SimpleNode *addOutcome(QString id, QString description, Episode* parent);
     void addSubGoal(QString id, QString description, Episode* parent);
 
-    void addResolutionEvent(QString id, QString description);
+    EventGoal *addResolutionEvent(QString id, QString description, EventGoal* parent);
     void addResolutionState(QString id, QString description);
 
     void DeleteAllStoryItems();
