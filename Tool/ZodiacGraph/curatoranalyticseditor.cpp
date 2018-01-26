@@ -18,6 +18,12 @@ CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
 
     setWindowTitle(tr("Curator Labels"));
     resize(QSize(400,400));
+
+    //add ignored actions
+    m_ignored_actions.insert("looked at");
+    m_ignored_actions.insert("stopped looking at");
+    m_ignored_actions.insert("dropped");
+    m_ignored_actions.insert("attempted");
 }
 
 void CuratorAnalyticsEditor::showWindow()
@@ -277,7 +283,7 @@ void CuratorAnalyticsEditor::nodeVisited(QString task, QJsonObject event)
     qDebug() << event["object"].toString();
 
     //just want to be logging what the player has visited, picked up, examined etc.
-    if((event["verb"].toString() != "jumped to") && (event["verb"].toString() != "picked up") && (event["verb"].toString() != "examined"))
+    if(m_ignored_actions.contains(event["verb"].toString()))
         return;
 
     qDebug() << "yes";

@@ -74,6 +74,8 @@ private:
     QPushButton *m_saveFullSequenceBtn;
 
     QJsonArray m_jsonArray;
+
+    QSet<QString> m_ignored_actions;
 };
 
 #endif // CuratorAnalyticsEditor_H
