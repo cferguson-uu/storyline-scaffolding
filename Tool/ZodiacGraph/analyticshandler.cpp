@@ -37,6 +37,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     connect(m_editLostnessAction, &QAction::triggered, [=]{m_curatorAnalyticsEditor->showWindow();});
 
     m_disconnectAction->setEnabled(false);
+    m_connectAction->setEnabled(false);
 
     connect(m_tcpSocket, SIGNAL(connectedCallback()), this, SLOT(connected()));
     connect(m_tcpSocket, SIGNAL(disconnectedCallback()), this, SLOT(disconnected()));
@@ -53,7 +54,6 @@ void AnalyticsHandler::setAnalyticsProperties(AnalyticsProperties *properties)
 
 void AnalyticsHandler::connectToServer()
 {
-    startAnalyticsMode();
     m_tcpSocket->SetUpSocket();
 }
 
@@ -133,7 +133,7 @@ void AnalyticsHandler::handleMessage(QString message)
     else
         if(jsonDoc.isObject())
         {
-          handleObject(jsonDoc.object());
+            handleObject(jsonDoc.object());
         }
         else
         {

@@ -347,12 +347,12 @@ int CuratorRow::getProgress()
 
 void CuratorRow::updateLostness(float newValue)
 {
-    if(newValue > 0) //don't set value if error has occurred
+    if(newValue >= 0) //don't set value if error has occurred
         m_lostnessBar->setValue(newValue);
 }
 
 void CuratorRow::updateSimilarity(float newValue)
 {
-    if(newValue > 0) //don't set value if error has occurred
+    if(newValue >= 0) //don't set value if error has occurred
         m_similarityBar->setValue(newValue);
 }

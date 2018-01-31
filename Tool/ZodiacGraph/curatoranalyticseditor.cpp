@@ -20,6 +20,7 @@ CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
     resize(QSize(400,400));
 
     //add ignored actions
+    m_ignored_actions.insert("started");
     m_ignored_actions.insert("looked at");
     m_ignored_actions.insert("stopped looking at");
     m_ignored_actions.insert("dropped");
@@ -279,14 +280,13 @@ void CuratorAnalyticsEditor::hideCuratorLabels()
 
 void CuratorAnalyticsEditor::nodeVisited(QString task, QJsonObject event)
 {
-    qDebug() << event["verb"].toString();
-    qDebug() << event["object"].toString();
-
     //just want to be logging what the player has visited, picked up, examined etc.
     if(m_ignored_actions.contains(event["verb"].toString()))
         return;
 
-    qDebug() << "yes";
+    qDebug() << event["verb"].toString();
+    qDebug() << event["object"].toString();
+
 
     foreach (CuratorLabel* curatorLabel, m_curatorLabels)
     {
@@ -335,10 +335,10 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
             if(curatorLabel->totalNumOfNodesVisited == 0)   //no nodes visited so lostness cannot be determined
                 return -1;
 
-            float firstHalf = curatorLabel->uniqueNodesVisited.size()/curatorLabel->totalNumOfNodesVisited - 1; //(N/S – 1)²
+            float firstHalf = (float)curatorLabel->uniqueNodesVisited.size()/(float)curatorLabel->totalNumOfNodesVisited - 1; //(N/S – 1)²
             firstHalf *= firstHalf;
 
-            float secondHalf = curatorLabel->minSteps->value()/curatorLabel->uniqueNodesVisited.size() - 1;   //(R/N – 1)²
+            float secondHalf = (float)curatorLabel->minSteps->value()/(float)curatorLabel->uniqueNodesVisited.size() - 1;   //(R/N – 1)²
             secondHalf *= secondHalf;
 
             float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]

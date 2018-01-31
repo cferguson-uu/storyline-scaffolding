@@ -152,13 +152,14 @@ MainWindow::MainWindow(QWidget *parent)
     QAction* designModeAction = new QAction(tr("&Enable Design Mode"), this);
     QAction* analyticsModeAction = new QAction(tr("&Enable Analytics Mode"), this);
 
+
     designModeAction->setShortcuts(QKeySequence::New);
     designModeAction->setStatusTip(tr("Add, edit and remove nodes"));
     mainToolBar->addAction(designModeAction);
     connect(designModeAction, &QAction::triggered, [=]{analyticsModeAction->setEnabled(true); designModeAction->setEnabled(false); analyticsHandler->stopAnalyticsMode();
                                                     newStoryNodeAction->setEnabled(true); newNarrativeNodeAction->setEnabled((true)); saveNarrative->setEnabled(true);
                                                     loadNarrative->setEnabled(true); saveStory->setEnabled(true); loadStory->setEnabled(true); m_pUndoAction->setEnabled(true);
-                                                    m_pRedoAction->setEnabled(true); lostnessEdit->setEnabled(true);});
+                                                    m_pRedoAction->setEnabled(true); lostnessEdit->setEnabled(true); analyticsConnect->setEnabled(false);});
     designModeAction->setEnabled(false);    //set to false as this will be enabled from the start
 
     analyticsModeAction->setShortcuts(QKeySequence::New);
@@ -167,7 +168,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(analyticsModeAction, &QAction::triggered, [=]{designModeAction->setEnabled(true); analyticsModeAction->setEnabled(false);  analyticsHandler->startAnalyticsMode();
                                                         newStoryNodeAction->setEnabled(false); newNarrativeNodeAction->setEnabled((false)); saveNarrative->setEnabled(false);
                                                         loadNarrative->setEnabled(false); saveStory->setEnabled(false); loadStory->setEnabled(false); m_pUndoAction->setEnabled(false);
-                                                        m_pRedoAction->setEnabled(false); lostnessEdit->setEnabled(false);});
+                                                        m_pRedoAction->setEnabled(false); lostnessEdit->setEnabled(false);  analyticsConnect->setEnabled(true);});
 
     QWidget* emptySpacer = new QWidget();
     emptySpacer->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
