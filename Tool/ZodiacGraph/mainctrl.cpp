@@ -1173,7 +1173,7 @@ void MainCtrl::spaceOutFullNarrative()
             newFileNames.push_back(node.getFileName());
     }
 
-    if(oldFileNames.size() <= 1 && std::is_permutation(oldFileNames.begin(), oldFileNames.end(), newFileNames.begin()))
+    if(oldFileNames.size() + newFileNames.size() <= 1 || (oldFileNames.size() >= 1 && std::is_permutation(oldFileNames.begin(), oldFileNames.end(), newFileNames.begin())))
     {
         spaceOutNarrative(newFileNames);
     }
