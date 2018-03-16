@@ -12,6 +12,7 @@ static const QString kName_StoryNodesAverageConnection = "Average Number of Narr
 static const QString kName_NarrativeNodesWithConnection = "Number of Narrative Nodes With Connections: ";
 static const QString kName_NarrativeNodesWithoutConnection = "Number of Narrative Nodes Without Connections: ";
 static const QString kName_NarrativeNodesAverageConnection = "Average Number of Story Connections: ";
+static const QString kName_NumConnection = "Total Number of Narrative-Story Connections: ";
 
 AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
 : QWidget(parent)
@@ -32,6 +33,7 @@ AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
     m_narrativeNodesWithConnections = new QLabel(kName_NarrativeNodesWithConnection + QString::number(0));
     m_narrativeNodesWithoutConnections = new QLabel(kName_NarrativeNodesWithoutConnection + QString::number(0));
     m_narrativeNodesAverageConnections = new QLabel(kName_NarrativeNodesAverageConnection + QString::number(0));
+    m_totalConnections = new QLabel(kName_NarrativeNodesAverageConnection + QString::number(0));
 
     m_mainLayout->addWidget(m_storyNodesWithConnections);
     m_mainLayout->addWidget(m_storyNodesWithoutConnections);
@@ -39,6 +41,7 @@ AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
     m_mainLayout->addWidget(m_narrativeNodesWithConnections);
     m_mainLayout->addWidget(m_narrativeNodesWithoutConnections);
     m_mainLayout->addWidget(m_narrativeNodesAverageConnections);
+    m_mainLayout->addWidget(m_totalConnections);
 
     // update the title of the collapsible container
     parent->updateTitle("Analytics");
@@ -51,6 +54,7 @@ void AnalyticsProperties::UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes)
     float sNodeAverageConnections = 0;
     float nNodesWithConnections = 0;
     float nNodesWithoutConnections = 0;
+    float nNodeNumConnections = 0;
     float nNodeAverageConnections = 0;
     int numOfNNodes = 0;
     int numOfSNodes = 0;
@@ -91,7 +95,7 @@ void AnalyticsProperties::UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes)
                     if(connections > 0)
                     {
                         ++nNodesWithConnections;
-                        nNodeAverageConnections += connections;
+                        nNodeNumConnections += connections;
                     }
                     else
                         ++nNodesWithoutConnections;
@@ -103,7 +107,7 @@ void AnalyticsProperties::UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes)
         sNodeAverageConnections /= numOfSNodes;
 
     if(numOfNNodes > 0)
-        nNodeAverageConnections /= numOfNNodes;
+        nNodeAverageConnections = nNodeNumConnections/numOfNNodes;
 
     m_storyNodesWithConnections->setText(kName_StoryNodesWithConnection + QString::number(sNodesWithConnections));
     m_storyNodesWithoutConnections->setText(kName_StoryNodesWithoutConnection + QString::number(sNodesWithoutConnections));
@@ -111,6 +115,7 @@ void AnalyticsProperties::UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes)
     m_narrativeNodesWithConnections->setText(kName_NarrativeNodesWithConnection + QString::number(nNodesWithConnections));
     m_narrativeNodesWithoutConnections->setText(kName_NarrativeNodesWithoutConnection + QString::number(nNodesWithoutConnections));
     m_narrativeNodesAverageConnections->setText(kName_NarrativeNodesAverageConnection + QString::number(nNodeAverageConnections));
+    m_totalConnections->setText(kName_NumConnection + QString::number(nNodeNumConnections));
 
 }
 

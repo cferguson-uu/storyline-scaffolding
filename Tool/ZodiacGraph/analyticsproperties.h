@@ -136,6 +136,11 @@ private:
     QLabel *m_narrativeNodesAverageConnections;
 
     ///
+    /// \brief Total number of story-narrative connections
+    ///
+    QLabel *m_totalConnections;
+
+    ///
     /// \brief Layout of the widgets related to the curator labels.
     ///
     QGridLayout* m_curatorLayout;

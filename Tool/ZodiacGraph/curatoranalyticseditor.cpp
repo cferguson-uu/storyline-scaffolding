@@ -159,8 +159,8 @@ void CuratorAnalyticsEditor::loadCuratorLabels()
 
                         curatorLabel->minSteps = new QSpinBox();
 
-                        if(mainObj.contains("min_steps") && mainObj["min_steps"].isString())
-                            curatorLabel->minSteps->setValue(mainObj["min_steps"].toDouble());
+                        if(mainObj.contains("min_steps"))
+                                curatorLabel->minSteps->setValue(mainObj["min_steps"].toDouble());
                     }
                     m_curatorLabels.push_back(curatorLabel);
                 }
@@ -284,10 +284,6 @@ void CuratorAnalyticsEditor::nodeVisited(QString task, QJsonObject event)
     if(m_ignored_actions.contains(event["verb"].toString()))
         return;
 
-    qDebug() << event["verb"].toString();
-    qDebug() << event["object"].toString();
-
-
     foreach (CuratorLabel* curatorLabel, m_curatorLabels)
     {
         if(curatorLabel->id->text() == task)
@@ -309,7 +305,7 @@ void CuratorAnalyticsEditor::nodeVisited(QString task, QJsonObject event)
             ++curatorLabel->totalNumOfNodesVisited;
 
             //update the sequence for sequence similarity
-            curatorLabel->sequenceMatcher.compareLatestUserSequence(event); //this will return the sequence matching value
+            curatorLabel->sequenceMatcher.compareLatestUserSequence(event); //this will return the sequence matching value but isn't used
 
             break;
         }
@@ -327,9 +323,9 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
     {
         if(curatorLabel->id->text() == task)
         {
-            qDebug() << "Minimum number of nodes: " << curatorLabel->minSteps->value();
+            /*qDebug() << "Minimum number of nodes: " << curatorLabel->minSteps->value();
             qDebug() << "Total number of nodes visited: " << curatorLabel->totalNumOfNodesVisited;
-            qDebug() << "Number of different nodes visited: " << curatorLabel->uniqueNodesVisited.size();
+            qDebug() << "Number of different nodes visited: " << curatorLabel->uniqueNodesVisited.size();*/
 
             //avoid div 0 errors
             if(curatorLabel->totalNumOfNodesVisited == 0)   //no nodes visited so lostness cannot be determined
@@ -344,11 +340,11 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
             float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]
             lostness = sqrt(lostness);
 
-            qDebug() << "Lostness decimal: " << lostness;
+            //qDebug() << "Lostness decimal: " << lostness;
 
             lostness *= 100;    //from decimal to percentage
 
-            qDebug() << "Lostness percentage: " << lostness;
+            //qDebug() << "Lostness percentage: " << lostness;
             return lostness;
         }
     }
@@ -356,7 +352,6 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
     qDebug() << "Error: task not found";    //will end up here if the loop executes without finding the task
     return -1;
 }
-
 
 float CuratorAnalyticsEditor::getSimilarityValue(QString task)
 {
@@ -414,19 +409,27 @@ void CuratorAnalyticsEditor::addSequenceToAllCuratorLabels()
 
 void CuratorAnalyticsEditor::addSequenceToSingleCuratorLabel(CuratorLabel *curatorLabel, QJsonArray events)
 {
-    if(!events.empty())
+    if(events.empty())
         return;
 
     QJsonArray clEvents = getSequenceRelatedToCuratorLabel(events, curatorLabel->id->text());
 
     if(!clEvents.empty())
     {
-        curatorLabel->sequenceMatcher.loadPerfectSequence(clEvents);
-        curatorLabel->sequenceStatus->setText("Sequence Loaded");
-        curatorLabel->sequenceStatus->setStyleSheet("QLabel { color : green }");
+        if(curatorLabel->sequenceMatcher.addPerfectSequence(clEvents))  //only update if sequence not a duplicate
+        {
+            int seqs = curatorLabel->sequenceMatcher.getNumOfPerfectSequences();  //show the number of loaded sequences
 
-        if(!m_saveFullSequenceBtn->isEnabled())
-            m_saveFullSequenceBtn->setEnabled(true);
+            if(seqs == 1)
+                curatorLabel->sequenceStatus->setText("1 Sequence Loaded");
+            else
+                curatorLabel->sequenceStatus->setText(QString::number(seqs) + " Sequences Loaded");
+
+            curatorLabel->sequenceStatus->setStyleSheet("QLabel { color : green }");
+
+            if(!m_saveFullSequenceBtn->isEnabled())
+                m_saveFullSequenceBtn->setEnabled(true);
+        }
     }
 }
 
@@ -474,9 +477,16 @@ void CuratorAnalyticsEditor::saveAllPerfectSequencesToFile()
 
             foreach (CuratorLabel* curatorLabel, m_curatorLabels)
             {
-                QJsonArray sequence = curatorLabel->sequenceMatcher.getPerfectSequence();
-                if(!sequence.empty())
-                    newJsonArray.append(sequence);
+                QJsonArray sequences = curatorLabel->sequenceMatcher.getPerfectSequences();
+                if(!sequences.empty())
+                {
+                    QJsonObject mainObj;
+
+                    mainObj["curatorLabel"] = curatorLabel->id->text();
+                    mainObj["perfectSequences"] = sequences;
+
+                    newJsonArray.append(mainObj);
+                }
             }
             newJsonDoc.setArray(newJsonArray);  //write new json array to file
             file.write(newJsonDoc.toJson());
@@ -503,7 +513,7 @@ bool CuratorAnalyticsEditor::checkIfAnalyticsLoaded()
 
         foreach (CuratorLabel* curatorLabel, m_curatorLabels)
         {
-            if(curatorLabel->sequenceMatcher.getPerfectSequence().empty())
+            if(curatorLabel->sequenceMatcher.getPerfectSequences().empty())
             {
                 loadSequences = true;
                 break;

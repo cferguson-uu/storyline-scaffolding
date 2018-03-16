@@ -33,20 +33,45 @@ void SequenceMatcher::compareSequencesFromFiles()
     }
 }
 
-void SequenceMatcher::loadPerfectSequence(QJsonArray seqArray)
+float SequenceMatcher::compareSequences(QVector<AnaEvent> &seq1, QVector<AnaEvent> &seq2, double &fac)
+{
+    for (auto cur = seq1.begin(); true; ++cur)
+    {
+        boost::sub_range<QVector<AnaEvent> > sub(seq1.begin(), cur);
+        double benefit = m_aligner.cut_first_end_off_align(seq2, sub).score;
+        if (cur == seq1.end())
+            return fac*benefit;
+    }
+}
+
+bool SequenceMatcher::addPerfectSequence(QJsonArray seqArray)
 {
     // Read the two files.
-    m_perfectSequence = readEvents(seqArray, m_ids);
 
-    m_self_benefit = m_aligner.global_align(m_perfectSequence, m_perfectSequence).score;
-    m_fac = 100.0 / m_self_benefit;
+    PerfectSequence newPerfectSequence;
+
+    newPerfectSequence.sequence = readEvents(seqArray, m_ids);
+
+    double self_benefit = m_aligner.global_align(newPerfectSequence.sequence, newPerfectSequence.sequence).score;
+    newPerfectSequence.fac = 100.0 / self_benefit;
+
+   foreach (PerfectSequence perfectSequence, m_perfectSequences)
+       if(compareSequences(newPerfectSequence.sequence, perfectSequence.sequence, perfectSequence.fac) == 100.00f)  //perfect match, sequence already exists
+       {
+           qDebug() << "Sequence already exists.";
+           return false;
+       }
+
+   AnaHandler handler(m_ids);
+   handler.set_events(newPerfectSequence.sequence);
+
+    m_perfectSequences.append(newPerfectSequence);
+    return true;
+
 }
 
 float SequenceMatcher::compareLatestUserSequence(QJsonObject &latestEventInUserSequence)
 {
-    if(m_perfectSequence.empty())
-        return -1;  //don't compare if no perfect sequence
-
     AnaEvent event = readEvent(latestEventInUserSequence, m_ids);
 
     if(event.action == -1 && event.object == -1)
@@ -54,29 +79,54 @@ float SequenceMatcher::compareLatestUserSequence(QJsonObject &latestEventInUserS
 
     m_userSequence.push_back(event);
 
-    for (auto cur = m_userSequence.begin(); true; ++cur)
+    if(m_perfectSequences.empty() || m_userSequence.empty())
+        return -1;  //don't compare if no perfect or user sequences
+
+    float highScore = -1;   //iterate through perfect sequences, return highest matching score
+    foreach (PerfectSequence perfectSequence, m_perfectSequences)
     {
-        boost::sub_range<QVector<AnaEvent> > sub(m_userSequence.begin(), cur);
-        double benefit = m_aligner.cut_first_end_off_align(m_perfectSequence, sub).score;
-        //qDebug() << "Score is: " << m_fac*benefit << "%\n";
-        if (cur == m_userSequence.end())
-            return m_fac*benefit;
+        for (auto cur = m_userSequence.begin(); true; ++cur)
+        {
+            boost::sub_range<QVector<AnaEvent> > sub(m_userSequence.begin(), cur);
+            double benefit = m_aligner.cut_first_end_off_align(perfectSequence.sequence, sub).score;
+            //qDebug() << "Score is: " << perfectSequence.fac*benefit << "%\n";
+            if (cur == m_userSequence.end())
+            {
+                if(perfectSequence.fac*benefit > highScore)
+                    highScore = perfectSequence.fac*benefit;
+                break;
+            }
+        }
     }
+
+    return highScore;
 }
 
 float SequenceMatcher::compareUserandPerfectSequences()
 {
-    if(m_perfectSequence.empty())
-        return -1;  //don't compare if no perfect sequence
+    if(m_perfectSequences.empty() || m_userSequence.empty())
+        return -1;  //don't compare if no perfect or user sequences
 
-    for (auto cur = m_userSequence.begin(); true; ++cur)
+    int seqNums = m_perfectSequences.size();
+
+    float highScore = -1;   //iterate through perfect sequences, return highest matching score
+    foreach (PerfectSequence perfectSequence, m_perfectSequences)
     {
-        boost::sub_range<QVector<AnaEvent> > sub(m_userSequence.begin(), cur);
-        double benefit = m_aligner.cut_first_end_off_align(m_perfectSequence, sub).score;
-        //qDebug() << "Score is: " << m_fac*benefit << "%\n";
-        if (cur == m_userSequence.end())
-            return m_fac*benefit;
+        for (auto cur = m_userSequence.begin(); true; ++cur)
+        {
+            boost::sub_range<QVector<AnaEvent> > sub(m_userSequence.begin(), cur);
+            double benefit = m_aligner.cut_first_end_off_align(perfectSequence.sequence, sub).score;
+            //qDebug() << "Score is: " << m_fac*benefit << "%\n";
+            if (cur == m_userSequence.end())
+            {
+                if(perfectSequence.fac*benefit > highScore)
+                    highScore = perfectSequence.fac*benefit;
+                break;
+            }
+        }
     }
+
+    return highScore;
 }
 
 QJsonArray SequenceMatcher::readSequenceFromFile()
@@ -135,11 +185,22 @@ QSet<QString> SequenceMatcher::getIgnoredActions()
     return m_ids->getIgnoredActions();
 }
 
-QJsonArray SequenceMatcher::getPerfectSequence()
+QJsonArray SequenceMatcher::getPerfectSequences()
 {
-    AnaHandler handler(m_ids);
-    handler.set_events(m_perfectSequence);
-    return handler.eventsToJson();
+    QJsonArray jsonSequences;
+
+    foreach (PerfectSequence pSeq, m_perfectSequences)
+    {
+        AnaHandler handler(m_ids);
+        handler.set_events(pSeq.sequence);
+
+        QJsonArray array = handler.eventsToJson();
+
+        if(!array.isEmpty())
+            jsonSequences.append(array);
+    }
+
+    return jsonSequences;
 }
 
 AnaIds::AnaIds()
@@ -149,6 +210,8 @@ AnaIds::AnaIds()
     m_ignored_actions.insert("stopped looking at");
     m_ignored_actions.insert("dropped");
     m_ignored_actions.insert("attempted");
+    m_ignored_actions.insert("started");
+    m_ignored_actions.insert("completed");
     add_action("jumped to");
     add_action("picked up");
     add_action("examined");
@@ -192,7 +255,7 @@ QString AnaIds::get_action_string(int num)
 
 QString AnaIds::get_object_string(int num)
 {
-    for(QMap<QString,int>::iterator objectIt = m_known_actions.begin(); objectIt != m_known_actions.end(); ++objectIt)
+    for(QMap<QString,int>::iterator objectIt = m_known_objects.begin(); objectIt != m_known_objects.end(); ++objectIt)
     {
         if(objectIt.value() == num)
             return objectIt.key();

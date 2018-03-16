@@ -109,6 +109,16 @@ class AnaCost {
     }
 };
 
+struct PerfectSequence
+{
+    // Compute the similarity between the ground_truth and itself.
+    // This gives the maximal score.
+    // fac is used to make percentage scores relative to this maximal score.
+    double fac;
+
+    QVector<AnaEvent> sequence;
+};
+
 class SequenceMatcher : public QWidget
 {
 public:
@@ -116,23 +126,19 @@ public:
     QVector<AnaEvent> readEvents(QJsonArray &array, std::shared_ptr<AnaIds> ids);
     AnaEvent readEvent(QJsonObject &object, std::shared_ptr<AnaIds> ids);
     void compareSequencesFromFiles();
+    float compareSequences(QVector<AnaEvent> &seq1, QVector<AnaEvent> &seq2, double &fac);
     QJsonArray readSequenceFromFile();
     float compareLatestUserSequence(QJsonObject &latestEventInUserSequence);
     float compareUserandPerfectSequences();
-    void loadPerfectSequence(QJsonArray seqArray);
-    QJsonArray getPerfectSequence();
+    bool addPerfectSequence(QJsonArray seqArray);
+    QJsonArray getPerfectSequences();
     QSet<QString> getIgnoredActions();
+    int getNumOfPerfectSequences() {return m_perfectSequences.size();}
 
 private:
     std::shared_ptr<AnaIds> m_ids = std::make_shared<AnaIds>();
 
-    // Compute the similarity between the ground_truth and itself.
-    // This gives the maximal score.
-    // fac is used to make percentage scores relative to this maximal score.
-    double m_self_benefit;
-    double m_fac;
-
-    QVector<AnaEvent> m_perfectSequence;
+    QVector<PerfectSequence> m_perfectSequences;
     QVector<AnaEvent> m_userSequence;
 };
 
