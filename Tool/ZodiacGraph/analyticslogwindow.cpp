@@ -20,13 +20,16 @@ void AnalyticsLogWindow::initialiseLogFile()
     m_fileName = "logs/" + current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".json";
 
     m_logFile.setFileName(m_fileName);
+}
 
-    /*if (!m_logFile.open(QIODevice::ReadWrite))
-        qDebug() << "fail";
-    else
-    {
-        m_fileOpen = true;
-    }*/
+void AnalyticsLogWindow::overwriteLogFile(QString fileName)
+{
+    m_fileName = fileName;
+    m_logFile.setFileName(m_fileName);
+
+    m_logFile.open(QIODevice::ReadWrite);   //open the file and clear it
+    m_logFile.resize(0);
+    m_logFile.close();
 }
 
 void AnalyticsLogWindow::closeLogFile()

@@ -107,8 +107,6 @@ float SequenceMatcher::compareUserandPerfectSequences()
     if(m_perfectSequences.empty() || m_userSequence.empty())
         return -1;  //don't compare if no perfect or user sequences
 
-    int seqNums = m_perfectSequences.size();
-
     float highScore = -1;   //iterate through perfect sequences, return highest matching score
     foreach (PerfectSequence perfectSequence, m_perfectSequences)
     {
@@ -127,6 +125,11 @@ float SequenceMatcher::compareUserandPerfectSequences()
     }
 
     return highScore;
+}
+
+void SequenceMatcher::resetUserSequence()
+{
+    m_userSequence.clear();
 }
 
 QJsonArray SequenceMatcher::readSequenceFromFile()

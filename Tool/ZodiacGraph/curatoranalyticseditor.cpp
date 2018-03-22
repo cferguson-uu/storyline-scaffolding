@@ -95,8 +95,8 @@ void CuratorAnalyticsEditor::loadCuratorLabels()
                     curatorLabel->minStepsLabel = new QLabel("Minimum Steps:");
                     curatorLabel->totalNumOfNodesVisited = 0;
 
-                    curatorLabel->addSequenceBtn = new QPushButton("Add Perfect Sequence");
-                    connect(curatorLabel->addSequenceBtn, &QPushButton::released, [=]{addSequenceToSingleCuratorLabel(curatorLabel, readSequenceFromFile());});
+                    curatorLabel->addSequenceBtn = new QPushButton("Add Perfect Sequence(s)");
+                    connect(curatorLabel->addSequenceBtn, &QPushButton::released, [=]{addSequencesToSingleCuratorLabel(curatorLabel, readSequencesFromFiles());});
 
                     curatorLabel->sequenceStatus = new QLabel("Sequence Not Loaded");
                     curatorLabel->sequenceStatus->setStyleSheet("QLabel { color : red }");
@@ -367,68 +367,103 @@ float CuratorAnalyticsEditor::getSimilarityValue(QString task)
     return -1;
 }
 
-QJsonArray CuratorAnalyticsEditor::readSequenceFromFile()
+QVector<QJsonArray> CuratorAnalyticsEditor::readSequencesFromFiles()
 {
-    QFile file(QFileDialog::getOpenFileName(this,
-                                                     QObject::tr("Load Sequence"), "",
-                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
+    QVector<QJsonArray> vector;
 
-    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    QStringList filenames = QFileDialog::getOpenFileNames(this,
+                                                     QObject::tr("Load Sequences"), "",
+                                                     QObject::tr("JSON File (*.json);;All Files (*)"));
+    if(!filenames.isEmpty())
     {
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qDebug()<<"Cannot open file "<<file.fileName()<<"\n";
-            return QJsonArray();
-        }
-        QString settings = file.readAll();
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
-
-        if(jsonDoc.isArray())
-            return jsonDoc.array();
-        else
+        for (int i =0; i<filenames.count(); i++)
         {
-            qDebug() << "JSON file" << file.fileName() << " is invalid";
-            return QJsonArray();
+            QFile file = filenames.at(i);
+
+            if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+            {
+                if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                    qDebug()<<"Cannot open file "<<file.fileName()<<"\n";
+                    continue;
+                }
+                QString settings = file.readAll();
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+
+                if(jsonDoc.isArray())
+                    vector.append(jsonDoc.array());
+                else
+                {
+                    qDebug() << "JSON file" << file.fileName() << " is invalid";
+                }
+            }
         }
     }
     else
     {
         qDebug() << "Load aborted by user";
-        return QJsonArray();
     }
+
+    return vector;
 }
 
 void CuratorAnalyticsEditor::addSequenceToAllCuratorLabels()
 {
-    QJsonArray events = readSequenceFromFile();
+    QVector<QJsonArray> events = readSequencesFromFiles();
 
     foreach (CuratorLabel* curatorLabel, m_curatorLabels)
     {
-        addSequenceToSingleCuratorLabel(curatorLabel, events);
+        addSequencesToSingleCuratorLabel(curatorLabel, events);
     }
 }
 
-void CuratorAnalyticsEditor::addSequenceToSingleCuratorLabel(CuratorLabel *curatorLabel, QJsonArray events)
+void CuratorAnalyticsEditor::addSequencesToSingleCuratorLabel(CuratorLabel *curatorLabel, QVector<QJsonArray> eventsList)
 {
-    if(events.empty())
-        return;
+    QVector<QJsonArray> clEventsVec;
 
-    QJsonArray clEvents = getSequenceRelatedToCuratorLabel(events, curatorLabel->id->text());
-
-    if(!clEvents.empty())
+    foreach (QJsonArray events, eventsList)
     {
-        if(curatorLabel->sequenceMatcher.addPerfectSequence(clEvents))  //only update if sequence not a duplicate
+        if(events.empty())
+            continue;
+
+        foreach (QJsonValue val, events)    //for json file with all perfect sequences included
         {
-            int seqs = curatorLabel->sequenceMatcher.getNumOfPerfectSequences();  //show the number of loaded sequences
+            QJsonObject obj = val.toObject();
 
-            if(seqs == 1)
-                curatorLabel->sequenceStatus->setText("1 Sequence Loaded");
-            else
-                curatorLabel->sequenceStatus->setText(QString::number(seqs) + " Sequences Loaded");
+            if(!obj.contains("curatorLabel"))   //file is a normal game sequence, load as normal and jump out of loop
+            {
+                clEventsVec.append(getSequenceRelatedToCuratorLabel(events, curatorLabel->id->text()));
+                break;
+            }
 
-            curatorLabel->sequenceStatus->setStyleSheet("QLabel { color : green }");
+            if(obj["curatorLabel"].toString() == curatorLabel->id->text())
+            {
+                QJsonArray perfectSequences = obj["perfectSequences"].toArray();
+                foreach (QJsonValue seqVal, perfectSequences)
+                {
+                    clEventsVec.append(seqVal.toArray());
+                }
+            }
+        }
 
-            if(!m_saveFullSequenceBtn->isEnabled())
-                m_saveFullSequenceBtn->setEnabled(true);
+        foreach (QJsonArray clEvents, clEventsVec)
+        {
+            if(!clEvents.empty())
+            {
+                if(curatorLabel->sequenceMatcher.addPerfectSequence(clEvents))  //only update if sequence not a duplicate
+                {
+                    int seqs = curatorLabel->sequenceMatcher.getNumOfPerfectSequences();  //show the number of loaded sequences
+
+                    if(seqs == 1)
+                        curatorLabel->sequenceStatus->setText("1 Sequence Loaded");
+                    else
+                        curatorLabel->sequenceStatus->setText(QString::number(seqs) + " Sequences Loaded");
+
+                    curatorLabel->sequenceStatus->setStyleSheet("QLabel { color : green }");
+
+                    if(!m_saveFullSequenceBtn->isEnabled())
+                        m_saveFullSequenceBtn->setEnabled(true);
+                }
+            }
         }
     }
 }
@@ -558,4 +593,17 @@ bool CuratorAnalyticsEditor::checkIfAnalyticsLoaded()
                 return true;
         }
     return true;
+}
+
+void CuratorAnalyticsEditor::resetAllLostnessAndSequenceCalculations()
+{
+    foreach (CuratorLabel* curatorLabel, m_curatorLabels)
+    {
+        //reset lostness
+        curatorLabel->uniqueNodesVisited.clear();
+        curatorLabel->totalNumOfNodesVisited = 0;
+
+        //reset sequence similarity
+        curatorLabel->sequenceMatcher.resetUserSequence();
+    }
 }

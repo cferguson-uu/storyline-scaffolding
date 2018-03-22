@@ -265,6 +265,17 @@ void AnalyticsProperties::updateSimilarityOfCuratorLabel(QString curatorLabelNam
     m_curatorRows[curatorLabelName]->updateSimilarity(newValue);
 }
 
+void AnalyticsProperties::resetAllCuratorLabels()
+{
+    foreach (CuratorRow *curatorRow, m_curatorRows)
+    {
+        curatorRow->reset();
+    }
+
+    if(m_fullGameProgressBar)
+        m_fullGameProgressBar->setValue(0.0f);
+}
+
 CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QHash<QString, bool> &dependenciesList)
     : QObject(editor)
     , m_rowLayout(rowLayout)
@@ -360,4 +371,14 @@ void CuratorRow::updateSimilarity(float newValue)
 {
     if(newValue >= 0) //don't set value if error has occurred
         m_similarityBar->setValue(newValue);
+}
+
+void CuratorRow::reset()
+{
+    //set values back to 0
+    m_progressBar->setValue(0.0f);
+    m_lostnessBar->setValue(0.0f);
+    m_similarityBar->setValue(0.0f);
+
+    m_nameLabel->setStyleSheet("QLabel { color : red; }");  //red to show that it hasn't started
 }

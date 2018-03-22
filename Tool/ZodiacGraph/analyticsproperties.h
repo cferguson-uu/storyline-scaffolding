@@ -72,6 +72,11 @@ public:// methods
     ///
     void updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue);
 
+    ///
+    /// \brief Reset progress, lostness and similarity of all labels
+    ///
+    void resetAllCuratorLabels();
+
 public slots:
     ///
     /// \brief Updates the values for links between story and narrative nodes
@@ -224,6 +229,11 @@ public: // methods
     /// \brief Update the similarity bar
     ///
     void updateSimilarity(float newValue);
+
+    ///
+    /// \brief Reset all bars
+    ///
+    void reset();
 
 private:
     ///

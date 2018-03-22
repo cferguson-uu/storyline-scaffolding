@@ -53,13 +53,14 @@ public:
     void nodeVisited(QString task, QJsonObject event);
     float getLostnessValue(QString task);
     float getSimilarityValue(QString task);
-    QJsonArray readSequenceFromFile();
+    QVector<QJsonArray> readSequencesFromFiles();
     void addSequenceToAllCuratorLabels();
-    void addSequenceToSingleCuratorLabel(CuratorLabel *curatorLabel, QJsonArray events);
+    void addSequencesToSingleCuratorLabel(CuratorLabel *curatorLabel, QVector<QJsonArray> eventsList);
     QJsonArray getSequenceRelatedToCuratorLabel(QJsonArray &array, QString curatorLabel);
     void saveAllPerfectSequencesToFile();
     bool checkIfAnalyticsLoaded();
     QList<CuratorLabel*> getCuratorLabels(){return m_curatorLabels;}
+    void resetAllLostnessAndSequenceCalculations();
 
 private:
     void showCuratorLabels();

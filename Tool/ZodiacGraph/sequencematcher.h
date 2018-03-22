@@ -99,12 +99,12 @@ class AnaCost {
     template <class Seq2>
     void preprocess(QVector<AnaEvent> const &, Seq2 const &) const
     {}
-    double gap_bft() const { return -0.1;}
+    double gap_bft() const { return -0.4;}
     double match(AnaEvent const &ev1, AnaEvent const &ev2) const {
         if (ev1.action==ev2.action && ev1.object==ev2.object) {
             return 1.0;
         } else {
-            return -0.1;
+            return -0.4;
         }
     }
 };
@@ -134,6 +134,7 @@ public:
     QJsonArray getPerfectSequences();
     QSet<QString> getIgnoredActions();
     int getNumOfPerfectSequences() {return m_perfectSequences.size();}
+    void resetUserSequence();
 
 private:
     std::shared_ptr<AnaIds> m_ids = std::make_shared<AnaIds>();

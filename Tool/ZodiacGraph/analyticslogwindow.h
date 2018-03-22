@@ -18,6 +18,7 @@ public:
     AnalyticsLogWindow(QWidget *parent);
     ~AnalyticsLogWindow();
     void initialiseLogFile();
+    void overwriteLogFile(QString fileName);
     void closeLogFile();
     void appendToWindow(const QString& text);
     void appendToLogFile(const QJsonObject& obj);

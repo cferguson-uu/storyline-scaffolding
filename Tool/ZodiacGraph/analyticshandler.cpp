@@ -7,9 +7,12 @@ static const QString kName_Object = "object";
 static const QString kName_Result = "result";
 static const QString kName_WithResult = " with result ";
 static const QString kName_WithLostness = " with lostness value: ";
+static const QString kName_WithSimilarity = " with similarity value: ";
+static const QString kName_AndSimilarity = " and similarity value: ";
 static const QString kName_At = " at ";
 static const QString kName_Timestamp = "timestamp";
 static const QString kName_Lostness = "lostness";
+static const QString kName_Similarity = "similarity";
 
 //verbs
 static const QString kName_Attempted = "attempted";
@@ -22,27 +25,32 @@ static const QString kName_JumpedTo = "jumped to";
 static const QString kName_PickedUp = "picked up";
 static const QString kName_Examined = "examined";
 
-AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QObject *parent)
+AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QObject *parent)
     : m_curatorAnalyticsEditor(new CuratorAnalyticsEditor(qobject_cast<QWidget*>(parent)))
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
     , m_connectAction(connectAction)
     , m_disconnectAction(disconnectAction)
     , m_editLostnessAction(editLostnessAction)
+    , m_loadLogFileAction(loadAction)
+    , m_clearAnalyticsAction(clearAction)
     , m_analyticsEnabled(false)
     , QObject(parent)
 {
     connect(m_connectAction, &QAction::triggered, [=]{connectToServer();});
     connect(m_disconnectAction, &QAction::triggered, [=]{m_tcpSocket->disconnectFromServer();});
     connect(m_editLostnessAction, &QAction::triggered, [=]{m_curatorAnalyticsEditor->showWindow();});
+    connect(m_loadLogFileAction, &QAction::triggered, [=]{loadAnalyticsLog();});
+    connect(m_clearAnalyticsAction, &QAction::triggered, [=]{clearAll();});
 
     m_disconnectAction->setEnabled(false);
     m_connectAction->setEnabled(false);
+    m_loadLogFileAction->setEnabled(false);
+    m_clearAnalyticsAction->setEnabled(false);
 
     connect(m_tcpSocket, SIGNAL(connectedCallback()), this, SLOT(connected()));
     connect(m_tcpSocket, SIGNAL(disconnectedCallback()), this, SLOT(disconnected()));
     connect(m_tcpSocket, SIGNAL(readMessage(QString)), this, SLOT(handleMessage(QString)));
-
 
     connect(m_curatorAnalyticsEditor, SIGNAL(finished(int)), this, SLOT(showCuratorLabels()));
 }
@@ -62,6 +70,7 @@ void AnalyticsHandler::connected()
     m_logWindow->initialiseLogFile();
     m_connectAction->setEnabled(false);
     m_disconnectAction->setEnabled(true);
+    m_clearAnalyticsAction->setEnabled(false);
 }
 
 void AnalyticsHandler::disconnected()
@@ -69,6 +78,7 @@ void AnalyticsHandler::disconnected()
     m_logWindow->closeLogFile();
     m_connectAction->setEnabled(true);
     m_disconnectAction->setEnabled(false);
+    m_clearAnalyticsAction->setEnabled(true);
 }
 
 void AnalyticsHandler::startAnalyticsMode()
@@ -110,7 +120,7 @@ void AnalyticsHandler::showCuratorLabels()
         m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
 }
 
-void AnalyticsHandler::handleMessage(QString message)
+void AnalyticsHandler::handleMessage(QString message, bool updateValues)
 {
     //check if the JSON data is correct
     QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
@@ -127,13 +137,13 @@ void AnalyticsHandler::handleMessage(QString message)
         foreach(QJsonValue jsonVal, jsonArray)
         {
             if(jsonVal.isObject())
-                handleObject(jsonVal.toObject());
+                handleObject(jsonVal.toObject(), updateValues);
         }
     }
     else
         if(jsonDoc.isObject())
         {
-            handleObject(jsonDoc.object());
+            handleObject(jsonDoc.object(), updateValues);
         }
         else
         {
@@ -141,7 +151,7 @@ void AnalyticsHandler::handleMessage(QString message)
         }
 }
 
-void AnalyticsHandler::handleObject(QJsonObject jsonObj)
+void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues)
 {
     if(!jsonObj.contains(kName_Actor) || !jsonObj.contains(kName_Verb) || !jsonObj.contains(kName_Object) || !jsonObj.contains(kName_Timestamp))
     {
@@ -157,13 +167,29 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj)
 
     if(jsonObj[kName_Verb].toString() == kName_Completed)   //task completed, get lostness value, remove from the list and update properties
     {
-        float lostness = m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString());
+        if(updateValues)
+        {
+            float lostness = m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString());
+            float similarity = m_curatorAnalyticsEditor->getSimilarityValue(jsonObj[kName_Object].toString());
 
-        if(lostness >= 0)
-            jsonObj[kName_Lostness] = lostness;
+            if(lostness >= 0)
+                jsonObj[kName_Lostness] = lostness;
+
+            if(similarity >= 0)
+                jsonObj[kName_Similarity] = similarity;
+
+            m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), lostness);
+        }
+        else
+        {
+            if(jsonObj.contains(kName_Lostness))
+                m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), jsonObj[kName_Lostness].toDouble());
+
+            if(jsonObj.contains(kName_Similarity))
+                m_pProperties->updateSimilarityOfCuratorLabel(jsonObj[kName_Object].toString(), jsonObj[kName_Similarity].toDouble());
+        }
 
         m_activeTasks.removeAll(jsonObj[kName_Object].toString());
-        m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), m_curatorAnalyticsEditor->getLostnessValue(jsonObj[kName_Object].toString()));
     }
 
     foreach (QString task, m_activeTasks)   //update lostness and sequence similarity values and check progress
@@ -175,8 +201,11 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj)
             if(jsonObj[kName_Verb].toString() == kName_Attempted && jsonObj[kName_Result].toString() == kName_Unlock)   //if node unlocked, update curator label progress
                 m_pProperties->updateProgressOfCuratorLabel(task, jsonObj[kName_Object].toString());
 
-            m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
-            m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessValue(task));
+            if(updateValues)
+            {
+                m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
+                m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessValue(task));
+            }
         }
     }
 
@@ -185,10 +214,10 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj)
         unlockNode(jsonObj[kName_Object].toString());
     }
 
-    handleTextOutput(jsonObj);
+    handleTextOutput(jsonObj, updateValues);
 }
 
-void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj)
+void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool updateValues)
 {
     //formulate human-readable string for log window
     QString sentence = jsonObj[kName_Actor].toString() + " " + jsonObj[kName_Verb].toString() + " " + jsonObj[kName_Object].toString();
@@ -205,9 +234,83 @@ void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj)
         sentence += QString::number(jsonObj[kName_Lostness].toDouble());
     }
 
+    if(jsonObj.contains(kName_Similarity))
+    {
+        //append similarity to string, use with or and depending on if lostness is present
+        if(jsonObj.contains(kName_Lostness))
+            sentence += kName_AndSimilarity;
+        else
+            sentence += kName_WithSimilarity;
+        sentence += QString::number(jsonObj[kName_Similarity].toDouble());
+    }
+
     sentence += kName_At + QDateTime::fromString(jsonObj[kName_Timestamp].toString(), Qt::ISODate).toString("MMM dd, yyyy hh:mm:ss t");
 
     //output string to window and full JSON message to file
     m_logWindow->appendToWindow(sentence);
-    m_logWindow->appendToLogFile(jsonObj);
+
+    if(updateValues)
+        m_logWindow->appendToLogFile(jsonObj);
+}
+
+void AnalyticsHandler::loadAnalyticsLog()
+{
+    QFile file(QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+                                                     QObject::tr("Load Analytics File"), "",
+                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
+
+    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    {
+        if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString docString = file.readAll();
+            QString fileName = file.fileName();
+            file.close();
+
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(docString.toUtf8());
+
+            if(jsonDoc.isNull() || !jsonDoc.isArray() || jsonDoc.isEmpty())
+            {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                messageBox.setFixedSize(500,200);
+                return;
+            }
+
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Lostness and Similarity Values");
+            msgBox.setText("Do you want to update the lostness and similarity values for the loaded log file?");
+            msgBox.setStandardButtons(QMessageBox::Yes);
+            msgBox.addButton(QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::No);
+
+            if(msgBox.exec() == QMessageBox::Yes)
+            {
+                m_logWindow->overwriteLogFile(fileName);
+                handleMessage(docString, true);
+            }
+            else
+                handleMessage(docString, false);
+        }
+        else
+        {
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+            messageBox.setFixedSize(500,200);
+            return;
+        }
+    }
+    else
+    {
+        qDebug() << "Load aborted by user";
+        return;
+    }
+}
+
+void AnalyticsHandler::clearAll()
+{
+    m_logWindow->setPlainText("");
+    lockAllNodes();
+    m_pProperties->resetAllCuratorLabels();
+    m_curatorAnalyticsEditor->resetAllLostnessAndSequenceCalculations();
 }
