@@ -265,6 +265,33 @@ void AnalyticsProperties::updateSimilarityOfCuratorLabel(QString curatorLabelNam
     m_curatorRows[curatorLabelName]->updateSimilarity(newValue);
 }
 
+float AnalyticsProperties::getProgressOfCuratorLabel(QString curatorLabelName)
+{
+    if(m_curatorRows.isEmpty())
+        return 0;
+
+   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    return m_curatorRows[curatorLabelName]->getProgress();
+}
+
+float AnalyticsProperties::getLostnessOfCuratorLabel(QString curatorLabelName)
+{
+    if(m_curatorRows.isEmpty())
+        return 0;
+
+   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    return m_curatorRows[curatorLabelName]->getLostness();
+}
+
+float AnalyticsProperties::getSimilarityOfCuratorLabel(QString curatorLabelName)
+{
+    if(m_curatorRows.isEmpty())
+        return 0;
+
+   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    return m_curatorRows[curatorLabelName]->getSimilarity();
+}
+
 void AnalyticsProperties::resetAllCuratorLabels()
 {
     foreach (CuratorRow *curatorRow, m_curatorRows)
@@ -356,7 +383,7 @@ void CuratorRow::updateProgress(QString dependencyName)
 }
 
 
-int CuratorRow::getProgress()
+float CuratorRow::getProgress()
 {
     return m_progressBar->value();
 }
@@ -367,10 +394,20 @@ void CuratorRow::updateLostness(float newValue)
         m_lostnessBar->setValue(newValue);
 }
 
+float CuratorRow::getLostness()
+{
+    return m_lostnessBar->value();
+}
+
 void CuratorRow::updateSimilarity(float newValue)
 {
     if(newValue >= 0) //don't set value if error has occurred
         m_similarityBar->setValue(newValue);
+}
+
+float CuratorRow::getSimilarity()
+{
+    return m_similarityBar->value();
 }
 
 void CuratorRow::reset()

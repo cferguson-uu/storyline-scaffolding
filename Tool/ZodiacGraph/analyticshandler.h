@@ -14,7 +14,7 @@ class AnalyticsHandler : public QObject
     Q_OBJECT
 
 public:
-    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QObject *parent);
+    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QAction *exportAction, QObject *parent);
 
     void setAnalyticsProperties(AnalyticsProperties *properties);
     void startAnalyticsMode();
@@ -46,7 +46,7 @@ private:
 
     void clearAll();
 
-
+    void exportTaskDataToCSV();
 
     AnalyticsSocket *m_tcpSocket;
     AnalyticsLogWindow *m_logWindow;
@@ -57,6 +57,7 @@ private:
     QAction *m_editLostnessAction;
     QAction *m_loadLogFileAction;
     QAction *m_clearAnalyticsAction;
+    QAction *m_exportAnalyticsAction;
 
     QList<QString> m_activeTasks;
 

@@ -73,6 +73,21 @@ public:// methods
     void updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue);
 
     ///
+    /// \brief Get the progress of a curator label row
+    ///
+    float getProgressOfCuratorLabel(QString curatorLabelName);
+
+    ///
+    /// \brief Get the lostness of a curator label row
+    ///
+    float getLostnessOfCuratorLabel(QString curatorLabelName);
+
+    ///
+    /// \brief Get the similarity of a curator label row
+    ///
+    float getSimilarityOfCuratorLabel(QString curatorLabelName);
+
+    ///
     /// \brief Reset progress, lostness and similarity of all labels
     ///
     void resetAllCuratorLabels();
@@ -218,7 +233,7 @@ public: // methods
     ///
     /// \brief Get the progress of the curator label
     ///
-    int getProgress();
+    float getProgress();
 
     ///
     /// \brief Update the lostness bar
@@ -226,9 +241,19 @@ public: // methods
     void updateLostness(float newValue);
 
     ///
+    /// \brief Get the similarity measure of the curator label
+    ///
+    float getLostness();
+
+    ///
     /// \brief Update the similarity bar
     ///
     void updateSimilarity(float newValue);
+
+    ///
+    /// \brief Get the similarity measure of the curator label
+    ///
+    float getSimilarity();
 
     ///
     /// \brief Reset all bars

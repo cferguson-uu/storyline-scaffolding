@@ -25,7 +25,7 @@ static const QString kName_JumpedTo = "jumped to";
 static const QString kName_PickedUp = "picked up";
 static const QString kName_Examined = "examined";
 
-AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QObject *parent)
+AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QAction *exportAction, QObject *parent)
     : m_curatorAnalyticsEditor(new CuratorAnalyticsEditor(qobject_cast<QWidget*>(parent)))
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
@@ -34,6 +34,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     , m_editLostnessAction(editLostnessAction)
     , m_loadLogFileAction(loadAction)
     , m_clearAnalyticsAction(clearAction)
+    , m_exportAnalyticsAction(exportAction)
     , m_analyticsEnabled(false)
     , QObject(parent)
 {
@@ -42,11 +43,13 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     connect(m_editLostnessAction, &QAction::triggered, [=]{m_curatorAnalyticsEditor->showWindow();});
     connect(m_loadLogFileAction, &QAction::triggered, [=]{loadAnalyticsLog();});
     connect(m_clearAnalyticsAction, &QAction::triggered, [=]{clearAll();});
+    connect(m_exportAnalyticsAction, &QAction::triggered, [=]{exportTaskDataToCSV();});
 
     m_disconnectAction->setEnabled(false);
     m_connectAction->setEnabled(false);
     m_loadLogFileAction->setEnabled(false);
     m_clearAnalyticsAction->setEnabled(false);
+    m_exportAnalyticsAction->setEnabled(false);
 
     connect(m_tcpSocket, SIGNAL(connectedCallback()), this, SLOT(connected()));
     connect(m_tcpSocket, SIGNAL(disconnectedCallback()), this, SLOT(disconnected()));
@@ -71,6 +74,7 @@ void AnalyticsHandler::connected()
     m_connectAction->setEnabled(false);
     m_disconnectAction->setEnabled(true);
     m_clearAnalyticsAction->setEnabled(false);
+    m_exportAnalyticsAction->setEnabled(false);
 }
 
 void AnalyticsHandler::disconnected()
@@ -79,6 +83,7 @@ void AnalyticsHandler::disconnected()
     m_connectAction->setEnabled(true);
     m_disconnectAction->setEnabled(false);
     m_clearAnalyticsAction->setEnabled(true);
+    m_exportAnalyticsAction->setEnabled(true);
 }
 
 void AnalyticsHandler::startAnalyticsMode()
@@ -305,6 +310,8 @@ void AnalyticsHandler::loadAnalyticsLog()
         qDebug() << "Load aborted by user";
         return;
     }
+
+    m_exportAnalyticsAction->setEnabled(true);
 }
 
 void AnalyticsHandler::clearAll()
@@ -313,4 +320,38 @@ void AnalyticsHandler::clearAll()
     lockAllNodes();
     m_pProperties->resetAllCuratorLabels();
     m_curatorAnalyticsEditor->resetAllLostnessAndSequenceCalculations();
+    m_exportAnalyticsAction->setEnabled(true);
+}
+
+void AnalyticsHandler::exportTaskDataToCSV()
+{
+    QFile file(QFileDialog::getSaveFileName(qobject_cast<QWidget*>(parent()),
+                                                         QObject::tr("Save task data"), "",
+                                                        QObject:: tr("CSV File (*.csv);;All Files (*)")));
+
+    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+    {
+        if(!file.open(QFile::WriteOnly))
+        {
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+            messageBox.setFixedSize(500,200);
+        }
+        else
+        {
+            QTextStream output(&file);
+            QList<CuratorLabel*> curatorTasks = m_curatorAnalyticsEditor->getCuratorLabels();
+
+            output << "Task;Dependencies;Progress;Lostness;Similarity";
+
+            foreach (CuratorLabel *task, curatorTasks)
+            {
+                QString taskID = task->id->text();
+
+                output << "\n" << taskID << ";" << task->narrativeDependencies.size() << ";" << m_pProperties->getProgressOfCuratorLabel(taskID) << ";" << m_pProperties->getLostnessOfCuratorLabel(taskID) << ";" << m_pProperties->getSimilarityOfCuratorLabel(taskID);
+            }
+
+            file.close();
+        }
+    }
 }
