@@ -17,16 +17,16 @@ class AnalyticsLogWindow : public QPlainTextEdit
 public:
     AnalyticsLogWindow(QWidget *parent);
     ~AnalyticsLogWindow();
-    void initialiseLogFile();
-    void overwriteLogFile(QString fileName);
-    void closeLogFile();
+    void initialiseLogFile(QString fileName = "");
     void appendToWindow(const QString& text);
     void appendToLogFile(const QJsonObject& obj);
+    void exportToFile();
 
 private:
     QFile m_logFile;
     QString m_fileName;
-    bool m_fileOpen;
+    bool m_fileInitialised;
+    QJsonArray m_jsonEvents;
 };
 
 #endif // ANALYTICSLOGWINDOW_H

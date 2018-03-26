@@ -79,7 +79,7 @@ void AnalyticsHandler::connected()
 
 void AnalyticsHandler::disconnected()
 {
-    m_logWindow->closeLogFile();
+    m_logWindow->exportToFile();
     m_connectAction->setEnabled(true);
     m_disconnectAction->setEnabled(false);
     m_clearAnalyticsAction->setEnabled(true);
@@ -125,7 +125,7 @@ void AnalyticsHandler::showCuratorLabels()
         m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
 }
 
-void AnalyticsHandler::handleMessage(QString message, bool updateValues)
+void AnalyticsHandler::handleMessage(QString message, bool updateValues, bool loadingFile)
 {
     //check if the JSON data is correct
     QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
@@ -142,13 +142,13 @@ void AnalyticsHandler::handleMessage(QString message, bool updateValues)
         foreach(QJsonValue jsonVal, jsonArray)
         {
             if(jsonVal.isObject())
-                handleObject(jsonVal.toObject(), updateValues);
+                handleObject(jsonVal.toObject(), updateValues, loadingFile);
         }
     }
     else
         if(jsonDoc.isObject())
         {
-            handleObject(jsonDoc.object(), updateValues);
+            handleObject(jsonDoc.object(), updateValues, loadingFile);
         }
         else
         {
@@ -156,7 +156,7 @@ void AnalyticsHandler::handleMessage(QString message, bool updateValues)
         }
 }
 
-void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues)
+void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool loadingFile)
 {
     if(!jsonObj.contains(kName_Actor) || !jsonObj.contains(kName_Verb) || !jsonObj.contains(kName_Object) || !jsonObj.contains(kName_Timestamp))
     {
@@ -184,6 +184,7 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues)
                 jsonObj[kName_Similarity] = similarity;
 
             m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), lostness);
+            m_pProperties->updateSimilarityOfCuratorLabel(jsonObj[kName_Object].toString(), similarity);
         }
         else
         {
@@ -206,7 +207,7 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues)
             if(jsonObj[kName_Verb].toString() == kName_Attempted && jsonObj[kName_Result].toString() == kName_Unlock)   //if node unlocked, update curator label progress
                 m_pProperties->updateProgressOfCuratorLabel(task, jsonObj[kName_Object].toString());
 
-            if(updateValues)
+            if(updateValues && !loadingFile)
             {
                 m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
                 m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessValue(task));
@@ -291,11 +292,12 @@ void AnalyticsHandler::loadAnalyticsLog()
 
             if(msgBox.exec() == QMessageBox::Yes)
             {
-                m_logWindow->overwriteLogFile(fileName);
-                handleMessage(docString, true);
+                m_logWindow->initialiseLogFile(fileName);
+                handleMessage(docString, true, true);
+                m_logWindow->exportToFile();    //save new file once message is handled
             }
             else
-                handleMessage(docString, false);
+                handleMessage(docString, false, true);
         }
         else
         {
@@ -339,6 +341,7 @@ void AnalyticsHandler::exportTaskDataToCSV()
         }
         else
         {
+            QLocale locale;
             QTextStream output(&file);
             QList<CuratorLabel*> curatorTasks = m_curatorAnalyticsEditor->getCuratorLabels();
 
@@ -348,7 +351,8 @@ void AnalyticsHandler::exportTaskDataToCSV()
             {
                 QString taskID = task->id->text();
 
-                output << "\n" << taskID << ";" << task->narrativeDependencies.size() << ";" << m_pProperties->getProgressOfCuratorLabel(taskID) << ";" << m_pProperties->getLostnessOfCuratorLabel(taskID) << ";" << m_pProperties->getSimilarityOfCuratorLabel(taskID);
+                output << "\n" << taskID << ";\"" << locale.toString(task->narrativeDependencies.size()) << "\";\"" << locale.toString(m_pProperties->getProgressOfCuratorLabel(taskID))
+                       << "\";\"" << locale.toString(m_pProperties->getLostnessOfCuratorLabel(taskID)) << "\";\"" << locale.toString(m_pProperties->getSimilarityOfCuratorLabel(taskID));
             }
 
             file.close();

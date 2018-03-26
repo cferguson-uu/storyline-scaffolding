@@ -316,6 +316,9 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_similarityBar(new QProgressBar())
     , m_started(false)
     , m_completed(false)
+    , m_progressValue(0)
+    , m_lostnessValue(0)
+    , m_similarityValue(0)
 {
     int row = m_rowLayout->rowCount();
 
@@ -375,7 +378,8 @@ void CuratorRow::updateProgress(QString dependencyName)
         }
 
         progress = progress/m_dependencies.size() * 100;    //get progress and update bar
-        m_progressBar->setValue(progress);
+        m_progressBar->setValue(round(progress));   //round to nearest integer to be shown on the bar correctly
+        m_progressValue = progress;
 
         if(progress == 100) //change colour to green to show completed
             m_nameLabel->setStyleSheet("QLabel { color : green; }");
@@ -385,29 +389,35 @@ void CuratorRow::updateProgress(QString dependencyName)
 
 float CuratorRow::getProgress()
 {
-    return m_progressBar->value();
+    return m_progressValue;
 }
 
 void CuratorRow::updateLostness(float newValue)
 {
     if(newValue >= 0) //don't set value if error has occurred
-        m_lostnessBar->setValue(newValue);
+    {
+        m_lostnessBar->setValue(round(newValue));   //round to nearest integer to be shown on the bar correctly
+        m_lostnessValue = newValue;
+    }
 }
 
 float CuratorRow::getLostness()
 {
-    return m_lostnessBar->value();
+    return m_lostnessValue;
 }
 
 void CuratorRow::updateSimilarity(float newValue)
 {
     if(newValue >= 0) //don't set value if error has occurred
-        m_similarityBar->setValue(newValue);
+    {
+        m_similarityBar->setValue(round(newValue));   //round to nearest integer to be shown on the bar correctly
+        m_similarityValue = newValue;
+    }
 }
 
 float CuratorRow::getSimilarity()
 {
-    return m_similarityBar->value();
+    return m_similarityValue;
 }
 
 void CuratorRow::reset()

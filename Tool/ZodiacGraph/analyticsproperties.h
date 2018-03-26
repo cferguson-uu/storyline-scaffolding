@@ -302,6 +302,21 @@ private:
     QProgressBar* m_similarityBar;
 
     ///
+    /// \brief Progress Value
+    ///
+    float m_progressValue;
+
+    ///
+    /// \brief Lostness Value
+    ///
+    float m_lostnessValue;
+
+    ///
+    /// \brief Similarity Value
+    ///
+    float m_similarityValue;
+
+    ///
     /// \brief List of narrative dependencies with bool to show if achieved
     ///
     QHash<QString, bool> m_dependencies;

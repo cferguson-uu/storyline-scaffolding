@@ -305,7 +305,7 @@ void CuratorAnalyticsEditor::nodeVisited(QString task, QJsonObject event)
             ++curatorLabel->totalNumOfNodesVisited;
 
             //update the sequence for sequence similarity
-            curatorLabel->sequenceMatcher.compareLatestUserSequence(event); //this will return the sequence matching value but isn't used
+            curatorLabel->sequenceMatcher.updateUserSequence(event);
 
             break;
         }

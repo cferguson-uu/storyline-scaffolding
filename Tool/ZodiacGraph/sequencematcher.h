@@ -128,7 +128,7 @@ public:
     void compareSequencesFromFiles();
     float compareSequences(QVector<AnaEvent> &seq1, QVector<AnaEvent> &seq2, double &fac);
     QJsonArray readSequenceFromFile();
-    float compareLatestUserSequence(QJsonObject &latestEventInUserSequence);
+    void updateUserSequence(QJsonObject &latestEventInUserSequence);
     float compareUserandPerfectSequences();
     bool addPerfectSequence(QJsonArray seqArray);
     QJsonArray getPerfectSequences();

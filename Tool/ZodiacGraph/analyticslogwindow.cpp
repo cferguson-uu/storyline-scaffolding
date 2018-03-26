@@ -3,39 +3,30 @@
 
 AnalyticsLogWindow::AnalyticsLogWindow(QWidget *parent)
     : QPlainTextEdit(parent)
-    , m_fileOpen(false)
 {
     QPlainTextEdit::setReadOnly(true);
 }
 
 AnalyticsLogWindow::~AnalyticsLogWindow()
 {
-    if(m_fileOpen)
-        closeLogFile();
+    if(m_fileInitialised && !m_jsonEvents.empty())  //export to file if cross button is pressed without disconnecting
+    {
+        exportToFile();
+    }
 }
 
-void AnalyticsLogWindow::initialiseLogFile()
+void AnalyticsLogWindow::initialiseLogFile(QString fileName)
 {
-    QDateTime current = QDateTime::currentDateTime().toUTC();
-    m_fileName = "logs/" + current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".json";
+    if(fileName == "")
+    {
+        QDateTime current = QDateTime::currentDateTime().toUTC();
+        m_fileName = "logs/" + current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".json";
+    }
+    else
+        m_fileName = fileName;
 
     m_logFile.setFileName(m_fileName);
-}
-
-void AnalyticsLogWindow::overwriteLogFile(QString fileName)
-{
-    m_fileName = fileName;
-    m_logFile.setFileName(m_fileName);
-
-    m_logFile.open(QIODevice::ReadWrite);   //open the file and clear it
-    m_logFile.resize(0);
-    m_logFile.close();
-}
-
-void AnalyticsLogWindow::closeLogFile()
-{
-    m_logFile.close();
-    m_fileOpen = false;
+    m_fileInitialised = true;
 }
 
 void AnalyticsLogWindow::appendToWindow(const QString& text)
@@ -46,32 +37,22 @@ void AnalyticsLogWindow::appendToWindow(const QString& text)
 
 void AnalyticsLogWindow::appendToLogFile(const QJsonObject& obj)
 {
+    m_jsonEvents.append(obj);
+}
+
+void AnalyticsLogWindow::exportToFile()
+{
+    //called at the end to save data to the file
     QJsonDocument jsonDoc;
-    QJsonArray jsonArray;
 
-    m_logFile.open(QIODevice::ReadWrite);   //open the file
+    m_logFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text);   //open the file and set to overwrite
 
-    if (m_logFile.size() > 0)   //if it's not empty then append the latest message to the array
-    {
-        QString settings;
-
-        QTextStream in(&m_logFile);     //read in file line by line
-           while (!in.atEnd())
-               settings += in.readLine();
-
-        jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
-
-        if(jsonDoc.isArray())
-            jsonArray = jsonDoc.array();
-    }
-
-    jsonArray.append(obj);      //append the object
-    jsonDoc.setArray(jsonArray);
-
-    m_logFile.resize(0);    //delete all data in the file
+    jsonDoc.setArray(m_jsonEvents);
 
     QTextStream outputStream(&m_logFile);   //write updated (or new) array then close the file
     outputStream << jsonDoc.toJson();
 
-    m_logFile.close();
+    m_logFile.close();  //close log file and clear json array
+    m_jsonEvents = QJsonArray();
+    m_fileInitialised = false;
 }

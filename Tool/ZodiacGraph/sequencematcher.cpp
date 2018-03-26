@@ -70,36 +70,14 @@ bool SequenceMatcher::addPerfectSequence(QJsonArray seqArray)
 
 }
 
-float SequenceMatcher::compareLatestUserSequence(QJsonObject &latestEventInUserSequence)
+void SequenceMatcher::updateUserSequence(QJsonObject &latestEventInUserSequence)
 {
     AnaEvent event = readEvent(latestEventInUserSequence, m_ids);
 
     if(event.action == -1 && event.object == -1)
-        return -1;  //event was not valid, ignore it
+        return;  //event was not valid, ignore it
 
     m_userSequence.push_back(event);
-
-    if(m_perfectSequences.empty() || m_userSequence.empty())
-        return -1;  //don't compare if no perfect or user sequences
-
-    float highScore = -1;   //iterate through perfect sequences, return highest matching score
-    foreach (PerfectSequence perfectSequence, m_perfectSequences)
-    {
-        for (auto cur = m_userSequence.begin(); true; ++cur)
-        {
-            boost::sub_range<QVector<AnaEvent> > sub(m_userSequence.begin(), cur);
-            double benefit = m_aligner.cut_first_end_off_align(perfectSequence.sequence, sub).score;
-            //qDebug() << "Score is: " << perfectSequence.fac*benefit << "%\n";
-            if (cur == m_userSequence.end())
-            {
-                if(perfectSequence.fac*benefit > highScore)
-                    highScore = perfectSequence.fac*benefit;
-                break;
-            }
-        }
-    }
-
-    return highScore;
 }
 
 float SequenceMatcher::compareUserandPerfectSequences()
@@ -114,7 +92,7 @@ float SequenceMatcher::compareUserandPerfectSequences()
         {
             boost::sub_range<QVector<AnaEvent> > sub(m_userSequence.begin(), cur);
             double benefit = m_aligner.cut_first_end_off_align(perfectSequence.sequence, sub).score;
-            //qDebug() << "Score is: " << m_fac*benefit << "%\n";
+            //qDebug() << "Score is: " << perfectSequence.fac*benefit << "%\n";
             if (cur == m_userSequence.end())
             {
                 if(perfectSequence.fac*benefit > highScore)

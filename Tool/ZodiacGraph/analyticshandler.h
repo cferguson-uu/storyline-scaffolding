@@ -30,7 +30,7 @@ signals:
 public slots:
     void connected();
     void disconnected();
-    void handleMessage(QString message, bool updateValues = true);
+    void handleMessage(QString message, bool updateValues = true, bool loadingFile = false);
     void connectToServer();
     void showCuratorLabels();
 
@@ -39,7 +39,7 @@ private:
     /// \brief The layout to be used by CuratorRows to place their widgets.
     ///
     /// \param [in] json object to parse
-    void handleObject(QJsonObject jsonObj, bool updateValues);
+    void handleObject(QJsonObject jsonObj, bool updateValues, bool loadingFile);
 
     void handleTextOutput(QJsonObject &jsonObj, bool updateValues);
     void loadAnalyticsLog();
