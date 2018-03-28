@@ -92,6 +92,11 @@ public:// methods
     ///
     void resetAllCuratorLabels();
 
+    ///
+    /// \brief Get the full progress of the game
+    ///
+    float getFullGameProgress();
+
 public slots:
     ///
     /// \brief Updates the values for links between story and narrative nodes
@@ -194,6 +199,11 @@ private:
     /// \brief Progress Bar, gives visual feedback of the completion of the game
     ///
     QProgressBar* m_fullGameProgressBar;
+
+    ///
+    /// \brief Progress Bar, gives visual feedback of the completion of the game
+    ///
+    float m_fullGameProgressValue;
 };
 
 class CuratorRow : public QObject

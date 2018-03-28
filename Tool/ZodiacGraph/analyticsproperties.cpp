@@ -21,6 +21,7 @@ AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
 , m_curatorLabelLayoutLabel(nullptr)
 , m_fullGameProgressLabel(nullptr)
 , m_fullGameProgressBar(nullptr)
+, m_fullGameProgressValue(0.0f)
 {
     // define the main layout
     m_mainLayout->setContentsMargins(2,2,2,2);
@@ -245,12 +246,17 @@ void AnalyticsProperties::updateFullGameProgress()
     averageProgress /= m_curatorRows.size();
 
     m_fullGameProgressBar->setValue(averageProgress);
+
+    m_fullGameProgressValue = averageProgress;
 }
 
 void AnalyticsProperties::updateLostnessOfCuratorLabel(QString curatorLabelName, float newValue)
 {
     if(m_curatorRows.isEmpty())
         return;
+
+    if(newValue > 100)
+        newValue = 100;
 
    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->updateLostness(newValue);
@@ -301,6 +307,12 @@ void AnalyticsProperties::resetAllCuratorLabels()
 
     if(m_fullGameProgressBar)
         m_fullGameProgressBar->setValue(0.0f);
+    m_fullGameProgressValue = 0.0f;
+}
+
+float AnalyticsProperties::getFullGameProgress()
+{
+    return m_fullGameProgressValue;
 }
 
 CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QHash<QString, bool> &dependenciesList)
@@ -422,10 +434,23 @@ float CuratorRow::getSimilarity()
 
 void CuratorRow::reset()
 {
+    m_started = false;
+    m_completed = false;
+
     //set values back to 0
     m_progressBar->setValue(0.0f);
     m_lostnessBar->setValue(0.0f);
     m_similarityBar->setValue(0.0f);
+
+    m_progressValue = 0;
+    m_lostnessValue = 0;
+    m_similarityValue = 0;
+
+    //reset dependencies
+    for(QHash<QString,bool>::iterator depIt = m_dependencies.begin(); depIt != m_dependencies.end(); ++depIt)
+    {
+        depIt.value() = false;
+    }
 
     m_nameLabel->setStyleSheet("QLabel { color : red; }");  //red to show that it hasn't started
 }

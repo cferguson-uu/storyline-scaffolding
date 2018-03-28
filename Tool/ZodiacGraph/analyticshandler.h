@@ -46,7 +46,7 @@ private:
 
     void clearAll();
 
-    void exportTaskDataToCSV();
+    void exportTaskDataToCSV(QString fileName = "");
 
     AnalyticsSocket *m_tcpSocket;
     AnalyticsLogWindow *m_logWindow;

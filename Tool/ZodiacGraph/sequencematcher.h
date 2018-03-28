@@ -99,12 +99,12 @@ class AnaCost {
     template <class Seq2>
     void preprocess(QVector<AnaEvent> const &, Seq2 const &) const
     {}
-    double gap_bft() const { return -0.4;}
+    double gap_bft() const { return -0.3;}
     double match(AnaEvent const &ev1, AnaEvent const &ev2) const {
         if (ev1.action==ev2.action && ev1.object==ev2.object) {
             return 1.0;
         } else {
-            return -0.4;
+            return -0.35;
         }
     }
 };

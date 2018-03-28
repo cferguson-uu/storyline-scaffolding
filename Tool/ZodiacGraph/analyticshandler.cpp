@@ -261,7 +261,7 @@ void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool updateValues)
 
 void AnalyticsHandler::loadAnalyticsLog()
 {
-    QFile file(QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+    /*QFile file(QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
                                                      QObject::tr("Load Analytics File"), "",
                                                      QObject::tr("JSON File (*.json);;All Files (*)")));
 
@@ -313,7 +313,50 @@ void AnalyticsHandler::loadAnalyticsLog()
         return;
     }
 
-    m_exportAnalyticsAction->setEnabled(true);
+    m_exportAnalyticsAction->setEnabled(true);*/
+
+
+   QStringList fileNames(QFileDialog::getOpenFileNames(qobject_cast<QWidget*>(parent()),
+                                                     QObject::tr("Load Analytics File"), "",
+                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
+    foreach (QString fileName, fileNames)
+    {
+        QFile file(fileName);
+
+        if(!file.fileName().isEmpty()&& !file.fileName().isNull())
+        {
+            if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+            {
+                QString docString = file.readAll();
+                QString fileName = file.fileName();
+                file.close();
+
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(docString.toUtf8());
+
+                if(jsonDoc.isNull() || !jsonDoc.isArray() || jsonDoc.isEmpty())
+                {
+                    QMessageBox messageBox;
+                    messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                    messageBox.setFixedSize(500,200);
+                    return;
+                }
+
+                m_logWindow->initialiseLogFile(fileName);
+                handleMessage(docString, true, true);
+                m_logWindow->exportToFile();    //save new file once message is handled
+                exportTaskDataToCSV(fileName.section(".",0,0));
+                clearAll();
+            }
+            else
+            {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                messageBox.setFixedSize(500,200);
+                return;
+            }
+        }
+    }
+
 }
 
 void AnalyticsHandler::clearAll()
@@ -325,10 +368,10 @@ void AnalyticsHandler::clearAll()
     m_exportAnalyticsAction->setEnabled(true);
 }
 
-void AnalyticsHandler::exportTaskDataToCSV()
+void AnalyticsHandler::exportTaskDataToCSV(QString fileName)
 {
     QFile file(QFileDialog::getSaveFileName(qobject_cast<QWidget*>(parent()),
-                                                         QObject::tr("Save task data"), "",
+                                                         QObject::tr("Save task data"), fileName,
                                                         QObject:: tr("CSV File (*.csv);;All Files (*)")));
 
     if(!file.fileName().isEmpty()&& !file.fileName().isNull())
@@ -352,8 +395,10 @@ void AnalyticsHandler::exportTaskDataToCSV()
                 QString taskID = task->id->text();
 
                 output << "\n" << taskID << ";\"" << locale.toString(task->narrativeDependencies.size()) << "\";\"" << locale.toString(m_pProperties->getProgressOfCuratorLabel(taskID))
-                       << "\";\"" << locale.toString(m_pProperties->getLostnessOfCuratorLabel(taskID)) << "\";\"" << locale.toString(m_pProperties->getSimilarityOfCuratorLabel(taskID));
+                       << "\";\"" << locale.toString(m_pProperties->getLostnessOfCuratorLabel(taskID)) << "\";\"" << locale.toString(m_pProperties->getSimilarityOfCuratorLabel(taskID)) << "\"";
             }
+
+            output << "\nProgress;" << "\"" << locale.toString(m_pProperties->getFullGameProgress())<< "\"";
 
             file.close();
         }
