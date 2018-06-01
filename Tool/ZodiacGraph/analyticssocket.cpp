@@ -110,7 +110,6 @@ void AnalyticsSocket::disconnected()
 void AnalyticsSocket::disconnectFromServer()
 {
     m_socket->disconnectFromHost();
-    disconnected();
 }
 
 void AnalyticsSocket::bytesWritten(qint64 bytes)

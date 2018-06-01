@@ -323,9 +323,12 @@ float CuratorAnalyticsEditor::getLostnessValue(QString task)
     {
         if(curatorLabel->id->text() == task)
         {
-            /*qDebug() << "Minimum number of nodes: " << curatorLabel->minSteps->value();
-            qDebug() << "Total number of nodes visited: " << curatorLabel->totalNumOfNodesVisited;
-            qDebug() << "Number of different nodes visited: " << curatorLabel->uniqueNodesVisited.size();*/
+            qDebug() << "Task: " << task;
+            qDebug() << "Minimum number of nodes (R): " << curatorLabel->minSteps->value();
+            qDebug() << "Total number of nodes visited (S): " << curatorLabel->totalNumOfNodesVisited;
+            qDebug() << "Number of different nodes visited (N): " << curatorLabel->uniqueNodesVisited.size();
+            qDebug() << "N/S: " << (float)curatorLabel->uniqueNodesVisited.size()/(float)curatorLabel->totalNumOfNodesVisited;
+            qDebug() << "R/N: " << (float)curatorLabel->minSteps->value()/(float)curatorLabel->uniqueNodesVisited.size();
 
             //avoid div 0 errors
             if(curatorLabel->totalNumOfNodesVisited == 0)   //no nodes visited so lostness cannot be determined
