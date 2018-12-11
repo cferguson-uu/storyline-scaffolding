@@ -1072,6 +1072,8 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
     {
         for (int i =0; i<filenames.count(); i++)
         {
+            qDebug() << filenames.at(i);
+
             QFile file = filenames.at(i);
 
             if(file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -1136,7 +1138,7 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
     {
         m_narrativeNodes.push_back(NarNode());
 
-        QList<NarNode>::iterator it = m_narrativeNodes.end();
+        QList<NarNode>::iterator it = m_narrativeNodes.end();   //get newly created node
         --it;
 
         QJsonObject obj = value.toObject();
@@ -1475,4 +1477,9 @@ void saveandload::DeleteAllNarrativeItems()
 {
     m_narrativeNodes.clear();
     m_fileNames.clear();
+}
+
+void saveandload::removeFileName(QString fileName)
+{
+    m_fileNames.removeOne(fileName);
 }

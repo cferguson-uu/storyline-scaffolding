@@ -69,3 +69,8 @@ void NarrativeFileSorter::exportSortedList()
 
     hide();
 }
+
+void NarrativeFileSorter::removeFromOrderedList(QString fileName)
+{
+     m_orderedList.removeOne(fileName);
+}

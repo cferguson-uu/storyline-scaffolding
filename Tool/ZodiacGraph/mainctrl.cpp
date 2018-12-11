@@ -114,6 +114,44 @@ bool MainCtrl::deleteNode(NodeCtrl* node)
         return false;
     }
 
+    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
+    if(node->getType() == zodiac::NODE_STORY) //if no more story nodes, allow a new graph to be created
+    {
+        bool noStoryNodes = true;
+
+        foreach (zodiac::NodeHandle n, nodes)
+        {
+            if(n == node->getNodeHandle())
+                continue;
+
+            if(n.getType() == zodiac::NODE_STORY)
+            {
+                noStoryNodes = false;
+                break;
+            }
+        }
+
+        if(noStoryNodes)
+             m_createStoryAction->setEnabled(true);
+    }
+    else    //otherwise remove any unused filenames
+    {
+        QString fileName = node->getFileName();
+
+        foreach (zodiac::NodeHandle n, nodes)
+        {
+            if(n == node->getNodeHandle())
+                continue;
+
+            if(n.getType() == zodiac::NODE_NARRATIVE && n.getFileName() == fileName)
+            {
+                m_saveAndLoadManager.removeFileName(fileName);
+                m_narrativeSorter->removeFromOrderedList(fileName);
+                break;
+            }
+        }
+    }
+
     // disconnected all plugs, disconnect and delete the node
     zodiac::NodeHandle handle = node->getNodeHandle();
 
@@ -126,22 +164,6 @@ bool MainCtrl::deleteNode(NodeCtrl* node)
     node->disconnect();
     m_nodes.remove(handle);
     bool result = handle.remove();
-
-    //if no more story nodes, allow a new graph to be created
-    QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
-    bool noStoryNodes = true;
-
-    foreach (zodiac::NodeHandle node, nodes)
-    {
-        if(node.getType() == zodiac::NODE_STORY)
-        {
-            noStoryNodes = false;
-            break;
-        }
-    }
-
-    if(noStoryNodes)
-         m_createStoryAction->setEnabled(true);
 
     Q_ASSERT(result);
     return result;
@@ -884,7 +906,7 @@ void MainCtrl::loadNarrativeGraph()
         {
             //also save all current narrative nodes to a separate list in case two parts of the same narrative are loaded separately, for requirements
             if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
-            currentNarSceneNodes.push_back((*cNIt));
+                currentNarSceneNodes.push_back((*cNIt));
         }
 
         QList<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
@@ -1156,31 +1178,23 @@ void MainCtrl::loadStoryTags(NodeCtrl* narrativeNode, QList<QString> storyTags)
 
 void MainCtrl::spaceOutFullNarrative()
 {
-    QList<zodiac::NodeHandle> nodeList = m_scene.getNodes();
-
     QVector<QString> oldFileNames = m_narrativeSorter->getOrderedList();
-    QVector<QString> newFileNames;
+    QVector<QString> newFileNames = m_saveAndLoadManager.getFileNames();
 
-    foreach(zodiac::NodeHandle node, nodeList)
+    foreach (QString fileName, newFileNames)
     {
-        if(node.getType() == zodiac::NODE_STORY || node.isNodeDecorator())
-            continue;
-
-        if(node.getFileName() == "")
-            qDebug() << node.getName() << "has no filename";
-
-        if(!newFileNames.contains(node.getFileName()))
-            newFileNames.push_back(node.getFileName());
+        if(oldFileNames.contains(fileName))
+            newFileNames.removeOne(fileName);
     }
 
-    if(oldFileNames.size() + newFileNames.size() <= 1 || (oldFileNames.size() >= 1 && std::is_permutation(oldFileNames.begin(), oldFileNames.end(), newFileNames.begin())))
-    {
-        spaceOutNarrative(newFileNames);
-    }
+
+    if(newFileNames.size() == 0)
+        spaceOutNarrative(oldFileNames);
     else
-    {
-        m_narrativeSorter->showWindow(newFileNames);
-    }
+        if(oldFileNames.size() + newFileNames.size() <= 1 || (oldFileNames.size() >= 1 && std::is_permutation(oldFileNames.begin(), oldFileNames.end(), newFileNames.begin())))
+            spaceOutNarrative(newFileNames);
+        else
+            m_narrativeSorter->showWindow(newFileNames);
 }
 
 void MainCtrl::spaceOutNarrative(QVector<QString> fileNames)

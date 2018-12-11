@@ -65,7 +65,7 @@ public:
     bool LoadNarrativeFromFile(QWidget *widget);
     void SaveNarrativeToFile(QWidget *widget);
 
-    //gettfunctions
+    //get functions
     const QList<Command> GetCommands(){return m_commands;}
     const QList<Parameter> GetParameters(){return m_parameters;}
     const QList<NarNode> GetNarrativeNodes(){return m_narrativeNodes;}
@@ -87,6 +87,7 @@ public:
     void DeleteAllNarrativeItems();
 
     inline QVector<QString> getFileNames(){return m_fileNames;}
+    void removeFileName(QString fileName);
 
 private:
     //story

@@ -22,6 +22,7 @@ public:
     explicit NarrativeFileSorter(QWidget *parent = 0);
     void showWindow(QVector<QString> fileNames);
     QVector<QString> getOrderedList(){return m_orderedList;}
+    void removeFromOrderedList(QString fileName);
 
 signals:
     void loadOrderedNarrative(QVector<QString>);
