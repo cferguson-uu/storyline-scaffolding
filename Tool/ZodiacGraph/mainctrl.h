@@ -255,12 +255,12 @@ private: // members
     ///
     /// \brief handle the plot items (episodes)
     ///
-    void loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episodes);
+    void loadEpisodes(NodeCtrl *parentNode, QList<Episode> episodes);
 
     ///
     /// \brief handle the resolution items (events, states)
     ///
-    void loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states);
+    void loadResolution(NodeCtrl *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states);
 
     void spaceOutStory();
 

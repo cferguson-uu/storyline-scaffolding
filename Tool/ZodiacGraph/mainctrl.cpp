@@ -259,31 +259,36 @@ void MainCtrl::saveStoryGraph()
 {
     //get list of all story nodes
     QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
-    zodiac::NodeHandle *mainStoryNode = nullptr;
-    zodiac::NodeHandle *settingNode = nullptr;
-    zodiac::NodeHandle *themeNode = nullptr;
-    zodiac::NodeHandle *plotNode = nullptr;
-    zodiac::NodeHandle *resolutionNode = nullptr;
+    NodeCtrl *mainStoryNode = nullptr;
+    NodeCtrl *settingNode = nullptr;
+    NodeCtrl *themeNode = nullptr;
+    NodeCtrl *plotNode = nullptr;
+    NodeCtrl *resolutionNode = nullptr;
+
+    //NodeCtrl *parentNodeCtrl = new NodeCtrl(this, *parentNode);
 
     //iterate through the list to find the nodes
-    for(QList<zodiac::NodeHandle>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+    foreach (zodiac::NodeHandle node, nodes)
     {
-        if((*it).getType() == zodiac::NODE_STORY)
+        if(node.getType() == zodiac::NODE_STORY)
         {
-            if((*it).getStoryNodeType() == zodiac::STORY_NAME)
-                mainStoryNode = &(*it); //get a pointer to the handle of the name node
+            if(node.getStoryNodeType() == zodiac::STORY_NAME)
+                mainStoryNode = new NodeCtrl(this, node); //get a pointer to the handle of the name node
+
             else
-                if((*it).getStoryNodeType() == zodiac::STORY_SETTING)
-                    settingNode = &(*it); //get a pointer to the handle of the settings node
+                if(node.getStoryNodeType() == zodiac::STORY_SETTING)
+                    settingNode = new NodeCtrl(this, node); //get a pointer to the handle of the settings node
+
                 else
-                    if((*it).getStoryNodeType() == zodiac::STORY_THEME)
-                        themeNode = &(*it); //get a pointer to the handle of the theme node
+                    if(node.getStoryNodeType() == zodiac::STORY_THEME)
+                        themeNode = new NodeCtrl(this, node); //get a pointer to the handle of the theme node
+
                     else
-                        if((*it).getStoryNodeType() == zodiac::STORY_PLOT)
-                            plotNode = &(*it); //get a pointer to the handle of the plot node
+                        if(node.getStoryNodeType() == zodiac::STORY_PLOT)
+                            plotNode = new NodeCtrl(this, node); //get a pointer to the handle of the plot node
                         else
-                            if((*it).getStoryNodeType() == zodiac::STORY_RESOLUTION)
-                                resolutionNode = &(*it); //get a pointer to the handle of the resolution node
+                            if(node.getStoryNodeType() == zodiac::STORY_RESOLUTION)
+                                resolutionNode = new NodeCtrl(this, node); //get a pointer to the handle of the resolution node
         }
     }
 
@@ -293,29 +298,23 @@ void MainCtrl::saveStoryGraph()
     m_saveAndLoadManager.setStoryName(mainStoryNode->getName());
 
     //save settings nodes
-    QList<zodiac::PlugHandle> connectedPlugs = settingNode->getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
-    {
-        saveSettingItem((*connectedPlugIt).getNode());
-    }
+    QList<zodiac::PlugHandle> connectedPlugs = settingNode->getNodeHandle().getPlug("storyOut").getConnectedPlugs();
+
+    foreach (zodiac::PlugHandle cPlug, connectedPlugs)
+        saveSettingItem(cPlug.getNode());
 
     //save theme nodes
-    connectedPlugs = themeNode->getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
-    {
-        saveThemeItem((*connectedPlugIt).getNode());
-    }
+    connectedPlugs = themeNode->getNodeHandle().getPlug("storyOut").getConnectedPlugs();
+
+    foreach (zodiac::PlugHandle cPlug, connectedPlugs)
+        saveThemeItem(cPlug.getNode());
 
     //get plot node
     //get each episode node - store, store subgoal, iterate through attempts, store these and sub episodes, same with outcomes
-    connectedPlugs = plotNode->getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
-    {
-        savePlotItem((*connectedPlugIt).getNode());
-    }
+    savePlotItem(plotNode->getNodeHandle());
 
     //get resolution node
-    saveResolution(*resolutionNode);
+    saveResolution(resolutionNode->getNodeHandle());
 
     m_saveAndLoadManager.SaveStoryToFile(qobject_cast<QWidget*>(parent()));
 }
@@ -323,26 +322,26 @@ void MainCtrl::saveStoryGraph()
 void MainCtrl::saveSettingItem(zodiac::NodeHandle &settingGroup)
 {
     QList<zodiac::PlugHandle> connectedPlugs = settingGroup.getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    foreach (zodiac::PlugHandle cPlug, connectedPlugs)
     {
-        zodiac::NodeHandle settingNode = (*connectedPlugIt).getNode();
+        zodiac::NodeHandle settingNode = cPlug.getNode();
         SettingItem *settingItem;
 
-        if(settingNode.getType() == zodiac::STORY_SETTING_CHARACTER)
+        if(settingNode.getStoryNodeType() == zodiac::STORY_SETTING_CHARACTER)
             settingItem = m_saveAndLoadManager.addCharacter(settingNode.getName(), settingNode.getDescription());
         else
-            if(settingNode.getType() == zodiac::STORY_SETTING_LOCATION)
+            if(settingNode.getStoryNodeType() == zodiac::STORY_SETTING_LOCATION)
                 settingItem = m_saveAndLoadManager.addLocation(settingNode.getName(), settingNode.getDescription());
             else
-                if(settingNode.getType() == zodiac::STORY_SETTING_TIME)
+                if(settingNode.getStoryNodeType() == zodiac::STORY_SETTING_TIME)
                     settingItem = m_saveAndLoadManager.addTime(settingNode.getName(), settingNode.getDescription());
                 else
                     return; //error
 
             QList<zodiac::PlugHandle> detailPlugs = settingNode.getPlug("storyOut").getConnectedPlugs();
-            for(QList<zodiac::PlugHandle>::iterator detailPlugIt = detailPlugs.begin(); detailPlugIt != detailPlugs.end(); ++detailPlugIt)
+            foreach (zodiac::PlugHandle dPlug, detailPlugs)
             {
-                zodiac::NodeHandle detailNode = (*detailPlugIt).getNode();
+                zodiac::NodeHandle detailNode = dPlug.getNode();
                 m_saveAndLoadManager.addDetail(settingItem, detailNode.getName(), detailNode.getDescription(), "", "");
             }
     }
@@ -351,18 +350,18 @@ void MainCtrl::saveSettingItem(zodiac::NodeHandle &settingGroup)
 void MainCtrl::saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem)
 {
     QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    foreach (zodiac::PlugHandle cPlug, connectedPlugs)
     {
-        zodiac::NodeHandle eventGoalNode = (*connectedPlugIt).getNode();
+        zodiac::NodeHandle eventGoalNode = cPlug.getNode();
         EventGoal *eventGoalItem;
 
-        if(eventGoalNode.getType() == zodiac::STORY_THEME_EVENT)
+        if(eventGoalNode.getStoryNodeType() == zodiac::STORY_THEME_EVENT)
             eventGoalItem = m_saveAndLoadManager.addEvent(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
         else
-            if(eventGoalNode.getType() == zodiac::STORY_RESOLUTION_EVENT)
+            if(eventGoalNode.getStoryNodeType() == zodiac::STORY_RESOLUTION_EVENT)
                 eventGoalItem = m_saveAndLoadManager.addResolutionEvent(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
             else
-                if(eventGoalNode.getType() == zodiac::STORY_THEME_GOAL)
+                if(eventGoalNode.getStoryNodeType() == zodiac::STORY_THEME_GOAL)
                     eventGoalItem = m_saveAndLoadManager.addGoal(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
                 else
                     return; //error
@@ -375,20 +374,20 @@ void MainCtrl::saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem)
 void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
 {
     QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    foreach (zodiac::PlugHandle cPlug, connectedPlugs)
     {
-        zodiac::NodeHandle episodeNode = (*connectedPlugIt).getNode();
+        zodiac::NodeHandle episodeNode = cPlug.getNode();
         Episode *episodeItem;
 
-        if(episodeNode.getType() == zodiac::STORY_PLOT_EPISODE)
+        if(episodeNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE)
             episodeItem = m_saveAndLoadManager.addEpisode(episodeNode.getName(), episodeNode.getDescription(), parentItem);
         else
-            return; //error
+            continue; //error or we're looking for a subepisode
 
-        QList<zodiac::PlugHandle> childPlugs = parent.getPlug("storyOut").getConnectedPlugs();
-        for(QList<zodiac::PlugHandle>::iterator childPlugIt = childPlugs.begin(); childPlugIt != childPlugs.end(); ++childPlugIt)
+        QList<zodiac::PlugHandle> childPlugs = episodeNode.getPlug("storyOut").getConnectedPlugs();
+        foreach (zodiac::PlugHandle childPlug, childPlugs)
         {
-            zodiac::NodeHandle childNode = (*connectedPlugIt).getNode();
+            zodiac::NodeHandle childNode = childPlug.getNode();
 
             if(childNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP)
             {
@@ -400,7 +399,7 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
                     if(attemptNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT)
                         m_saveAndLoadManager.addAttempt(attemptNode.getName(), attemptNode.getDescription(), episodeItem);
                     else //sup-episode
-                        savePlotItem(attemptNode, episodeItem);
+                        savePlotItem(childNode, episodeItem);
                 }
             }
             else
@@ -414,11 +413,11 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
                        if(outcomeNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_OUTCOME)
                             m_saveAndLoadManager.addOutcome(outcomeNode.getName(), outcomeNode.getDescription(), episodeItem);
                         else //sup-episode
-                            savePlotItem(outcomeNode, episodeItem);
+                            savePlotItem(childNode, episodeItem);
                     }
                 }
                 else
-                    if((childNode).getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_SUBGOAL)
+                    if(childNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_SUBGOAL)
                     {
                         m_saveAndLoadManager.addSubGoal(childNode.getName(), childNode.getDescription(), episodeItem);
                     }
@@ -432,24 +431,23 @@ void MainCtrl::saveResolution(zodiac::NodeHandle &parent)
     zodiac::NodeHandle stateGroupNode;
 
     QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+    foreach (zodiac::PlugHandle cPlug, connectedPlugs)
     {
-        if((*connectedPlugIt).getNode().getType() == zodiac::STORY_RESOLUTION_EVENT_GROUP)
-            eventGroupNode = (*connectedPlugIt).getNode();
+        if(cPlug.getNode().getStoryNodeType() == zodiac::STORY_RESOLUTION_EVENT_GROUP)
+            eventGroupNode = cPlug.getNode();
         else
-            if((*connectedPlugIt).getNode().getType() == zodiac::STORY_RESOLUTION_STATE_GROUP)
-                stateGroupNode = (*connectedPlugIt).getNode();
+            if(cPlug.getNode().getStoryNodeType() == zodiac::STORY_RESOLUTION_STATE_GROUP)
+                stateGroupNode = cPlug.getNode();
             else
                 return; //error
     }
 
     saveThemeItem(eventGroupNode);  //use theme function as resolution event identical to theme event
 
-    QList<zodiac::PlugHandle> statePlugs = eventGroupNode.getPlug("storyOut").getConnectedPlugs();
-    for(QList<zodiac::PlugHandle>::iterator statePlugIt = statePlugs.begin(); statePlugIt != statePlugs.end(); ++statePlugIt)
+    QList<zodiac::PlugHandle> statePlugs = stateGroupNode.getPlug("storyOut").getConnectedPlugs();
+    foreach (zodiac::PlugHandle sPlug, statePlugs)
     {
-        zodiac::NodeHandle stateNode = (*statePlugIt).getNode();
-
+        zodiac::NodeHandle stateNode = sPlug.getNode();
         m_saveAndLoadManager.addResolutionState(stateNode.getName(), stateNode.getDescription());
     }
 
@@ -464,37 +462,35 @@ void MainCtrl::loadStoryGraph()
         QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
 
         //find the main nodes
-        zodiac::NodeHandle *startingNode;
-        zodiac::NodeHandle *settingNode;
-        zodiac::NodeHandle *themeNode;
-        zodiac::NodeHandle *plotNode;
-        zodiac::NodeHandle *resolutionNode;
+        NodeCtrl *startingNode;
+        NodeCtrl *settingNode;
+        NodeCtrl *themeNode;
+        NodeCtrl *plotNode;
+        NodeCtrl *resolutionNode;
         //iterate through the list to find the nodes
-        for(QList<zodiac::NodeHandle>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+        foreach (zodiac::NodeHandle node, nodes)
         {
-            if((*it).getType() == zodiac::NODE_STORY)
+            if(node.getType() == zodiac::NODE_STORY)
             {
-                if((*it).getStoryNodeType() == zodiac::STORY_NAME)
-                    startingNode = &(*it); //get a pointer to the handle of the name node
+                if(node.getStoryNodeType() == zodiac::STORY_NAME)
+                    startingNode = new NodeCtrl(this, node); //get a pointer to the handle of the name node
                 else
-                    if((*it).getStoryNodeType() == zodiac::STORY_SETTING)
-                        settingNode = &(*it); //get a pointer to the handle of the settings node
+                    if(node.getStoryNodeType() == zodiac::STORY_SETTING)
+                        settingNode = new NodeCtrl(this, node); //get a pointer to the handle of the settings node
                     else
-                        if((*it).getStoryNodeType() == zodiac::STORY_THEME)
-                            themeNode = &(*it); //get a pointer to the handle of the theme node
+                        if(node.getStoryNodeType() == zodiac::STORY_THEME)
+                            themeNode = new NodeCtrl(this, node); //get a pointer to the handle of the theme node
                         else
-                            if((*it).getStoryNodeType() == zodiac::STORY_PLOT)
-                                plotNode = &(*it); //get a pointer to the handle of the plot node
+                            if(node.getStoryNodeType() == zodiac::STORY_PLOT)
+                                plotNode = new NodeCtrl(this, node); //get a pointer to the handle of the plot node
                             else
-                                if((*it).getStoryNodeType() == zodiac::STORY_RESOLUTION)
-                                    resolutionNode = &(*it); //get a pointer to the handle of the resolution node
+                                if(node.getStoryNodeType() == zodiac::STORY_RESOLUTION)
+                                    resolutionNode = new NodeCtrl(this, node); //get a pointer to the handle of the resolution node
             }
         }
 
-        zodiac::PlugHandle SettingNodeOutPlug = settingNode->getPlug("storyOut");   //get the outgoing plugs
-        zodiac::PlugHandle ThemeNodeOutPlug = themeNode->getPlug("storyOut");
-        zodiac::PlugHandle PlotNodeOutPlug = plotNode->getPlug("storyOut");
-        zodiac::PlugHandle ResolutionNodeOutPlug = resolutionNode->getPlug("storyOut");
+        zodiac::PlugHandle SettingNodeOutPlug = settingNode->getNodeHandle().getPlug("storyOut");   //get the outgoing plugs
+        zodiac::PlugHandle ThemeNodeOutPlug = themeNode->getNodeHandle().getPlug("storyOut");
 
         //load the setting items
         QList<SettingItem> chars = m_saveAndLoadManager.GetCharacters();
@@ -580,14 +576,14 @@ void MainCtrl::loadStoryGraph()
 void MainCtrl::loadSettingItem(NodeCtrl *parentNode, QList<SettingItem> items, zodiac::StoryNodeType childType)
 {
     //add each item to the tree
-    for(QList<SettingItem>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
+    foreach (SettingItem sItem, items)
     {
-        NodeCtrl *childNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(parentNode->getPos().x(), 150), true, true);
+        NodeCtrl *childNode = createStoryNode(parentNode, childType, sItem.id, sItem.description, QPoint(parentNode->getPos().x(), 150), true, true);
 
-        if((*itemIt).details.size() > 0)
+        if(sItem.details.size() > 0)
         {
             //add all the details for the items
-            for(QList<SimpleNode>::iterator detailIt = (*itemIt).details.begin(); detailIt != (*itemIt).details.end(); ++detailIt)
+            for(QList<SimpleNode>::iterator detailIt = sItem.details.begin(); detailIt != sItem.details.end(); ++detailIt)
             {
                 createStoryNode(childNode, zodiac::STORY_ITEM_DETAILS, (*detailIt).id, (*detailIt).description, QPoint(childNode->getPos().x(), 150), true, true);
             }
@@ -598,93 +594,78 @@ void MainCtrl::loadSettingItem(NodeCtrl *parentNode, QList<SettingItem> items, z
 void MainCtrl::loadThemeItem(NodeCtrl* parentNode, QList<EventGoal> items, zodiac::StoryNodeType childType)
 {
     //add each item to the tree
-    for(QList<EventGoal>::iterator itemIt = items.begin(); itemIt != items.end(); ++itemIt)
+    foreach (EventGoal tItem, items)
     {
-        NodeCtrl *itemNode = createStoryNode(parentNode, childType, (*itemIt).id, (*itemIt).description, QPoint(parentNode->getPos().x(), 150), true, true);
+        NodeCtrl *itemNode = createStoryNode(parentNode, childType, tItem.id, tItem.description, QPoint(parentNode->getPos().x(), 150), true, true);
 
         //if sub-item then load those too
-        if((*itemIt).subItems.size() > 0)
+        if(tItem.subItems.size() > 0)
         {
-            for(QList<EventGoal>::iterator subItemIt = (*itemIt).subItems.begin(); subItemIt != (*itemIt).subItems.end(); ++subItemIt)
+            for(QList<EventGoal>::iterator subItemIt = tItem.subItems.begin(); subItemIt != tItem.subItems.end(); ++subItemIt)
             {
-                loadThemeItem(itemNode, (*itemIt).subItems, childType);
+                loadThemeItem(itemNode, tItem.subItems, childType);
             }
         }
     }
 }
 
-void MainCtrl::loadEpisodes(zodiac::NodeHandle *parentNode, QList<Episode> episodes)
+void MainCtrl::loadEpisodes(NodeCtrl *parentNode, QList<Episode> episodes)
 {
-    NodeCtrl *parentNodeCtrl = new NodeCtrl(this, *parentNode);
-
     //add each item to the tree
-    for(QList<Episode>::iterator epIt = episodes.begin(); epIt != episodes.end(); ++epIt)
+    foreach (Episode eItem, episodes)
     {
-        NodeCtrl *episodeNode = createStoryNode(parentNodeCtrl, zodiac::STORY_PLOT_EPISODE, (*epIt).id, (*epIt).description, QPoint(parentNodeCtrl->getPos().x(), 150), true, true);
+        NodeCtrl *episodeNode = createStoryNode(parentNode, zodiac::STORY_PLOT_EPISODE, eItem.id, eItem.description, QPoint(parentNode->getPos().x(), 150), true, true);
 
         NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt Group", QPoint(0, 150), true, true);
         //handle attempts
-        if((*epIt).attempts.size() > 0 || (*epIt).attemptSubEpisodes.size() > 0)
+        if(eItem.attempts.size() > 0 || eItem.attemptSubEpisodes.size() > 0)
         {
-            for(QList<SimpleNode>::iterator attIt = (*epIt).attempts.begin(); attIt != (*epIt).attempts.end(); ++attIt)
-            {
-                createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, (*attIt).id, (*attIt).description, QPoint(attemptGroupNode->getPos().x(), 150), true, true);
-            }
+            foreach (SimpleNode att, eItem.attempts)
+                createStoryNode(attemptGroupNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT, att.id, att.description, QPoint(attemptGroupNode->getPos().x(), 150), true, true);
 
-            if((*epIt).attemptSubEpisodes.size() > 0)
-            {
-                loadEpisodes(&attemptGroupNode->getNodeHandle(), (*epIt).attemptSubEpisodes);
-            }
+            if(eItem.attemptSubEpisodes.size() > 0)
+                loadEpisodes(attemptGroupNode, eItem.attemptSubEpisodes);
 
             //get all connected plugs
             QList<zodiac::PlugHandle> connectedPlugs = attemptGroupNode->getNodeHandle().getPlug("storyOut").getConnectedPlugs();
             if(connectedPlugs.size() > 1)
-            {
-                for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+                foreach (zodiac::PlugHandle cPlug, connectedPlugs)
                 {
-                   zodiac::NodeHandle connectedNode = (*connectedPlugIt).getNode();
+                    zodiac::NodeHandle connectedNode = cPlug.getNode(); //////THIS SHOULD BE DOING SOMETHING!!!!
                 }
-            }
         }
 
         NodeCtrl *outcomeGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome Group", QPoint(episodeNode->getPos().x(), 150), true, true);
-        if((*epIt).outcomes.size() > 0 || (*epIt).outcomeSubEpisodes.size() > 0)
+        if(eItem.outcomes.size() > 0 || eItem.outcomeSubEpisodes.size() > 0)
         {
             //handle outcomes
-            for(QList<SimpleNode>::iterator outIt = (*epIt).outcomes.begin(); outIt != (*epIt).outcomes.end(); ++outIt)
-            {
-                createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, (*outIt).id, (*outIt).description, QPoint(outcomeGroupNode->getPos().x(), 150), true, true);
-            }
+            foreach (SimpleNode out, eItem.outcomes)
+                createStoryNode(outcomeGroupNode, zodiac::STORY_PLOT_EPISODE_OUTCOME, out.id, out.description, QPoint(outcomeGroupNode->getPos().x(), 150), true, true);
 
-            if((*epIt).outcomeSubEpisodes.size() > 0)
-            {
-                //handle outcome sub-episodes
-                loadEpisodes(&outcomeGroupNode->getNodeHandle(), (*epIt).outcomeSubEpisodes);
-            }
+            if(eItem.outcomeSubEpisodes.size() > 0)
+                loadEpisodes(outcomeGroupNode, eItem.outcomeSubEpisodes); //handle outcome sub-episodes
 
             //get all connected plugs
             QList<zodiac::PlugHandle> connectedPlugs = outcomeGroupNode->getNodeHandle().getPlug("storyOut").getConnectedPlugs();
             if(connectedPlugs.size() > 1)
-            {
-                for(QList<zodiac::PlugHandle>::iterator connectedPlugIt = connectedPlugs.begin(); connectedPlugIt != connectedPlugs.end(); ++connectedPlugIt)
+                foreach (zodiac::PlugHandle cPlug, connectedPlugs)
                 {
-                   zodiac::NodeHandle connectedNode = (*connectedPlugIt).getNode();
+                   zodiac::NodeHandle connectedNode = cPlug.getNode(); //////THIS SHOULD BE DOING SOMETHING!!!!
                 }
-            }
         }
 
         //handle sub-goal
-        createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, (*epIt).subGoal.id, (*epIt).subGoal.description, QPoint(episodeNode->getPos().x(), 150), true, true);
+        createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_SUBGOAL, eItem.subGoal.id, eItem.subGoal.description, QPoint(episodeNode->getPos().x(), 150), true, true);
     }
 }
 
-void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states)
+void MainCtrl::loadResolution(NodeCtrl *resolutionNode, QList<EventGoal> events, QList<SimpleNode> states)
 {
     if(events.size() > 0)
     {
         NodeCtrl *eventNode = createNode(zodiac::STORY_RESOLUTION_EVENT_GROUP, "Event", "Group of Events");
         zodiac::PlugHandle eventNodeInPlug = eventNode->getNodeHandle().getPlug("storyIn");
-        resolutionNode->getPlug("storyOut").connectPlug(eventNodeInPlug, storyLinkColor);
+        resolutionNode->getNodeHandle().getPlug("storyOut").connectPlug(eventNodeInPlug, storyLinkColor);
 
         loadThemeItem(eventNode, events, zodiac::STORY_RESOLUTION_EVENT);
     }
@@ -693,11 +674,11 @@ void MainCtrl::loadResolution(zodiac::NodeHandle *resolutionNode, QList<EventGoa
     {
         NodeCtrl *stateNode = createNode(zodiac::STORY_RESOLUTION_STATE_GROUP, "State", "Group of States");
         zodiac::PlugHandle stateNodeInPlug = stateNode->getNodeHandle().getPlug("storyIn");
-        resolutionNode->getPlug("storyOut").connectPlug(stateNodeInPlug, storyLinkColor);
+        resolutionNode->getNodeHandle().getPlug("storyOut").connectPlug(stateNodeInPlug, storyLinkColor);
 
-        for(QList<SimpleNode>::iterator stIt = states.begin(); stIt != states.end(); ++stIt)
+        foreach (SimpleNode state, states)
         {
-            createStoryNode(stateNode, zodiac::STORY_RESOLUTION_STATE, (*stIt).id, (*stIt).description, QPoint(stateNode->getPos().x(), 150), true, true);
+            createStoryNode(stateNode, zodiac::STORY_RESOLUTION_STATE, state.id, state.description, QPoint(stateNode->getPos().x(), 150), true, true);
         }
 
     }
@@ -710,13 +691,9 @@ void MainCtrl::saveNarrativeGraph()
     //get list of all nodes
     QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
 
-    for(QList<zodiac::NodeHandle>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
-    {
-        if((*nodeIt).getType() == zodiac::NODE_NARRATIVE && (*nodeIt).getPlug("reqOut").getConnectedPlugs().empty())
-        {
-            saveNarrativeNode((*nodeIt));
-        }
-    }
+    foreach (zodiac::NodeHandle node, nodes)
+        if(node.getType() == zodiac::NODE_NARRATIVE && node.getPlug("reqOut").getConnectedPlugs().empty())
+            saveNarrativeNode(node);
 
     m_saveAndLoadManager.SaveNarrativeToFile(qobject_cast<QWidget*>(parent()));
 
@@ -790,9 +767,9 @@ void MainCtrl::saveRequirements(NarNode *narNode, zodiac::NodeHandle &sceneNode)
     {
         QList<zodiac::PlugHandle> requirementPlugs = sceneNode.getPlug("reqOut").getConnectedPlugs();
 
-        for(QList<zodiac::PlugHandle>::iterator rPlugIt = requirementPlugs.begin(); rPlugIt != requirementPlugs.end(); ++rPlugIt)
+        foreach (zodiac::PlugHandle rPlug, requirementPlugs)
         {
-            zodiac::NodeHandle reqNode = (*rPlugIt).getNode();
+            zodiac::NodeHandle reqNode = rPlug.getNode();
 
             if(reqNode.getName() == "SEQ")
             {
@@ -836,9 +813,9 @@ void MainCtrl::saveRequirementsChildren(NarRequirements *narReq, zodiac::NodeHan
     {
         QList<zodiac::PlugHandle> requirementPlugs = sceneNode.getPlug("reqOut").getConnectedPlugs();
 
-        for(QList<zodiac::PlugHandle>::iterator rPlugIt = requirementPlugs.begin(); rPlugIt != requirementPlugs.end(); ++rPlugIt)
+        foreach (zodiac::PlugHandle rPlug, requirementPlugs)
         {
-            zodiac::NodeHandle reqNode = (*rPlugIt).getNode();
+            zodiac::NodeHandle reqNode = rPlug.getNode();
 
             if(reqNode.getName() == "SEQ")
             {
@@ -882,9 +859,9 @@ void MainCtrl::saveStoryTags(NarNode *narNode, zodiac::NodeHandle &sceneNode)
     {
         QList<zodiac::PlugHandle> storyPlugs = sceneNode.getPlug("storyOut").getConnectedPlugs();
 
-        for(QList<zodiac::PlugHandle>::iterator sPlugIt = storyPlugs.begin(); sPlugIt != storyPlugs.end(); ++sPlugIt)
+        foreach (zodiac::PlugHandle sPlug, storyPlugs)
         {
-            zodiac::NodeHandle storyNode = (*sPlugIt).getNode();
+            zodiac::NodeHandle storyNode = sPlug.getNode();
 
             m_saveAndLoadManager.addStoryTagToNarrativeNode(narNode, storyNode.getStoryNodePrefix() + storyNode.getName());
         }
@@ -902,48 +879,48 @@ void MainCtrl::loadNarrativeGraph()
         QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
         QList<zodiac::NodeHandle> currentNarSceneNodes;
 
-        for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+        foreach (zodiac::NodeHandle cNode, currentNodes)
         {
             //also save all current narrative nodes to a separate list in case two parts of the same narrative are loaded separately, for requirements
-            if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
-                currentNarSceneNodes.push_back((*cNIt));
+            if(cNode.getType() == zodiac::NODE_NARRATIVE)
+                currentNarSceneNodes.push_back(cNode);
         }
 
         QList<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
         QList<NodeCtrl*> newNarSceneNodes;
 
-        for(QList<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
+        foreach (NarNode nNode, narrativeNodes)
         {
-            NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, (*narIt).id, (*narIt).comments);
-            newNarNode->setFileName((*narIt).fileName);
+            NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, nNode.id, nNode.comments);
+            newNarNode->setFileName(nNode.fileName);
 
-            loadNarrativeCommands((*narIt), newNarNode);
+            loadNarrativeCommands(nNode, newNarNode);
 
-            loadStoryTags(newNarNode, (*narIt).storyTags);
+            loadStoryTags(newNarNode, nNode.storyTags);
 
             newNarSceneNodes.push_back(newNarNode);
         }
 
         //loop again for the requirements (necessary in case nodes aren't loaded in chronological order)
-        for(QList<NarNode>::iterator narIt = narrativeNodes.begin(); narIt != narrativeNodes.end(); ++narIt)
+        foreach (NarNode nNode, narrativeNodes)
         {
-            if((*narIt).requirements.type != REQ_NONE)
+            if(nNode.requirements.type != REQ_NONE)
             {
                 //qDebug() << (*narIt).id << " requirements";
 
                 NodeCtrl* newNarNode = nullptr;
 
-                for(QList<NodeCtrl*>::iterator nodeIt = newNarSceneNodes.begin(); nodeIt != newNarSceneNodes.end(); ++nodeIt)
+                foreach (NodeCtrl* newNNode, newNarSceneNodes)
                 {
-                    if((*narIt).id == (*nodeIt)->getName())
+                    if(nNode.id == newNNode->getName())
                     {
-                        newNarNode = (*nodeIt);
+                        newNarNode = newNNode;
                     }
                 }
 
                 if(!newNarNode)
                 {
-                    qDebug() << "Warning: node -"+ (*narIt).id +"- not found in recently loaded list";
+                    qDebug() << "Warning: node -"+ nNode.id +"- not found in recently loaded list";
                     continue;
                 }
 
@@ -954,7 +931,7 @@ void MainCtrl::loadNarrativeGraph()
                 else
                     reqOutPlug = newNarNode->addOutgoingPlug("reqOut");
 
-                loadRequirements((*narIt).requirements, reqOutPlug, newNarSceneNodes, currentNarSceneNodes);
+                loadRequirements(nNode.requirements, reqOutPlug, newNarSceneNodes, currentNarSceneNodes);
             }
         }
 
@@ -966,37 +943,31 @@ void MainCtrl::loadNarrativeGraph()
 
 void MainCtrl::loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode)
 {
-    for(QList<NarCommand>::iterator cmdIt = loadedNode.onUnlockCommands.begin(); cmdIt != loadedNode.onUnlockCommands.end(); ++cmdIt)
+    foreach (NarCommand oUCmd, loadedNode.onUnlockCommands)
     {
         QUuid cmdKey = QUuid::createUuid();
-        sceneNode->addOnUnlockCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+        sceneNode->addOnUnlockCommand(cmdKey, oUCmd.command, oUCmd.description);
 
-        for(QList<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
-        {
-            sceneNode->addParameterToOnUnlockCommand(cmdKey, (*paramIt).id, (*paramIt).description);
-        }
+        foreach (SimpleNode cmdParam, oUCmd.params)
+            sceneNode->addParameterToOnUnlockCommand(cmdKey, cmdParam.id, cmdParam.description);
     }
 
-    for(QList<NarCommand>::iterator cmdIt = loadedNode.onFailCommands.begin(); cmdIt != loadedNode.onFailCommands.end(); ++cmdIt)
+    foreach (NarCommand oFCmd, loadedNode.onFailCommands)
     {
         QUuid cmdKey = QUuid::createUuid();
-        sceneNode->addOnFailCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+        sceneNode->addOnFailCommand(cmdKey, oFCmd.command, oFCmd.description);
 
-        for(QList<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
-        {
-            sceneNode->addParameterToOnFailCommand(cmdKey, (*paramIt).id, (*paramIt).description);
-        }
+        foreach (SimpleNode cmdParam, oFCmd.params)
+            sceneNode->addParameterToOnFailCommand(cmdKey, cmdParam.id, cmdParam.description);
     }
 
-    for(QList<NarCommand>::iterator cmdIt = loadedNode.onUnlockedCommands.begin(); cmdIt != loadedNode.onUnlockedCommands.end(); ++cmdIt)
+    foreach (NarCommand oUdCmd, loadedNode.onUnlockedCommands)
     {
         QUuid cmdKey = QUuid::createUuid();
-        sceneNode->addOnUnlockedCommand(cmdKey, (*cmdIt).command, (*cmdIt).description);
+        sceneNode->addOnUnlockedCommand(cmdKey, oUdCmd.command, oUdCmd.description);
 
-        for(QList<SimpleNode>::iterator paramIt = (*cmdIt).params.begin(); paramIt != (*cmdIt).params.end(); ++paramIt)
-        {
-            sceneNode->addParameterToOnUnlockedCommand(cmdKey, (*paramIt).id, (*paramIt).description);
-        }
+        foreach (SimpleNode cmdParam, oUdCmd.params)
+            sceneNode->addParameterToOnUnlockedCommand(cmdKey, cmdParam.id, cmdParam.description);
     }
 
 }
@@ -1018,17 +989,18 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
 
             bool found = false;
             //link it to the node mentioned in the id
-            for(QList<NodeCtrl*>::iterator nodeIt = sceneNodes.begin(); nodeIt != sceneNodes.end(); ++nodeIt)
-                if((*nodeIt)->getName() == requirements.id)
+            foreach (NodeCtrl* sNode, sceneNodes)
+                if(sNode->getName() == requirements.id)
                 {
-                    newRequirementNode = (*nodeIt);
+                    newRequirementNode = sNode;
 
                     zodiac::PlugHandle nodeReqInPlug;
 
-                    if((*nodeIt)->getNodeHandle().getPlug("reqIn").isValid())
-                        nodeReqInPlug = (*nodeIt)->getNodeHandle().getPlug("reqIn");
+                    if(sNode->getNodeHandle().getPlug("reqIn").isValid())
+                        nodeReqInPlug = sNode->getNodeHandle().getPlug("reqIn");
                     else
-                        nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn");
+                        nodeReqInPlug = sNode->addIncomingPlug("reqIn");
+
                     parentReqOutPlug.connectPlug(nodeReqInPlug, narrativeLinkColor);  //link plugs
                     found  = true;
                     break;
@@ -1038,17 +1010,18 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
             {
                 qDebug() << "Warning. Node:" << requirements.id << "not found in loaded list, checking scene nodes.";
 
-                for(QList<zodiac::NodeHandle>::iterator nodeIt = currentNarSceneNodes.begin(); nodeIt != currentNarSceneNodes.end(); ++nodeIt)
-                    if((*nodeIt).getName() == requirements.id)
+                foreach (zodiac::NodeHandle cSNode, currentNarSceneNodes)
+                    if(cSNode.getName() == requirements.id)
                     {
-                        newRequirementNode = new NodeCtrl(this, (*nodeIt));;
+                        newRequirementNode = new NodeCtrl(this, cSNode);
 
                         zodiac::PlugHandle nodeReqInPlug;
 
-                        if((*nodeIt).getPlug("reqIn").isValid())
-                            nodeReqInPlug = (*nodeIt).getPlug("reqIn");
+                        if(cSNode.getPlug("reqIn").isValid())
+                            nodeReqInPlug = cSNode.getPlug("reqIn");
                         else
-                            nodeReqInPlug = (*nodeIt).createIncomingPlug("reqIn");
+                            nodeReqInPlug = cSNode.createIncomingPlug("reqIn");
+
                         parentReqOutPlug.connectPlug(nodeReqInPlug, narrativeLinkColor);  //link plugs
                         found  = true;
                         break;
@@ -1099,15 +1072,15 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
 
             bool found = false;
             //link it to the node mentioned in the id
-            for(QList<NodeCtrl*>::iterator nodeIt = sceneNodes.begin(); nodeIt != sceneNodes.end(); ++nodeIt)
-                if((*nodeIt)->getName() == requirements.id)
+            foreach (NodeCtrl* sNode, sceneNodes)
+                if(sNode->getName() == requirements.id)
                 {
                     zodiac::PlugHandle nodeReqInPlug;
 
-                    if((*nodeIt)->getNodeHandle().getPlug("reqIn").isValid())
-                        nodeReqInPlug = (*nodeIt)->getNodeHandle().getPlug("reqIn");
+                    if(sNode->getNodeHandle().getPlug("reqIn").isValid())
+                        nodeReqInPlug = sNode->getNodeHandle().getPlug("reqIn");
                     else
-                        nodeReqInPlug = (*nodeIt)->addIncomingPlug("reqIn");
+                        nodeReqInPlug = sNode->addIncomingPlug("reqIn");
                     reqOutPlug.connectPlug(nodeReqInPlug, narrativeLinkColor);  //link plugs
                     found  = true;
                     break;
@@ -1117,15 +1090,15 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
             {
                 qDebug() << "Warning. Node:" << requirements.id << "not found in loaded list, checking scene nodes.";
 
-                for(QList<zodiac::NodeHandle>::iterator nodeIt = currentNarSceneNodes.begin(); nodeIt != currentNarSceneNodes.end(); ++nodeIt)
-                    if((*nodeIt).getName() == requirements.id)
+                foreach (zodiac::NodeHandle sNode, currentNarSceneNodes)
+                    if(sNode.getName() == requirements.id)
                     {
                         zodiac::PlugHandle nodeReqInPlug;
 
-                        if((*nodeIt).getPlug("reqIn").isValid())
-                            nodeReqInPlug = (*nodeIt).getPlug("reqIn");
+                        if(sNode.getPlug("reqIn").isValid())
+                            nodeReqInPlug = sNode.getPlug("reqIn");
                         else
-                            nodeReqInPlug = (*nodeIt).createIncomingPlug("reqIn");
+                            nodeReqInPlug = sNode.createIncomingPlug("reqIn");
                         parentReqOutPlug.connectPlug(nodeReqInPlug, narrativeLinkColor);  //link plugs
                         found  = true;
                         break;
@@ -1139,7 +1112,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
         float childrenSize = requirements.children.size();
         if(childrenSize > 0)
         {
-            for(QList<NarRequirements>::iterator reqIt = requirements.children.begin(); reqIt != requirements.children.end(); ++reqIt)
+            foreach (NarRequirements reqChild, requirements.children)
             {
                 if(!reqOutPlug.isValid())
                 {
@@ -1149,7 +1122,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
                         reqOutPlug = newRequirementNode->addOutgoingPlug("reqOut"); //make the out plug if it doesn't exist
                 }
 
-                loadRequirements((*reqIt), reqOutPlug, sceneNodes, currentNarSceneNodes);
+                loadRequirements(reqChild, reqOutPlug, sceneNodes, currentNarSceneNodes);
             }
         }
     }
@@ -1187,7 +1160,6 @@ void MainCtrl::spaceOutFullNarrative()
             newFileNames.removeOne(fileName);
     }
 
-
     if(newFileNames.size() == 0)
         spaceOutNarrative(oldFileNames);
     else
@@ -1211,11 +1183,11 @@ void MainCtrl::spaceOutNarrative(QVector<QString> fileNames)
         yPos = 0.0f;
     }
     else
-        for(QList<zodiac::NodeHandle>::iterator stoIt = nodeList.begin(); stoIt != nodeList.end(); ++stoIt)
+        foreach (zodiac::NodeHandle storyNode, nodeList)
         {
-            if((*stoIt).getType() == zodiac::NODE_STORY)
+            if(storyNode.getType() == zodiac::NODE_STORY)
             {
-                QPointF nodePos = (*stoIt).getPos();
+                QPointF nodePos = storyNode.getPos();
 
                 if(nodePos.x() < xPos)
                     xPos = nodePos.x();
@@ -1229,31 +1201,31 @@ void MainCtrl::spaceOutNarrative(QVector<QString> fileNames)
 
     //space out nodes
     foreach (QString fileName, fileNames)
-        for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
+        foreach (zodiac::NodeHandle narNode, nodeList)
         {
-            if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getFileName() == fileName && (*narIt).getPlug("reqOut").connectionCount() == 0)
+            if((narNode.getType() == zodiac::NODE_NARRATIVE) && narNode.getFileName() == fileName && narNode.getPlug("reqOut").connectionCount() == 0)
             {
-                (*narIt).setPos(xPos, yPos);
-                spaceOutNarrativeChildren(new NodeCtrl(this, (*narIt)), yPos, xPos);
+                narNode.setPos(xPos, yPos);
+                spaceOutNarrativeChildren(new NodeCtrl(this, narNode), yPos, xPos);
 
                 yPos = oldYPos;
                 xPos += 150;
             }
         }
 
-    for(QList<zodiac::NodeHandle>::iterator narIt = nodeList.begin(); narIt != nodeList.end(); ++narIt)
+    foreach (zodiac::NodeHandle narNode, nodeList)
     {
-        if(((*narIt).getType() == zodiac::NODE_NARRATIVE) && (*narIt).getPlug("reqOut").connectionCount() > 1)
+        if((narNode.getType() == zodiac::NODE_NARRATIVE) && narNode.getPlug("reqOut").connectionCount() > 1)
         {
-            QList<zodiac::PlugHandle> connectedPlugs = (*narIt).getPlug("reqOut").getConnectedPlugs();
+            QList<zodiac::PlugHandle> connectedPlugs = narNode.getPlug("reqOut").getConnectedPlugs();
             float averageY = 0;
 
-            for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
+            foreach (zodiac::PlugHandle plug, connectedPlugs)
             {
-                averageY += (*plugIt).getNode().getPos().y();
+                averageY += plug.getNode().getPos().y();
             }
 
-            (*narIt).setPos((*narIt).getPos().x(), averageY/connectedPlugs.size(), false, true);
+            narNode.setPos(narNode.getPos().x(), averageY/connectedPlugs.size(), false, true);
         }
     }
 }
@@ -1271,9 +1243,9 @@ void MainCtrl::spaceOutNarrativeChildren(NodeCtrl* sceneNode, float &maxY, float
             float averageY = 0;
             float y = maxY;
 
-            for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++ plugIt)
+            foreach (zodiac::PlugHandle plug, connectedPlugs)
             {
-                NodeCtrl* childNode = new NodeCtrl(this, (*plugIt).getNode());
+                NodeCtrl* childNode = new NodeCtrl(this, plug.getNode());
 
                 childNode->setPos(sceneNode->getPos().x() + 150, y);
                 spaceOutNarrativeChildren(childNode, y, maxX);
@@ -1305,26 +1277,34 @@ void MainCtrl::spaceOutStory()
     zodiac::NodeHandle plotNode;
     zodiac::NodeHandle resolutionNode;
     //iterate through the list to find the nodes
-    for(QList<zodiac::NodeHandle>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+    foreach(zodiac::NodeHandle node, nodes)
     {
-        if((*it).getType() == zodiac::NODE_STORY)
-        {
-            if((*it).getStoryNodeType() == zodiac::STORY_NAME)
-                startingNode = (*it); //get a pointer to the handle of the name node
+        if(node.getStoryNodeType() == zodiac::STORY_NAME)
+            startingNode = node;
+        else
+            if(node.getStoryNodeType() == zodiac::STORY_SETTING)
+                settingNode = node;
             else
-                if((*it).getStoryNodeType() == zodiac::STORY_SETTING)
-                    settingNode = (*it); //get a pointer to the handle of the settings node
+                if(node.getStoryNodeType() == zodiac::STORY_THEME)
+                    themeNode = node;
                 else
-                    if((*it).getStoryNodeType() == zodiac::STORY_THEME)
-                        themeNode = (*it); //get a pointer to the handle of the theme node
+                    if(node.getStoryNodeType() == zodiac::STORY_PLOT)
+                        plotNode = node;
                     else
-                        if((*it).getStoryNodeType() == zodiac::STORY_PLOT)
-                            plotNode = (*it); //get a pointer to the handle of the plot node
-                        else
-                            if((*it).getStoryNodeType() == zodiac::STORY_RESOLUTION)
-                                resolutionNode = (*it); //get a pointer to the handle of the resolution node
-        }
+                        if(node.getStoryNodeType() == zodiac::STORY_RESOLUTION)
+                            resolutionNode = node;
     }
+
+    if(!startingNode.isValid())
+        qDebug() << "no starting node";
+    if(!settingNode.isValid())
+        qDebug() << "no setting node";
+    if(!themeNode.isValid())
+        qDebug() << "no theme node";
+    if(!plotNode.isValid())
+        qDebug() << "no plot node";
+    if(!resolutionNode.isValid())
+        qDebug() << "no resolution node";
 
     float maxX = 0.0f;
     float currentY = settingNode.getPos().y();  //all four nodes will be the same height
@@ -1352,22 +1332,20 @@ float MainCtrl::spaceOutChildNodes(zodiac::NodeHandle &node, float &xPos, float 
             node.setPos(xPos, yPos);
 
             QList<zodiac::NodeHandle> childNodes;
-            for(QList<zodiac::PlugHandle>::iterator plugIt = connectedPlugs.begin(); plugIt != connectedPlugs.end(); ++plugIt)
-            {
-                childNodes.push_back((*plugIt).getNode());
-            }
+            foreach (zodiac::PlugHandle plug, connectedPlugs)
+                childNodes.push_back(plug.getNode());
 
             float nodeXPos = node.getPos().x();
             float nodeYPos = node.getPos().y() + 150;
             float childPos = 0.0f;
-            for(QList<zodiac::NodeHandle>::iterator nodeIt = childNodes.begin(); nodeIt != childNodes.end(); ++nodeIt)
+            foreach (zodiac::NodeHandle cNode, childNodes)
             {
-                float childMaxX = spaceOutChildNodes((*nodeIt), nodeXPos, nodeYPos);
+                float childMaxX = spaceOutChildNodes(cNode, nodeXPos, nodeYPos);
 
-                    if(childMaxX > maxX)
-                        maxX = childMaxX;
+                if(childMaxX > maxX)
+                    maxX = childMaxX;
 
-                childPos += (*nodeIt).getPos().x();
+                childPos += cNode.getPos().x();
             }
             node.setPos(childPos/childNodes.size(), node.getPos().y());
 
@@ -1462,11 +1440,11 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
             }
         }
 
-        for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++ nodeIt)
+        foreach(zodiac::NodeHandle node, nodeList)
         {
-            nodePtr->getPlug("reqIn").connectPlug((*nodeIt).getPlug("reqOut"), narrativeLinkColor);
-            if((*nodeIt).getFileName() == "")
-                (*nodeIt).setFileName(node.getFileName());
+            nodePtr->getPlug("reqIn").connectPlug(node.getPlug("reqOut"), narrativeLinkColor);
+            if(node.getFileName() == "")
+                node.setFileName(node.getFileName());
         }
     }
 
@@ -1585,17 +1563,17 @@ void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle
 {
     if(nodeList.size() > 0)
     {
-        for(QList<zodiac::NodeHandle>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
+        foreach(zodiac::NodeHandle nodeToLink, nodeList)
         {
             //make plugs and connect
             if(!node.getPlug("storyOut").isValid())
                 node.createOutgoingPlug("storyOut");
-            if(!(*nodeIt).getPlug("narrativeIn").isValid())
-                (*nodeIt).createIncomingPlug("narrativeIn");
+            if(!nodeToLink.getPlug("narrativeIn").isValid())
+                nodeToLink.createIncomingPlug("narrativeIn");
 
-            node.getPlug("storyOut").connectPlug((*nodeIt).getPlug("narrativeIn"), storyNarrativeLinkColor); //connect nodes
+            node.getPlug("storyOut").connectPlug(nodeToLink.getPlug("narrativeIn"), storyNarrativeLinkColor); //connect nodes
 
-            (*nodeIt).setLabelBackgroundColor(QColor(2, 202, 0));
+            nodeToLink.setLabelBackgroundColor(QColor(2, 202, 0));
         }
 
         m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
@@ -1608,88 +1586,88 @@ void MainCtrl::lockAllNodes()
 
     QList<zodiac::NodeHandle> invNodes;
 
-    for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+    foreach(zodiac::NodeHandle cNode, currentNodes)
     {
-        if((*cNIt).isNodeDecorator())   //not the INV and SEQ nodes
+        if(cNode.isNodeDecorator())   //not the INV and SEQ nodes
         {
-            if((*cNIt).getName() == "INV")
-                invNodes.push_back(((*cNIt)));
+            if(cNode.getName() == "INV")
+                invNodes.push_back((cNode));
 
             continue;
         }
 
-        if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
+        if(cNode.getType() == zodiac::NODE_NARRATIVE)
         {
-            if((*cNIt).getPlug("reqOut").connectionCount() == 0)    //unlockable if no requirements
+            if(cNode.getPlug("reqOut").connectionCount() == 0)    //unlockable if no requirements
             {
-                (*cNIt).setLockedStatus(zodiac::UNLOCKABLE);
-                (*cNIt).setIdleColor(QColor("#3333cc"));
-                (*cNIt).setIdleColor(QColor("#4949cc"));
+                cNode.setLockedStatus(zodiac::UNLOCKABLE);
+                cNode.setIdleColor(QColor("#3333cc"));
+                cNode.setIdleColor(QColor("#4949cc"));
             }
             else
             {
-                (*cNIt).setLockedStatus(zodiac::LOCKED);
-                (*cNIt).setIdleColor(QColor("#ff1800"));
-                (*cNIt).setSelectedColor(QColor("#ff331e"));
+                cNode.setLockedStatus(zodiac::LOCKED);
+                cNode.setIdleColor(QColor("#ff1800"));
+                cNode.setSelectedColor(QColor("#ff331e"));
             }
         }
         else
         {
-            (*cNIt).setIdleColor(QColor("#ff1800"));
-            (*cNIt).setSelectedColor(QColor("#ff331e"));
+            cNode.setIdleColor(QColor("#ff1800"));
+            cNode.setSelectedColor(QColor("#ff331e"));
         }
     }
 
-    for(QList<zodiac::NodeHandle>::iterator iNIt = invNodes.begin(); iNIt != invNodes.end(); ++iNIt)
+    foreach(zodiac::NodeHandle iNode, invNodes)
     {
-        if(((*iNIt)).getPlug("reqOut").isValid())
+        if(iNode.getPlug("reqOut").isValid())
         {
-            QList<zodiac::PlugHandle> InvInPlugs = (*iNIt).getPlug("reqOut").getConnectedPlugs();
+            QList<zodiac::PlugHandle> InvInPlugs = iNode.getPlug("reqOut").getConnectedPlugs();
             //this should only return one node
             if(InvInPlugs.size() > 1)
                 qDebug() << "Error: more than one node without a sequencer";
-            for(QList<zodiac::PlugHandle>::iterator plugIt = InvInPlugs.begin(); plugIt != InvInPlugs.end(); ++plugIt)
+            foreach(zodiac::PlugHandle iInPlug, InvInPlugs)
             {
-                if((*plugIt).getNode().getName() == "SEQ")
+                if(iInPlug.getNode().getName() == "SEQ")
                 {
                     //check reqOut plug to see if all nodes are unlocked
-                    if((*plugIt).getNode().getPlug("reqOut").isValid())
+                    if(iInPlug.getNode().getPlug("reqOut").isValid())
                     {
                         QList<zodiac::NodeHandle> seqInNodes;
-                        QList<zodiac::PlugHandle> seqInPlugs = (*plugIt).getNode().getPlug("reqOut").getConnectedPlugs();
-                        for(QList<zodiac::PlugHandle>::iterator plugIt = seqInPlugs.begin(); plugIt != seqInPlugs.end(); ++plugIt)
+                        QList<zodiac::PlugHandle> seqInPlugs = iInPlug.getNode().getPlug("reqOut").getConnectedPlugs();
+                        foreach(zodiac::PlugHandle sInPlug, seqInPlugs)
                         {
-                            seqInNodes.push_back((*plugIt).getNode());
+                            seqInNodes.push_back(sInPlug.getNode());
                         }
 
                         //if true then lock node, otherwise it's still unlockable
                         if(areAllNodesUnlocked(seqInNodes))
                         {
-                            (*iNIt).setLockedStatus(zodiac::LOCKED);
-                            (*iNIt).setIdleColor(QColor("#ff1800"));
-                            (*iNIt).setSelectedColor(QColor("#ff331e"));
+                            iNode.setLockedStatus(zodiac::LOCKED);
+                            iNode.setIdleColor(QColor("#ff1800"));
+                            iNode.setSelectedColor(QColor("#ff331e"));
                         }
                         else
                         {
-                            (*iNIt).setLockedStatus(zodiac::UNLOCKABLE);
-                            (*iNIt).setIdleColor(QColor("#3333cc"));
-                            (*iNIt).setIdleColor(QColor("#4949cc"));
+                            iNode.setLockedStatus(zodiac::UNLOCKABLE);
+                            iNode.setIdleColor(QColor("#3333cc"));
+                            iNode.setIdleColor(QColor("#4949cc"));
                         }
                     }
                 }
                 else
                 {
-                    if((*plugIt).getNode().getLockedStatus())
+                    if(iInPlug.getNode().getLockedStatus())
                     {
-                        (*iNIt).setLockedStatus(zodiac::UNLOCKABLE);
-                        (*iNIt).setIdleColor(QColor("#3333cc"));    //node locked, unlockable
-                        (*iNIt).setIdleColor(QColor("#4949cc"));
+                        iNode.setLockedStatus(zodiac::UNLOCKABLE);
+                        iNode.setIdleColor(QColor("#3333cc"));    //node locked, unlockable
+                        iNode.setIdleColor(QColor("#4949cc"));
                     }
                     else
                     {
-                        (*iNIt).setLockedStatus(zodiac::LOCKED);
-                        (*iNIt).setIdleColor(QColor("#ff1800"));        //node unlocked, locked
-                        (*iNIt).setSelectedColor(QColor("#ff331e"));
+                        iNode.setLockedStatus(zodiac::LOCKED);
+                        iNode.setIdleColor(QColor("#ff1800"));        //node unlocked, locked
+                        iNode.setSelectedColor(QColor("#ff331e"));
                     }
                 }
             }
@@ -1702,19 +1680,19 @@ void MainCtrl::resetAllNodes()
 {
     QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
 
-    for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+    foreach(zodiac::NodeHandle cNode, currentNodes)
     {
-        if((*cNIt).getType() == zodiac::NODE_NARRATIVE)
+        if(cNode.getType() == zodiac::NODE_NARRATIVE)
         {
-            (*cNIt).setIdleColor(QColor("#4b77a7"));
-            (*cNIt).setSelectedColor(QColor("#62abfa"));
-            (*cNIt).setLockedStatus(zodiac::LOCKED);
+            cNode.setIdleColor(QColor("#4b77a7"));
+            cNode.setSelectedColor(QColor("#62abfa"));
+            cNode.setLockedStatus(zodiac::LOCKED);
         }
         else
-            if((*cNIt).getType() == zodiac::NODE_STORY)
+            if(cNode.getType() == zodiac::NODE_STORY)
             {
-                (*cNIt).setIdleColor(QColor("#4b77a7"));
-                (*cNIt).setSelectedColor(QColor("#62abfa"));
+                cNode.setIdleColor(QColor("#4b77a7"));
+                cNode.setSelectedColor(QColor("#62abfa"));
             }
     }
 }
@@ -1724,45 +1702,38 @@ void MainCtrl::unlockNode(QString nodeName)
     QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
     bool found = false;
 
-    for(QList<zodiac::NodeHandle>::iterator cNIt = currentNodes.begin(); cNIt != currentNodes.end(); ++cNIt)
+    foreach(zodiac::NodeHandle cNode, currentNodes)
     {
-        if((*cNIt).getType() == zodiac::NODE_NARRATIVE && (*cNIt).getName() == nodeName)
+        if(cNode.getType() == zodiac::NODE_NARRATIVE && cNode.getName() == nodeName)
         {
             found = true;
 
             //unlocked change colour of node to green to show unlocked
-            (*cNIt).setLockedStatus(zodiac::UNLOCKED);
-            (*cNIt).setIdleColor(QColor("#00cc00"));
-            (*cNIt).setSelectedColor(QColor("#5bff5b"));
+            cNode.setLockedStatus(zodiac::UNLOCKED);
+            cNode.setIdleColor(QColor("#00cc00"));
+            cNode.setSelectedColor(QColor("#5bff5b"));
 
             //change colour of story nodes to green as now unlocked
-            if(((*cNIt)).getPlug("storyOut").isValid())
+            if(cNode.getPlug("storyOut").isValid())
             {
-                QList<zodiac::NodeHandle> storyOutNodes;
-                QList<zodiac::PlugHandle> storyOutPlugs = (*cNIt).getPlug("storyOut").getConnectedPlugs();
-                for(QList<zodiac::PlugHandle>::iterator plugIt = storyOutPlugs.begin(); plugIt != storyOutPlugs.end(); ++plugIt)
-                {
-                    storyOutNodes.push_back((*plugIt).getNode());
-                }
+                QList<zodiac::PlugHandle> storyOutPlugs = cNode.getPlug("storyOut").getConnectedPlugs();
 
-                for(QList<zodiac::NodeHandle>::iterator sNIt = storyOutNodes.begin(); sNIt != storyOutNodes.end(); ++sNIt)
+                foreach(zodiac::PlugHandle outPlug, storyOutPlugs)
                 {
-                    (*sNIt).setIdleColor(QColor("#00cc00"));
-                    (*cNIt).setSelectedColor(QColor("#5bff5b"));
+                    outPlug.getNode().setIdleColor(QColor("#00cc00"));
+                    cNode.setSelectedColor(QColor("#5bff5b"));
                 }
             }
 
             //check if other nodes are unlockable, turn them blue
-            if((*cNIt).getPlug("reqIn").isValid())
+            if(cNode.getPlug("reqIn").isValid())
             {
                 QList<zodiac::NodeHandle> reqNodes;
-                QList<zodiac::PlugHandle> reqPlugs = (*cNIt).getPlug("reqIn").getConnectedPlugs();
+                QList<zodiac::PlugHandle> reqPlugs = cNode.getPlug("reqIn").getConnectedPlugs();
 
                 //get all nodes which require node to be unlocked first
-                for(QList<zodiac::PlugHandle>::iterator plugIt = reqPlugs.begin(); plugIt != reqPlugs.end(); ++plugIt)
-                {
-                    reqNodes.push_back((*plugIt).getNode());
-                }
+                foreach(zodiac::PlugHandle reqPlug, reqPlugs)
+                    reqNodes.push_back(reqPlug.getNode());
 
                 showUnlockableNodes(reqNodes);
             }
@@ -1771,88 +1742,88 @@ void MainCtrl::unlockNode(QString nodeName)
         }
     }
 
-    if(!found)
+    /*if(!found)
     {
-        /*QMessageBox messageBox;
+        QMessageBox messageBox;
         messageBox.critical(0,"Error","Node unlocked which does not exist in the narrative graph.\nPlease ensure that the correct and complete graph is loaded");
-        messageBox.setFixedSize(500,200);*/
-    }
+        messageBox.setFixedSize(500,200);
+    }*/
 }
 
 void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
 {
-    for(QList<zodiac::NodeHandle>::iterator rNIt = nodes.begin(); rNIt != nodes.end(); ++rNIt)
+    foreach(zodiac::NodeHandle rNode, nodes)
     {
-        if((*rNIt).getName() == "SEQ")
+        if(rNode.getName() == "SEQ")
         {
             //check reqOut plug to see if all nodes are unlocked
-            if(((*rNIt)).getPlug("reqOut").isValid())
+            if(rNode.getPlug("reqOut").isValid())
             {
                 QList<zodiac::NodeHandle> seqInNodes;
-                QList<zodiac::PlugHandle> seqInPlugs = (*rNIt).getPlug("reqOut").getConnectedPlugs();
-                for(QList<zodiac::PlugHandle>::iterator plugIt = seqInPlugs.begin(); plugIt != seqInPlugs.end(); ++plugIt)
-                {
-                    seqInNodes.push_back((*plugIt).getNode());
-                }
+                QList<zodiac::PlugHandle> seqInPlugs = rNode.getPlug("reqOut").getConnectedPlugs();
+
+                foreach(zodiac::PlugHandle sIPlug, seqInPlugs)
+                    seqInNodes.push_back(sIPlug.getNode());
 
                 //if true then use reqIn to change to blue
                 if(areAllNodesUnlocked(seqInNodes))
                 {
                     QList<zodiac::NodeHandle> seqOutNodes;
-                    QList<zodiac::PlugHandle> seqOutPlugs = (*rNIt).getPlug("reqIn").getConnectedPlugs();
-                    for(QList<zodiac::PlugHandle>::iterator plugIt = seqOutPlugs.begin(); plugIt != seqOutPlugs.end(); ++plugIt)
-                    {
-                        seqOutNodes.push_back((*plugIt).getNode());
-                    }
+                    QList<zodiac::PlugHandle> seqOutPlugs = rNode.getPlug("reqIn").getConnectedPlugs();
+
+                    foreach(zodiac::PlugHandle sOPlug, seqOutPlugs)
+                        seqOutNodes.push_back(sOPlug.getNode());
 
                     showUnlockableNodes(seqOutNodes);
                 }
             }
         }
         else
-            if((*rNIt).getName() == "INV")
+            if(rNode.getName() == "INV")
             {
                 //node should be now locked
                 //check for possible seq node
-                if(((*rNIt)).getPlug("reqOut").isValid())
+                if((rNode).getPlug("reqOut").isValid())
                 {
-                    QList<zodiac::PlugHandle> InvInPlugs = (*rNIt).getPlug("reqOut").getConnectedPlugs();
+                    QList<zodiac::PlugHandle> InvInPlugs = rNode.getPlug("reqOut").getConnectedPlugs();
                     //this should only return one node
-                    if(InvInPlugs.size() > 1) qDebug() << "Error: more than one node without a sequencer";
-                    for(QList<zodiac::PlugHandle>::iterator plugIt = InvInPlugs.begin(); plugIt != InvInPlugs.end(); ++plugIt)
+                    if(InvInPlugs.size() > 1)
+                        qDebug() << "Error: more than one node without a sequencer";
+
+                    foreach(zodiac::PlugHandle iIPlug, InvInPlugs)
                     {
-                        if((*plugIt).getNode().getName() == "SEQ")
+                        if(iIPlug.getNode().getName() == "SEQ")
                         {
                             //check reqOut plug to see if all nodes are unlocked
-                            if((*plugIt).getNode().getPlug("reqOut").isValid())
+                            if(iIPlug.getNode().getPlug("reqOut").isValid())
                             {
                                 QList<zodiac::NodeHandle> seqInNodes;
-                                QList<zodiac::PlugHandle> seqInPlugs = (*plugIt).getNode().getPlug("reqOut").getConnectedPlugs();
-                                for(QList<zodiac::PlugHandle>::iterator plugIt = seqInPlugs.begin(); plugIt != seqInPlugs.end(); ++plugIt)
+                                QList<zodiac::PlugHandle> seqInPlugs = iIPlug.getNode().getPlug("reqOut").getConnectedPlugs();
+                                foreach(zodiac::PlugHandle sIPlug, seqInPlugs)
                                 {
-                                    seqInNodes.push_back((*plugIt).getNode());
+                                    seqInNodes.push_back(sIPlug.getNode());
                                 }
 
                                 //if true then lock node, otherwise it's still unlockable
                                 if(areAllNodesUnlocked(seqInNodes))
                                 {
-                                    (*rNIt).setLockedStatus(zodiac::LOCKED);
-                                    (*rNIt).setIdleColor(QColor("#ff1800"));
-                                    (*rNIt).setSelectedColor(QColor("#ff331e"));
+                                    rNode.setLockedStatus(zodiac::LOCKED);
+                                    rNode.setIdleColor(QColor("#ff1800"));
+                                    rNode.setSelectedColor(QColor("#ff331e"));
                                 }
                                 else
                                 {
-                                    (*rNIt).setLockedStatus(zodiac::UNLOCKABLE);
-                                    (*rNIt).setIdleColor(QColor("#3333cc"));    //unlockable
-                                    (*rNIt).setIdleColor(QColor("#4949cc"));
+                                    rNode.setLockedStatus(zodiac::UNLOCKABLE);
+                                    rNode.setIdleColor(QColor("#3333cc"));    //unlockable
+                                    rNode.setIdleColor(QColor("#4949cc"));
                                 }
                             }
                         }
                         else
                         {
-                            (*rNIt).setLockedStatus(zodiac::LOCKED);
-                            (*rNIt).setIdleColor(QColor("#ff1800"));    //lock it
-                            (*rNIt).setSelectedColor(QColor("#ff331e"));
+                            rNode.setLockedStatus(zodiac::LOCKED);
+                            rNode.setIdleColor(QColor("#ff1800"));    //lock it
+                            rNode.setSelectedColor(QColor("#ff331e"));
                         }
                     }
                 }
@@ -1860,72 +1831,67 @@ void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
             }
             else
             {
-                (*rNIt).setLockedStatus(zodiac::UNLOCKABLE);
-                (*rNIt).setIdleColor(QColor("#3333cc"));
-                (*rNIt).setIdleColor(QColor("#4949cc"));
+                rNode.setLockedStatus(zodiac::UNLOCKABLE);
+                rNode.setIdleColor(QColor("#3333cc"));
+                rNode.setIdleColor(QColor("#4949cc"));
             }
     }
 }
 
 bool MainCtrl::areAllNodesUnlocked(QList<zodiac::NodeHandle> &nodes)
 {
-    for(QList<zodiac::NodeHandle>::iterator rNIt = nodes.begin(); rNIt != nodes.end(); ++rNIt)
+    foreach(zodiac::NodeHandle rNode, nodes)
     {
-        if((*rNIt).getName() == "SEQ")
+        if(rNode.getName() == "SEQ")
         {
             //check reqIn plug to see if all nodes are unlocked
-            if(((*rNIt)).getPlug("reqIn").isValid())
+            if(rNode.getPlug("reqIn").isValid())
             {
                 QList<zodiac::NodeHandle> seqInNodes;
-                QList<zodiac::PlugHandle> seqInPlugs = (*rNIt).getPlug("reqIn").getConnectedPlugs();
-                for(QList<zodiac::PlugHandle>::iterator plugIt = seqInPlugs.begin(); plugIt != seqInPlugs.end(); ++plugIt)
-                {
-                    seqInNodes.push_back((*plugIt).getNode());
-                }
+                QList<zodiac::PlugHandle> seqInPlugs = rNode.getPlug("reqIn").getConnectedPlugs();
+
+                foreach(zodiac::PlugHandle sIPlug, seqInPlugs)
+                    seqInNodes.push_back(sIPlug.getNode());
 
                 if(!areAllNodesUnlocked(seqInNodes))
                     return false;
             }
         }
         else
-            if((*rNIt).getName() == "INV")
+            if(rNode.getName() == "INV")
             {
-                if(((*rNIt)).getPlug("reqOut").isValid())
+                if((rNode).getPlug("reqOut").isValid())
                 {
                     QList<zodiac::NodeHandle> invNodes;
-                    QList<zodiac::PlugHandle> invPlugs = (*rNIt).getPlug("reqOut").getConnectedPlugs();
+                    QList<zodiac::PlugHandle> invPlugs = rNode.getPlug("reqOut").getConnectedPlugs();
 
                     //get all nodes which require node to be unlocked first
-                    for(QList<zodiac::PlugHandle>::iterator invPlugIt = invPlugs.begin(); invPlugIt != invPlugs.end(); ++invPlugIt)
-                    {
-                        invNodes.push_back((*invPlugIt).getNode());
-                    }
+                    foreach(zodiac::PlugHandle iPlug, invPlugs)
+                        invNodes.push_back(iPlug.getNode());
 
-                    for(QList<zodiac::NodeHandle>::iterator invNodeIt = invNodes.begin(); invNodeIt != invNodes.end(); ++invNodeIt)
+                    foreach(zodiac::NodeHandle iNode, invNodes)
                     {
-                        if((*invNodeIt).getName() == "SEQ")
+                        if(iNode.getName() == "SEQ")
                         {
                             QList<zodiac::NodeHandle> seqNodes;
-                            QList<zodiac::PlugHandle> seqPlugs = (*invNodeIt).getPlug("reqOut").getConnectedPlugs();
+                            QList<zodiac::PlugHandle> seqPlugs = iNode.getPlug("reqOut").getConnectedPlugs();
 
                             //get all nodes which require node to be unlocked first
-                            for(QList<zodiac::PlugHandle>::iterator seqPlugIt = seqPlugs.begin(); seqPlugIt != seqPlugs.end(); ++seqPlugIt)
-                            {
-                                seqNodes.push_back((*seqPlugIt).getNode());
-                            }
+                            foreach(zodiac::PlugHandle sPlug, seqPlugs)
+                                seqNodes.push_back(sPlug.getNode());
 
                             if(areAllNodesUnlocked(seqNodes))   //inverse so returning true means not unlocked
                                 return false;
                         }
                         else
-                            if(!(*rNIt).getLockedStatus())  //if unlocked then fail
+                            if(!rNode.getLockedStatus())  //if unlocked then fail
                                 return false;
                     }
                 }
             }
             else
                 {
-                     if((*rNIt).getLockedStatus())
+                     if(rNode.getLockedStatus())
                          return false;
                 }
     }
