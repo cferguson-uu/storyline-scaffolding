@@ -2,7 +2,6 @@
 
 saveandload::saveandload()
 {
-
 }
 
 bool saveandload::LoadStoryFromFile(QWidget *widget)
@@ -576,13 +575,7 @@ SettingItem *saveandload::addCharacter(QString id, QString description)
 
     m_characters.push_back(newCharacter);
 
-    for(QList<SettingItem>::iterator it = m_characters.begin(); it!= m_characters.end(); ++it)
-    {
-        if((*it).id == newCharacter.id)
-            return &(*it);
-    }
-
-    return nullptr; //if a problem
+    return &m_characters.back();
 }
 
 SettingItem *saveandload::addLocation(QString id, QString description)
@@ -593,11 +586,7 @@ SettingItem *saveandload::addLocation(QString id, QString description)
 
     m_locations.push_back(newLocation);
 
-    for(QList<SettingItem>::iterator it = m_locations.begin(); it!= m_locations.end(); ++it)
-    {
-        if((*it).id == newLocation.id)
-            return &(*it);
-    }
+    return &m_locations.back();
 
     return nullptr; //if a problem
 }
@@ -610,11 +599,7 @@ SettingItem *saveandload::addTime(QString id, QString description)
 
     m_times.push_back(newTime);
 
-    for(QList<SettingItem>::iterator it = m_times.begin(); it!= m_times.end(); ++it)
-    {
-        if((*it).id == newTime.id)
-            return &(*it);
-    }
+    return &m_times.back();
 
     return nullptr; //if a problem
 }
@@ -637,22 +622,12 @@ EventGoal *saveandload::addEvent(QString id, QString description, EventGoal* par
     if(parent != nullptr)
     {
         parent->subItems.push_back(newEvent);
-
-        for(QList<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
-        {
-            if((*it).id == newEvent.id)
-                return &(*it);
-        }
+        return &parent->subItems.back();
     }
     else
     {
         m_events.push_back(newEvent);
-
-        for(QList<EventGoal>::iterator it = m_events.begin(); it!= m_events.end(); ++it)
-        {
-            if((*it).id == newEvent.id)
-                return &(*it);
-        }
+        return &m_events.back();
     }
 
     return nullptr; //if a problem
@@ -667,22 +642,12 @@ EventGoal *saveandload::addGoal(QString id, QString description, EventGoal* pare
     if(parent != nullptr)
     {
         parent->subItems.push_back(newGoal);
-
-        for(QList<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
-        {
-            if((*it).id == newGoal.id)
-                return &(*it);
-        }
+        return &parent->subItems.back();
     }
     else
     {
         m_goals.push_back(newGoal);
-
-        for(QList<EventGoal>::iterator it = m_goals.begin(); it!= m_goals.end(); ++it)
-        {
-            if((*it).id == newGoal.id)
-                return &(*it);
-        }
+        return &m_goals.back();
     }
 
     return nullptr; //if a problem
@@ -699,33 +664,18 @@ Episode *saveandload::addEpisode(QString id, QString description, Episode* paren
         if(type == zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP)
         {
             parent->attemptSubEpisodes.push_back(newEpisode);
-
-            for(QList<Episode>::iterator it = parent->attemptSubEpisodes.begin(); it!= parent->attemptSubEpisodes.end(); ++it)
-            {
-                if((*it).id == newEpisode.id)
-                    return &(*it);
-            }
+            return &parent->attemptSubEpisodes.back();
         }
         else    //STORY_PLOT_EPISODE_OUTCOME_GROUP
         {
             parent->outcomeSubEpisodes.push_back(newEpisode);
-
-            for(QList<Episode>::iterator it = parent->outcomeSubEpisodes.begin(); it!= parent->outcomeSubEpisodes.end(); ++it)
-            {
-                if((*it).id == newEpisode.id)
-                    return &(*it);
-            }
+            return &parent->outcomeSubEpisodes.back();
         }
     }
     else
     {
         m_episodes.push_back(newEpisode);
-
-        for(QList<Episode>::iterator it = m_episodes.begin(); it!= m_episodes.end(); ++it)
-        {
-            if((*it).id == newEpisode.id)
-                return &(*it);
-        }
+        return &m_episodes.back();
     }
 
     return nullptr; //if a problem
@@ -739,13 +689,7 @@ SimpleNode *saveandload::addAttempt(QString id, QString description, Episode* pa
 
     parent->attempts.push_back(newAttempt);
 
-    for(QList<SimpleNode>::iterator it = parent->attempts.begin(); it!= parent->attempts.end(); ++it)
-    {
-        if((*it).id == newAttempt.id)
-            return &(*it);
-    }
-
-    return nullptr; //if a problem
+    return &parent->attempts.back();
 }
 
 SimpleNode *saveandload::addOutcome(QString id, QString description, Episode* parent)
@@ -756,13 +700,7 @@ SimpleNode *saveandload::addOutcome(QString id, QString description, Episode* pa
 
     parent->outcomes.push_back(newOutcome);
 
-    for(QList<SimpleNode>::iterator it = parent->outcomes.begin(); it!= parent->outcomes.end(); ++it)
-    {
-        if((*it).id == newOutcome.id)
-            return &(*it);
-    }
-
-    return nullptr; //if a problem
+    return &parent->outcomes.back();
 }
 
 EventGoal *saveandload::addResolutionEvent(QString id, QString description, EventGoal* parent)
@@ -774,22 +712,12 @@ EventGoal *saveandload::addResolutionEvent(QString id, QString description, Even
         if(parent != nullptr)
         {
             parent->subItems.push_back(newEvent);
-
-            for(QList<EventGoal>::iterator it = parent->subItems.begin(); it!= parent->subItems.end(); ++it)
-            {
-                if((*it).id == newEvent.id)
-                    return &(*it);
-            }
+            return &parent->subItems.back();
         }
         else
         {
             m_resolution.events.push_back(newEvent);
-
-            for(QList<EventGoal>::iterator it = m_events.begin(); it!= m_events.end(); ++it)
-            {
-                if((*it).id == newEvent.id)
-                    return &(*it);
-            }
+            return &m_resolution.events.back();
         }
 
         return nullptr; //if a problem
@@ -879,13 +807,7 @@ NarNode *saveandload::addNarrativeNode(QString id, QString description, QString 
 
     m_narrativeNodes.push_back(newNode);
 
-    for(QList<NarNode>::iterator it = m_narrativeNodes.begin(); it!= m_narrativeNodes.end(); ++it)
-    {
-        if((*it).id == newNode.id)
-            return &(*it);
-    }
-
-    return nullptr; //if a problem
+    return &m_narrativeNodes.back();
 }
 
 NarCommand *saveandload::addOnUnlock(NarNode *node, QString cmdId, QString cmdDescription)
@@ -895,14 +817,7 @@ NarCommand *saveandload::addOnUnlock(NarNode *node, QString cmdId, QString cmdDe
     newCmd.description = cmdDescription;
 
     node->onUnlockCommands.push_back(newCmd);
-
-    for(QList<NarCommand>::iterator it = node->onUnlockCommands.begin(); it!= node->onUnlockCommands.end(); ++it)
-    {
-        if((*it).command == newCmd.command && (*it).params.isEmpty())   //params is empty as just created
-            return &(*it);
-    }
-
-    return nullptr; //if a problem
+    return &node->onUnlockCommands.back(); //if a problem
 }
 
 NarCommand *saveandload::addOnFail(NarNode *node, QString cmdId, QString cmdDescription)
@@ -912,14 +827,7 @@ NarCommand *saveandload::addOnFail(NarNode *node, QString cmdId, QString cmdDesc
     newCmd.description = cmdDescription;
 
     node->onFailCommands.push_back(newCmd);
-
-    for(QList<NarCommand>::iterator it = node->onFailCommands.begin(); it!= node->onFailCommands.end(); ++it)
-    {
-        if((*it).command == newCmd.command && (*it).params.isEmpty())   //params is empty as just created
-            return &(*it);
-    }
-
-    return nullptr; //if a problem
+    return &node->onFailCommands.back(); //if a problem
 }
 
 NarCommand *saveandload::addOnUnlocked(NarNode *node, QString cmdId, QString cmdDescription)
@@ -929,14 +837,7 @@ NarCommand *saveandload::addOnUnlocked(NarNode *node, QString cmdId, QString cmd
     newCmd.description = cmdDescription;
 
     node->onUnlockedCommands.push_back(newCmd);
-
-    for(QList<NarCommand>::iterator it = node->onUnlockedCommands.begin(); it!= node->onUnlockedCommands.end(); ++it)
-    {
-        if((*it).command == newCmd.command && (*it).params.isEmpty())   //params is empty as just created
-            return &(*it);
-    }
-
-    return nullptr; //if a problem
+    return &node->onUnlockedCommands.back(); //if a problem
 }
 
 void saveandload::addParameterToCommand(NarCommand *cmd, QString paramID, QString paramVal)
@@ -996,14 +897,7 @@ NarRequirements *saveandload::addChildRequirement(NarRequirements *req, QString 
             }
 
     req->children.push_back(newReq);
-
-    for(QList<NarRequirements>::iterator it = req->children.begin(); it!= req->children.end(); ++it)
-    {
-        if((*it).id == newReq.id)
-            return &(*it);
-    }
-
-    return nullptr; //if there is a problem
+    return &req->children.back(); //if there is a problem
 }
 
 void saveandload::LoadNarrativeParamsAndCommands(QWidget *widget)
@@ -1129,40 +1023,39 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
     {
         m_narrativeNodes.push_back(NarNode());
 
-        QList<NarNode>::iterator it = m_narrativeNodes.end();   //get newly created node
-        --it;
+        NarNode *narNode = &m_narrativeNodes.back();   //get newly created node
 
         QJsonObject obj = value.toObject();
 
         if(obj.contains("comments"))
             //qDebug() << obj["id"].toString();
-            (*it).comments = obj["comments"].toString();
+            narNode->comments = obj["comments"].toString();
 
         if(obj.contains("id"))
             //qDebug() << obj["id"].toString();
-            (*it).id = obj["id"].toString();
+            narNode->id = obj["id"].toString();
 
-        (*it).fileName = fileName;
+        narNode->fileName = fileName;
 
         if(obj.contains("on_unlock") && obj["on_unlock"].isArray())
             //qDebug() << obj["on_unlock"].toString();
-            readCommandBlock(obj["on_unlock"].toArray(), (*it).onUnlockCommands);
+            readCommandBlock(obj["on_unlock"].toArray(), narNode->onUnlockCommands);
 
         if(obj.contains("on_fail") && obj["on_fail"].isArray())
             //qDebug() << obj["on_fail"].toString();
-            readCommandBlock(obj["on_fail"].toArray(), (*it).onFailCommands);
+            readCommandBlock(obj["on_fail"].toArray(), narNode->onFailCommands);
 
         if(obj.contains("on_unlocked") && obj["on_unlocked"].isArray())
             //qDebug() << obj["on_unlocked"].toString();
-            readCommandBlock(obj["on_unlocked"].toArray(), (*it).onUnlockedCommands);
+            readCommandBlock(obj["on_unlocked"].toArray(), narNode->onUnlockedCommands);
 
         if(obj.contains("requirements") && obj["requirements"].isObject())
-            readRequirements(obj["requirements"].toObject(), (*it));
+            readRequirements(obj["requirements"].toObject(), (*narNode));
         else
-            (*it).requirements.type = REQ_NONE; //set requirements to none if it doesn't have any
+            narNode->requirements.type = REQ_NONE; //set requirements to none if it doesn't have any
 
         if(obj.contains("story_tags") && obj["story_tags"].isArray())
-            readStoryTags(obj["story_tags"].toArray(), (*it));
+            readStoryTags(obj["story_tags"].toArray(), (*narNode));
     }
 }
 
@@ -1192,8 +1085,8 @@ void saveandload::readRequirements(QJsonObject &requirements, NarNode &node)
         QJsonArray childrenArray = requirements["children"].toArray();
         foreach (const QJsonValue &value, childrenArray)
         {
-            QJsonObject child = value.toObject();
-            readRequirementsChildren(child, node.requirements);
+            QJsonObject jsonChild = value.toObject();
+            readRequirementsChildren(jsonChild, node.requirements);
         }
     }
 }
@@ -1202,37 +1095,33 @@ void saveandload::readRequirementsChildren(QJsonObject &children, NarRequirement
 {
     req.children.push_back(NarRequirements());
 
-    QList<NarRequirements>::iterator it = req.children.end();
-    --it;
+    NarRequirements *child = &req.children.back();
 
     if(!children["type"].isUndefined())
     {
-        //qDebug() << requirements["type"].toString();
-        //(*it).type = children["type"].toString();
-
         if(children["type"].toString().toUpper() == "SEQ")
-            (*it).type = REQ_SEQ;
+            child->type = REQ_SEQ;
 
         if(children["type"].toString().toUpper() == "LEAF")
-            (*it).type = REQ_LEAF;
+            child->type = REQ_LEAF;
 
         if(children["type"].toString().toUpper() == "INV")
-            (*it).type = REQ_INV;
+            child->type = REQ_INV;
     }
     else
-        (*it).type = REQ_NONE;
+        child->type = REQ_NONE;
 
     if(!children["id"].isUndefined())
         //qDebug() << requirements["id"].toString();
-        (*it).id = children["id"].toString();
+        child->id = children["id"].toString();
 
     if(!children["children"].isUndefined() && children["children"].isArray())
     {
         QJsonArray childrenArray = children["children"].toArray();
         foreach (const QJsonValue &value, childrenArray)
         {
-            QJsonObject child = value.toObject();
-            readRequirementsChildren(child, (*it));
+            QJsonObject jsonChild = value.toObject();
+            readRequirementsChildren(jsonChild, (*child));
         }
     }
 }
@@ -1261,39 +1150,32 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarComman
             qDebug() << "Warning. " << command << " not found in table.";
 
         cmdList.push_back(NarCommand());
-        QList<NarCommand>::iterator cmdIt = cmdList.end();
-        --cmdIt;
+        NarCommand *narCmd = &cmdList.back();
 
-        (*cmdIt).command = command;
-        (*cmdIt).description = description;
+        narCmd->command = command;
+        narCmd->description = description;
 
-        for(QList<Command>::iterator it = m_commands.begin(); it != m_commands.end(); ++it)
+        foreach (Command cmd, m_commands)
         {
-            if((*it).id == command)
-            {
-                for(QList<Parameter>::iterator it2 = (*it).commandParams.begin(); it2 != (*it).commandParams.end(); ++it2)
+            if(cmd.id == command)
+                foreach (Parameter cmdParam, cmd.commandParams)
                 {
-                    //qDebug() << (*it2).id;
-                    (*cmdIt).params.push_back(SimpleNode());
-                    QList<SimpleNode>::iterator paramIt = (*cmdIt).params.end();
-                    --paramIt;
+                    narCmd->params.push_back(SimpleNode());
+                    SimpleNode *param = &narCmd->params.back();
 
-                    (*paramIt).id = (*it2).label;
+                    param->id = cmdParam.label;
 
-                    if(obj[(*it2).id].isString())
-                        //qDebug() << obj[(*it2).id].toString();
-                        (*paramIt).description = obj[(*it2).id].toString();
+                    if(obj[cmdParam.id].isString())
+                        param->description = obj[cmdParam.id].toString();
                     else
-                        if(obj[(*it2).id].isDouble())
+                        if(obj[cmdParam.id].isDouble())
                         {
-                            //qDebug() << obj[(*it2).id].toDouble();
-                            if((*it2).type == VAL_FLOAT)
-                                (*paramIt).description = QString::number(obj[(*it2).id].toDouble());
+                            if(cmdParam.type == VAL_FLOAT)
+                                param->description = QString::number(obj[cmdParam.id].toDouble());
                             else
-                                (*paramIt).description = QString::number(obj[(*it2).id].toInt());
+                                param->description = QString::number(obj[cmdParam.id].toInt());
                         }
                 }
-            }
         }
     }
 }
