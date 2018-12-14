@@ -391,25 +391,24 @@ void saveandload::WriteSettingItem(QJsonObject &jsonSetting, QList<SettingItem> 
 {
     QJsonArray jsonSettingItems;
 
-    for(QList<SettingItem>::iterator it = settingList.begin(); it != settingList.end(); ++it)
+    foreach (SettingItem settingItem, settingList)
     {
         QJsonObject jsonSettingItem;
-        jsonSettingItem[kName_Id] = QString(prefix + "_" + (*it).id);
-        jsonSettingItem[kName_Description] = (*it).description;
+        jsonSettingItem[kName_Id] = QString(prefix + "_" + settingItem.id);
+        jsonSettingItem[kName_Description] = settingItem.description;
 
-        if(!(*it).details.empty())
+        if(!settingItem.details.empty())
         {
             QJsonArray jsonDetails;
 
-            for(QList<SimpleNode>::iterator it2 = (*it).details.begin(); it2 != (*it).details.end(); ++it2)
+            foreach (SimpleNode detail, settingItem.details)
             {
                 QJsonObject jsonDetail;
 
-                jsonDetail[kName_Id] = QString(kPrefix_Detail + "_" + (*it2).id);
-                jsonDetail[kName_Description] = (*it2).description;
+                jsonDetail[kName_Id] = QString(kPrefix_Detail + "_" + detail.id);
+                jsonDetail[kName_Description] = detail.description;
 
                 jsonDetails.append(jsonDetail);
-
 
             }
 
@@ -427,9 +426,9 @@ void saveandload::WriteEventGoals(QJsonObject &jsonTheme, QList<EventGoal> &eVLi
     if(!eVList.empty())
     {
         QJsonArray jsonEventGoals;
-        for(QList<EventGoal>::iterator it = eVList.begin(); it != eVList.end(); ++it)
+        foreach (EventGoal event, eVList)
         {
-                WriteEventGoal(jsonEventGoals, (*it), subItemId, prefix);
+                WriteEventGoal(jsonEventGoals, event, subItemId, prefix);
         }
 
         jsonTheme[eventGoalId] = jsonEventGoals;
@@ -444,9 +443,9 @@ void saveandload::WriteEventGoal(QJsonArray &jsonEvents, const EventGoal &e, QSt
     {
         QJsonArray jsonSubEvents;
 
-        for(QList<EventGoal>::const_iterator it = e.subItems.begin(); it != e.subItems.end(); ++it)
+        foreach (EventGoal subEvent, e.subItems)
         {
-            WriteEventGoal(jsonSubEvents, (*it), subItemId, prefix);
+            WriteEventGoal(jsonSubEvents, subEvent, subItemId, prefix);
         }
 
         jsonEvent[subItemId] = jsonSubEvents;
@@ -464,9 +463,9 @@ void saveandload::WriteEpisodes(QJsonObject &jsonPlot, const QString &prefix)
     {
         QJsonArray jsonEpisodes;
 
-        for(QList<Episode>::iterator it = m_episodes.begin(); it != m_episodes.end(); ++it)
+        foreach (Episode ep, m_episodes)
         {
-                WriteEpisode(jsonEpisodes, (*it), prefix);
+                WriteEpisode(jsonEpisodes, ep, prefix);
         }
 
         jsonPlot[kName_Episodes] = jsonEpisodes;
@@ -491,19 +490,19 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
     {
         QJsonArray jsonAttempts;
 
-        for(QList<SimpleNode>::const_iterator it = e.attempts.begin(); it != e.attempts.end(); ++it)
+        foreach (SimpleNode attempt, e.attempts)
         {
             QJsonObject jsonAttempt;
 
-            jsonAttempt[kName_Id] = QString(kPrefix_Attempt + "_" + (*it).id);
-            jsonAttempt[kName_Description] = (*it).description;
+            jsonAttempt[kName_Id] = QString(kPrefix_Attempt + "_" + attempt.id);
+            jsonAttempt[kName_Description] = attempt.description;
 
             jsonAttempts.append(jsonAttempt);
         }
 
-        for(QList<Episode>::const_iterator it2 = e.attemptSubEpisodes.begin(); it2 != e.attemptSubEpisodes.end(); ++it2)
+        foreach (Episode subEp, e.attemptSubEpisodes)
         {
-            WriteEpisode(jsonAttempts, (*it2), kPrefix_SubEpisode);
+            WriteEpisode(jsonAttempts, subEp, kPrefix_SubEpisode);
         }
 
          jsonEpisode[kName_Attempts] = jsonAttempts;
@@ -513,18 +512,18 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
     {
         QJsonArray jsonOutcomes;
 
-        for(QList<SimpleNode>::const_iterator it = e.outcomes.begin(); it != e.outcomes.end(); ++it)
+        foreach (SimpleNode outcome, e.outcomes)
         {
             QJsonObject jsonOutcome;
-            jsonOutcome[kName_Id] = QString(kPrefix_Outcome + "_" +(*it).id);
-            jsonOutcome[kName_Description] = (*it).description;
+            jsonOutcome[kName_Id] = QString(kPrefix_Outcome + "_" + outcome.id);
+            jsonOutcome[kName_Description] = outcome.description;
 
             jsonOutcomes.append(jsonOutcome);
         }
 
-        for(QList<Episode>::const_iterator it2 = e.outcomeSubEpisodes.begin(); it2 != e.outcomeSubEpisodes.end(); ++it2)
+        foreach (Episode subEp, e.outcomeSubEpisodes)
         {
-            WriteEpisode(jsonOutcomes, (*it2), kPrefix_SubEpisode);
+            WriteEpisode(jsonOutcomes, subEp, kPrefix_SubEpisode);
         }
 
         jsonEpisode[kName_Outcomes] = jsonOutcomes;
@@ -541,12 +540,12 @@ void saveandload::WriteResolution(QJsonObject &jsonResolution)
     {
         QJsonArray jsonStates;
 
-        for(QList<SimpleNode>::iterator it = m_resolution.states.begin(); it != m_resolution.states.end(); ++it)
+        foreach (SimpleNode state, m_resolution.states)
         {
             QJsonObject jsonState;
 
-            jsonState[kName_Id] = (*it).id;
-            jsonState[kName_Description] = (*it).description;
+            jsonState[kName_Id] = state.id;
+            jsonState[kName_Description] = state.description;
 
             jsonStates.append(jsonState);
         }
@@ -567,11 +566,6 @@ void saveandload::DeleteAllStoryItems()
     m_resolution.events.clear();
     m_resolution.states.clear();
 
-}
-
-void saveandload::setStoryName(QString name)
-{
-    m_storyName = name;
 }
 
 SettingItem *saveandload::addCharacter(QString id, QString description)
@@ -839,17 +833,14 @@ void saveandload::LoadCommands(QJsonArray &jsonCommands)
         QList<Parameter> params;
 
         foreach (const QJsonValue &value2, jsonCommandParams)
-        {
-            //qDebug() << value2.toString();
-            for(QList<Parameter>::iterator it = m_parameters.begin(); it != m_parameters.end(); ++it)
+            foreach (Parameter param, m_parameters)
             {
-                if((*it).id == value2.toString())
+                if(param.id == value2.toString())
                 {
-                    params.push_back((*it));
+                    params.push_back(param);
                     break;
                 }
             }
-        }
 
         m_commands.push_back(Command(obj["label"].toString(), obj["id_name"].toString(), obj["type"].toString(), params));
     }
@@ -866,8 +857,8 @@ NarNode *saveandload::addNarrativeNode(QString id, QString description, QString 
 
     //check if the filename is new, if not then add it to the list
     bool fileNameExists = false;
-    for(QVector<QString>::iterator it = m_fileNames.begin(); it!= m_fileNames.end(); ++it)
-        if((*it) == fileName)
+    foreach(QString name, m_fileNames)
+        if(name == fileName)
         {
             fileNameExists = true;
             break;
@@ -1257,11 +1248,11 @@ void saveandload::readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarComman
 
         QString description;
 
-        for(QList<Command>::iterator cmdTableIt = m_commands.begin(); cmdTableIt != m_commands.end(); ++cmdTableIt)
+        foreach (Command cmd, m_commands)
         {
-            if((*cmdTableIt).id == command)
+            if(cmd.id == command)
             {
-                description = (*cmdTableIt).label;
+                description = cmd.label;
                 break;
             }
         }
@@ -1321,64 +1312,61 @@ void saveandload::readStoryTags(QJsonArray &jsonStoryTags, NarNode &node)
 
 void saveandload::SaveNarrativeToFile(QWidget *widget)
 {
-    for(QVector<QString>::iterator fileNameIt = m_fileNames.begin(); fileNameIt!= m_fileNames.end(); ++fileNameIt)
+    foreach (QString fileName, m_fileNames)
     {
-        QString windowTitle = "Save narrative graph with filename " + (*fileNameIt);
+        QString windowTitle = "Save narrative graph with filename " + fileName;
         QFile file(QFileDialog::getSaveFileName(widget,
-                                                             QObject::tr(windowTitle.toStdString().c_str()), (*fileNameIt),
+                                                             QObject::tr(windowTitle.toStdString().c_str()), fileName,
                                                             QObject:: tr("JSON File (*.json);;All Files (*)")));
 
         if(!file.fileName().isEmpty()&& !file.fileName().isNull())
         {
-
-            QJsonObject jsonData;
             QJsonArray nodeList;
-            //QJsonArray blocks;
 
-            for(QList<NarNode>::iterator it = m_narrativeNodes.begin(); it != m_narrativeNodes.end(); ++it)
+            foreach (NarNode narNode, m_narrativeNodes)
             {
-                if((*it).fileName == (*fileNameIt))
+                if(narNode.fileName == fileName)
                 {
-                    QJsonObject node;
+                    QJsonObject jsonNode;
 
-                    node["id"] = (*it).id;
+                    jsonNode["id"] = narNode.id;
 
-                    if((*it).requirements.type != REQ_NONE)
+                    if(narNode.requirements.type != REQ_NONE)
                     {
                         QJsonObject requirements;
-                        WriteRequirements((*it).requirements, requirements, "requirements");
-                        node["requirements"] = requirements;
+                        WriteRequirements(narNode.requirements, requirements, "requirements");
+                        jsonNode["requirements"] = requirements;
                     }
 
-                    if(!(*it).onUnlockCommands.empty())
+                    if(!narNode.onUnlockCommands.empty())
                     {
                         QJsonArray onUnlockBlock;
-                        WriteCommandBlock((*it).onUnlockCommands, onUnlockBlock);
-                        node["on_unlock"] = onUnlockBlock;
+                        WriteCommandBlock(narNode.onUnlockCommands, onUnlockBlock);
+                        jsonNode["on_unlock"] = onUnlockBlock;
                     }
 
-                    if(!(*it).onFailCommands.empty())
+                    if(!narNode.onFailCommands.empty())
                     {
                         QJsonArray onFailBlock;
-                        WriteCommandBlock((*it).onFailCommands, onFailBlock);
-                        node["on_fail"] = onFailBlock;
+                        WriteCommandBlock(narNode.onFailCommands, onFailBlock);
+                        jsonNode["on_fail"] = onFailBlock;
                     }
 
-                    if(!(*it).onUnlockedCommands.empty())
+                    if(!narNode.onUnlockedCommands.empty())
                     {
                         QJsonArray onUnlockedBlock;
-                        WriteCommandBlock((*it).onUnlockedCommands, onUnlockedBlock);
-                        node["on_unlocked"] = onUnlockedBlock;
+                        WriteCommandBlock(narNode.onUnlockedCommands, onUnlockedBlock);
+                        jsonNode["on_unlocked"] = onUnlockedBlock;
                     }
 
-                    if(!(*it).storyTags.empty())
+                    if(!narNode.storyTags.empty())
                     {
                         QJsonArray storyTagArray;
-                        writeStoryTags((*it).storyTags, storyTagArray);
-                        node["story_tags"] = storyTagArray;
+                        writeStoryTags(narNode.storyTags, storyTagArray);
+                        jsonNode["story_tags"] = storyTagArray;
                     }
 
-                    nodeList.push_back(node);
+                    nodeList.push_back(jsonNode);
                 }
             }
 
@@ -1395,7 +1383,7 @@ void saveandload::SaveNarrativeToFile(QWidget *widget)
             }
         }
         else
-            qDebug() << "Save of" << (*fileNameIt) << "nodes aborted by user";
+            qDebug() << "Save of" << fileName << "nodes aborted by user";
     }
 }
 
@@ -1416,10 +1404,10 @@ void saveandload::WriteRequirements(NarRequirements &req, QJsonObject &node, QSt
     if(!req.children.empty())
     {
         QJsonArray children;
-        for(QList<NarRequirements>::iterator it = req.children.begin(); it != req.children.end(); ++it)
+        foreach (NarRequirements r, req.children)
         {
             QJsonObject child;
-            WriteRequirements((*it), child, "children");
+            WriteRequirements(r, child, "children");
             children.push_back(child);
         }
 
@@ -1429,38 +1417,36 @@ void saveandload::WriteRequirements(NarRequirements &req, QJsonObject &node, QSt
 
 void saveandload::WriteCommandBlock(QList<NarCommand> cmd, QJsonArray &block)
 {
-    for(QList<NarCommand>::iterator it = cmd.begin(); it != cmd.end(); ++it)
+    foreach (NarCommand nC, cmd)
     {
         QJsonObject com;
-        com["cmd"] = (*it).command;
+        com["cmd"] = nC.command;
 
-        for(QList<SimpleNode>::iterator it2 = (*it).params.begin(); it2 != (*it).params.end(); ++it2)
-        {
-            for(QList<Parameter>::iterator it3 = m_parameters.begin(); it3 != m_parameters.end(); ++it3)
+        foreach (SimpleNode nCParam, nC.params)
+            foreach (Parameter memParam, m_parameters)
             {
-                if((*it2).id == (*it3).label)
+                if(nCParam.id == memParam.label)
                 {
-                    qDebug() << "id " << (*it3).id;
-                    qDebug() << "data" << (*it2).description;
+                    qDebug() << "id " << memParam.id;
+                    qDebug() << "data" << nCParam.description;
 
-                    if((*it3).type == VAL_FLOAT)
+                    if(memParam.type == VAL_FLOAT)
                     {
-                        com[(*it3).id] = (*it2).description.toDouble();
+                        com[memParam.id] = nCParam.description.toDouble();
                     }
                     else
-                        if((*it3).type == VAL_INT)
+                        if(memParam.type == VAL_INT)
                         {
-                            com[(*it3).id] = (*it2).description.toInt();
+                            com[memParam.id] = nCParam.description.toInt();
                         }
                         else
-                            if((*it3).type == VAL_STRING)
+                            if(memParam.type == VAL_STRING)
                             {
-                                com[(*it3).id] = (*it2).description;
+                                com[memParam.id] = nCParam.description;
                             }
                     break;
                 }
             }
-        }
         block.push_back(com);
     }
 }

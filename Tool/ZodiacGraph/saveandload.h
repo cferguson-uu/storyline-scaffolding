@@ -38,7 +38,7 @@ public:
     const Resolution GetResolution(){return m_resolution;}
 
     //setter functions
-    void setStoryName(QString name);
+    inline void setStoryName(QString name){m_storyName = name;}
 
     SettingItem *addCharacter(QString id, QString description);
     SettingItem *addLocation(QString id, QString description);
