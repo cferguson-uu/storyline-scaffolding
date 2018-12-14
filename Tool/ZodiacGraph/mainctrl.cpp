@@ -355,19 +355,10 @@ void MainCtrl::saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem)
         zodiac::NodeHandle eventGoalNode = cPlug.getNode();
         EventGoal *eventGoalItem;
 
-        if(eventGoalNode.getStoryNodeType() == zodiac::STORY_THEME_EVENT)
-            eventGoalItem = m_saveAndLoadManager.addEvent(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
-        else
-            if(eventGoalNode.getStoryNodeType() == zodiac::STORY_RESOLUTION_EVENT)
-                eventGoalItem = m_saveAndLoadManager.addResolutionEvent(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
-            else
-                if(eventGoalNode.getStoryNodeType() == zodiac::STORY_THEME_GOAL)
-                    eventGoalItem = m_saveAndLoadManager.addGoal(eventGoalNode.getName(), eventGoalNode.getDescription(), parentItem);
-                else
-                    return; //error
+       eventGoalItem = m_saveAndLoadManager.addEventGoal(eventGoalNode.getName(), eventGoalNode.getDescription(), eventGoalNode.getStoryNodeType(), parentItem);
 
-            if(parent.getPlug("storyOut").connectionCount() > 0)
-                saveThemeItem(eventGoalNode, eventGoalItem);
+       if(parent.getPlug("storyOut").connectionCount() > 0)
+           saveThemeItem(eventGoalNode, eventGoalItem);
     }
 }
 

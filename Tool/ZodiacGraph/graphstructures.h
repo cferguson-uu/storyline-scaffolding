@@ -43,8 +43,8 @@ static const QString kPrefix_Detail = "DET";
 static const QString kPrefix_State = "STATE";
 
 //theme
-static const QString kPrefix_ThemeEvent = "TEVENT";
-static const QString kPrefix_ThemeGoal = "TGOAL";
+static const QString kPrefix_ThemeEvent = "TEV";
+static const QString kPrefix_ThemeGoal = "TGO";
 
 //plot
 static const QString kPrefix_Episode = "EP";
@@ -54,8 +54,8 @@ static const QString kPrefix_Attempt = "ATT";
 static const QString kPrefix_Outcome = "OUT";
 
 //resolution
-static const QString kPrefix_ResolutionEvent = "REVENT";
-static const QString kPrefix_ResolutionState = "RSTATE";
+static const QString kPrefix_ResolutionEvent = "REV";
+static const QString kPrefix_ResolutionState = "RST";
 
 struct SimpleNode
 {

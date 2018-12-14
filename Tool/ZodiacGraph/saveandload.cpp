@@ -480,7 +480,7 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
 
     QJsonObject jsonSubGoal;
 
-    jsonSubGoal[kName_Id] = e.subGoal.id;
+    jsonSubGoal[kName_Id] = QString(kPrefix_SubGoal + "_" + e.subGoal.id);
     jsonSubGoal[kName_Description] = e.subGoal.description;
 
     jsonEpisode[kName_SubGoal] = jsonSubGoal;
@@ -543,7 +543,7 @@ void saveandload::WriteResolution(QJsonObject &jsonResolution)
         {
             QJsonObject jsonState;
 
-            jsonState[kName_Id] = state.id;
+            jsonState[kName_Id] = QString(kPrefix_ResolutionState + "_" + state.id);
             jsonState[kName_Description] = state.description;
 
             jsonStates.append(jsonState);
@@ -613,7 +613,7 @@ void saveandload::addDetail(SettingItem *item, QString id, QString description, 
     item->details.push_back(newDetail);
 }
 
-EventGoal *saveandload::addEvent(QString id, QString description, EventGoal* parent)
+EventGoal *saveandload::addEventGoal(QString id, QString description,zodiac::StoryNodeType type, EventGoal* parent)
 {
     EventGoal newEvent;
     newEvent.id = id;
@@ -626,31 +626,27 @@ EventGoal *saveandload::addEvent(QString id, QString description, EventGoal* par
     }
     else
     {
-        m_events.push_back(newEvent);
-        return &m_events.back();
+        if(type == zodiac::STORY_THEME_EVENT)
+        {
+            m_events.push_back(newEvent);
+            return &m_events.back();
+        }
+        else
+            if(type == zodiac::STORY_THEME_GOAL)
+            {
+                m_events.push_back(newEvent);
+                return &m_events.back();
+            }
+            else
+                if(type == zodiac::STORY_RESOLUTION_EVENT)
+                {
+                    m_resolution.events.push_back(newEvent);
+                    return &m_resolution.events.back();
+                }
+                else
+                    return nullptr; //if a problem
     }
 
-    return nullptr; //if a problem
-}
-
-EventGoal *saveandload::addGoal(QString id, QString description, EventGoal* parent)
-{
-    EventGoal newGoal;
-    newGoal.id = id;
-    newGoal.description = description;
-
-    if(parent != nullptr)
-    {
-        parent->subItems.push_back(newGoal);
-        return &parent->subItems.back();
-    }
-    else
-    {
-        m_goals.push_back(newGoal);
-        return &m_goals.back();
-    }
-
-    return nullptr; //if a problem
 }
 
 Episode *saveandload::addEpisode(QString id, QString description, Episode* parent, zodiac::StoryNodeType type)
@@ -701,26 +697,6 @@ SimpleNode *saveandload::addOutcome(QString id, QString description, Episode* pa
     parent->outcomes.push_back(newOutcome);
 
     return &parent->outcomes.back();
-}
-
-EventGoal *saveandload::addResolutionEvent(QString id, QString description, EventGoal* parent)
-{
-    EventGoal newEvent;
-        newEvent.id = id;
-        newEvent.description = description;
-
-        if(parent != nullptr)
-        {
-            parent->subItems.push_back(newEvent);
-            return &parent->subItems.back();
-        }
-        else
-        {
-            m_resolution.events.push_back(newEvent);
-            return &m_resolution.events.back();
-        }
-
-        return nullptr; //if a problem
 }
 
 void saveandload::addResolutionState(QString id, QString description)

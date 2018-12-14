@@ -45,15 +45,13 @@ public:
     SettingItem *addTime(QString id, QString description);
     void addDetail(SettingItem *item, QString id, QString description, QString stateId, QString stateDescription);
 
-    EventGoal *addEvent(QString id, QString description, EventGoal* parent = nullptr);
-    EventGoal *addGoal(QString id, QString description, EventGoal* parent = nullptr);
+    EventGoal *addEventGoal(QString id, QString description, zodiac::StoryNodeType type, EventGoal* parent = nullptr);
 
     Episode *addEpisode(QString id, QString description, Episode* parent = nullptr, zodiac::StoryNodeType type = zodiac::STORY_PLOT_EPISODE);
     SimpleNode *addAttempt(QString id, QString description, Episode* parent);
     SimpleNode *addOutcome(QString id, QString description, Episode* parent);
     void addSubGoal(QString id, QString description, Episode* parent);
 
-    EventGoal *addResolutionEvent(QString id, QString description, EventGoal* parent);
     void addResolutionState(QString id, QString description);
 
     void DeleteAllStoryItems();
