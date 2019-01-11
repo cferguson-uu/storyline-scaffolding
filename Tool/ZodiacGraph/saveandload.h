@@ -132,7 +132,7 @@ private:
 
     //narrative
     //load functions
-    void readNodeList(QJsonArray &jsonNodeList, QString fileName);
+    bool readNodeList(QJsonArray &jsonNodeList, QString fileName);
     void readRequirements(QJsonObject &requirements, NarNode &node);
     void readRequirementsChildren(QJsonObject &children, NarRequirements &req);
     void readCommandBlock(QJsonArray &jsonCommandBlock, QList<NarCommand> &cmdList);

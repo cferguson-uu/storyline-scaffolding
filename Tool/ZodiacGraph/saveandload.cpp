@@ -928,7 +928,6 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
     QStringList filenames = QFileDialog::getOpenFileNames(widget,
                                                      QObject::tr("Load Narrative File"), "",
                                                      QObject::tr("JSON File (*.json);;All Files (*)"));
-
     if(!filenames.isEmpty())
     {
         for (int i =0; i<filenames.count(); i++)
@@ -951,28 +950,50 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
                 if(jsonDoc.isObject())
                     if(jsonDoc.object().contains("node_list") || jsonDoc.object().contains("blocks"))
                     {
-                        QMessageBox messageBox;
-                        messageBox.critical(0,"Error","You appear to be opening a compiled narrative graph.");
-                        messageBox.setFixedSize(500,200);
-                        return false;
+                        QMessageBox::StandardButton reply;
+                        reply = QMessageBox::question(widget, "Error", "You appear to be opening a compiled narrative graph. Skip this file and continue?",
+                                                        QMessageBox::Yes|QMessageBox::No);
+
+                        if (reply == QMessageBox::Yes)
+                            continue;
+                        else
+                            return false;
                     }
 
                 if(jsonDoc.isNull() || !jsonDoc.isArray() || jsonDoc.isEmpty())
                 {
-                    QMessageBox messageBox;
-                    messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
-                    messageBox.setFixedSize(500,200);
-                    return false;
+                    QMessageBox::StandardButton reply;
+                    reply = QMessageBox::question(widget, "Error", "File could not be loaded, please ensure that it is the correct format. Skip this file and continue?",
+                                                    QMessageBox::Yes|QMessageBox::No);
+
+                    if (reply == QMessageBox::Yes)
+                        continue;
+                    else
+                        return false;
                 }
 
-                readNodeList(jsonDoc.array(), filename);
+                if(!readNodeList(jsonDoc.array(), filename)) //file not parsed properly
+                {
+                    QMessageBox::StandardButton reply;
+                    reply = QMessageBox::question(widget, "Error", "File could not be loaded, please ensure that it is the correct format. Skip this file and continue?",
+                                                    QMessageBox::Yes|QMessageBox::No);
+
+                    if (reply == QMessageBox::Yes)
+                        continue;
+                    else
+                        return false;
+                }
             }
             else
             {
-                QMessageBox messageBox;
-                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
-                messageBox.setFixedSize(500,200);
-                return false;
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question(widget, "Error", "File could not be loaded, please ensure that it is the correct format. Skip this file and continue?",
+                                                QMessageBox::Yes|QMessageBox::No);
+
+                if (reply == QMessageBox::Yes)
+                    continue;
+                else
+                    return false;
             }
         }
     }
@@ -993,7 +1014,7 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
     return true;    //will return true unless error found
 }
 
-void saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
+bool saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
 {
     foreach (const QJsonValue &value, jsonNodeList)
     {
@@ -1003,26 +1024,23 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
 
         QJsonObject obj = value.toObject();
 
-        if(obj.contains("comments"))
-            //qDebug() << obj["id"].toString();
+        if(obj.contains("comments"))    //optional
             narNode->comments = obj["comments"].toString();
 
         if(obj.contains("id"))
-            //qDebug() << obj["id"].toString();
             narNode->id = obj["id"].toString();
+        else
+            return false;
 
         narNode->fileName = fileName;
 
         if(obj.contains("on_unlock") && obj["on_unlock"].isArray())
-            //qDebug() << obj["on_unlock"].toString();
             readCommandBlock(obj["on_unlock"].toArray(), narNode->onUnlockCommands);
 
         if(obj.contains("on_fail") && obj["on_fail"].isArray())
-            //qDebug() << obj["on_fail"].toString();
             readCommandBlock(obj["on_fail"].toArray(), narNode->onFailCommands);
 
         if(obj.contains("on_unlocked") && obj["on_unlocked"].isArray())
-            //qDebug() << obj["on_unlocked"].toString();
             readCommandBlock(obj["on_unlocked"].toArray(), narNode->onUnlockedCommands);
 
         if(obj.contains("requirements") && obj["requirements"].isObject())
@@ -1033,6 +1051,8 @@ void saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
         if(obj.contains("story_tags") && obj["story_tags"].isArray())
             readStoryTags(obj["story_tags"].toArray(), (*narNode));
     }
+
+    return true;
 }
 
 void saveandload::readRequirements(QJsonObject &requirements, NarNode &node)

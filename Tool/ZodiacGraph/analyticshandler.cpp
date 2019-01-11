@@ -261,7 +261,7 @@ void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool updateValues)
 
 void AnalyticsHandler::loadAnalyticsLog()
 {
-    /*QFile file(QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+    QFile file(QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
                                                      QObject::tr("Load Analytics File"), "",
                                                      QObject::tr("JSON File (*.json);;All Files (*)")));
 
@@ -313,9 +313,10 @@ void AnalyticsHandler::loadAnalyticsLog()
         return;
     }
 
-    m_exportAnalyticsAction->setEnabled(true);*/
+    m_exportAnalyticsAction->setEnabled(true);
 
-
+    //Used when loading in multiple logs, exporting with new lostness values and creating CSVs
+   /*
    QStringList fileNames(QFileDialog::getOpenFileNames(qobject_cast<QWidget*>(parent()),
                                                      QObject::tr("Load Analytics File"), "",
                                                      QObject::tr("JSON File (*.json);;All Files (*)")));
@@ -355,7 +356,7 @@ void AnalyticsHandler::loadAnalyticsLog()
                 return;
             }
         }
-    }
+    }*/
 
 }
 
