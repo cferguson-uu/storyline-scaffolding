@@ -74,10 +74,9 @@ void saveandload::ReadCharacters(QJsonArray &jsonCharacters)
     foreach (const QJsonValue &charValue, jsonCharacters)
     {
         m_characters.push_back(SettingItem());
-        QList<SettingItem>::iterator charIt = m_characters.end();
-        --charIt;
+        SettingItem *character = &m_characters.back();   //get newly created node
 
-        ReadSettingsItem(charValue.toObject(), (*charIt));
+        ReadSettingsItem(charValue.toObject(), (*character));
     }
 }
 
@@ -86,10 +85,9 @@ void saveandload::ReadLocations(QJsonArray &jsonLocations)
   foreach (const QJsonValue &locValue, jsonLocations)
   {
       m_locations.push_back(SettingItem());
-      QList<SettingItem>::iterator locIt = m_locations.end();
-      --locIt;
+      SettingItem *location = &m_locations.back();
 
-      ReadSettingsItem(locValue.toObject(), (*locIt));
+      ReadSettingsItem(locValue.toObject(), (*location));
   }
 }
 
@@ -98,10 +96,9 @@ void saveandload::ReadTimes(QJsonArray &jsonTimes)
     foreach (const QJsonValue &timValue, jsonTimes)
     {
         m_times.push_back(SettingItem());
-        QList<SettingItem>::iterator timIt = m_times.end();
-        --timIt;
+        SettingItem *time = &m_times.back();
 
-        ReadSettingsItem(timValue.toObject(), (*timIt));
+        ReadSettingsItem(timValue.toObject(), (*time));
     }
 }
 
@@ -122,21 +119,12 @@ void saveandload::ReadSettingsItem(QJsonObject &jsonCharacter, SettingItem &s)
     foreach (const QJsonValue &detailValue, jsonCharacterDetails)
     {
         s.details.push_back(SimpleNode());
-        QList<SimpleNode>::iterator detailIt = (s).details.end();
-        --detailIt;
+        SimpleNode *detailNode = &(s).details.back();
 
         QJsonObject detail = detailValue.toObject();
 
-        (*detailIt).id = detail[kName_Id].toString().section('_', 1);
-        qDebug() << detail[kName_Id].toString().section('_', 1);
-
-        (*detailIt).description = detail[kName_Description].toString();
-        qDebug() << detail[kName_Description].toString();
-
-        if(detail.contains(kName_State))
-        {
-            QJsonObject jsonState = detail[kName_State].toObject();
-        }
+        detailNode->id = detail[kName_Id].toString().section('_', 1);
+        detailNode->description = detail[kName_Description].toString();
     }
 }
 
@@ -145,10 +133,9 @@ void saveandload::ReadEvents(QJsonArray &jsonEvents)
     foreach (const QJsonValue &eventValue, jsonEvents)
     {
         m_events.push_back(EventGoal());
-        QList<EventGoal>::iterator evIt = m_events.end();
-        --evIt;
+        EventGoal *event = &m_events.back();
 
-        ReadEventGoal(eventValue.toObject(), kName_SubEvents, (*evIt));
+        ReadEventGoal(eventValue.toObject(), kName_SubEvents, (*event));
     }
 }
 
@@ -157,10 +144,9 @@ void saveandload::ReadGoals(QJsonArray &jsonGoals)
     foreach (const QJsonValue &goalValue, jsonGoals)
     {
         m_goals.push_back(EventGoal());
-        QList<EventGoal>::iterator goIt = m_goals.end();
-        --goIt;
+        EventGoal *goal = &m_goals.back();
 
-        ReadEventGoal(goalValue.toObject(), kName_SubGoals, (*goIt));
+        ReadEventGoal(goalValue.toObject(), kName_SubGoals, (*goal));
     }
 }
 
@@ -170,10 +156,7 @@ void saveandload::ReadEventGoal(QJsonObject &eventGoal, QString SubItemId, Event
         QJsonValue eventGoalDescription = eventGoal[kName_Description];
 
         e.id = eventGoalId.toString().section('_', 1);
-        qDebug() << eventGoalId.toString().section('_', 1);
-
         e.description = eventGoalDescription.toString();
-        qDebug() << eventGoalDescription.toString();
 
         if(eventGoal.contains(SubItemId))
         {
@@ -182,11 +165,9 @@ void saveandload::ReadEventGoal(QJsonObject &eventGoal, QString SubItemId, Event
             foreach (const QJsonValue &subItemValue, jsonSubItems)
             {
                 e.subItems.push_back(EventGoal());
+                EventGoal *subEvGo = &e.subItems.back();
 
-                QList<EventGoal>::iterator subEvIt = e.subItems.end();
-                --subEvIt;
-
-                ReadSubItem(subItemValue.toObject(), (*subEvIt), SubItemId);
+                ReadSubItem(subItemValue.toObject(), (*subEvGo), SubItemId);
             }
         }
 }
@@ -194,10 +175,7 @@ void saveandload::ReadEventGoal(QJsonObject &eventGoal, QString SubItemId, Event
 void saveandload::ReadSubItem(QJsonObject &jsonSubItem, EventGoal &e, QString SubItemId)
 {
     e.id = jsonSubItem[kName_Id].toString().section('_', 1);
-    qDebug() << jsonSubItem[kName_Id].toString().section('_', 1);
-
     e.description = jsonSubItem[kName_Description].toString();
-    qDebug() << jsonSubItem[kName_Description].toString();
 
     if(jsonSubItem.contains(SubItemId))
     {
@@ -206,11 +184,9 @@ void saveandload::ReadSubItem(QJsonObject &jsonSubItem, EventGoal &e, QString Su
         foreach (const QJsonValue &subItemValue, jsonSubEvents)
         {
             e.subItems.push_back(EventGoal());
+            EventGoal *subItem = &e.subItems.back();
 
-            QList<EventGoal>::iterator subEvIt = e.subItems.end();
-            --subEvIt;
-
-            ReadSubItem(subItemValue.toObject(), (*subEvIt), SubItemId);
+            ReadSubItem(subItemValue.toObject(), (*subItem), SubItemId);
         }
     }
 }
@@ -219,11 +195,9 @@ void saveandload::ReadEpisodes(QJsonArray &jsonEpisodes)
 {
     foreach (const QJsonValue &episodeValue, jsonEpisodes)
     {
-        m_episodes.push_back(Episode());
-        QList<Episode>::iterator epIt = m_episodes.end();
-        --epIt;
+        Episode *ep = &m_episodes.back();
 
-        ReadEpisode(episodeValue.toObject(), (*epIt));
+        ReadEpisode(episodeValue.toObject(), (*ep));
     }
 }
 
@@ -239,16 +213,10 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
     QJsonValue subGoalDescription = subGoal[kName_Description];
 
     e.id = id.toString().section('_', 1);
-    qDebug() << id.toString();
-
     e.description = description.toString();
-    qDebug() << description.toString();
 
     e.subGoal.id = subGoalId.toString().section('_', 1);
-    qDebug() << subGoalId.toString();
-
     e.subGoal.description = subGoalDescription.toString();
-    qDebug() << subGoalDescription.toString();
 
     foreach (const QJsonValue &attemptValue, jsonAttempts)
     {
@@ -257,21 +225,17 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
         if(attempt[kName_Id].toString().section('_', 0, 0) == kPrefix_SubEpisode)  //handle sub episode
         {
             e.attemptSubEpisodes.push_back(Episode());
-            QList<Episode>::iterator subEpIt = e.attemptSubEpisodes.end();
-            --subEpIt;
-            ReadEpisode(attempt, (*subEpIt));
+            Episode *subEp = &e.attemptSubEpisodes.back();
+
+            ReadEpisode(attempt, (*subEp));
         }
         else    //handle attempt as normal
         {
             e.attempts.push_back(SimpleNode());
-            QList<SimpleNode>::iterator attIt = e.attempts.end();
-            --attIt;
+            SimpleNode *attIt = &e.attempts.back();
 
-            qDebug() << attempt[kName_Id].toString().section('_', 1);
-            (*attIt).id = attempt[kName_Id].toString().section('_', 1);
-
-            qDebug() << attempt[kName_Description].toString();
-            (*attIt).description = attempt[kName_Description].toString();
+            attIt->id = attempt[kName_Id].toString().section('_', 1);
+            attIt->description = attempt[kName_Description].toString();
         }
     }
 
@@ -282,39 +246,31 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
         if(outcome[kName_Id].toString().section('_', 0, 0) == "SUBEP")  //handle sub episode
         {
             e.outcomeSubEpisodes.push_back(Episode());
-            QList<Episode>::iterator subEpIt = e.outcomeSubEpisodes.end();
-            --subEpIt;
-            ReadEpisode(outcome, (*subEpIt));
+            Episode *subEp = &e.outcomeSubEpisodes.back();
+
+            ReadEpisode(outcome, (*subEp));
         }
         else    //handle attempt as normal
         {
             e.outcomes.push_back(SimpleNode());
-            QList<SimpleNode>::iterator outIt = e.outcomes.end();
-            --outIt;
+            SimpleNode *outIt = &e.outcomes.back();
 
-            qDebug() << outcome[kName_Id].toString().section('_', 1);
-            (*outIt).id = outcome[kName_Id].toString().section('_', 1);
-
-            qDebug() << outcome[kName_Description].toString();
-            (*outIt).description = outcome[kName_Description].toString();
+            outIt->id = outcome[kName_Id].toString().section('_', 1);
+            outIt->description = outcome[kName_Description].toString();
         }
     }
 }
 
-void saveandload::ReadResolution(QJsonObject &jsonResolution)
+vF(oid saveandload::ReadResolution(QJsonObject &jsonResolution)
 {
-    QJsonObject::iterator it;
-
     QJsonArray jsonEvents = jsonResolution[kName_Events].toArray();
-
 
     foreach (const QJsonValue &eventValue, jsonEvents)
     {
         m_resolution.events.push_back(EventGoal());
-        QList<EventGoal>::iterator evIt = m_resolution.events.end();
-        --evIt;
+        EventGoal *resEvent = &m_resolution.events.back();
 
-        ReadEventGoal(eventValue.toObject(), kName_SubEvents, (*evIt)); //same as loading them event so use the same function
+        ReadEventGoal(eventValue.toObject(), kName_SubEvents, (*resEvent)); //same as loading them event so use the same function
     }
 
     QJsonArray jsonStates = jsonResolution[kName_States].toArray();
@@ -322,16 +278,12 @@ void saveandload::ReadResolution(QJsonObject &jsonResolution)
     foreach (const QJsonValue &stateValue, jsonStates)
     {
        m_resolution.states.push_back(SimpleNode());
-        QList<SimpleNode>::iterator stIt = m_resolution.states.end();
-        --stIt;
+       SimpleNode *resState = &m_resolution.states.back();
 
         QJsonObject jsonState = stateValue.toObject();
 
-        (*stIt).id = jsonState[kName_Id].toString().section('_', 1);
-        qDebug() << jsonState[kName_Id].toString().section('_', 1);
-
-        (*stIt).description = jsonState[kName_Description].toString();
-        qDebug() << jsonState[kName_Description].toString();
+        resState->id = jsonState[kName_Id].toString().section('_', 1);
+        resState->description = jsonState[kName_Description].toString();
     }
 
 }
