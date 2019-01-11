@@ -261,7 +261,7 @@ void saveandload::ReadEpisode(QJsonObject jsonSubEpisode, Episode &e)
     }
 }
 
-vF(oid saveandload::ReadResolution(QJsonObject &jsonResolution)
+void saveandload::ReadResolution(QJsonObject &jsonResolution)
 {
     QJsonArray jsonEvents = jsonResolution[kName_Events].toArray();
 
