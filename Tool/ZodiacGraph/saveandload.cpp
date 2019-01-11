@@ -1029,8 +1029,11 @@ bool saveandload::readNodeList(QJsonArray &jsonNodeList, QString fileName)
 
         if(obj.contains("id"))
             narNode->id = obj["id"].toString();
-        else
+        else    //error, remove node and return false
+        {
+            m_narrativeNodes.removeLast();
             return false;
+        }
 
         narNode->fileName = fileName;
 
