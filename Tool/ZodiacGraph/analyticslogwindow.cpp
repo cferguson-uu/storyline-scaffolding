@@ -19,6 +19,9 @@ void AnalyticsLogWindow::initialiseLogFile(QString fileName)
 {
     if(fileName == "")
     {
+        if(!QDir("logs").exists())
+            QDir().mkdir("logs");
+
         QDateTime current = QDateTime::currentDateTime().toUTC();
         m_fileName = "logs/" + current.toString("yyyy.MM.dd_hh-mm-ss-t_logFile") + ".json";
     }
