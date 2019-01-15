@@ -45,6 +45,7 @@ static const QString kPrefix_ThemeGoal = "TGO_";
 
 //plot
 static const QString kPrefix_Episode = "EP_";
+static const QString kPrefix_SubEpisode = "SUBEP_";
 static const QString kPrefix_SubGoal = "SUBG_";
 static const QString kPrefix_Attempt = "ATT_";
 static const QString kPrefix_Outcome = "OUT_";
@@ -982,7 +983,7 @@ StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &de
       , m_storyNodeType(storyType)
 {
     if(!load)
-        if(m_storyNodeType == STORY_PLOT_EPISODE)
+        if(m_storyNodeType == STORY_PLOT_EPISODE|| m_storyNodeType == STORY_PLOT_SUBEPISODE)
         {
             QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt", QPoint(-100,100)); } );
             QTimer::singleShot(0, (QWidget*)getScene()->getParent(), [=] { createStoryChild(STORY_PLOT_EPISODE_OUTCOME_GROUP, "Outcome", "Outcome", QPoint(0,100)); } );
@@ -994,6 +995,8 @@ StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &de
 
 QString StoryNode::getStoryNodePrefix()
 {
+    QList<Plug*> plugs;
+    Plug* plug;
     switch(m_storyNodeType)
     {
         case STORY_SETTING_CHARACTER:
@@ -1009,7 +1012,9 @@ QString StoryNode::getStoryNodePrefix()
         case STORY_THEME_GOAL:
             return kPrefix_ThemeGoal;
         case STORY_PLOT_EPISODE:
-            return kPrefix_Episode;
+                return kPrefix_Episode;
+        case STORY_PLOT_SUBEPISODE:
+                return kPrefix_SubEpisode;
         case STORY_PLOT_EPISODE_ATTEMPT:
             return kPrefix_Attempt;
         case STORY_PLOT_EPISODE_OUTCOME:
@@ -1185,7 +1190,7 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             addEpisodeAction = new QAction(tr("&Add Sub-Episode"), this);
 
             connect(addAttemptAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE_ATTEMPT, "ATT", "", QPoint(0,100)); });
-            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE, "SUBEP", "", QPoint(0,100)); });
+            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_SUBEPISODE, "SUBEP", "", QPoint(0,100)); });
 
             contextMenu.addAction(addAttemptAction);
             contextMenu.addAction(addEpisodeAction);
@@ -1195,7 +1200,7 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             addEpisodeAction = new QAction(tr("&Add Sub-Episode"), this);
 
             connect(addOutcomeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE_OUTCOME, "OUT", "", QPoint(0,100)); });
-            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_EPISODE, "SUBEP", "", QPoint(0,100)); });
+            connect(addEpisodeAction, &QAction::triggered, [=]{createStoryChild(STORY_PLOT_SUBEPISODE, "SUBEP", "", QPoint(0,100)); });
 
             contextMenu.addAction(addOutcomeAction);
             contextMenu.addAction(addEpisodeAction);

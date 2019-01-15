@@ -370,7 +370,7 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
         zodiac::NodeHandle episodeNode = cPlug.getNode();
         Episode *episodeItem;
 
-        if(episodeNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE)
+        if(episodeNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE || episodeNode.getStoryNodeType() == zodiac::STORY_PLOT_SUBEPISODE)
             episodeItem = m_saveAndLoadManager.addEpisode(episodeNode.getName(), episodeNode.getDescription(), parentItem);
         else
             continue; //error or we're looking for a subepisode
@@ -605,7 +605,13 @@ void MainCtrl::loadEpisodes(NodeCtrl *parentNode, QList<Episode> episodes)
     //add each item to the tree
     foreach (Episode eItem, episodes)
     {
-        NodeCtrl *episodeNode = createStoryNode(parentNode, zodiac::STORY_PLOT_EPISODE, eItem.id, eItem.description, QPoint(parentNode->getPos().x(), 150), true, true);
+        NodeCtrl *episodeNode;
+
+        if(parentNode->getStoryNodeType() == zodiac::STORY_PLOT)
+            episodeNode = createStoryNode(parentNode, zodiac::STORY_PLOT_EPISODE, eItem.id, eItem.description, QPoint(parentNode->getPos().x(), 150), true, true);
+        else
+
+            episodeNode = createStoryNode(parentNode, zodiac::STORY_PLOT_SUBEPISODE, eItem.id, eItem.description, QPoint(parentNode->getPos().x(), 150), true, true);
 
         NodeCtrl *attemptGroupNode = createStoryNode(episodeNode, zodiac::STORY_PLOT_EPISODE_ATTEMPT_GROUP, "Attempt", "Attempt Group", QPoint(0, 150), true, true);
         //handle attempts

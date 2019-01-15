@@ -195,6 +195,7 @@ void saveandload::ReadEpisodes(QJsonArray &jsonEpisodes)
 {
     foreach (const QJsonValue &episodeValue, jsonEpisodes)
     {
+        m_episodes.push_back(Episode());
         Episode *ep = &m_episodes.back();
 
         ReadEpisode(episodeValue.toObject(), (*ep));
