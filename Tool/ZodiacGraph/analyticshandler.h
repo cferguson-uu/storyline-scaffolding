@@ -41,7 +41,7 @@ private:
     /// \param [in] json object to parse
     void handleObject(QJsonObject jsonObj, bool updateValues, bool loadingFile);
 
-    void handleTextOutput(QJsonObject &jsonObj, bool updateValues);
+    void handleTextOutput(QJsonObject &jsonObj, bool ignoreResultsInConsole, bool updateValues);
     void loadAnalyticsLog();
 
     void clearAll();
@@ -64,6 +64,8 @@ private:
     AnalyticsProperties *m_pProperties;
 
     bool m_analyticsEnabled;
+
+    QSet<QString> m_lostness_actions;
 };
 
 #endif // ANALYTICSHANDLER_H

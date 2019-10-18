@@ -14,6 +14,8 @@ static const QString kName_NarrativeNodesWithoutConnection = "Number of Narrativ
 static const QString kName_NarrativeNodesAverageConnection = "Average Number of Story Connections: ";
 static const QString kName_NumConnection = "Total Number of Narrative-Story Connections: ";
 
+static float maxLostness = sqrt(2);
+
 AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
 : QWidget(parent)
 , m_mainLayout(new QVBoxLayout(this))
@@ -21,7 +23,8 @@ AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
 , m_curatorLabelLayoutLabel(nullptr)
 , m_fullGameProgressLabel(nullptr)
 , m_fullGameProgressBar(nullptr)
-, m_fullGameProgressValue(0.0f)
+, m_localLostnessLabel(nullptr)
+, m_localLostnessBar(nullptr)
 {
     // define the main layout
     m_mainLayout->setContentsMargins(2,2,2,2);
@@ -131,12 +134,18 @@ void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
     m_fullGameProgressLabel = new QLabel("Game Progress", this);
     m_fullGameProgressBar = new QProgressBar(this);
     m_fullGameProgressBar->setValue(0);
+    m_localLostnessLabel = new QLabel("Local Lostness", this);
+    m_localLostnessBar = new QProgressBar(this);
+    m_localLostnessBar->setValue(0);
     m_curatorLabelLayoutLabel = new QLabel("<b>Curator Labels</b>", this);
     m_curatorLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
     m_curatorLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
 
     m_fullGameProgressLayout->addWidget(m_fullGameProgressLabel, 0, 0, 1, 1, Qt::AlignLeft);
     m_fullGameProgressLayout->addWidget(m_fullGameProgressBar, 0, 1, 1, 1, Qt::AlignLeft);
+
+    m_fullGameProgressLayout->addWidget(m_localLostnessLabel, 1, 0, 1, 1, Qt::AlignLeft);
+    m_fullGameProgressLayout->addWidget(m_localLostnessBar, 1, 1, 1, 1, Qt::AlignLeft);
 
     m_curatorLayout->addLayout(m_fullGameProgressLayout, 0, 0);
     m_curatorLayout->addWidget(m_curatorLabelLayoutLabel, 1, 0, 1, 2, Qt::AlignLeft);
@@ -169,20 +178,21 @@ void AnalyticsProperties::addCuratorLabelRow(CuratorLabel *curatorLabel)
 
     QGridLayout *rowLayout = new QGridLayout();
 
-    QLabel* plugName = new QLabel(curatorLabel->id->text(), this);
+    QLabel* curatorLabelName = new QLabel(curatorLabel->id->text(), this);
 
-    // add names of all dependencies, set to false as not accessed yet
-    QHash<QString, bool> dependenciesList;
-    foreach (QLabel* dependency, curatorLabel->narrativeDependencies)
+    //Add a row for each dependency
+    QGridLayout *dependencyRowLayout = new QGridLayout();
+    QHash<QString, ObjectiveRow*> dependenciesList;
+    foreach (CuratorObjective *dependency, curatorLabel->narrativeDependencies)
     {
-        dependenciesList[dependency->text()] = false;
+        dependenciesList.insert(dependency->label->text(), new ObjectiveRow(this, dependency->label->text(), dependencyRowLayout));
     }
 
-    rowLayout->addWidget(plugName, 0, 0);
+    rowLayout->addWidget(curatorLabelName, 0, 0);
 
     m_curatorLayout->addLayout(rowLayout, row, 0);
 
-    m_curatorRows.insert(plugName->text(), new CuratorRow(this, plugName, rowLayout, dependenciesList));
+    m_curatorRows.insert(curatorLabelName->text(), new CuratorRow(this, curatorLabelName, rowLayout, dependencyRowLayout, dependenciesList));
 }
 
 void AnalyticsProperties::removeCuratorRow(const QString& curatorLabelName)
@@ -207,95 +217,48 @@ void AnalyticsProperties::removeAllCuratorRows()
 
 bool AnalyticsProperties::getCuratorLabelStarted(QString curatorLabelName)
 {
-    if(m_curatorRows.isEmpty())
-        return false;
-
     Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     return m_curatorRows[curatorLabelName]->getStarted();
 }
 
 void AnalyticsProperties::setCuratorLabelStarted(QString curatorLabelName, bool started)
 {
-    if(m_curatorRows.isEmpty())
-        return;
-
-   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->setStarted(started);
-
 }
 
-void AnalyticsProperties::updateProgressOfCuratorLabel(QString curatorLabelName, QString dependencyName)
+void AnalyticsProperties::updateProgressOfCuratorLabel(QString curatorLabelName, float progress)
 {
-    if(m_curatorRows.isEmpty())
-        return;
-
-   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
-    m_curatorRows[curatorLabelName]->updateProgress(dependencyName);
-    updateFullGameProgress();
+    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
+    m_curatorRows[curatorLabelName]->updateProgress(progress);
 }
 
-void AnalyticsProperties::updateFullGameProgress()
+void AnalyticsProperties::updateFullGameProgress(float fullProgress)
 {
-    float averageProgress = 0;
+    m_fullGameProgressBar->setValue(round(fullProgress*100));
+}
 
-    foreach (CuratorRow *curatorRow, m_curatorRows)
-    {
-        averageProgress += curatorRow->getProgress();
-    }
-
-    averageProgress /= m_curatorRows.size();
-
-    m_fullGameProgressBar->setValue(averageProgress);
-
-    m_fullGameProgressValue = averageProgress;
+void AnalyticsProperties::updateLocalLostness(float lostness)
+{
+    m_localLostnessBar->setValue((round(lostness/maxLostness*100)));   //round to nearest integer to be shown on the bar correctly
 }
 
 void AnalyticsProperties::updateLostnessOfCuratorLabel(QString curatorLabelName, float newValue)
 {
-    if(m_curatorRows.isEmpty())
-        return;
-
-    if(newValue > 100)
-        newValue = 100;
-
    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->updateLostness(newValue);
 }
 
 void AnalyticsProperties::updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue)
 {
-    if(m_curatorRows.isEmpty())
-        return;
-
    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
     m_curatorRows[curatorLabelName]->updateSimilarity(newValue);
 }
 
-float AnalyticsProperties::getProgressOfCuratorLabel(QString curatorLabelName)
+void AnalyticsProperties::updateLostnessOfObjective(QString curatorLabelName, QString objectiveName, float newValue)
 {
-    if(m_curatorRows.isEmpty())
-        return 0;
-
    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
-    return m_curatorRows[curatorLabelName]->getProgress();
-}
-
-float AnalyticsProperties::getLostnessOfCuratorLabel(QString curatorLabelName)
-{
-    if(m_curatorRows.isEmpty())
-        return 0;
-
-   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
-    return m_curatorRows[curatorLabelName]->getLostness();
-}
-
-float AnalyticsProperties::getSimilarityOfCuratorLabel(QString curatorLabelName)
-{
-    if(m_curatorRows.isEmpty())
-        return 0;
-
-   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
-    return m_curatorRows[curatorLabelName]->getSimilarity();
+    m_curatorRows[curatorLabelName]->updateLostnessOfObjective(objectiveName, newValue);
 }
 
 void AnalyticsProperties::resetAllCuratorLabels()
@@ -307,17 +270,15 @@ void AnalyticsProperties::resetAllCuratorLabels()
 
     if(m_fullGameProgressBar)
         m_fullGameProgressBar->setValue(0.0f);
-    m_fullGameProgressValue = 0.0f;
+
+    if(m_localLostnessBar)
+        m_localLostnessBar->setValue(0.0f);
 }
 
-float AnalyticsProperties::getFullGameProgress()
-{
-    return m_fullGameProgressValue;
-}
-
-CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QHash<QString, bool> &dependenciesList)
+CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QGridLayout *dependencyRowLayout, QHash<QString, ObjectiveRow*> &dependenciesList)
     : QObject(editor)
     , m_rowLayout(rowLayout)
+    , m_dependencyRowLayout(dependencyRowLayout)
     , m_nameLabel(nameLabel)
     , m_progressLabel(new QLabel("Progress:"))
     , m_progressBar(new QProgressBar())
@@ -328,9 +289,6 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_similarityBar(new QProgressBar())
     , m_started(false)
     , m_completed(false)
-    , m_progressValue(0)
-    , m_lostnessValue(0)
-    , m_similarityValue(0)
 {
     int row = m_rowLayout->rowCount();
 
@@ -343,6 +301,8 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
 
     m_rowLayout->addWidget(m_similarityLabel, ++row, 0, 1, 1, Qt::AlignLeft);
     m_rowLayout->addWidget(m_similarityBar, row, 1, 1, 5, Qt::AlignRight);
+
+    m_rowLayout->addLayout(m_dependencyRowLayout,++row, 0, 1, 5, Qt::AlignRight);
 
     //make labels minimum size to fit text
     m_progressLabel->setMaximumSize(m_progressLabel->fontMetrics().width(m_progressLabel->text()), m_progressLabel->fontMetrics().height());
@@ -367,6 +327,15 @@ void CuratorRow::removeRow()
     m_lostnessBar->deleteLater();
     m_similarityLabel->deleteLater();
     m_similarityBar->deleteLater();
+
+    for(QHash<QString, ObjectiveRow*>::iterator objectiveIt = m_dependencies.begin(); objectiveIt != m_dependencies.end(); ++objectiveIt)
+    {
+        objectiveIt.value()->removeRow();
+        objectiveIt.value()->deleteLater();
+    }
+    m_dependencyRowLayout->deleteLater();
+
+    m_dependencies.clear();  //clear list of pointers
 }
 
 void CuratorRow::setStarted(bool started)
@@ -375,61 +344,28 @@ void CuratorRow::setStarted(bool started)
     m_nameLabel->setStyleSheet("QLabel { color : yellow; }");
 }
 
-void CuratorRow::updateProgress(QString dependencyName)
+void CuratorRow::updateProgress(float progress)
 {
-    if(m_dependencies.contains(dependencyName))
-    {
-        m_dependencies[dependencyName] = true;
+    m_progressBar->setValue(round(progress*100));   //round to nearest integer to be shown on the bar correctly
 
-        float progress(0);
-
-        for(QHash<QString,bool>::iterator depIt = m_dependencies.begin(); depIt != m_dependencies.end(); ++depIt)
-        {
-            if(depIt.value())   //if dependency has been found, increase progress
-                ++progress;
-        }
-
-        progress = progress/m_dependencies.size() * 100;    //get progress and update bar
-        m_progressBar->setValue(round(progress));   //round to nearest integer to be shown on the bar correctly
-        m_progressValue = progress;
-
-        if(progress == 100) //change colour to green to show completed
-            m_nameLabel->setStyleSheet("QLabel { color : green; }");
-    }
-}
-
-
-float CuratorRow::getProgress()
-{
-    return m_progressValue;
 }
 
 void CuratorRow::updateLostness(float newValue)
 {
     if(newValue >= 0) //don't set value if error has occurred
-    {
-        m_lostnessBar->setValue(round(newValue));   //round to nearest integer to be shown on the bar correctly
-        m_lostnessValue = newValue;
-    }
-}
-
-float CuratorRow::getLostness()
-{
-    return m_lostnessValue;
+        m_lostnessBar->setValue((round(newValue/maxLostness*100)));   //round to nearest integer to be shown on the bar correctly
 }
 
 void CuratorRow::updateSimilarity(float newValue)
 {
     if(newValue >= 0) //don't set value if error has occurred
-    {
         m_similarityBar->setValue(round(newValue));   //round to nearest integer to be shown on the bar correctly
-        m_similarityValue = newValue;
-    }
 }
 
-float CuratorRow::getSimilarity()
+void CuratorRow::updateLostnessOfObjective(QString objectiveName, float newValue)
 {
-    return m_similarityValue;
+    if(newValue >= 0) //don't set value if error has occurred
+        m_dependencies[objectiveName]->setLostness(newValue);   //round to nearest integer to be shown on the bar correctly
 }
 
 void CuratorRow::reset()
@@ -442,15 +378,41 @@ void CuratorRow::reset()
     m_lostnessBar->setValue(0.0f);
     m_similarityBar->setValue(0.0f);
 
-    m_progressValue = 0;
-    m_lostnessValue = 0;
-    m_similarityValue = 0;
-
-    //reset dependencies
-    for(QHash<QString,bool>::iterator depIt = m_dependencies.begin(); depIt != m_dependencies.end(); ++depIt)
+    //reset dependencies    
+    for(QHash<QString, ObjectiveRow*>::iterator depIt = m_dependencies.begin(); depIt != m_dependencies.end(); ++depIt)
     {
-        depIt.value() = false;
+        (*depIt)->reset();
     }
 
     m_nameLabel->setStyleSheet("QLabel { color : red; }");  //red to show that it hasn't started
+}
+
+ObjectiveRow::ObjectiveRow(QObject *object, QString name, QGridLayout *rowLayout)
+    : QObject(object)
+    , m_rowLayout(rowLayout)
+    , m_nameLabel(new QLabel(name))
+    , m_lostnessBar(new QProgressBar())
+{
+    int row = m_rowLayout->rowCount();
+
+    //add all widgets to the layout
+    m_rowLayout->addWidget(m_nameLabel, row, 0, 1, 1, Qt::AlignLeft);
+    m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
+}
+void ObjectiveRow::removeRow()
+{
+    m_nameLabel->deleteLater();
+    m_lostnessBar->deleteLater();
+}
+
+void ObjectiveRow::setLostness(float lostness)
+{
+    if(lostness >= 0) //don't set value if error has occurred
+        m_lostnessBar->setValue(round(lostness/maxLostness*100));   //round to nearest integer to be shown on the bar correctly
+}
+
+void ObjectiveRow::reset()
+{
+    //reset the lostness bar
+    m_lostnessBar->setValue(0.0f);
 }

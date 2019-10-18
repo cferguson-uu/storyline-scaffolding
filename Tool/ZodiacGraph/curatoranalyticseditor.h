@@ -17,6 +17,24 @@
 
 #include "sequencematcher.h"
 
+struct CuratorObjective
+{
+    CuratorObjective(QString objectiveName)
+    {
+        label = new QLabel(objectiveName);
+        found = false;
+    }
+
+    int minSteps;
+    int totalNumOfNodesVisited;
+    int totalNumUniqueNodesVisited;
+    float lostness;
+    QString startNode;
+    QString endNode;
+    QLabel* label;
+    bool found;
+};
+
 struct CuratorLabel
 {
     ~CuratorLabel()
@@ -25,13 +43,15 @@ struct CuratorLabel
         dependenciesLabel->deleteLater();
         minSteps->deleteLater();
 
-        foreach (QLabel* label, narrativeDependencies)
-            label->deleteLater();
+        foreach (CuratorObjective *dep, narrativeDependencies)
+        {
+            dep->label->deleteLater();
+        }
     }
 
     QLabel* id;
     QLabel* dependenciesLabel;
-    QList<QLabel*> narrativeDependencies;
+    QHash<QString, CuratorObjective*> narrativeDependencies;
     QLabel* minStepsLabel;
     QSpinBox* minSteps;
 
@@ -41,6 +61,9 @@ struct CuratorLabel
     QPushButton *addSequenceBtn;
     QLabel *sequenceStatus;
     SequenceMatcher sequenceMatcher;
+
+    float progress;
+    float lostness;
 };
 
 class CuratorAnalyticsEditor : public QDialog
@@ -51,7 +74,7 @@ public:
     void saveCuratorLabels();
     void showWindow();
     void nodeVisited(QString task, QJsonObject event);
-    float getLostnessValue(QString task);
+    float getLostnessofCuratorLabel(QString task);
     float getSimilarityValue(QString task);
     QVector<QJsonArray> readSequencesFromFiles();
     void addSequenceToAllCuratorLabels();
@@ -59,15 +82,31 @@ public:
     QJsonArray getSequenceRelatedToCuratorLabel(QJsonArray &array, QString curatorLabel);
     void saveAllPerfectSequencesToFile();
     bool checkIfAnalyticsLoaded();
-    QList<CuratorLabel*> getCuratorLabels(){return m_curatorLabels;}
-    void resetAllLostnessAndSequenceCalculations();
+    QList<CuratorLabel*> getCuratorLabels();
+    void resetAll();
+
+    void updateGameProgress();
+    float getGameProgress(){return m_gameProgress;}
+
+    float getCuratorLabelProgress(QString curatorId);
+
+    void objectiveFound(QString objectiveId, QString curatorID, int r, int s, int n, float lostness, QString startNode, QString endNode);
+    void possibleObjectiveFound(QString objectiveId);
+
+    float getLostnessofObjective(QString curatorId, QString objectiveId);
+
+    void updateLocalLostness();
+
+    float getLocalLostness(){return m_localLostness;}
+
+    bool isEmpty(){return m_curatorLabels.empty();}
 
 private:
     void showCuratorLabels();
     void hideCuratorLabels();
 
     QGridLayout *m_mainLayout;
-    QList<CuratorLabel*> m_curatorLabels;
+    QHash<QString, CuratorLabel*> m_curatorLabels;
 
     QPushButton *m_saveBtn;
     QPushButton *m_loadBtn;
@@ -76,7 +115,8 @@ private:
 
     QJsonArray m_jsonArray;
 
-    QSet<QString> m_ignored_actions;
+    float m_gameProgress;
+    float m_localLostness;
 };
 
 #endif // CuratorAnalyticsEditor_H

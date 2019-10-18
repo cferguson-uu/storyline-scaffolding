@@ -11,6 +11,7 @@ class Collapsible;
 class QVBoxLayout;
 class QGridLayout;
 struct CuratorLabel;
+struct CuratorObjective;
 
 ///
 /// \brief Analytics Property widget, is a display widget of a Collapsible. Used for showing analytics info
@@ -43,6 +44,16 @@ public:// methods
     void StopAnalyticsMode();
 
     ///
+    /// \brief Update total progress of the game
+    ///
+    void updateFullGameProgress(float fullProgress);
+
+    ///
+    /// \brief Update local lostness of the game
+    ///
+    void updateLocalLostness(float lostness);
+
+    ///
     /// \brief Remove all curator rows from being displayed
     ///
     void removeAllCuratorRows();
@@ -60,7 +71,7 @@ public:// methods
     ///
     /// \brief Update the progress of a curator label row
     ///
-    void updateProgressOfCuratorLabel(QString curatorLabelName, QString dependencyName);
+    void updateProgressOfCuratorLabel(QString curatorLabelName, float progress);
 
     ///
     /// \brief Update the lostness of a curator label row
@@ -73,29 +84,14 @@ public:// methods
     void updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue);
 
     ///
-    /// \brief Get the progress of a curator label row
+    /// \brief Update the lostness of a curator label row
     ///
-    float getProgressOfCuratorLabel(QString curatorLabelName);
-
-    ///
-    /// \brief Get the lostness of a curator label row
-    ///
-    float getLostnessOfCuratorLabel(QString curatorLabelName);
-
-    ///
-    /// \brief Get the similarity of a curator label row
-    ///
-    float getSimilarityOfCuratorLabel(QString curatorLabelName);
+    void updateLostnessOfObjective(QString curatorLabelName, QString objectiveName, float newValue);
 
     ///
     /// \brief Reset progress, lostness and similarity of all labels
     ///
     void resetAllCuratorLabels();
-
-    ///
-    /// \brief Get the full progress of the game
-    ///
-    float getFullGameProgress();
 
 public slots:
     ///
@@ -119,11 +115,6 @@ private:
     /// \param [in] curatorLabelName    Name of the curator label to remove.
     ///
     void removeCuratorRow(const QString& curatorLabelName);
-
-    ///
-    /// \brief Use curator labels to find the total progress of the game
-    ///
-    void updateFullGameProgress();
 
     ///
     /// \brief Main Layout
@@ -201,9 +192,57 @@ private:
     QProgressBar* m_fullGameProgressBar;
 
     ///
-    /// \brief Progress Bar, gives visual feedback of the completion of the game
+    /// \brief Local label for the full game
     ///
-    float m_fullGameProgressValue;
+    QLabel* m_localLostnessLabel;
+
+    ///
+    /// \brief Lostness Bar, gives visual feedback of the lostness value
+    ///
+    QProgressBar* m_localLostnessBar;
+};
+
+class ObjectiveRow : public QObject
+{
+    Q_OBJECT
+
+public: // methods
+    ///
+    /// \brief Constructor.
+    ///
+    /// \param [in] nameLabel       Objective name.
+    ///
+    ObjectiveRow(QObject *object, QString name, QGridLayout *rowLayout);
+
+    ///
+    /// \brief Remove all widgets from the row
+    ///
+    void removeRow();
+
+    ///````
+    /// \brief Set the lostness of the objective
+    ///
+    void setLostness(float lostness);
+
+    ///
+    /// \brief Reset all bars
+    ///
+    void reset();
+private:
+    ///
+    /// \brief Layout for this objective row
+    ///
+    QGridLayout* m_rowLayout;
+
+    ///
+    /// \brief Name
+    ///
+    QLabel* m_nameLabel;
+
+    ///
+    /// \brief Lostness Bar, gives visual feedback on how "lost the user is"
+    ///
+    QProgressBar* m_lostnessBar;
 };
 
 class CuratorRow : public QObject
@@ -218,7 +257,7 @@ public: // methods
     /// \param [in] editor          AnalyticsProperties that this CuratorRow is part of.
     /// \param [in] nameLabel       Curator label name.
     ///
-    CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QHash<QString, bool> &dependenciesList);
+    CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QGridLayout *dependencyRowLayout, QHash<QString, ObjectiveRow*> &dependenciesList);
 
     ///
     /// \brief Remove all widgets from the row
@@ -238,12 +277,7 @@ public: // methods
     ///
     /// \brief Update the progress bar if there is a dependency match
     ///
-    void updateProgress(QString dependencyName);
-
-    ///
-    /// \brief Get the progress of the curator label
-    ///
-    float getProgress();
+    void updateProgress(float progress);
 
     ///
     /// \brief Update the lostness bar
@@ -251,19 +285,14 @@ public: // methods
     void updateLostness(float newValue);
 
     ///
-    /// \brief Get the similarity measure of the curator label
-    ///
-    float getLostness();
-
-    ///
     /// \brief Update the similarity bar
     ///
     void updateSimilarity(float newValue);
 
     ///
-    /// \brief Get the similarity measure of the curator label
+    /// \brief Update the lostness bar
     ///
-    float getSimilarity();
+    void updateLostnessOfObjective(QString objectiveName, float newValue);
 
     ///
     /// \brief Reset all bars
@@ -275,6 +304,10 @@ private:
     /// \brief Layout for this curator label row
     ///
     QGridLayout* m_rowLayout;
+    ///
+    /// \brief Layout for the objectives
+    ///
+    QGridLayout* m_dependencyRowLayout;
 
     ///
     /// \brief Name
@@ -312,24 +345,9 @@ private:
     QProgressBar* m_similarityBar;
 
     ///
-    /// \brief Progress Value
+    /// \brief List of narrative dependencies (bool to show if achieved etc. accessed through these)
     ///
-    float m_progressValue;
-
-    ///
-    /// \brief Lostness Value
-    ///
-    float m_lostnessValue;
-
-    ///
-    /// \brief Similarity Value
-    ///
-    float m_similarityValue;
-
-    ///
-    /// \brief List of narrative dependencies with bool to show if achieved
-    ///
-    QHash<QString, bool> m_dependencies;
+    QHash<QString, ObjectiveRow*> m_dependencies;
 
     ///
     /// \brief Whether or not the task has been started
