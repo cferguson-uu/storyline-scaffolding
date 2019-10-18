@@ -249,12 +249,6 @@ void AnalyticsProperties::updateLostnessOfCuratorLabel(QString curatorLabelName,
     m_curatorRows[curatorLabelName]->updateLostness(newValue);
 }
 
-void AnalyticsProperties::updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue)
-{
-   Q_ASSERT(m_curatorRows.contains(curatorLabelName));
-    m_curatorRows[curatorLabelName]->updateSimilarity(newValue);
-}
-
 void AnalyticsProperties::updateLostnessOfObjective(QString curatorLabelName, QString objectiveName, float newValue)
 {
    Q_ASSERT(m_curatorRows.contains(curatorLabelName));
@@ -285,8 +279,6 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_dependencies(dependenciesList)
     , m_lostnessLabel(new QLabel("Lostness:"))
     , m_lostnessBar(new QProgressBar())
-    , m_similarityLabel(new QLabel("Similarity:"))
-    , m_similarityBar(new QProgressBar())
     , m_started(false)
     , m_completed(false)
 {
@@ -299,20 +291,15 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     m_rowLayout->addWidget(m_lostnessLabel, ++row, 0, 1, 1, Qt::AlignLeft);
     m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
 
-    m_rowLayout->addWidget(m_similarityLabel, ++row, 0, 1, 1, Qt::AlignLeft);
-    m_rowLayout->addWidget(m_similarityBar, row, 1, 1, 5, Qt::AlignRight);
-
     m_rowLayout->addLayout(m_dependencyRowLayout,++row, 0, 1, 5, Qt::AlignRight);
 
     //make labels minimum size to fit text
     m_progressLabel->setMaximumSize(m_progressLabel->fontMetrics().width(m_progressLabel->text()), m_progressLabel->fontMetrics().height());
     m_lostnessLabel->setMaximumSize(m_lostnessLabel->fontMetrics().width(m_lostnessLabel->text()), m_lostnessLabel->fontMetrics().height());
-    m_similarityLabel->setMaximumSize(m_similarityLabel->fontMetrics().width(m_similarityLabel->text()), m_similarityLabel->fontMetrics().height());
 
     //set values so percentage text shows on progress bars
     m_progressBar->setValue(0.0f);
     m_lostnessBar->setValue(0.0f);
-    m_similarityBar->setValue(0.0f);
 
     m_nameLabel->setStyleSheet("QLabel { color : red; }");  //red to show that it hasn't started
 }
@@ -325,8 +312,6 @@ void CuratorRow::removeRow()
     m_progressBar->deleteLater();
     m_lostnessLabel->deleteLater();
     m_lostnessBar->deleteLater();
-    m_similarityLabel->deleteLater();
-    m_similarityBar->deleteLater();
 
     for(QHash<QString, ObjectiveRow*>::iterator objectiveIt = m_dependencies.begin(); objectiveIt != m_dependencies.end(); ++objectiveIt)
     {
@@ -356,12 +341,6 @@ void CuratorRow::updateLostness(float newValue)
         m_lostnessBar->setValue((round(newValue/maxLostness*100)));   //round to nearest integer to be shown on the bar correctly
 }
 
-void CuratorRow::updateSimilarity(float newValue)
-{
-    if(newValue >= 0) //don't set value if error has occurred
-        m_similarityBar->setValue(round(newValue));   //round to nearest integer to be shown on the bar correctly
-}
-
 void CuratorRow::updateLostnessOfObjective(QString objectiveName, float newValue)
 {
     if(newValue >= 0) //don't set value if error has occurred
@@ -376,7 +355,6 @@ void CuratorRow::reset()
     //set values back to 0
     m_progressBar->setValue(0.0f);
     m_lostnessBar->setValue(0.0f);
-    m_similarityBar->setValue(0.0f);
 
     //reset dependencies    
     for(QHash<QString, ObjectiveRow*>::iterator depIt = m_dependencies.begin(); depIt != m_dependencies.end(); ++depIt)

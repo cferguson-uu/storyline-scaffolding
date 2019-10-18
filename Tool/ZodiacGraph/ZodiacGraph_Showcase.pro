@@ -75,7 +75,6 @@ SOURCES += main.cpp\
     linkerwindow.cpp \
     analyticssocket.cpp \
     analyticshandler.cpp \
-    sequencematcher.cpp \
     curatoranalyticseditor.cpp \
     analyticsproperties.cpp \
     narrativefilesorter.cpp
@@ -117,7 +116,6 @@ HEADERS  += mainwindow.h \
     linkerwindow.h \
     analyticssocket.h \
     analyticshandler.h \
-    sequencematcher.h \
     curatoranalyticseditor.h \
     analyticsproperties.h \
     narrativefilesorter.h

@@ -79,17 +79,12 @@ public:// methods
     void updateLostnessOfCuratorLabel(QString curatorLabelName, float newValue);
 
     ///
-    /// \brief Update the similarity of a curator label row
-    ///
-    void updateSimilarityOfCuratorLabel(QString curatorLabelName, float newValue);
-
-    ///
     /// \brief Update the lostness of a curator label row
     ///
     void updateLostnessOfObjective(QString curatorLabelName, QString objectiveName, float newValue);
 
     ///
-    /// \brief Reset progress, lostness and similarity of all labels
+    /// \brief Reset progress and lostness of all labels
     ///
     void resetAllCuratorLabels();
 
@@ -285,11 +280,6 @@ public: // methods
     void updateLostness(float newValue);
 
     ///
-    /// \brief Update the similarity bar
-    ///
-    void updateSimilarity(float newValue);
-
-    ///
     /// \brief Update the lostness bar
     ///
     void updateLostnessOfObjective(QString objectiveName, float newValue);
@@ -333,16 +323,6 @@ private:
     /// \brief Lostness Bar, gives visual feedback on how "lost the user is"
     ///
     QProgressBar* m_lostnessBar;
-
-    ///
-    /// \brief Similarity label
-    ///
-    QLabel* m_similarityLabel;
-
-    ///
-    /// \brief Similarity Bar, gives visual feedback on how well the player is matching the perfect sequence
-    ///
-    QProgressBar* m_similarityBar;
 
     ///
     /// \brief List of narrative dependencies (bool to show if achieved etc. accessed through these)

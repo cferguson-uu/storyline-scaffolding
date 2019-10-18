@@ -15,8 +15,6 @@
 #include <QScrollArea>
 #include <QSpinBox>
 
-#include "sequencematcher.h"
-
 struct CuratorObjective
 {
     CuratorObjective(QString objectiveName)
@@ -58,10 +56,6 @@ struct CuratorLabel
     QList<QPair<QString, QString>> uniqueNodesVisited;
     int totalNumOfNodesVisited;
 
-    QPushButton *addSequenceBtn;
-    QLabel *sequenceStatus;
-    SequenceMatcher sequenceMatcher;
-
     float progress;
     float lostness;
 };
@@ -75,12 +69,6 @@ public:
     void showWindow();
     void nodeVisited(QString task, QJsonObject event);
     float getLostnessofCuratorLabel(QString task);
-    float getSimilarityValue(QString task);
-    QVector<QJsonArray> readSequencesFromFiles();
-    void addSequenceToAllCuratorLabels();
-    void addSequencesToSingleCuratorLabel(CuratorLabel *curatorLabel, QVector<QJsonArray> eventsList);
-    QJsonArray getSequenceRelatedToCuratorLabel(QJsonArray &array, QString curatorLabel);
-    void saveAllPerfectSequencesToFile();
     bool checkIfAnalyticsLoaded();
     QList<CuratorLabel*> getCuratorLabels();
     void resetAll();
@@ -110,8 +98,6 @@ private:
 
     QPushButton *m_saveBtn;
     QPushButton *m_loadBtn;
-    QPushButton *m_loadFullSequenceBtn;
-    QPushButton *m_saveFullSequenceBtn;
 
     QJsonArray m_jsonArray;
 

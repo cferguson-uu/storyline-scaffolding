@@ -9,12 +9,9 @@ static const QString kName_With = " with ";
 static const QString kName_WithResults = " with results: ";
 static const QString kName_Difficulty = "difficulty";
 static const QString kName_WithLostness = " with lostness value: ";
-static const QString kName_WithSimilarity = " with similarity value: ";
-static const QString kName_AndSimilarity = " and similarity value: ";
 static const QString kName_At = " at ";
 static const QString kName_Timestamp = "timestamp";
 static const QString kName_Lostness = "lostness";
-static const QString kName_Similarity = "similarity";
 
 //verbs
 static const QString kName_Attempted = "attempted";
@@ -201,24 +198,16 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
                 if(updateValues)
                 {
                     float lostness = m_curatorAnalyticsEditor->getLostnessofCuratorLabel(jsonObj[kName_Object].toString());
-                    float similarity = m_curatorAnalyticsEditor->getSimilarityValue(jsonObj[kName_Object].toString());
 
                     if(lostness >= 0)
                         jsonObj[kName_Lostness] = lostness;
 
-                    if(similarity >= 0)
-                        jsonObj[kName_Similarity] = similarity;
-
                     m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), lostness);
-                    m_pProperties->updateSimilarityOfCuratorLabel(jsonObj[kName_Object].toString(), similarity);
                 }
                 else
                 {
                     if(jsonObj.contains(kName_Lostness))
                         m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), jsonObj[kName_Lostness].toDouble());
-
-                    if(jsonObj.contains(kName_Similarity))
-                        m_pProperties->updateSimilarityOfCuratorLabel(jsonObj[kName_Object].toString(), jsonObj[kName_Similarity].toDouble());
                 }
 
                 m_activeTasks.removeAll(jsonObj[kName_Object].toString());
@@ -228,13 +217,12 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
 
         if(m_lostness_actions.contains(jsonObj["verb"].toString()))
         {
-            foreach (QString task, m_activeTasks)   //update lostness and sequence similarity values and check progress
+            foreach (QString task, m_activeTasks)   //update lostness and check progress
             {
                 m_curatorAnalyticsEditor->nodeVisited(task, jsonObj);   //Update lostness values (S and N) for each curator label
 
-                if(updateValues && !loadingFile)    //update lostness and similarity
+                if(updateValues && !loadingFile)    //update lostness
                 {
-                    m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
                     m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessofCuratorLabel(task));
                 }
             }
@@ -331,138 +319,6 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
     }
 
     handleTextOutput(jsonObj, ignoreResultsInConsole, updateValues);
-
-    /*
-    if(jsonObj[kName_Verb].toString() == kName_Started) //add new task to active list and set as started in properties
-    {
-        m_activeTasks.push_back(jsonObj[kName_Object].toString());
-        m_pProperties->setCuratorLabelStarted(jsonObj[kName_Object].toString(), true);
-        //handle difficulty in results
-    }
-    else
-        if(jsonObj[kName_Verb].toString() == kName_Completed)   //task completed, get lostness value, remove from the list and update properties
-        {
-            //the game might handle global lostness, handle that here
-
-            if(updateValues)
-            {
-                float lostness = m_curatorAnalyticsEditor->getLostnessofCuratorLabel(jsonObj[kName_Object].toString());
-                float similarity = m_curatorAnalyticsEditor->getSimilarityValue(jsonObj[kName_Object].toString());
-
-                if(lostness >= 0)
-                    jsonObj[kName_Lostness] = lostness;
-
-                if(similarity >= 0)
-                    jsonObj[kName_Similarity] = similarity;
-
-                m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), lostness);
-                m_pProperties->updateSimilarityOfCuratorLabel(jsonObj[kName_Object].toString(), similarity);
-            }
-            else
-            {
-                if(jsonObj.contains(kName_Lostness))
-                    m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), jsonObj[kName_Lostness].toDouble());
-
-                if(jsonObj.contains(kName_Similarity))
-                    m_pProperties->updateSimilarityOfCuratorLabel(jsonObj[kName_Object].toString(), jsonObj[kName_Similarity].toDouble());
-            }
-
-            m_activeTasks.removeAll(jsonObj[kName_Object].toString());
-        }
-
-    //move ignored actions here from curator analytics so we don't trigger a pointless loop
-    foreach (QString task, m_activeTasks)   //update lostness and sequence similarity values and check progress
-    {
-        m_curatorAnalyticsEditor->nodeVisited(task, jsonObj);   //Update lostness values (S and N) for each curator label
-
-        if(m_pProperties->getCuratorLabelStarted(task)) //can't do anything unless task is started
-        {
-            //if(jsonObj[kName_Verb].toString() == kName_Attempted && jsonObj[kName_Result].toString() == kName_Unlock)   //if node unlocked, update curator label progress
-                //m_pProperties->updateProgressOfCuratorLabel(task, jsonObj[kName_Object].toString());
-
-            if(updateValues && !loadingFile)    //update lostness and similarity
-            {
-                m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
-                m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessofCuratorLabel(task));
-            }
-        }
-    }
-
-    if(jsonObj[kName_Verb].toString() == kName_Attempted)// && jsonObj[kName_Result].toString() == kName_Unlock) //HANDLE NEW RESULT   //light up node in scene to show unlocked
-    {
-        if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject())
-        {
-            QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
-            if(jsonResultsObj.contains(kName_Result) && jsonResultsObj[kName_Result].toString() == kName_Unlock)
-                unlockNode(jsonObj[kName_Object].toString());
-        }
-    }
-
-    bool ignoreResultsInConsole = false;
-    if(jsonObj[kName_Verb].toString() == kName_Found)   //found an objective of a curator label
-    {
-        //do something with the curator label manager here
-        //add lostness to the result, maybe even remove the other stuff when done?
-        if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject()) //append list of results or only one result, if they are available
-        {
-            QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
-            QString startNode, endNode = "";
-            int r, s, n = 0;
-            float lostness = 0.0f;
-
-            if(jsonResultsObj.contains("r"))
-                r = jsonResultsObj["r"].toInt();
-            else
-                qDebug() << "R not found";
-
-            if(jsonResultsObj.contains("s"))
-                s = jsonResultsObj["s"].toInt();
-            else
-                qDebug() << "S not found";
-
-            if(jsonResultsObj.contains("n"))
-                n = jsonResultsObj["n"].toInt();
-            else
-                qDebug() << "N not found";
-
-            if(jsonResultsObj.contains("lostness"))
-                lostness = jsonResultsObj["lostness"].toDouble();
-            else
-                qDebug() << "Lostness not found";
-
-            if(jsonResultsObj.contains("startNode"))
-                startNode = jsonResultsObj["startNode"].toString();
-            else
-                qDebug() << "Start node not found";
-
-            if(jsonResultsObj.contains("endNode"))
-                endNode = jsonResultsObj["endNode"].toInt();
-            else
-                qDebug() << "End node not found";
-
-            //calculate lostness and save it here
-
-            //loop through and unlock, set lostness etc.
-            foreach (QString task, m_activeTasks)   //update lostness and sequence similarity values and check progress
-            {
-                if(m_pProperties->getCuratorLabelStarted(task)) //can't do anything unless task is started
-                {
-                    //m_pProperties->updateProgressOfCuratorLabel(task, jsonObj[kName_Object].toString(), startNode, endNode, r, s, n, lostness);
-                    if(updateValues && !loadingFile)    //update lostness and similarity
-                    {
-                        //This can definitely be streamlined
-                        m_pProperties->updateSimilarityOfCuratorLabel(task, m_curatorAnalyticsEditor->getSimilarityValue(task));
-                        m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessofCuratorLabel(task));
-                    }
-                }
-            }
-        }
-
-        ignoreResultsInConsole = true;   //won't export R, S and N to the console (too complicated) but will export them to the jsonFile
-    }
-
-    handleTextOutput(jsonObj, ignoreResultsInConsole, updateValues);
-    */
 }
 
 void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool ignoreResultsInConsole, bool updateValues)
@@ -509,16 +365,6 @@ void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool ignoreResults
         sentence += QString::number(jsonObj[kName_Lostness].toDouble());
     }
 
-    if(jsonObj.contains(kName_Similarity))
-    {
-        //append similarity to string, use with or and depending on if lostness is present
-        if(jsonObj.contains(kName_Lostness))
-            sentence += kName_AndSimilarity;
-        else
-            sentence += kName_WithSimilarity;
-        sentence += QString::number(jsonObj[kName_Similarity].toDouble());
-    }
-
     sentence += kName_At + QDateTime::fromString(jsonObj[kName_Timestamp].toString(), Qt::ISODate).toString("MMM dd, yyyy hh:mm:ss t");
 
     //output string to window and full JSON message to file
@@ -553,8 +399,8 @@ void AnalyticsHandler::loadAnalyticsLog()
             }
 
             QMessageBox msgBox;
-            msgBox.setWindowTitle("Lostness and Similarity Values");
-            msgBox.setText("Do you want to update the lostness and similarity values for the loaded log file?");
+            msgBox.setWindowTitle("Lostness Values");
+            msgBox.setText("Do you want to update the lostness values for the loaded log file?");
             msgBox.setStandardButtons(QMessageBox::Yes);
             msgBox.addButton(QMessageBox::No);
             msgBox.setDefaultButton(QMessageBox::No);
@@ -658,7 +504,7 @@ void AnalyticsHandler::exportTaskDataToCSV(QString fileName)
             QTextStream output(&file);
             QList<CuratorLabel*> curatorTasks = m_curatorAnalyticsEditor->getCuratorLabels();
 
-            output << "Task;Dependencies;Progress;Lostness;Similarity";
+            output << "Task;Dependencies;Progress;Lostness;";
 
             foreach (CuratorLabel *task, curatorTasks)
             {
