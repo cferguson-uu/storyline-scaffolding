@@ -41,7 +41,7 @@ struct CuratorLabel
         dependenciesLabel->deleteLater();
         minSteps->deleteLater();
 
-        foreach (CuratorObjective *dep, narrativeDependencies)
+        foreach (CuratorObjective *dep, narrativeDependenciesList)
         {
             dep->label->deleteLater();
         }
@@ -49,7 +49,8 @@ struct CuratorLabel
 
     QLabel* id;
     QLabel* dependenciesLabel;
-    QHash<QString, CuratorObjective*> narrativeDependencies;
+    QHash<QString, CuratorObjective*> narrativeDependenciesHash;
+    QList<CuratorObjective*> narrativeDependenciesList;
     QLabel* minStepsLabel;
     QSpinBox* minSteps;
 
@@ -70,7 +71,7 @@ public:
     void nodeVisited(QString task, QJsonObject event);
     float getLostnessofCuratorLabel(QString task);
     bool checkIfAnalyticsLoaded();
-    QList<CuratorLabel*> getCuratorLabels();
+    QList<CuratorLabel*> getCuratorLabels(){return m_curatorLabelsList;}
     void resetAll();
 
     void updateGameProgress();
@@ -87,14 +88,15 @@ public:
 
     float getLocalLostness(){return m_localLostness;}
 
-    bool isEmpty(){return m_curatorLabels.empty();}
+    bool isEmpty(){return m_curatorLabelsList.empty();}
 
 private:
     void showCuratorLabels();
     void hideCuratorLabels();
 
     QGridLayout *m_mainLayout;
-    QHash<QString, CuratorLabel*> m_curatorLabels;
+    QHash<QString, CuratorLabel*> m_curatorLabelsHash;
+    QList<CuratorLabel*> m_curatorLabelsList;
 
     QPushButton *m_saveBtn;
     QPushButton *m_loadBtn;

@@ -183,7 +183,7 @@ void AnalyticsProperties::addCuratorLabelRow(CuratorLabel *curatorLabel)
     //Add a row for each dependency
     QGridLayout *dependencyRowLayout = new QGridLayout();
     QHash<QString, ObjectiveRow*> dependenciesList;
-    foreach (CuratorObjective *dependency, curatorLabel->narrativeDependencies)
+    foreach (CuratorObjective *dependency, curatorLabel->narrativeDependenciesList)
     {
         dependenciesList.insert(dependency->label->text(), new ObjectiveRow(this, dependency->label->text(), dependencyRowLayout));
     }
