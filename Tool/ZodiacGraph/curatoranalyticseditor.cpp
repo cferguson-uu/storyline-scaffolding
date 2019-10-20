@@ -187,15 +187,12 @@ void CuratorAnalyticsEditor::saveCuratorLabels()
             {
                 if((*mainArrayIt).isObject())
                 {
-
                     QJsonObject mainObj = (*mainArrayIt).toObject();
-                    qDebug() << mainObj["text_id"];
                     mainObj["min_steps"] = m_curatorLabelsHash[mainObj["text_id"].toString()]->minSteps->value();
 
                     newJsonArray.append(mainObj);   //append updated object to the new json file
                 }
             }
-
 
             newJsonDoc.setArray(newJsonArray);  //write new json array to file
             file.write(newJsonDoc.toJson());

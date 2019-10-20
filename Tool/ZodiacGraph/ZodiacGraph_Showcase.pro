@@ -77,7 +77,8 @@ SOURCES += main.cpp\
     analyticshandler.cpp \
     curatoranalyticseditor.cpp \
     analyticsproperties.cpp \
-    narrativefilesorter.cpp
+    narrativefilesorter.cpp \
+    lostness.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -118,7 +119,8 @@ HEADERS  += mainwindow.h \
     analyticshandler.h \
     curatoranalyticseditor.h \
     analyticsproperties.h \
-    narrativefilesorter.h
+    narrativefilesorter.h \
+    lostness.h
 
 RESOURCES += \
     res/icons.qrc
