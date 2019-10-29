@@ -18,6 +18,7 @@ static float maxLostness = sqrt(2);
 
 AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
 : QWidget(parent)
+, m_pCollapsible(parent)
 , m_mainLayout(new QVBoxLayout(this))
 , m_curatorLayout(nullptr)
 , m_curatorLabelLayoutLabel(nullptr)
@@ -48,7 +49,17 @@ AnalyticsProperties::AnalyticsProperties(Collapsible *parent)
     m_mainLayout->addWidget(m_totalConnections);
 
     // update the title of the collapsible container
-    parent->updateTitle("Analytics");
+    m_pCollapsible->updateTitle("Analytics - Disconnected");
+}
+
+void AnalyticsProperties::ConnectedtoServer(QString address)
+{
+    m_pCollapsible->updateTitle("Analytics - Connected to: " + address);
+}
+
+void AnalyticsProperties::DisconnectedFromServer()
+{
+    m_pCollapsible->updateTitle("Analytics - Disconnected");
 }
 
 void AnalyticsProperties::UpdateLinkerValues(QList<zodiac::NodeHandle> &nodes)

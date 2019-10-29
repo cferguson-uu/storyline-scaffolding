@@ -102,13 +102,11 @@ MainWindow::MainWindow(QWidget *parent)
     QAction *analyticsDisconnect = new QAction(tr("&Disconnect"), this);
     QAction *analyticsLoad = new QAction(tr("&Load Log File"), this);
     QAction *analyticsClear = new QAction(tr("&Clear Analytical Data"), this);
-    QAction *analyticsExport = new QAction(tr("&Export Task Data to CSV"), this);
     analyticsMenu->addAction(lostnessEdit);
     analyticsMenu->addAction(analyticsConnect);
     analyticsMenu->addAction(analyticsDisconnect);
     analyticsMenu->addAction(analyticsLoad);
     analyticsMenu->addAction(analyticsClear);
-    analyticsMenu->addAction(analyticsExport);
 
     // create the status bar
     statusBar();
@@ -123,7 +121,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //create the analytics systems
     AnalyticsLogWindow *analyticsLog = new AnalyticsLogWindow(this);
-    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, analyticsLoad, analyticsClear, analyticsExport, this);
+    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, analyticsLoad, analyticsClear, this);
 
     // create the Main Controller
     //create action early to send to mainctrl so it can be disabled (only 1 story graph can exist)
@@ -165,7 +163,7 @@ MainWindow::MainWindow(QWidget *parent)
                                                     newStoryNodeAction->setEnabled(true); newNarrativeNodeAction->setEnabled((true)); saveNarrative->setEnabled(true);
                                                     loadNarrative->setEnabled(true); saveStory->setEnabled(true); loadStory->setEnabled(true); m_pUndoAction->setEnabled(true);
                                                     m_pRedoAction->setEnabled(true); lostnessEdit->setEnabled(true); analyticsConnect->setEnabled(false); analyticsLoad->setEnabled(false);
-                                                    analyticsClear->setEnabled(false); analyticsExport->setEnabled(false);});
+                                                    analyticsClear->setEnabled(false);});
     designModeAction->setEnabled(false);    //set to false as this will be enabled from the start
 
     analyticsModeAction->setStatusTip(tr("Analyse player data"));
@@ -174,7 +172,7 @@ MainWindow::MainWindow(QWidget *parent)
                                                         newStoryNodeAction->setEnabled(false); newNarrativeNodeAction->setEnabled((false)); saveNarrative->setEnabled(false);
                                                         loadNarrative->setEnabled(false); saveStory->setEnabled(false); loadStory->setEnabled(false); m_pUndoAction->setEnabled(false);
                                                         m_pRedoAction->setEnabled(false); lostnessEdit->setEnabled(false);  analyticsConnect->setEnabled(true); analyticsLoad->setEnabled(true);
-                                                        analyticsClear->setEnabled(true); analyticsExport->setEnabled(true);});
+                                                        analyticsClear->setEnabled(true);});
 
     QWidget* emptySpacer = new QWidget();
     emptySpacer->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);

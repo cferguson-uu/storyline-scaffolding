@@ -8,6 +8,7 @@ static const QString kName_Result = "result";
 static const QString kName_With = " with ";
 static const QString kName_WithResults = " with results: ";
 static const QString kName_Difficulty = "difficulty";
+static const QString kName_preLostness = "preEpisodeLostness";
 static const QString kName_WithLostness = " with lostness value: ";
 static const QString kName_At = " at ";
 static const QString kName_Timestamp = "timestamp";
@@ -25,7 +26,7 @@ static const QString kName_PickedUp = "picked up";
 static const QString kName_Examined = "examined";
 static const QString kName_Found = "found";
 
-AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QAction *exportAction, QObject *parent)
+AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QObject *parent)
     : m_curatorAnalyticsEditor(new CuratorAnalyticsEditor(qobject_cast<QWidget*>(parent)))
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
@@ -34,7 +35,6 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     , m_editLostnessAction(editLostnessAction)
     , m_loadLogFileAction(loadAction)
     , m_clearAnalyticsAction(clearAction)
-    , m_exportAnalyticsAction(exportAction)
     , m_analyticsEnabled(false)
     , QObject(parent)
 {
@@ -43,13 +43,11 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     connect(m_editLostnessAction, &QAction::triggered, [=]{m_curatorAnalyticsEditor->showWindow();});
     connect(m_loadLogFileAction, &QAction::triggered, [=]{loadAnalyticsLog();});
     connect(m_clearAnalyticsAction, &QAction::triggered, [=]{clearAll();});
-    connect(m_exportAnalyticsAction, &QAction::triggered, [=]{exportTaskDataToCSV();});
 
     m_disconnectAction->setEnabled(false);
     m_connectAction->setEnabled(false);
     m_loadLogFileAction->setEnabled(false);
     m_clearAnalyticsAction->setEnabled(false);
-    m_exportAnalyticsAction->setEnabled(false);
 
     connect(m_tcpSocket, SIGNAL(connectedCallback()), this, SLOT(connected()));
     connect(m_tcpSocket, SIGNAL(disconnectedCallback()), this, SLOT(disconnected()));
@@ -92,7 +90,7 @@ void AnalyticsHandler::connected()
     m_connectAction->setEnabled(false);
     m_disconnectAction->setEnabled(true);
     m_clearAnalyticsAction->setEnabled(false);
-    m_exportAnalyticsAction->setEnabled(false);
+    m_pProperties->ConnectedtoServer(m_tcpSocket->getAddressAndPort());
 }
 
 void AnalyticsHandler::disconnected()
@@ -101,7 +99,8 @@ void AnalyticsHandler::disconnected()
     m_connectAction->setEnabled(true);
     m_disconnectAction->setEnabled(false);
     m_clearAnalyticsAction->setEnabled(true);
-    m_exportAnalyticsAction->setEnabled(true);
+
+    m_pProperties->DisconnectedFromServer();
 }
 
 void AnalyticsHandler::startAnalyticsMode()
@@ -333,7 +332,13 @@ void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool ignoreResults
 
             if(!jsonResultsObj.empty())
                 if(jsonResultsObj.count() == 1)
+                {
+                    if(jsonObj[kName_Result].isString())
                         sentence += kName_With + jsonResultsObj.begin().key() + " " + jsonObj[kName_Result].toString();
+                    else
+                        if(jsonObj[kName_Result].isDouble())
+                            sentence += kName_With + jsonResultsObj.begin().key() + " " + QString::number(jsonObj[kName_Result].toDouble());
+                }
                 else
                 {
                     int i = 1;
@@ -427,52 +432,6 @@ void AnalyticsHandler::loadAnalyticsLog()
         qDebug() << "Load aborted by user";
         return;
     }
-
-    m_exportAnalyticsAction->setEnabled(true);
-
-    //Used when loading in multiple logs, exporting with new lostness values and creating CSVs
-   /*
-   QStringList fileNames(QFileDialog::getOpenFileNames(qobject_cast<QWidget*>(parent()),
-                                                     QObject::tr("Load Analytics File"), "",
-                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
-    foreach (QString fileName, fileNames)
-    {
-        QFile file(fileName);
-
-        if(!file.fileName().isEmpty()&& !file.fileName().isNull())
-        {
-            if(file.open(QIODevice::ReadOnly | QIODevice::Text))
-            {
-                QString docString = file.readAll();
-                QString fileName = file.fileName();
-                file.close();
-
-                QJsonDocument jsonDoc = QJsonDocument::fromJson(docString.toUtf8());
-
-                if(jsonDoc.isNull() || !jsonDoc.isArray() || jsonDoc.isEmpty())
-                {
-                    QMessageBox messageBox;
-                    messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
-                    messageBox.setFixedSize(500,200);
-                    return;
-                }
-
-                m_logWindow->initialiseLogFile(fileName);
-                handleMessage(docString, true, true);
-                m_logWindow->exportToFile();    //save new file once message is handled
-                exportTaskDataToCSV(fileName.section(".",0,0));
-                clearAll();
-            }
-            else
-            {
-                QMessageBox messageBox;
-                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
-                messageBox.setFixedSize(500,200);
-                return;
-            }
-        }
-    }*/
-
 }
 
 void AnalyticsHandler::clearAll()
@@ -481,42 +440,4 @@ void AnalyticsHandler::clearAll()
     lockAllNodes();
     m_pProperties->resetAllCuratorLabels();
     m_curatorAnalyticsEditor->resetAll();
-    m_exportAnalyticsAction->setEnabled(true);
-}
-
-void AnalyticsHandler::exportTaskDataToCSV(QString fileName)
-{
-    QFile file(QFileDialog::getSaveFileName(qobject_cast<QWidget*>(parent()),
-                                                         QObject::tr("Save task data"), fileName,
-                                                        QObject:: tr("CSV File (*.csv);;All Files (*)")));
-
-    if(!file.fileName().isEmpty()&& !file.fileName().isNull())
-    {
-        if(!file.open(QFile::WriteOnly))
-        {
-            QMessageBox messageBox;
-            messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
-            messageBox.setFixedSize(500,200);
-        }
-        else
-        {
-            QLocale locale;
-            QTextStream output(&file);
-            QList<CuratorLabel*> curatorTasks = m_curatorAnalyticsEditor->getCuratorLabels();
-
-            output << "Task;Dependencies;Progress;Lostness;";
-
-            foreach (CuratorLabel *task, curatorTasks)
-            {
-                QString taskID = task->id->text();
-
-                //output << "\n" << taskID << ";\"" << locale.toString(task->narrativeDependencies.size()) << "\";\"" << locale.toString(m_pProperties->getProgressOfCuratorLabel(taskID))
-                 //      << "\";\"" << locale.toString(m_pProperties->getLostnessOfCuratorLabel(taskID)) << "\";\"" << locale.toString(m_pProperties->getSimilarityOfCuratorLabel(taskID)) << "\"";
-            }
-
-            //output << "\nProgress;" << "\"" << locale.toString(m_pProperties->getFullGameProgress())<< "\"";
-
-            file.close();
-        }
-    }
 }

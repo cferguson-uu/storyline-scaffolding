@@ -34,6 +34,16 @@ public:// methods
     AnalyticsProperties(Collapsible *parent);
 
     ///
+    /// \brief Show address of server connected to
+    ///
+    void ConnectedtoServer(QString address);
+
+    ///
+    /// \brief Show disconnected
+    ///
+    void DisconnectedFromServer();
+
+    ///
     /// \brief Show all of the properties for in-game analytics
     ///
     void StartAnalyticsMode(QList<CuratorLabel*> curatorLabels);
@@ -195,6 +205,11 @@ private:
     /// \brief Lostness Bar, gives visual feedback of the lostness value
     ///
     QProgressBar* m_localLostnessBar;
+
+    ///
+    /// \brief Collapsible - For changing title
+    ///
+    Collapsible *m_pCollapsible;
 };
 
 class ObjectiveRow : public QObject

@@ -21,6 +21,8 @@ class AnalyticsSocket : public QDialog
 public:
     explicit AnalyticsSocket(/*AnalyticsLogWindow* analyticsLog, */QWidget *parent = 0);
 
+    QString getAddressAndPort(){return m_address + ":" + QString::number(m_port);}
+
 signals:
     void connectedCallback();
     void disconnectedCallback();
