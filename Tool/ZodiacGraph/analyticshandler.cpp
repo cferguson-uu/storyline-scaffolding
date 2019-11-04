@@ -51,7 +51,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
 
     connect(m_tcpSocket, SIGNAL(connectedCallback()), this, SLOT(connected()));
     connect(m_tcpSocket, SIGNAL(disconnectedCallback()), this, SLOT(disconnected()));
-    connect(m_tcpSocket, SIGNAL(readMessage(QString)), this, SLOT(handleMessage(QString)));
+    connect(m_tcpSocket, SIGNAL(readMessage(QString)), this, SLOT(readMessageFromServer(QString)));
 
     connect(m_curatorAnalyticsEditor, SIGNAL(finished(int)), this, SLOT(showCuratorLabels()));
 
@@ -142,7 +142,12 @@ void AnalyticsHandler::showCuratorLabels()
         m_pProperties->StartAnalyticsMode(m_curatorAnalyticsEditor->getCuratorLabels());
 }
 
-void AnalyticsHandler::handleMessage(QString message, bool updateValues, bool loadingFile)
+void AnalyticsHandler::readMessageFromServer(QString message)
+{
+    handleMessage(message, m_curatorAnalyticsEditor->getUseLostnessInTool());
+}
+
+void AnalyticsHandler::handleMessage(QString message, bool updateValues)
 {
     //check if the JSON data is correct
     QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
@@ -159,13 +164,21 @@ void AnalyticsHandler::handleMessage(QString message, bool updateValues, bool lo
         foreach(QJsonValue jsonVal, jsonArray)
         {
             if(jsonVal.isObject())
-                handleObject(jsonVal.toObject(), updateValues, loadingFile);
+            {
+                if(!(jsonVal.toObject()[kName_Verb].toString() == kName_Found && updateValues))    //ignore a found action sent by the game if tool is calculating lostness
+                    handleObject(jsonVal.toObject(), updateValues);
+            }
+            else
+            {
+                qDebug() << "Problem with JSON string";
+            }
         }
     }
     else
         if(jsonDoc.isObject())
         {
-            handleObject(jsonDoc.object(), updateValues, loadingFile);
+            if(!(jsonDoc.object()[kName_Verb].toString() == kName_Found && updateValues))    //ignore a found action sent by the game if tool is calculating lostness
+                handleObject(jsonDoc.object(), updateValues);
         }
         else
         {
@@ -173,7 +186,7 @@ void AnalyticsHandler::handleMessage(QString message, bool updateValues, bool lo
         }
 }
 
-void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool loadingFile)
+void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues)
 {
     if(!jsonObj.contains(kName_Actor) || !jsonObj.contains(kName_Verb) || !jsonObj.contains(kName_Object) || !jsonObj.contains(kName_Timestamp))
     {
@@ -181,15 +194,13 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
         return;
     }
 
-    bool ignoreResultsInConsole = false;    //sometimes don't show results in the console
-    if(!m_curatorAnalyticsEditor->isEmpty())    //don't need any of this if not tasks to log
+    if(!m_curatorAnalyticsEditor->isEmpty())    //don't need any of this if no tasks to log
     {
         if(jsonObj[kName_Verb].toString() == kName_Started) //add new task to active list and set as started in properties
         {
             m_activeTasks.push_back(jsonObj[kName_Object].toString());
             m_pProperties->setCuratorLabelStarted(jsonObj[kName_Object].toString(), true);
             //handle difficulty in results
-            return;
         }
         else
             if(jsonObj[kName_Verb].toString() == kName_Completed)   //task completed, get lostness value, remove from the list and update properties
@@ -210,158 +221,179 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
                 }
 
                 m_activeTasks.removeAll(jsonObj[kName_Object].toString());
-
-                return;
             }
-
-        if(m_lostness_actions.contains(jsonObj["verb"].toString()))
-        {
-            foreach (QString task, m_activeTasks)   //update lostness and check progress
-            {
-                m_curatorAnalyticsEditor->nodeVisited(task, jsonObj);   //Update lostness values (S and N) for each curator label
-
-                if(updateValues && !loadingFile)    //update lostness
+            else
+                if(m_lostness_actions.contains(jsonObj["verb"].toString()))
                 {
-                    m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessofCuratorLabel(task));
+                    m_curatorAnalyticsEditor->updatePath(jsonObj["object"].toString(), jsonObj["verb"].toString());
+
+                    foreach (QString task, m_activeTasks)   //update lostness and check progress
+                    {
+                        m_curatorAnalyticsEditor->nodeVisited(task, jsonObj["object"].toString(), jsonObj["verb"].toString());   //Update lostness values (S and N) for each curator label
+
+                        if(updateValues)    //update lostness
+                        {
+                            m_pProperties->updateLostnessOfCuratorLabel(task, m_curatorAnalyticsEditor->getLostnessofCuratorLabel(task));
+                        }
+                    }
                 }
-            }
-        }
-
-        if(jsonObj[kName_Verb].toString() == kName_Attempted) //light up node in scene to show unlocked
-        {
-            if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject())
-            {
-                QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
-                if(jsonResultsObj.contains(kName_Result) && jsonResultsObj[kName_Result].toString() == kName_Unlock)
-                {
-                    unlockNode(jsonObj[kName_Object].toString());
-
-                    //functionality needed for when tool detects objectives and lostness
-                        //if(jsonObj[kName_Verb].toString() == kName_Attempted && jsonObj[kName_Result].toString() == kName_Unlock)   //if node unlocked, update curator label progress
-                            //m_pProperties->updateProgressOfCuratorLabel(task, jsonObj[kName_Object].toString());
-                }
-            }
-        }
-
-        if(jsonObj[kName_Verb].toString() == kName_Found)   //found an objective of a curator label
-        {
-            //do something with the curator label manager here
-            //add lostness to the result, maybe even remove the other stuff when done?
-            if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject()) //append list of results or only one result, if they are available
-            {
-                QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
-                QString startNode, endNode, curatorID, objectiveID = "";
-                int r, s, n = 0;
-                float lostness = 0.0f;
-                objectiveID = jsonObj[kName_Object].toString();
-
-                if(jsonResultsObj.contains("r"))
-                    r = jsonResultsObj["r"].toInt();
                 else
-                    qDebug() << "R not found";
+                    if(jsonObj[kName_Verb].toString() == kName_Attempted) //light up node in scene to show unlocked
+                    {
+                        if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject())
+                        {
+                            QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
+                            if(jsonResultsObj.contains(kName_Result) && jsonResultsObj[kName_Result].toString() == kName_Unlock)
+                            {
+                                unlockNode(jsonObj[kName_Object].toString());
 
-                if(jsonResultsObj.contains("s"))
-                    s = jsonResultsObj["s"].toInt();
-                else
-                    qDebug() << "S not found";
+                                //functionality needed for when tool detects objectives and lostness
+                                if(updateValues && jsonObj[kName_Verb].toString() == kName_Attempted && jsonObj[kName_Result].toString() == kName_Unlock)   //if node unlocked, update curator label progress
+                                    if(m_curatorAnalyticsEditor->possibleObjectiveFound(jsonObj[kName_Object].toString()))
+                                    {
+                                        //get variables needed for json output
+                                        QString objective = jsonObj[kName_Object].toString();
+                                        QString parent = m_curatorAnalyticsEditor->getParentId(jsonObj[kName_Object].toString());
+                                        int r, s, n;
+                                        QString startNode, endNode;
+                                        float lostness = m_curatorAnalyticsEditor->getLostnessofObjective(parent, objective, r, s, n, startNode, endNode);
 
-                if(jsonResultsObj.contains("n"))
-                    n = jsonResultsObj["n"].toInt();
-                else
-                    qDebug() << "N not found";
+                                        //send to properties
+                                        m_pProperties->updateLostnessOfObjective(parent, objective, lostness);
+                                        m_pProperties->updateLocalLostness(m_curatorAnalyticsEditor->getLocalLostness());
+                                        m_pProperties->updateFullGameProgress(m_curatorAnalyticsEditor->getGameProgress());
+                                        m_pProperties->updateProgressOfCuratorLabel(parent, m_curatorAnalyticsEditor->getCuratorLabelProgress(parent));
 
-                if(jsonResultsObj.contains("lostness"))
-                    lostness = jsonResultsObj["lostness"].toDouble();
-                else
-                    qDebug() << "Lostness not found";
+                                        handleTextOutput(jsonObj, updateValues);    //send this out now before doing to found message immediately afterwards
 
-                if(jsonResultsObj.contains("startNode"))
-                    startNode = jsonResultsObj["startNode"].toString();
-                else
-                    qDebug() << "Start node not found";
+                                        //make found message
+                                        QJsonObject foundObject, resultObject;
 
-                if(jsonResultsObj.contains("endNode"))
-                    endNode = jsonResultsObj["endNode"].toString();
-                else
-                    qDebug() << "End node not found";
+                                        resultObject["r"] = r;
+                                        resultObject["s"] = s;
+                                        resultObject["n"] = n;
+                                        resultObject[kName_Lostness] = lostness;
+                                        resultObject["startNode"] = startNode;
+                                        resultObject["endNode"] = endNode;
+                                        resultObject["curatorLabel"] = parent;
 
-                if(jsonResultsObj.contains("curatorLabel"))
-                    curatorID = jsonResultsObj["curatorLabel"].toString();
-                else
-                    qDebug() << "Curator Label not found";
+                                        foundObject[kName_Actor] = jsonObj[kName_Actor];
+                                        foundObject[kName_Object] = jsonObj[kName_Object];
+                                        foundObject[kName_Verb] = kName_Found;
+                                        foundObject[kName_Result] = resultObject;
 
-                qDebug() << "obj: " << objectiveID << "cur: " << curatorID << "r: " << r << "s: " << s << "n: " << n << "lostness" << lostness;
-                qDebug() << "start: " << startNode << "end: " << endNode;
+                                        handleTextOutput(foundObject, true);
+                                    }
+                            }
+                        }
+                    }
+                    else
+                        if(jsonObj[kName_Verb].toString() == kName_Found)   //found an objective of a curator label
+                        {
+                            //do something with the curator label manager here
+                            //add lostness to the result, maybe even remove the other stuff when done?
+                            if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject()) //append list of results or only one result, if they are available
+                            {
+                                QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
+                                QString startNode, endNode, curatorID, objectiveID = "";
+                                int r, s, n = 0;
+                                float lostness = 0.0f;
+                                objectiveID = jsonObj[kName_Object].toString();
 
-                //update lostness
-                m_curatorAnalyticsEditor->objectiveFound(objectiveID, curatorID, r, s, n, lostness, startNode, endNode);
+                                if(jsonResultsObj.contains("r"))
+                                    r = jsonResultsObj["r"].toInt();
+                                else
+                                    qDebug() << "R not found";
 
-                //display all related properties in the sidebar
-                m_pProperties->updateLostnessOfObjective(curatorID, jsonObj[kName_Object].toString(), lostness);
-                m_pProperties->updateLocalLostness(m_curatorAnalyticsEditor->getLocalLostness());
-                m_pProperties->updateFullGameProgress(m_curatorAnalyticsEditor->getGameProgress());
-                m_pProperties->updateProgressOfCuratorLabel(curatorID, m_curatorAnalyticsEditor->getCuratorLabelProgress(curatorID));
-            }
+                                if(jsonResultsObj.contains("s"))
+                                    s = jsonResultsObj["s"].toInt();
+                                else
+                                    qDebug() << "S not found";
 
-           // ignoreResultsInConsole = true;   //won't export R, S and N to the console (too complicated) but will export them to the jsonFile
-        }
+                                if(jsonResultsObj.contains("n"))
+                                    n = jsonResultsObj["n"].toInt();
+                                else
+                                    qDebug() << "N not found";
+
+                                if(jsonResultsObj.contains("lostness"))
+                                    lostness = jsonResultsObj["lostness"].toDouble();
+                                else
+                                    qDebug() << "Lostness not found";
+
+                                if(jsonResultsObj.contains("startNode"))
+                                    startNode = jsonResultsObj["startNode"].toString();
+                                else
+                                    qDebug() << "Start node not found";
+
+                                if(jsonResultsObj.contains("endNode"))
+                                    endNode = jsonResultsObj["endNode"].toString();
+                                else
+                                    qDebug() << "End node not found";
+
+                                if(jsonResultsObj.contains("curatorLabel"))
+                                    curatorID = jsonResultsObj["curatorLabel"].toString();
+                                else
+                                    qDebug() << "Curator Label not found";
+
+                                qDebug() << "obj: " << objectiveID << "cur: " << curatorID << "r: " << r << "s: " << s << "n: " << n << "lostness" << lostness;
+                                qDebug() << "start: " << startNode << "end: " << endNode;
+
+                                //update lostness
+                                m_curatorAnalyticsEditor->objectiveFound(objectiveID, curatorID, r, s, n, lostness, startNode, endNode);
+
+                                //display all related properties in the sidebar
+                                m_pProperties->updateLostnessOfObjective(curatorID, jsonObj[kName_Object].toString(), lostness);
+                                m_pProperties->updateLocalLostness(m_curatorAnalyticsEditor->getLocalLostness());
+                                m_pProperties->updateFullGameProgress(m_curatorAnalyticsEditor->getGameProgress());
+                                m_pProperties->updateProgressOfCuratorLabel(curatorID, m_curatorAnalyticsEditor->getCuratorLabelProgress(curatorID));
+                            }
+                        }
     }
-    else
-    {
-        if(jsonObj[kName_Verb].toString() == kName_Attempted) //light up node in scene to show unlocked
-            if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject())
-            {
-                QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
-                if(jsonResultsObj.contains(kName_Result) && jsonResultsObj[kName_Result].toString() == kName_Unlock)
-                    unlockNode(jsonObj[kName_Object].toString());
-            }
-    }
 
-    handleTextOutput(jsonObj, ignoreResultsInConsole, updateValues);
+    handleTextOutput(jsonObj, updateValues);
 }
 
-void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool ignoreResultsInConsole, bool updateValues)
+void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool updateValues)
 {
     //formulate human-readable string for log window
     QString sentence = jsonObj[kName_Actor].toString() + " " + jsonObj[kName_Verb].toString() + " " + jsonObj[kName_Object].toString();
 
-    if(!ignoreResultsInConsole)
-        if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject()) //append list of results or only one result, if they are available
-        {
-            QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
+    if(jsonObj.contains(kName_Result) && jsonObj[kName_Result].isObject()) //append list of results or only one result, if they are available
+    {
+        QJsonObject jsonResultsObj = jsonObj[kName_Result].toObject();
 
-            if(!jsonResultsObj.empty())
-                if(jsonResultsObj.count() == 1)
-                {
-                    if(jsonObj[kName_Result].isString())
-                        sentence += kName_With + jsonResultsObj.begin().key() + " " + jsonObj[kName_Result].toString();
-                    else
-                        if(jsonObj[kName_Result].isDouble())
-                            sentence += kName_With + jsonResultsObj.begin().key() + " " + QString::number(jsonObj[kName_Result].toDouble());
-                }
+        if(!jsonResultsObj.empty())
+            if(jsonResultsObj.count() == 1)
+            {
+                if(jsonObj[kName_Result].isString())
+                    sentence += kName_With + jsonResultsObj.begin().key() + " " + jsonObj[kName_Result].toString();
                 else
+                    if(jsonObj[kName_Result].isDouble())
+                        sentence += kName_With + jsonResultsObj.begin().key() + " " + QString::number(jsonObj[kName_Result].toDouble());
+            }
+            else
+            {
+                int i = 1;
+
+                sentence += kName_WithResults;
+
+                foreach(const QString& key, jsonResultsObj.keys())
                 {
-                    int i = 1;
+                    if(i > 1)   //comma separate everything
+                        sentence += ", ";
 
-                    sentence += kName_WithResults;
+                    sentence += key + " = ";
 
-                    foreach(const QString& key, jsonResultsObj.keys())
-                    {
-                        if(i > 1)   //comma separate everything
-                            sentence += ", ";
+                    if(jsonResultsObj.value(key).isString())
+                        sentence += jsonResultsObj.value(key).toString();
+                    else
+                        if(jsonResultsObj.value(key).isDouble())
+                            sentence += QString::number(jsonResultsObj.value(key).toDouble());
 
-                        sentence += key + " = ";
-
-                        if(jsonResultsObj.value(key).isString())
-                            sentence += jsonResultsObj.value(key).toString();
-                        else
-                            if(jsonResultsObj.value(key).isDouble())
-                                sentence += QString::number(jsonResultsObj.value(key).toDouble());
-
-                        ++i;
-                    }
+                    ++i;
                 }
-        }
+            }
+    }
 
     if(jsonObj.contains(kName_Lostness))
     {
@@ -413,11 +445,11 @@ void AnalyticsHandler::loadAnalyticsLog()
             if(msgBox.exec() == QMessageBox::Yes)
             {
                 m_logWindow->initialiseLogFile(fileName);
-                handleMessage(docString, true, true);
+                handleMessage(docString, true);
                 m_logWindow->exportToFile();    //save new file once message is handled
             }
             else
-                handleMessage(docString, false, true);
+                handleMessage(docString, false);
         }
         else
         {

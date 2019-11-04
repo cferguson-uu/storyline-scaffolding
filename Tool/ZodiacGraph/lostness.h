@@ -39,7 +39,7 @@ public:
     Lostness();
 
     float getLostnessValue(int minSteps, int totalSteps, int uniqueSteps);
-    float getLostnessForObjective(QString startNode, QString endNode, int totalSteps, int uniqueSteps);
+    float getLostnessForObjective(const QString &startNode, const QString &endNode, const int &totalSteps, const int &uniqueSteps, int &minSteps);
 
     void loadSpatialGraph();
 

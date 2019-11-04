@@ -2,6 +2,9 @@
 
 CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
 : m_mainLayout(new QGridLayout),
+  m_saveBtn(nullptr),
+  m_loadBtn(nullptr),
+  m_useTool(nullptr),
   QDialog(parent)
 {
     QVBoxLayout *parentLayout = new QVBoxLayout;
@@ -62,6 +65,8 @@ void CuratorAnalyticsEditor::loadCuratorLabels()
                 messageBox.setFixedSize(500,200);
                 //close window?
             }
+
+            m_useTool = new QCheckBox("Calculate lostness within tool");    //check if user wants to calculate lostness within the tool
 
             m_jsonArray = jsonDoc.array();
 
@@ -212,11 +217,13 @@ void CuratorAnalyticsEditor::showCuratorLabels()
 {
     int row = m_mainLayout->rowCount();
 
+    m_mainLayout->addWidget(m_useTool, row, 0);
+
     foreach (CuratorLabel* curatorLabel, m_curatorLabelsList)
     {
         qDebug() << curatorLabel->id->text();
 
-        m_mainLayout->addWidget(curatorLabel->id, row, 0);
+        m_mainLayout->addWidget(curatorLabel->id, ++row, 0);
         m_mainLayout->addWidget(curatorLabel->dependenciesLabel, ++row, 0);
 
         foreach (CuratorObjective *dependency, curatorLabel->narrativeDependenciesList)
@@ -227,7 +234,6 @@ void CuratorAnalyticsEditor::showCuratorLabels()
 
         m_mainLayout->addWidget(curatorLabel->minStepsLabel, row, 0);
         m_mainLayout->addWidget(curatorLabel->minSteps, row, 1);
-        ++row;
     }
 
     m_saveBtn->setEnabled(true);
@@ -251,14 +257,12 @@ void CuratorAnalyticsEditor::hideCuratorLabels()
     m_saveBtn->setEnabled(false);
 }
 
-void CuratorAnalyticsEditor::nodeVisited(QString id, QJsonObject event)
+void CuratorAnalyticsEditor::updatePath(QString object, QString verb)
 {
-    Q_ASSERT(m_curatorLabelsHash.contains(id));
-
     bool found = false;
-    for(QList<QPair<QString, QString>>::iterator visitedIt = m_curatorLabelsHash[id]->uniqueNodesVisited.begin(); visitedIt != m_curatorLabelsHash[id]->uniqueNodesVisited.end(); ++visitedIt)
+    for(QList<QPair<QString, QString>>::iterator visitedIt = m_uniqueNodes.begin(); visitedIt != m_uniqueNodes.end(); ++visitedIt)
     {
-        if((*visitedIt).first == event["object"].toString() && (*visitedIt).second == event["verb"].toString())
+        if((*visitedIt).first == object && (*visitedIt).second == verb)
         {
             found = true;
             break;
@@ -266,7 +270,32 @@ void CuratorAnalyticsEditor::nodeVisited(QString id, QJsonObject event)
     }
 
     if(!found)
-        m_curatorLabelsHash[id]->uniqueNodesVisited.push_back(qMakePair(event["object"].toString(), event["verb"].toString()));
+        m_uniqueNodes.push_back(qMakePair(object, verb));
+
+    ++m_totalNodes;
+
+    m_endNode = object;
+
+    if(verb == "jumped to")
+        m_lastLocomotionNode = object;
+}
+
+void CuratorAnalyticsEditor::nodeVisited(QString id, QString object, QString verb)
+{
+    Q_ASSERT(m_curatorLabelsHash.contains(id));
+
+    bool found = false;
+    for(QList<QPair<QString, QString>>::iterator visitedIt = m_curatorLabelsHash[id]->uniqueNodesVisited.begin(); visitedIt != m_curatorLabelsHash[id]->uniqueNodesVisited.end(); ++visitedIt)
+    {
+        if((*visitedIt).first == object && (*visitedIt).second == verb)
+        {
+            found = true;
+            break;
+        }
+    }
+
+    if(!found)
+        m_curatorLabelsHash[id]->uniqueNodesVisited.push_back(qMakePair(object, verb));
 
     ++m_curatorLabelsHash[id]->totalNumOfNodesVisited;
 
@@ -274,48 +303,58 @@ void CuratorAnalyticsEditor::nodeVisited(QString id, QJsonObject event)
 
 float CuratorAnalyticsEditor::getLostnessofCuratorLabel(QString id)
 {
+    Q_ASSERT(m_curatorLabelsHash.contains(id));
+
     //if lostness already set then return it. Otherwise, calculate, save and return
     if(m_curatorLabelsHash[id]->lostness != -1)
         return m_curatorLabelsHash[id]->lostness;
 
-    //R – Minimum number of nodes which need to be visited to complete a task
-    //S – Total number of nodes visited whilst searching
-    //N – Number of different nodes visited whilst searching
-    // L = sqrt[(N/S – 1)² + (R/N – 1)²]
+    qDebug() << "Calculating lostness for Curator Label: " << id;
 
-    Q_ASSERT(m_curatorLabelsHash.contains(id));
+    float lostness = m_lostnessHandler.getLostnessValue(m_curatorLabelsHash[id]->minSteps->value(), m_curatorLabelsHash[id]->totalNumOfNodesVisited, m_curatorLabelsHash[id]->uniqueNodesVisited.size());
 
-    qDebug() << "Curator Label: " << id;
-    qDebug() << "Minimum number of nodes (R): " << m_curatorLabelsHash[id]->minSteps->value();
-    qDebug() << "Total number of nodes visited (S): " << m_curatorLabelsHash[id]->totalNumOfNodesVisited;
-    qDebug() << "Number of different nodes visited (N): " << m_curatorLabelsHash[id]->uniqueNodesVisited.size();
-    qDebug() << "N/S: " << (float)m_curatorLabelsHash[id]->uniqueNodesVisited.size()/(float)m_curatorLabelsHash[id]->totalNumOfNodesVisited;
-    qDebug() << "R/N: " << (float)m_curatorLabelsHash[id]->minSteps->value()/(float)m_curatorLabelsHash[id]->uniqueNodesVisited.size();
+    //qDebug() << "Lostness: " << lostness;
 
-    //avoid div 0 errors
-    if(m_curatorLabelsHash[id]->totalNumOfNodesVisited == 0)   //no nodes visited so lostness cannot be determined
-        return -1;
-
-    float firstHalf = (float)m_curatorLabelsHash[id]->uniqueNodesVisited.size()/(float)m_curatorLabelsHash[id]->totalNumOfNodesVisited - 1; //(N/S – 1)²
-    firstHalf *= firstHalf;
-
-    float secondHalf = (float)m_curatorLabelsHash[id]->minSteps->value()/(float)m_curatorLabelsHash[id]->uniqueNodesVisited.size() - 1;   //(R/N – 1)²
-    secondHalf *= secondHalf;
-
-    float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]
-    lostness = sqrt(lostness);
-
-    //qDebug() << "Lostness" << lostness;
     m_curatorLabelsHash[id]->lostness = lostness;
     return lostness;
-
-    qDebug() << "Error: task not found";    //will end up here if the loop executes without finding the task
-    return -1;
 }
 
 float CuratorAnalyticsEditor::getLostnessofObjective(QString curatorId, QString objectiveId)
 {
-    return m_curatorLabelsHash[curatorId]->narrativeDependenciesHash[objectiveId]->lostness;
+    Q_ASSERT(m_curatorLabelsHash.contains(curatorId));
+    Q_ASSERT(m_curatorLabelsHash[curatorId]->narrativeDependenciesHash.contains(objectiveId));
+
+    CuratorObjective *objective = m_curatorLabelsHash[curatorId]->narrativeDependenciesHash[objectiveId];
+
+    if(objective->lostness != -1)
+        return  objective->lostness;
+
+    qDebug() << "Calculating lostness for Objective: " << objectiveId << " from Curator Label: " << curatorId;
+
+    float lostness = m_lostnessHandler.getLostnessForObjective(objective->startNode, objective->endNode, objective->totalNumOfNodesVisited, objective->totalNumUniqueNodesVisited, objective->minSteps);
+
+    //qDebug() << "Lostness: " << lostness;
+
+    objective->lostness = lostness;
+    return lostness;
+}
+
+float CuratorAnalyticsEditor::getLostnessofObjective(QString curatorId, QString objectiveId, int &r, int &s, int &n, QString &startNode, QString &endNode)
+{
+    Q_ASSERT(m_curatorLabelsHash.contains(curatorId));
+    Q_ASSERT(m_curatorLabelsHash[curatorId]->narrativeDependenciesHash.contains(objectiveId));
+
+    float lostness = getLostnessofObjective(curatorId, objectiveId);
+
+    CuratorObjective *objective = m_curatorLabelsHash[curatorId]->narrativeDependenciesHash[objectiveId];
+
+    r = objective->minSteps;
+    s = objective->totalNumOfNodesVisited;
+    n = objective->totalNumUniqueNodesVisited;
+    startNode = objective->startNode;
+    endNode = objective->endNode;
+
+    return lostness;
 }
 
 bool CuratorAnalyticsEditor::checkIfAnalyticsLoaded()
@@ -411,9 +450,37 @@ void CuratorAnalyticsEditor::objectiveFound(QString objectiveId, QString curator
     updateLocalLostness();
 }
 
-void CuratorAnalyticsEditor::possibleObjectiveFound(QString objectiveId)
+bool CuratorAnalyticsEditor::possibleObjectiveFound(QString objectiveId)
 {
-    //will be implemented for when tool does local lostness on it's own
+    CuratorObjective* objective = nullptr;
+
+    foreach (CuratorLabel* task, m_curatorLabelsHash)
+    {
+        if(task->narrativeDependenciesHash.contains(objectiveId))
+        {
+            objective = task->narrativeDependenciesHash[objectiveId];
+        }
+    }
+
+    if(objective == nullptr)
+        return false; //not found
+
+    //save the information needed for lostness to the objective
+    objective->found = true;
+    objective->startNode = m_firstNode;
+    objective->endNode = m_endNode;
+    objective->totalNumOfNodesVisited = m_totalNodes;
+    objective->totalNumUniqueNodesVisited = m_uniqueNodes.size();
+
+    //reset everything for next objective
+    m_firstNode = m_lastLocomotionNode;
+    m_endNode = "";
+    m_lastLocomotionNode = "";
+
+    m_totalNodes = 0;
+    m_uniqueNodes.clear();
+
+    return true;
 }
 
 void CuratorAnalyticsEditor::updateLocalLostness()
@@ -447,4 +514,16 @@ void CuratorAnalyticsEditor::updateLocalLostness()
 float CuratorAnalyticsEditor::getCuratorLabelProgress(QString curatorId)
 {
     return m_curatorLabelsHash[curatorId]->progress;
+}
+
+QString CuratorAnalyticsEditor::getParentId(QString objectiveId)
+{
+    foreach (CuratorLabel* task, m_curatorLabelsHash)
+    {
+        if(task->narrativeDependenciesHash.contains(objectiveId))
+        {
+            return task->id->text();
+        }
+    }
+    return "";  //error
 }

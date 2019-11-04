@@ -14,6 +14,9 @@
 #include <QLineEdit>
 #include <QScrollArea>
 #include <QSpinBox>
+#include <QCheckBox>
+
+#include "lostness.h"
 
 struct CuratorObjective
 {
@@ -68,7 +71,8 @@ public:
     void loadCuratorLabels();
     void saveCuratorLabels();
     void showWindow();
-    void nodeVisited(QString task, QJsonObject event);
+    void updatePath(QString object, QString verb);
+    void nodeVisited(QString task, QString object, QString verb);
     float getLostnessofCuratorLabel(QString task);
     bool checkIfAnalyticsLoaded();
     QList<CuratorLabel*> getCuratorLabels(){return m_curatorLabelsList;}
@@ -80,15 +84,20 @@ public:
     float getCuratorLabelProgress(QString curatorId);
 
     void objectiveFound(QString objectiveId, QString curatorID, int r, int s, int n, float lostness, QString startNode, QString endNode);
-    void possibleObjectiveFound(QString objectiveId);
+    bool possibleObjectiveFound(QString objectiveId);
 
     float getLostnessofObjective(QString curatorId, QString objectiveId);
+    float getLostnessofObjective(QString curatorId, QString objectiveId, int &r, int &s, int &n, QString &startNode, QString &endNode);
 
     void updateLocalLostness();
 
     float getLocalLostness(){return m_localLostness;}
 
     bool isEmpty(){return m_curatorLabelsList.empty();}
+
+    bool getUseLostnessInTool() { if(m_useTool) return m_useTool->isChecked(); else return false;}
+
+    QString getParentId(QString objectiveId);
 
 private:
     void showCuratorLabels();
@@ -105,6 +114,16 @@ private:
 
     float m_gameProgress;
     float m_localLostness;
+
+    Lostness m_lostnessHandler;
+
+    QCheckBox *m_useTool;
+
+    QString m_firstNode;
+    QString m_endNode;
+    QString m_lastLocomotionNode;
+    int m_totalNodes;
+    QList<QPair<QString, QString>> m_uniqueNodes;
 };
 
 #endif // CuratorAnalyticsEditor_H

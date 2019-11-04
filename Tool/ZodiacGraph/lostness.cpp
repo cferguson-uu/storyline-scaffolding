@@ -200,7 +200,9 @@ HintsSearchResult Lostness::shortestPath(QString start, QString end, QVector<QSt
             return HintsSearchResult("", -1, "");
         }
 
-float Lostness::getLostnessForObjective(QString startNode, QString endNode, int totalSteps, int uniqueSteps)
+float Lostness::getLostnessForObjective(const QString &startNode, const QString &endNode, const int &totalSteps, const int &uniqueSteps, int &minSteps)
 {
-    return getLostnessValue(shortestPath(startNode, endNode), totalSteps, uniqueSteps);
+    minSteps = shortestPath(startNode, endNode);
+
+    return getLostnessValue(minSteps, totalSteps, uniqueSteps);
 }
