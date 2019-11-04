@@ -11,12 +11,13 @@
 struct _HintsSubResult
         {
         public:
-            _HintsSubResult(QString first, int length, QString end, QString previous) : firstNode(first), length(length), endNode(end), previous(previous)
+            _HintsSubResult(){}
+            _HintsSubResult(QString first, int length, QString end, int prev) : firstNode(first), length(length), endNode(end), previous(prev)
             {}
             QString firstNode;
             int length;
             QString endNode;
-            QString previous;
+            int previous;
         };
 
         struct HintsSearchResult
@@ -38,6 +39,7 @@ public:
     Lostness();
 
     float getLostnessValue(int minSteps, int totalSteps, int uniqueSteps);
+    float getLostnessForObjective(QString startNode, QString endNode, int totalSteps, int uniqueSteps);
 
     void loadSpatialGraph();
 
@@ -45,8 +47,9 @@ private:
 
     void addEdge(QString left, QString right);
 
-    void getShortestPath(QString firstNode, QString lastNode);
+    //void getShortestPath(QString firstNode, QString lastNode);
 
+    int shortestPath(QString start, QString end);
     HintsSearchResult shortestPath(QString start, QString end, QVector<QString>& path);
 
     QHash<QString, QVector<QString>> m_edges;

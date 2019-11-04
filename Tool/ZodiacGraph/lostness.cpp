@@ -17,6 +17,9 @@ float Lostness::getLostnessValue(int minSteps, int totalSteps, int uniqueSteps)
     if(totalSteps == 0)   //no nodes visited so lostness cannot be determined
         return -1;
 
+    if(minSteps == -1)   //error with pathfinding so lostness cannot be determined
+        return -1;
+
     float firstHalf = (float)uniqueSteps/(float)totalSteps - 1; //(N/S – 1)²
     firstHalf *= firstHalf;
 
@@ -68,11 +71,11 @@ void Lostness::addEdge(QString left, QString right)
     if(!m_edges.contains(right))
         m_edges.insert(right, QVector<QString>());
 
-    //adj[v].push_back(w); // Add w to v’s list.
+    //adj[v].push_back(w); // Add w to v’s list.QString start, QString end
     m_edges[left].push_back(right);
 }
 
-void Lostness::getShortestPath(QString firstNode, QString lastNode)
+/*void Lostness::getShortestPath(QString firstNode, QString lastNode)
 {
     // Mark all the vertices as not visited
     QHash<QString, bool> visited;
@@ -111,18 +114,24 @@ void Lostness::getShortestPath(QString firstNode, QString lastNode)
             }
         }
     }
+}*/
+
+int Lostness::shortestPath(QString start, QString end)
+{
+    QVector<QString> p;
+    return shortestPath(start, end, p).length;
 }
 
-/*HintsSearchResult Lostness::shortestPath(QString start, QString end, QVector<QString>& path)
+HintsSearchResult Lostness::shortestPath(QString start, QString end, QVector<QString>& path)
         {
-            QVector<_HintsSubResult> nodeQueue = QVector<_HintsSubResult>();
+            QVector<_HintsSubResult> nodeQueue;
             int queueIndex = 0;
             QSet<QString> visited = QSet<QString>();
 
             QVector<QString> neighbors = m_edges[start];
 
             for (const QString &node : neighbors)
-                nodeQueue.push_back(_HintsSubResult(node, 1, node, ""));
+                nodeQueue.push_back(_HintsSubResult(node, 1, node, -1));
 
             for (queueIndex = 0; queueIndex < nodeQueue.size(); queueIndex++)
             {
@@ -152,12 +161,24 @@ void Lostness::getShortestPath(QString firstNode, QString lastNode)
 
                 //Remove visited nodes
                 std::sort(neighbors.begin(), neighbors.end());
-                QVector<QString> filteredNeighbors;
-                std::set_difference(neighbors.begin(), neighbors.end(), visited.begin(), visited.end(), std::inserter(filteredNeighbors, filteredNeighbors.begin()));
+                QSet<QString> filteredNeighbors;
+                //std::set_difference(neighbors.begin(), neighbors.end(), visited.begin(), visited.end(), std::inserter(filteredNeighbors, filteredNeighbors.begin()));
 
-                visited.insert(filteredNeighbors.begin(), filteredNeighbors.end());
+                foreach (const QString& val, neighbors) //very inefficient but set_difference won't compile and this may need to be used later
+                {
+                    if(!visited.contains(val))
+                    {
+                        filteredNeighbors.insert(val);
+                        visited.insert(val);
+                    }
+                }
 
-                // Skip logic and trigger nodes for calculating path length.
+                /*foreach (const QString& val, filteredNeighbors)   //uncomment if loop above not used
+                {
+                    visited.insert(val);
+                }*/
+
+               /* // Skip logic and trigger nodes for calculating path length.
                 if (location->get_type() == GamePlay::ESpatialNodeType::kLogic || location->get_type() == GamePlay::ESpatialNodeType::kTrigger)
                 {
                     std::vector<_HintsSubResult> tempSubResults;
@@ -168,14 +189,18 @@ void Lostness::getShortestPath(QString firstNode, QString lastNode)
                     nodeQueue.insert(nodeQueue.begin() + queueIndex + 1, tempSubResults.begin(), tempSubResults.end());
                 }
                 else
-                {
+                {*/
                     for (auto neighbor : filteredNeighbors)
                     {
-                        nodeQueue.push_back(_HintsSubResult(nodeSet.firstStep, nodeSet.length + 1, neighbor, queueIndex));
+                        nodeQueue.push_back(_HintsSubResult(nodeSet.firstNode, nodeSet.length + 1, neighbor, queueIndex));
                     }
-                }
+                //}
             }
 
-            return HintsSearchResult(-1, -1, -1);
-        }*/
+            return HintsSearchResult("", -1, "");
+        }
 
+float Lostness::getLostnessForObjective(QString startNode, QString endNode, int totalSteps, int uniqueSteps)
+{
+    return getLostnessValue(shortestPath(startNode, endNode), totalSteps, uniqueSteps);
+}
