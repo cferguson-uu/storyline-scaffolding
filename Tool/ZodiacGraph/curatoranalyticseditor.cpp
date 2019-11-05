@@ -2,8 +2,8 @@
 
 CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
 : m_mainLayout(new QGridLayout),
-  m_saveBtn(nullptr),
-  m_loadBtn(nullptr),
+  m_saveCuratorBtn(nullptr),
+  m_loadCuratorBtn(nullptr),
   m_useTool(nullptr),
   QDialog(parent)
 {
@@ -21,25 +21,47 @@ CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
 
     setWindowTitle(tr("Curator Labels"));
     resize(QSize(400,400));
+
+    m_saveCuratorBtn = new QPushButton("Save Curator Labels");
+    m_loadCuratorBtn = new QPushButton("Load Curator Labels");
+    m_saveCuratorBtn->setMaximumSize(100, 25);
+    m_loadCuratorBtn->setMaximumSize(100, 25);
+
+    m_saveEdgesBtn = new QPushButton("Save Edges");
+    m_loadEdgesBtn = new QPushButton("Load Edges");
+    m_saveEdgesBtn->setMaximumSize(100, 25);
+    m_loadEdgesBtn->setMaximumSize(100, 25);
+
+    m_loadedLabel = new QLabel("No edges or curator labels loaded");
+
+    m_startNodeLabel = new QLabel("Starting Node:");
+    m_startNodeInput = new QLineEdit();
+
+    connect(m_saveCuratorBtn, &QPushButton::released, [=]{saveCuratorLabels();});
+    connect(m_loadCuratorBtn, &QPushButton::released, [=]{loadCuratorLabels();});
+
+    connect(m_loadEdgesBtn, &QPushButton::released, [=]{loadSpatialGraph();});
+
+    m_saveCuratorBtn->setEnabled(false);
+    m_saveEdgesBtn->setEnabled(false);
+    m_startNodeInput->setEnabled(false);
+
+    m_mainLayout->addWidget(m_saveCuratorBtn, 0, 0);
+    m_mainLayout->addWidget(m_loadCuratorBtn, 0, 1);
+
+    m_mainLayout->addWidget(m_saveEdgesBtn, 1, 0);
+    m_mainLayout->addWidget(m_loadEdgesBtn, 1, 1);
+
+    m_mainLayout->addWidget(m_loadedLabel, 2, 0);
+
+    m_mainLayout->addWidget(m_startNodeLabel, 3, 0);
+    m_mainLayout->addWidget(m_startNodeInput, 3, 1);
+
+    m_mainLayout->setAlignment(Qt::AlignLeft);
 }
 
 void CuratorAnalyticsEditor::showWindow()
 {
-    m_saveBtn = new QPushButton("Save");
-    m_loadBtn = new QPushButton("Load");
-    m_saveBtn->setMaximumSize(100, 25);
-    m_loadBtn->setMaximumSize(100, 25);
-
-    connect(m_saveBtn, &QPushButton::released, [=]{saveCuratorLabels();});
-    connect(m_loadBtn, &QPushButton::released, [=]{loadCuratorLabels();});
-
-    m_saveBtn->setEnabled(false);
-
-    m_mainLayout->addWidget(m_saveBtn, 0, 0);
-    m_mainLayout->addWidget(m_loadBtn, 0, 1);
-
-    m_mainLayout->setAlignment(Qt::AlignLeft);
-
     show();
 }
 
@@ -236,7 +258,7 @@ void CuratorAnalyticsEditor::showCuratorLabels()
         m_mainLayout->addWidget(curatorLabel->minSteps, row, 1);
     }
 
-    m_saveBtn->setEnabled(true);
+    m_saveCuratorBtn->setEnabled(true);
 }
 
 void CuratorAnalyticsEditor::hideCuratorLabels()
@@ -254,7 +276,16 @@ void CuratorAnalyticsEditor::hideCuratorLabels()
         }
     }
 
-    m_saveBtn->setEnabled(false);
+    m_saveCuratorBtn->setEnabled(false);
+}
+
+void CuratorAnalyticsEditor::loadSpatialGraph()
+{
+    if(m_lostnessHandler.loadSpatialGraph())
+    {
+        m_loadedLabel->setText(QString::number(m_lostnessHandler.getNumEdges()) + " edges loaded");
+        m_startNodeInput->setEnabled(true);
+    }
 }
 
 void CuratorAnalyticsEditor::updatePath(QString object, QString verb)
@@ -359,11 +390,46 @@ float CuratorAnalyticsEditor::getLostnessofObjective(QString curatorId, QString 
 
 bool CuratorAnalyticsEditor::checkIfAnalyticsLoaded()
 {
-    if(m_curatorLabelsList.empty())
+    bool showAlert(false);
+    QString title(""), message("");
+
+    if(m_curatorLabelsList.empty() && m_lostnessHandler.getNumEdges() == 0)
+    {
+        showAlert = true;
+        title = "No Curator Labels or Spatial Graph Loaded";
+        message = "Do you want to load the curator labels (in-game tasks) and spatial graph before starting analytics?\n\n(Needed for task analysis and lostness calculations)";
+    }
+    else
+        if(m_curatorLabelsList.empty())
+        {
+            showAlert = true;
+            title = "No Curator Labels Loaded";
+            message = "Do you want to load the curator labels (in-game tasks) before starting analytics?\n\n(Needed for task analysis)";
+        }
+    else
+        if(m_lostnessHandler.getNumEdges() == 0)
+        {
+            showAlert = true;
+            title = "No Spatial Graph Loaded";
+            message = "Do you want to load the spatial graph before starting analytics?\n\n(Needed for lostness calculations)";
+        }
+        else
+            if(m_startNodeInput->text().isEmpty())
+            {
+                showAlert = true;
+                title = "No Start Node Set";
+                message = "Do you want to specify the start node before starting analytics?\n\n(First lostness calculation will not take place without this)";
+            }
+
+
+    //if(m_curatorLabelsList.empty())
+    if(showAlert)
     {
         QMessageBox msgBox;
-        msgBox.setWindowTitle("No Curator Labels Loaded");
-        msgBox.setText("Do you want to load the curator labels (in-game tasks) before starting analytics?");
+        //msgBox.setWindowTitle();
+        //msgBox.setText("Do you want to load the curator labels (in-game tasks) before starting analytics?");
+        msgBox.setWindowTitle(title);
+        msgBox.setText(message);
         msgBox.setStandardButtons(QMessageBox::Yes);
         msgBox.addButton(QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);

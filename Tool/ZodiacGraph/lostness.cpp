@@ -1,4 +1,5 @@
 #include "lostness.h"
+#include <QMessageBox>
 
 Lostness::Lostness()
 {
@@ -33,7 +34,7 @@ float Lostness::getLostnessValue(int minSteps, int totalSteps, int uniqueSteps)
     return lostness;
 }
 
-void Lostness::loadSpatialGraph()
+bool Lostness::loadSpatialGraph()
 {
     QFile file(QFileDialog::getOpenFileName(this,
                                                      QObject::tr("Load Spatial Graph"), "",
@@ -47,20 +48,77 @@ void Lostness::loadSpatialGraph()
             file.close();
 
             QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+
+            if(jsonDoc.isNull() || !jsonDoc.isObject() || jsonDoc.isEmpty())
+            {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                messageBox.setFixedSize(500,200);
+                return false;
+            }
+
             QJsonObject jsonObj = jsonDoc.object();
+
+            if(!jsonObj.contains("edges"))
+            {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","Edges not found in file, please ensure that it is the correct format.");
+                messageBox.setFixedSize(500,200);
+                return false;
+            }
+
             QJsonArray jsonEdgesArray = jsonObj["edges"].toArray();
 
             foreach (const QJsonValue &v, jsonEdgesArray)
             {
-                QJsonArray jsonLinksArray = v.toArray();
+                if(!v.isObject())
+                {
+                    QMessageBox messageBox;
+                    messageBox.critical(0,"Error","Error loading edge, please ensure that it is the correct format.");
+                    messageBox.setFixedSize(500,200);
+                    m_edges.clear();
+                    return false;
+                }
+
+                QJsonObject jsonEdgeObject = v.toObject();
+
+                if(!jsonEdgeObject.contains("links") || !jsonEdgeObject["links"].isArray() || (jsonEdgeObject["links"].isArray() && jsonEdgeObject["links"].toArray().count() != 2))
+                {
+                    QMessageBox messageBox;
+                    messageBox.critical(0,"Error","Error loading edge, please ensure that it is the correct format.");
+                    messageBox.setFixedSize(500,200);
+                    m_edges.clear();
+                    return false;
+                }
+
+                QJsonArray jsonLinksArray = jsonEdgeObject["links"].toArray();
+
+                if(!jsonLinksArray[0].isString() || !jsonLinksArray[0].isString())
+                {
+                    QMessageBox messageBox;
+                    messageBox.critical(0,"Error","Error loading edge, please ensure that it is the correct format.");
+                    messageBox.setFixedSize(500,200);
+                    m_edges.clear();
+                    return false;
+                }
 
                 //QString first =  jsonLinksArray[0].toString();
                 //QString second = jsonLinksArray[1].toString();
                 addEdge(jsonLinksArray[0].toString(), jsonLinksArray[1].toString());
             }
-
+            return true;
+        }
+        else
+        {
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","File could not be loaded. Ensure that you have the correct permissions");
+            messageBox.setFixedSize(500,200);
+            m_edges.clear();
+            return false;
         }
     }
+    else
+        return false;
 }
 
 void Lostness::addEdge(QString left, QString right)

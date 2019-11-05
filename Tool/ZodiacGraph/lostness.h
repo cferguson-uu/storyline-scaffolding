@@ -41,7 +41,9 @@ public:
     float getLostnessValue(int minSteps, int totalSteps, int uniqueSteps);
     float getLostnessForObjective(const QString &startNode, const QString &endNode, const int &totalSteps, const int &uniqueSteps, int &minSteps);
 
-    void loadSpatialGraph();
+    bool loadSpatialGraph();
+
+    int getNumEdges(){return m_edges.count();}
 
 private:
 

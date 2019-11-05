@@ -99,16 +99,25 @@ public:
 
     QString getParentId(QString objectiveId);
 
+    QString getSpecifiedStartNode(){return m_startNodeInput->text();}
+
+    void setFirstNodeToStartNode(){m_firstNode = m_startNodeInput->text();}
+
 private:
     void showCuratorLabels();
     void hideCuratorLabels();
+
+    void loadSpatialGraph();
 
     QGridLayout *m_mainLayout;
     QHash<QString, CuratorLabel*> m_curatorLabelsHash;
     QList<CuratorLabel*> m_curatorLabelsList;
 
-    QPushButton *m_saveBtn;
-    QPushButton *m_loadBtn;
+    QPushButton *m_saveCuratorBtn;
+    QPushButton *m_loadCuratorBtn;
+
+    QPushButton *m_saveEdgesBtn;
+    QPushButton *m_loadEdgesBtn;
 
     QJsonArray m_jsonArray;
 
@@ -118,6 +127,10 @@ private:
     Lostness m_lostnessHandler;
 
     QCheckBox *m_useTool;
+
+    QLabel *m_loadedLabel;
+    QLabel* m_startNodeLabel;
+    QLineEdit *m_startNodeInput;
 
     QString m_firstNode;
     QString m_endNode;
