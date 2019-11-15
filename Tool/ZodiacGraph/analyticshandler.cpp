@@ -147,7 +147,7 @@ void AnalyticsHandler::readMessageFromServer(QString message)
     handleMessage(message, m_curatorAnalyticsEditor->getUseLostnessInTool());
 }
 
-void AnalyticsHandler::handleMessage(QString message, bool updateValues)
+void AnalyticsHandler::handleMessage(QString message, bool updateValues, bool loadLogFile)
 {
     //check if the JSON data is correct
     QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
@@ -166,7 +166,7 @@ void AnalyticsHandler::handleMessage(QString message, bool updateValues)
             if(jsonVal.isObject())
             {
                 if(!(jsonVal.toObject()[kName_Verb].toString() == kName_Found && updateValues))    //ignore a found action sent by the game if tool is calculating lostness
-                    handleObject(jsonVal.toObject(), updateValues);
+                    handleObject(jsonVal.toObject(), updateValues, loadLogFile);
             }
             else
             {
@@ -178,7 +178,7 @@ void AnalyticsHandler::handleMessage(QString message, bool updateValues)
         if(jsonDoc.isObject())
         {
             if(!(jsonDoc.object()[kName_Verb].toString() == kName_Found && updateValues))    //ignore a found action sent by the game if tool is calculating lostness
-                handleObject(jsonDoc.object(), updateValues);
+                handleObject(jsonDoc.object(), updateValues, loadLogFile);
         }
         else
         {
@@ -186,7 +186,7 @@ void AnalyticsHandler::handleMessage(QString message, bool updateValues)
         }
 }
 
-void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues)
+void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool loadLogFile)
 {
     if(!jsonObj.contains(kName_Actor) || !jsonObj.contains(kName_Verb) || !jsonObj.contains(kName_Object) || !jsonObj.contains(kName_Timestamp))
     {
@@ -350,10 +350,10 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues)
                         }
     }
 
-    handleTextOutput(jsonObj, updateValues);
+    handleTextOutput(jsonObj, updateValues, loadLogFile);
 }
 
-void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool updateValues)
+void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool updateValues, bool loadLogFile)
 {
     //formulate human-readable string for log window
     QString sentence = jsonObj[kName_Actor].toString() + " " + jsonObj[kName_Verb].toString() + " " + jsonObj[kName_Object].toString();
@@ -407,7 +407,7 @@ void AnalyticsHandler::handleTextOutput(QJsonObject &jsonObj, bool updateValues)
     //output string to window and full JSON message to file
     m_logWindow->appendToWindow(sentence);
 
-    if(updateValues)
+    if(!(loadLogFile && !updateValues))
         m_logWindow->appendToLogFile(jsonObj);
 }
 
@@ -445,11 +445,11 @@ void AnalyticsHandler::loadAnalyticsLog()
             if(msgBox.exec() == QMessageBox::Yes)
             {
                 m_logWindow->initialiseLogFile(fileName);
-                handleMessage(docString, true);
+                handleMessage(docString, true, true);
                 m_logWindow->exportToFile();    //save new file once message is handled
             }
             else
-                handleMessage(docString, false);
+                handleMessage(docString, false, true);
         }
         else
         {

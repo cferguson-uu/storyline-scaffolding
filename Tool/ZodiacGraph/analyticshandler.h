@@ -35,10 +35,10 @@ public slots:
     void readMessageFromServer(QString message);
 
 private:
-    void handleMessage(QString message, bool updateValues);
-    void handleObject(QJsonObject jsonObj, bool updateValues);
+    void handleMessage(QString message, bool updateValues = true, bool loadLogFile = false);
+    void handleObject(QJsonObject jsonObj, bool updateValues, bool loadLogFile);
 
-    void handleTextOutput(QJsonObject &jsonObj, bool updateValues);
+    void handleTextOutput(QJsonObject &jsonObj, bool updateValues, bool loadLogFile = false);
     void loadAnalyticsLog();
 
     void clearAll();
