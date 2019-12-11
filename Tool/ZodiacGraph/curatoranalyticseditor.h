@@ -53,12 +53,18 @@ struct CuratorLabel
     QLabel* id;
     QLabel* dependenciesLabel;
     QHash<QString, CuratorObjective*> narrativeDependenciesHash;
-    QList<CuratorObjective*> narrativeDependenciesList;
+    QList<CuratorObjective*> narrativeDependenciesList;  
+    QLabel* startDependencyLabel;
+    CuratorObjective* startDependency;
     QLabel* minStepsLabel;
     QSpinBox* minSteps;
 
     QList<QPair<QString, QString>> uniqueNodesVisited;
     int totalNumOfNodesVisited;
+    int totalNumUniqueNodesVisited;
+
+    QString startNode;
+    QString endNode;
 
     float progress;
     float lostness;
@@ -73,7 +79,8 @@ public:
     void showWindow();
     void updatePath(QString object, QString verb);
     void nodeVisited(QString task, QString object, QString verb);
-    float getLostnessofCuratorLabel(QString task);
+    float getLostnessofCuratorLabel(QString id);
+    float getLostnessofCuratorLabelFromObjectives(QString id);
     bool checkIfAnalyticsLoaded();
     QList<CuratorLabel*> getCuratorLabels(){return m_curatorLabelsList;}
     void resetAll();
@@ -83,7 +90,7 @@ public:
 
     float getCuratorLabelProgress(QString curatorId);
 
-    void objectiveFound(QString objectiveId, QString curatorID, int r, int s, int n, float lostness, QString startNode, QString endNode);
+    void objectiveFound(QString objectiveId, QString curatorId, int r, int s, int n, float lostness, QString startNode, QString endNode);
     bool possibleObjectiveFound(QString objectiveId);
 
     float getLostnessofObjective(QString curatorId, QString objectiveId);

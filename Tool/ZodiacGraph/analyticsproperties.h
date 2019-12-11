@@ -238,6 +238,17 @@ public: // methods
     /// \brief Reset all bars
     ///
     void reset();
+
+    ///
+    /// \brief update the layout used by the dependency
+    ///
+    void updateLayout(QGridLayout *rowLayout);
+
+    ///
+    /// \brief return the name of the dependency
+    ///
+    QString getName(){return m_nameLabel->text();}
+
 private:
     ///
     /// \brief Layout for this objective row
@@ -267,7 +278,7 @@ public: // methods
     /// \param [in] editor          AnalyticsProperties that this CuratorRow is part of.
     /// \param [in] nameLabel       Curator label name.
     ///
-    CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QGridLayout *dependencyRowLayout, QHash<QString, ObjectiveRow*> &dependenciesList);
+    CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QGridLayout *dependencyRowLayout, QHash<QString, ObjectiveRow*> &dependenciesList, ObjectiveRow* startDependency);
 
     ///
     /// \brief Remove all widgets from the row
@@ -330,14 +341,29 @@ private:
     QProgressBar* m_progressBar;
 
     ///
-    /// \brief Lostness label
+    /// \brief Lostness label for full task
     ///
-    QLabel* m_lostnessLabel;
+    QLabel* m_fullLostnessLabel;
+
+    ///
+    /// \brief Lostness label for starting dependency
+    ///
+    QLabel* m_startDependencyLostnessLabel;
+
+    ///
+    /// \brief Lostness label for dependency
+    ///
+    QLabel* m_dependenciesLostnessLabel;
 
     ///
     /// \brief Lostness Bar, gives visual feedback on how "lost the user is"
     ///
     QProgressBar* m_lostnessBar;
+
+    ///
+    /// \brief Starting narrative dependency (bool to show if achieved etc. accessed through thesis)
+    ///
+    ObjectiveRow* m_startDependency;
 
     ///
     /// \brief List of narrative dependencies (bool to show if achieved etc. accessed through these)

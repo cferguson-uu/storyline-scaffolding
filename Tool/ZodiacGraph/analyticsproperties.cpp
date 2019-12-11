@@ -147,7 +147,6 @@ void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
     m_fullGameProgressBar->setValue(0);
     m_localLostnessLabel = new QLabel("Local Lostness", this);
     m_localLostnessBar = new QProgressBar(this);
-    m_localLostnessBar->setValue(0);
     m_curatorLabelLayoutLabel = new QLabel("<b>Curator Labels</b>", this);
     m_curatorLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
     m_curatorLayout->setColumnStretch(1,1); // so the add-plug button always stays on the far right
@@ -194,6 +193,7 @@ void AnalyticsProperties::addCuratorLabelRow(CuratorLabel *curatorLabel)
     //Add a row for each dependency
     QGridLayout *dependencyRowLayout = new QGridLayout();
     QHash<QString, ObjectiveRow*> dependenciesList;
+    ObjectiveRow* startDependency = new ObjectiveRow(this, curatorLabel->startDependency->label->text(), nullptr);
     foreach (CuratorObjective *dependency, curatorLabel->narrativeDependenciesList)
     {
         dependenciesList.insert(dependency->label->text(), new ObjectiveRow(this, dependency->label->text(), dependencyRowLayout));
@@ -203,7 +203,7 @@ void AnalyticsProperties::addCuratorLabelRow(CuratorLabel *curatorLabel)
 
     m_curatorLayout->addLayout(rowLayout, row, 0);
 
-    m_curatorRows.insert(curatorLabelName->text(), new CuratorRow(this, curatorLabelName, rowLayout, dependencyRowLayout, dependenciesList));
+    m_curatorRows.insert(curatorLabelName->text(), new CuratorRow(this, curatorLabelName, rowLayout, dependencyRowLayout, dependenciesList, startDependency));
 }
 
 void AnalyticsProperties::removeCuratorRow(const QString& curatorLabelName)
@@ -280,7 +280,7 @@ void AnalyticsProperties::resetAllCuratorLabels()
         m_localLostnessBar->setValue(0.0f);
 }
 
-CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QGridLayout *dependencyRowLayout, QHash<QString, ObjectiveRow*> &dependenciesList)
+CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayout *rowLayout, QGridLayout *dependencyRowLayout, QHash<QString, ObjectiveRow*> &dependenciesList, ObjectiveRow* startDependency)
     : QObject(editor)
     , m_rowLayout(rowLayout)
     , m_dependencyRowLayout(dependencyRowLayout)
@@ -288,7 +288,10 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_progressLabel(new QLabel("Progress:"))
     , m_progressBar(new QProgressBar())
     , m_dependencies(dependenciesList)
-    , m_lostnessLabel(new QLabel("Lostness:"))
+    , m_startDependency(startDependency)
+    , m_fullLostnessLabel(new QLabel("Full Lostness:"))
+    , m_dependenciesLostnessLabel(new QLabel("Objectives Lostness:"))
+    , m_startDependencyLostnessLabel(new QLabel("Starting Objective Lostness:"))
     , m_lostnessBar(new QProgressBar())
     , m_started(false)
     , m_completed(false)
@@ -299,18 +302,22 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     m_rowLayout->addWidget(m_progressLabel, row, 0, 1, 1, Qt::AlignLeft);
     m_rowLayout->addWidget(m_progressBar, row, 1, 1, 5, Qt::AlignRight);
 
-    m_rowLayout->addWidget(m_lostnessLabel, ++row, 0, 1, 1, Qt::AlignLeft);
-    m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
+    m_rowLayout->addWidget(m_startDependencyLostnessLabel, ++row, 0, 1, 5, Qt::AlignLeft);
+    m_startDependency->updateLayout(m_rowLayout);
+    ++row;
 
-    m_rowLayout->addLayout(m_dependencyRowLayout,++row, 0, 1, 5, Qt::AlignRight);
+    m_rowLayout->addWidget(m_dependenciesLostnessLabel, ++row, 0, 1, 1, Qt::AlignLeft);
+    m_rowLayout->addLayout(m_dependencyRowLayout,++row, 0, 1, 0, Qt::AlignRight);
+
+    m_rowLayout->addWidget(m_fullLostnessLabel, ++row, 0, 1, 1, Qt::AlignLeft);
+    m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
 
     //make labels minimum size to fit text
     m_progressLabel->setMaximumSize(m_progressLabel->fontMetrics().width(m_progressLabel->text()), m_progressLabel->fontMetrics().height());
-    m_lostnessLabel->setMaximumSize(m_lostnessLabel->fontMetrics().width(m_lostnessLabel->text()), m_lostnessLabel->fontMetrics().height());
+    //m_lostnessLabel->setMaximumSize(m_lostnessLabel->fontMetrics().width(m_lostnessLabel->text()), m_lostnessLabel->fontMetrics().height());
 
     //set values so percentage text shows on progress bars
     m_progressBar->setValue(0.0f);
-    m_lostnessBar->setValue(0.0f);
 
     m_nameLabel->setStyleSheet("QLabel { color : red; }");  //red to show that it hasn't started
 }
@@ -321,8 +328,10 @@ void CuratorRow::removeRow()
     m_nameLabel->deleteLater();
     m_progressLabel->deleteLater();
     m_progressBar->deleteLater();
-    m_lostnessLabel->deleteLater();
     m_lostnessBar->deleteLater();
+    m_fullLostnessLabel->deleteLater();
+    m_dependenciesLostnessLabel->deleteLater();
+    m_startDependencyLostnessLabel->deleteLater();
 
     for(QHash<QString, ObjectiveRow*>::iterator objectiveIt = m_dependencies.begin(); objectiveIt != m_dependencies.end(); ++objectiveIt)
     {
@@ -344,6 +353,9 @@ void CuratorRow::updateProgress(float progress)
 {
     m_progressBar->setValue(round(progress*100));   //round to nearest integer to be shown on the bar correctly
 
+    if(progress == 1)
+        m_nameLabel->setStyleSheet("QLabel { color : green; }");
+
 }
 
 void CuratorRow::updateLostness(float newValue)
@@ -354,8 +366,15 @@ void CuratorRow::updateLostness(float newValue)
 
 void CuratorRow::updateLostnessOfObjective(QString objectiveName, float newValue)
 {
+    Q_ASSERT(m_dependencies.contains(objectiveName) || m_startDependency->getName() == objectiveName);
+
     if(newValue >= 0) //don't set value if error has occurred
-        m_dependencies[objectiveName]->setLostness(newValue);   //round to nearest integer to be shown on the bar correctly
+    {
+        if(m_dependencies.contains(objectiveName))
+            m_dependencies[objectiveName]->setLostness(newValue);   //round to nearest integer to be shown on the bar correctly
+        else
+            m_startDependency->setLostness(newValue);   //round to nearest integer to be shown on the bar correctly
+    }
 }
 
 void CuratorRow::reset()
@@ -365,7 +384,10 @@ void CuratorRow::reset()
 
     //set values back to 0
     m_progressBar->setValue(0.0f);
-    m_lostnessBar->setValue(0.0f);
+    m_lostnessBar->reset();
+
+    //reset start node
+    m_startDependency->reset();
 
     //reset dependencies    
     for(QHash<QString, ObjectiveRow*>::iterator depIt = m_dependencies.begin(); depIt != m_dependencies.end(); ++depIt)
@@ -382,12 +404,18 @@ ObjectiveRow::ObjectiveRow(QObject *object, QString name, QGridLayout *rowLayout
     , m_nameLabel(new QLabel(name))
     , m_lostnessBar(new QProgressBar())
 {
-    int row = m_rowLayout->rowCount();
+    m_nameLabel->setStyleSheet("QLabel { color : red; }");
 
-    //add all widgets to the layout
-    m_rowLayout->addWidget(m_nameLabel, row, 0, 1, 1, Qt::AlignLeft);
-    m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
+    if(rowLayout != nullptr)
+    {
+        int row = m_rowLayout->rowCount();
+
+        //add all widgets to the layout
+        m_rowLayout->addWidget(m_nameLabel, row, 0, 1, 1, Qt::AlignLeft);
+        m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
+    }
 }
+
 void ObjectiveRow::removeRow()
 {
     m_nameLabel->deleteLater();
@@ -398,10 +426,27 @@ void ObjectiveRow::setLostness(float lostness)
 {
     if(lostness >= 0) //don't set value if error has occurred
         m_lostnessBar->setValue(round(lostness/maxLostness*100));   //round to nearest integer to be shown on the bar correctly
+
+    //has been found, make green
+    m_nameLabel->setStyleSheet("QLabel { color : green; }");
 }
 
 void ObjectiveRow::reset()
 {
     //reset the lostness bar
-    m_lostnessBar->setValue(0.0f);
+    m_lostnessBar->reset();
+    m_nameLabel->setStyleSheet("QLabel { color : red; }");
+}
+
+void ObjectiveRow::updateLayout(QGridLayout *rowLayout)
+{
+    if(rowLayout != nullptr)
+    {
+        m_rowLayout = rowLayout;
+        int row = m_rowLayout->rowCount();
+
+        //add all widgets to the layout
+        m_rowLayout->addWidget(m_nameLabel, row, 0, 1, 1, Qt::AlignRight);
+        m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
+    }
 }

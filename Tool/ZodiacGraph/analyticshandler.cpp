@@ -218,6 +218,15 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
                 {
                     if(jsonObj.contains(kName_Lostness))
                         m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), jsonObj[kName_Lostness].toDouble());
+                    else
+                    {
+                        float lostness = m_curatorAnalyticsEditor->getLostnessofCuratorLabelFromObjectives(jsonObj[kName_Object].toString());
+
+                        if(lostness >= 0)
+                            jsonObj[kName_Lostness] = lostness;
+
+                        m_pProperties->updateLostnessOfCuratorLabel(jsonObj[kName_Object].toString(), lostness);
+                    }
                 }
 
                 m_activeTasks.removeAll(jsonObj[kName_Object].toString());
