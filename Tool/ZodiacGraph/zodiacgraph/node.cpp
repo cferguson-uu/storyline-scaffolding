@@ -1086,8 +1086,8 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
             addTimeAction = new QAction(tr("&Add Times"), this);
 
             connect(addCharacterAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Characters", "", QPoint(0,100)); });
-            connect(addLocationAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Locations", "", QPoint(0,100)); });
-            connect(addTimeAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_CHARACTER_GROUP, "Times", "", QPoint(0,100)); });
+            connect(addLocationAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_LOCATION_GROUP, "Locations", "", QPoint(0,100)); });
+            connect(addTimeAction, &QAction::triggered, [=]{createStoryChild(STORY_SETTING_TIME_GROUP, "Times", "", QPoint(0,100)); });
 
             contextMenu.addAction(addCharacterAction);
             contextMenu.addAction(addLocationAction);
@@ -1232,7 +1232,7 @@ void StoryNode::contextMenuEvent(QContextMenuEvent *event)
         case STORY_RESOLUTION_STATE_GROUP:
             addStateAction = new QAction(tr("&Add State"), this);
 
-            connect(addStateAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_STATE_GROUP, "STA", "", QPoint(0,100)); });
+            connect(addStateAction, &QAction::triggered, [=]{createStoryChild(STORY_RESOLUTION_STATE, "STA", "", QPoint(0,100)); });
 
             contextMenu.addAction(addStateAction);
             break;
