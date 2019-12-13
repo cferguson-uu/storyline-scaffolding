@@ -107,12 +107,12 @@ void saveandload::ReadSettingsItem(QJsonObject &jsonCharacter, SettingItem &s)
     QJsonValue jsonCharacterId = jsonCharacter[kName_Id];
 
     s.id = jsonCharacterId.toString().section('_', 1);
-    qDebug() << jsonCharacterId.toString().section('_', 1);
+    //qDebug() << jsonCharacterId.toString().section('_', 1);
 
     QJsonValue jsonCharacterDesc = jsonCharacter[kName_Description];
 
     s.description = jsonCharacterDesc.toString();
-    qDebug() << jsonCharacterDesc.toString();
+   //qDebug() << jsonCharacterDesc.toString();
 
     QJsonArray jsonCharacterDetails = jsonCharacter[kName_Details].toArray();
 
@@ -324,7 +324,7 @@ void saveandload::SaveStoryToFile(QWidget *widget)
 
         QJsonDocument jsonDoc(jsonData);
 
-        qDebug() << jsonDoc.toJson();
+        //qDebug() << jsonDoc.toJson();
 
         if(file.open(QFile::WriteOnly))
             file.write(jsonDoc.toJson());
@@ -723,7 +723,7 @@ NarNode *saveandload::addNarrativeNode(QString id, QString description, QString 
 
     if(!fileNameExists)
     {
-        qDebug() << "Filename" << fileName << "added";
+        //qDebug() << "Filename" << fileName << "added";
         m_fileNames.push_back(fileName);
     }
 
@@ -885,7 +885,7 @@ bool saveandload::LoadNarrativeFromFile(QWidget *widget)
     {
         for (int i =0; i<filenames.count(); i++)
         {
-            qDebug() << filenames.at(i);
+            //qDebug() << filenames.at(i);
 
             QFile file = filenames.at(i);
 
@@ -1261,8 +1261,8 @@ void saveandload::WriteCommandBlock(QList<NarCommand> cmd, QJsonArray &block)
             {
                 if(nCParam.id == memParam.label)
                 {
-                    qDebug() << "id " << memParam.id;
-                    qDebug() << "data" << nCParam.description;
+                    //qDebug() << "id " << memParam.id;
+                    //qDebug() << "data" << nCParam.description;
 
                     if(memParam.type == VAL_FLOAT)
                     {

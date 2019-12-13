@@ -591,12 +591,7 @@ void MainCtrl::loadThemeItem(NodeCtrl* parentNode, QList<EventGoal> items, zodia
 
         //if sub-item then load those too
         if(tItem.subItems.size() > 0)
-        {
-            for(QList<EventGoal>::iterator subItemIt = tItem.subItems.begin(); subItemIt != tItem.subItems.end(); ++subItemIt)
-            {
                 loadThemeItem(itemNode, tItem.subItems, childType);
-            }
-        }
     }
 }
 
