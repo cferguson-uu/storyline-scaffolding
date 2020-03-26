@@ -362,7 +362,7 @@ void MainCtrl::saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem)
     }
 }
 
-void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
+void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem, zodiac::StoryNodeType type)
 {
     QList<zodiac::PlugHandle> connectedPlugs = parent.getPlug("storyOut").getConnectedPlugs();
     foreach (zodiac::PlugHandle cPlug, connectedPlugs)
@@ -371,7 +371,7 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
         Episode *episodeItem;
 
         if(episodeNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE || episodeNode.getStoryNodeType() == zodiac::STORY_PLOT_SUBEPISODE)
-            episodeItem = m_saveAndLoadManager.addEpisode(episodeNode.getName(), episodeNode.getDescription(), parentItem);
+            episodeItem = m_saveAndLoadManager.addEpisode(episodeNode.getName(), episodeNode.getDescription(), parentItem, type);
         else
             continue; //error or we're looking for a subepisode
 
@@ -390,7 +390,7 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
                     if(attemptNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_ATTEMPT)
                         m_saveAndLoadManager.addAttempt(attemptNode.getName(), attemptNode.getDescription(), episodeItem);
                     else //sup-episode
-                        savePlotItem(childNode, episodeItem);
+                        savePlotItem(childNode, episodeItem, childNode.getStoryNodeType());
                 }
             }
             else
@@ -404,7 +404,7 @@ void MainCtrl::savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem)
                        if(outcomeNode.getStoryNodeType() == zodiac::STORY_PLOT_EPISODE_OUTCOME)
                             m_saveAndLoadManager.addOutcome(outcomeNode.getName(), outcomeNode.getDescription(), episodeItem);
                         else //sup-episode
-                            savePlotItem(childNode, episodeItem);
+                            savePlotItem(childNode, episodeItem, childNode.getStoryNodeType());
                     }
                 }
                 else

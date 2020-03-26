@@ -268,7 +268,7 @@ private: // members
 
     void saveSettingItem(zodiac::NodeHandle &settingGroup);
     void saveThemeItem(zodiac::NodeHandle &parent, EventGoal *parentItem = nullptr);
-    void savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem = nullptr);
+    void savePlotItem(zodiac::NodeHandle &parent, Episode *parentItem = nullptr, zodiac::StoryNodeType type = zodiac::STORY_PLOT_EPISODE);
     void saveResolution(zodiac::NodeHandle &parent);
 
     void loadNarrativeCommands(NarNode &loadedNode, NodeCtrl* sceneNode);

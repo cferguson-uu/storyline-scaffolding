@@ -438,27 +438,36 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
 
     jsonEpisode[kName_SubGoal] = jsonSubGoal;
 
-    if(!e.attempts.empty() || !e.attemptSubEpisodes.empty())
-    {
+   if(!e.attempts.empty() || !e.attemptSubEpisodes.empty())
+   {
         QJsonArray jsonAttempts;
 
         foreach (SimpleNode attempt, e.attempts)
         {
             QJsonObject jsonAttempt;
-
             jsonAttempt[kName_Id] = QString(kPrefix_Attempt + "_" + attempt.id);
             jsonAttempt[kName_Description] = attempt.description;
 
             jsonAttempts.append(jsonAttempt);
         }
 
-        foreach (Episode subEp, e.attemptSubEpisodes)
+        if(!e.attemptSubEpisodes.empty())
         {
-            WriteEpisode(jsonAttempts, subEp, kPrefix_SubEpisode);
+            QJsonArray jsonAttemptsSubEps;
+
+            foreach (Episode subEp, e.attemptSubEpisodes)
+            {
+                WriteEpisode(jsonAttemptsSubEps, subEp, kPrefix_SubEpisode);
+            }
+
+            foreach (QJsonValue subEpObj, jsonAttemptsSubEps)
+            {
+                jsonAttempts.append(subEpObj);
+            }
         }
 
-         jsonEpisode[kName_Attempts] = jsonAttempts;
-    }
+        jsonEpisode[kName_Attempts] = jsonAttempts;
+   }
 
     if(!e.outcomes.empty() || !e.outcomeSubEpisodes.empty())
     {
@@ -473,9 +482,19 @@ void saveandload::WriteEpisode(QJsonArray &jsonEpisodes, const Episode &e, const
             jsonOutcomes.append(jsonOutcome);
         }
 
-        foreach (Episode subEp, e.outcomeSubEpisodes)
+        if(!e.outcomeSubEpisodes.empty())
         {
-            WriteEpisode(jsonOutcomes, subEp, kPrefix_SubEpisode);
+            QJsonArray jsonOutcomesSubEps;
+
+            foreach (Episode subEp, e.outcomeSubEpisodes)
+            {
+                WriteEpisode(jsonOutcomesSubEps, subEp, kPrefix_SubEpisode);
+            }
+
+            foreach (QJsonValue subEpObj, jsonOutcomesSubEps)
+            {
+                jsonOutcomes.append(subEpObj);
+            }
         }
 
         jsonEpisode[kName_Outcomes] = jsonOutcomes;
@@ -587,8 +606,8 @@ EventGoal *saveandload::addEventGoal(QString id, QString description,zodiac::Sto
         else
             if(type == zodiac::STORY_THEME_GOAL)
             {
-                m_events.push_back(newEvent);
-                return &m_events.back();
+                m_goals.push_back(newEvent);
+                return &m_goals.back();
             }
             else
                 if(type == zodiac::STORY_RESOLUTION_EVENT)
