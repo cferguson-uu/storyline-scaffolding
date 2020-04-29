@@ -468,7 +468,11 @@ float CuratorAnalyticsEditor::getLostnessofObjective(QString curatorId, QString 
     else
         objective = m_curatorLabelsHash[curatorId]->startDependency;
 
-    float lostness = getLostnessofObjective(curatorId, objectiveId);
+    float lostness;
+    if(objective->lostness != -1)
+        lostness =  objective->lostness;
+    else
+        lostness = getLostnessofObjective(curatorId, objectiveId);
 
     r = objective->minSteps;
     s = objective->totalNumOfNodesVisited;
@@ -629,16 +633,22 @@ bool CuratorAnalyticsEditor::possibleObjectiveFound(QString objectiveId)
 {
     CuratorObjective* objective = nullptr;
 
+    CuratorLabel* objOwner;
+
     foreach (CuratorLabel* task, m_curatorLabelsHash)
     {
         if(task->narrativeDependenciesHash.contains(objectiveId))
         {
             objective = task->narrativeDependenciesHash[objectiveId];
+            objOwner = task;
+            break;
         }
         else
             if(task->startDependency->label->text() == objectiveId)
             {
                 objective = task->startDependency;
+                objOwner = task;
+                break;
             }
     }
 
@@ -652,13 +662,28 @@ bool CuratorAnalyticsEditor::possibleObjectiveFound(QString objectiveId)
     objective->totalNumOfNodesVisited = m_totalNodes;
     objective->totalNumUniqueNodesVisited = m_uniqueNodes.size();
 
+    //calculate lostness
+    getLostnessofObjective(objOwner->id->text(), objective->label->text());
+
     //reset everything for next objective
     m_firstNode = m_lastLocomotionNode;
-    m_endNode = "";
-    m_lastLocomotionNode = "";
+    //m_endNode = "";
+    //m_lastLocomotionNode = "";
 
     m_totalNodes = 0;
     m_uniqueNodes.clear();
+
+    //update progress for curator label and full game
+        objOwner->progress = 0;
+        foreach (CuratorObjective *obj, objOwner->narrativeDependenciesList)
+        {
+            if(obj->found)
+                ++objOwner->progress;
+        }
+
+        objOwner->progress /= objOwner->narrativeDependenciesList.size();
+        updateGameProgress();
+        updateLocalLostness();
 
     return true;
 }
@@ -668,20 +693,21 @@ void CuratorAnalyticsEditor::updateLocalLostness()
     int sumR(0), sumS(0), sumN(0);
     foreach (CuratorLabel *curatorLabel, m_curatorLabelsList) //Find all completed objectives, sum up lostness data and get full lostness
     {
+        qDebug() << curatorLabel->id->text();
         if(curatorLabel->startDependency->found)
         {
             sumR += curatorLabel->startDependency->minSteps;
             sumS += curatorLabel->startDependency->totalNumOfNodesVisited;
             sumN += curatorLabel->startDependency->totalNumUniqueNodesVisited;
-        }
 
-        foreach (CuratorObjective *obj, curatorLabel->narrativeDependenciesList)
-        {
-            if(obj->found)
+            foreach (CuratorObjective *obj, curatorLabel->narrativeDependenciesList)
             {
-                sumR += obj->minSteps;
-                sumS += obj->totalNumOfNodesVisited;
-                sumN += obj->totalNumUniqueNodesVisited;
+                if(obj->found)
+                {
+                    sumR += obj->minSteps;
+                    sumS += obj->totalNumOfNodesVisited;
+                    sumN += obj->totalNumUniqueNodesVisited;
+                }
             }
         }
     }

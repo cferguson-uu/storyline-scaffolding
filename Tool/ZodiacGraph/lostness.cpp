@@ -8,11 +8,11 @@ Lostness::Lostness()
 
 float Lostness::getLostnessValue(int minSteps, int totalSteps, int uniqueSteps)
 {
-    qDebug() << "Minimum number of nodes (R): " << minSteps;
+    /*qDebug() << "Minimum number of nodes (R): " << minSteps;
     qDebug() << "Total number of nodes visited (S): " << totalSteps;
     qDebug() << "Number of different nodes visited (N): " << uniqueSteps;
     qDebug() << "N/S: " << (float)uniqueSteps/(float)totalSteps;
-    qDebug() << "R/N: " << (float)minSteps/(float)uniqueSteps;
+    qDebug() << "R/N: " << (float)minSteps/(float)uniqueSteps;*/
 
     //avoid div 0 errors
     if(totalSteps == 0)   //no nodes visited so lostness cannot be determined
@@ -30,14 +30,14 @@ float Lostness::getLostnessValue(int minSteps, int totalSteps, int uniqueSteps)
     float lostness = firstHalf + secondHalf;    //sqrt[(N/S – 1)² + (R/N – 1)²]
     lostness = sqrt(lostness);
 
-    qDebug() << "Lostness" << lostness;
+    //qDebug() << "Lostness" << lostness;
     return lostness;
 }
 
-bool Lostness::loadSpatialGraph()
+bool Lostness::loadEdges()
 {
     QFile file(QFileDialog::getOpenFileName(this,
-                                                     QObject::tr("Load Spatial Graph"), "",
+                                                     QObject::tr("Load Edges"), "",
                                                      QObject::tr("JSON File (*.json);;All Files (*)")));
 
     if(!file.fileName().isEmpty() && !file.fileName().isNull())
@@ -133,6 +133,86 @@ void Lostness::addEdge(QString left, QString right)
     m_edges[left].push_back(right);
 }
 
+bool Lostness::loadNodes()
+{
+    QFile file(QFileDialog::getOpenFileName(this,
+                                                     QObject::tr("Load Nodes"), "",
+                                                     QObject::tr("JSON File (*.json);;All Files (*)")));
+
+    if(!file.fileName().isEmpty() && !file.fileName().isNull())
+    {
+        if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString settings = file.readAll();
+            file.close();
+
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(settings.toUtf8());
+
+            if(jsonDoc.isNull() || !jsonDoc.isArray() || jsonDoc.isEmpty())
+            {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error","File could not be loaded, please ensure that it is the correct format.");
+                messageBox.setFixedSize(500,200);
+                return false;
+            }
+
+            QJsonArray jsonArray = jsonDoc.array();
+
+
+            foreach (const QJsonValue &v, jsonArray)
+            {
+                if(!v.isObject())
+                {
+                    QMessageBox messageBox;
+                    messageBox.critical(0,"Error","Error loading node, please ensure that it is the correct format.");
+                    messageBox.setFixedSize(500,200);
+                    m_nodes.clear();
+                    return false;
+                }
+
+                QJsonObject jsonNodeObj = v.toObject();
+
+                if(!jsonNodeObj.contains("name") || !jsonNodeObj.contains("type") || !jsonNodeObj["name"].isString() || !jsonNodeObj["type"].isString())
+                {
+                    QMessageBox messageBox;
+                    messageBox.critical(0,"Error","Error loading node, please ensure that it is the correct format.");
+                    messageBox.setFixedSize(500,200);
+                    m_edges.clear();
+                    return false;
+                }
+
+                addNode(jsonNodeObj["name"].toString(), jsonNodeObj["type"].toString());
+            }
+            return true;
+        }
+        else
+        {
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","File could not be loaded. Ensure that you have the correct permissions");
+            messageBox.setFixedSize(500,200);
+            m_edges.clear();
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+void Lostness::addNode(QString name, QString type)
+{
+    if(type == "locomotion")
+        m_nodes.insert(name, TYPE_LOCO);
+    else
+        if(type == "trigger")
+            m_nodes.insert(name, TYPE_TRIGGER);
+        else
+            if(type == "artifact")
+                m_nodes.insert(name, TYPE_ARTIFACT);
+            else
+                if(type == "logic")
+                    m_nodes.insert(name, TYPE_LOGIC);
+}
+
 /*void Lostness::getShortestPath(QString firstNode, QString lastNode)
 {
     // Mark all the vertices as not visited
@@ -177,10 +257,10 @@ void Lostness::addEdge(QString left, QString right)
 int Lostness::shortestPath(QString start, QString end)
 {
     QVector<QString> p;
-    return shortestPath(start, end, p).length;
+    return shortestPath(start, end, p);
 }
 
-HintsSearchResult Lostness::shortestPath(QString start, QString end, QVector<QString>& path)
+int Lostness::shortestPath(QString start, QString end, QVector<QString>& path)
         {
             QVector<_HintsSubResult> nodeQueue;
             int queueIndex = 0;
@@ -201,16 +281,17 @@ HintsSearchResult Lostness::shortestPath(QString start, QString end, QVector<QSt
                     path.clear();
                     while (sub.previous != -1)
                     {
-                        path.push_back(sub.endNode);
+                        if(!sub.endNode.contains("Logic"))
+                            path.push_back(sub.endNode);
                         sub = nodeQueue[sub.previous];
                     }
 
                     path.push_back(sub.endNode);
-                    sub = nodeQueue[sub.previous];
+                    //sub = nodeQueue[sub.previous];
 
                     //Adjust for artifact
                     //	nodeSet.length += 1;
-                    return nodeSet;
+                    return path.length();//nodeSet;
                 }
 
                 //location = end, startLoc = start
@@ -236,13 +317,13 @@ HintsSearchResult Lostness::shortestPath(QString start, QString end, QVector<QSt
                     visited.insert(val);
                 }*/
 
-               /* // Skip logic and trigger nodes for calculating path length.
-                if (location->get_type() == GamePlay::ESpatialNodeType::kLogic || location->get_type() == GamePlay::ESpatialNodeType::kTrigger)
+                // Skip logic and trigger nodes for calculating path length.
+                /*if (m_nodes[end] == TYPE_LOGIC || m_nodes[end] == TYPE_TRIGGER)
                 {
                     std::vector<_HintsSubResult> tempSubResults;
                     for (auto neighbor : filteredNeighbors)
                     {
-                        tempSubResults.push_back(_HintsSubResult(nodeSet.firstStep, nodeSet.length, neighbor, nodeSet.previous));
+                        //tempSubResults.push_back(_HintsSubResult(nodeSet.firstNode, nodeSet.length, neighbor, nodeSet.previous));
                     }
                     nodeQueue.insert(nodeQueue.begin() + queueIndex + 1, tempSubResults.begin(), tempSubResults.end());
                 }
@@ -255,12 +336,12 @@ HintsSearchResult Lostness::shortestPath(QString start, QString end, QVector<QSt
                 //}
             }
 
-            return HintsSearchResult("", -1, "");
+            return -1;// HintsSearchResult("", -1, "");
         }
 
-float Lostness::getLostnessForObjective(const QString &startNode, const QString &endNode, const int &totalSteps, const int &uniqueSteps, int &minSteps)
+float Lostness::getLostnessForObjective(const QString &startNode, const QString &endNode, int &totalSteps, const int &uniqueSteps, int &minSteps)
 {
-    minSteps = shortestPath(startNode, endNode);
+    minSteps = std::min(shortestPath(startNode, endNode), uniqueSteps);
 
     return getLostnessValue(minSteps, totalSteps, uniqueSteps);
 }

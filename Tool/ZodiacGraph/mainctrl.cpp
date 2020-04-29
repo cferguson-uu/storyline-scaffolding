@@ -1617,6 +1617,12 @@ void MainCtrl::lockAllNodes()
 
         if(cNode.getType() == zodiac::NODE_NARRATIVE)
         {
+            //change colour of story nodes to green as now unlocked
+            if(cNode.getPlug("storyOut").isValid())
+            {
+               cNode.getPlug("storyOut").changeEdgeColor(QColor(0,204, 0, 25));
+            }
+
             if(cNode.getPlug("reqOut").connectionCount() == 0)    //unlockable if no requirements
             {
                 cNode.setLockedStatus(zodiac::UNLOCKABLE);
@@ -1701,8 +1707,13 @@ void MainCtrl::resetAllNodes()
 
     foreach(zodiac::NodeHandle cNode, currentNodes)
     {
-        if(cNode.getType() == zodiac::NODE_NARRATIVE)
-            cNode.setLockedStatus(zodiac::LOCKED);
+		if (cNode.getType() == zodiac::NODE_NARRATIVE)
+		{
+			cNode.setLockedStatus(zodiac::LOCKED);
+
+			if (cNode.getPlug("storyOut").isValid())
+				cNode.getPlug("storyOut").changeEdgeColor(QColor("#00cc00"));
+		}
 
         cNode.setIdleColor(lockedNodeUnselectedColor);
         cNode.setSelectedColor(lockedNodeSelectedColor);
@@ -1712,20 +1723,21 @@ void MainCtrl::resetAllNodes()
 void MainCtrl::unlockNode(QString nodeName)
 {
     QList<zodiac::NodeHandle> currentNodes =  m_scene.getNodes();
-    bool found = false;
+
+    zodiac::NodeHandle foundNode;
 
     foreach(zodiac::NodeHandle cNode, currentNodes)
     {
         if(cNode.getType() == zodiac::NODE_NARRATIVE && cNode.getName() == nodeName)
         {
-            found = true;
+            foundNode = cNode;
 
             //unlocked change colour of node to green to show unlocked
             cNode.setLockedStatus(zodiac::UNLOCKED);
             cNode.setIdleColor(unlockedNodeUnselectedColor);
             cNode.setSelectedColor(unlockedNodeSelectedColor);
 
-            //change colour of story nodes to green as now unlocked
+            //change colour of story nodes to green as now unlocked, also show links more pronounced for related nodes
             if(cNode.getPlug("storyOut").isValid())
             {
                 QList<zodiac::PlugHandle> storyOutPlugs = cNode.getPlug("storyOut").getConnectedPlugs();
@@ -1749,10 +1761,26 @@ void MainCtrl::unlockNode(QString nodeName)
 
                 showUnlockableNodes(reqNodes);
             }
-
-            break;
         }
     }
+
+    if(foundNode.isValid())
+        foreach(zodiac::NodeHandle cNode, currentNodes)
+        {
+            if(cNode.getType() == zodiac::NODE_NARRATIVE)
+            {
+                //make sure all links are faded
+                if(cNode.getPlug("storyOut").isValid())
+                {
+                    cNode.getPlug("storyOut").changeEdgeColor(QColor(0,204, 0, 25));
+                }
+            }
+
+            if(foundNode.getPlug("reqOut").isValid())
+            {
+                getNarrativeGroupParent(foundNode);
+            }
+        }
 
     /*if(!found)
     {
@@ -1760,6 +1788,43 @@ void MainCtrl::unlockNode(QString nodeName)
         messageBox.critical(0,"Error","Node unlocked which does not exist in the narrative graph.\nPlease ensure that the correct and complete graph is loaded");
         messageBox.setFixedSize(500,200);
     }*/
+}
+
+void MainCtrl::getNarrativeGroupParent(zodiac::NodeHandle &node)
+{
+    if(node.getPlug("reqOut").isValid())
+    {
+        QList<zodiac::PlugHandle> connectedPlugs = node.getPlug("reqOut").getConnectedPlugs();
+
+        if(connectedPlugs.size() == 0)
+        {
+            qDebug() << "parent is " << node.getName();
+
+            showClearerStoryLinksInArea(node);
+        }
+        else
+            foreach (zodiac::PlugHandle plug, connectedPlugs) {
+                getNarrativeGroupParent(plug.getNode());
+            }
+    }
+}
+
+void MainCtrl::showClearerStoryLinksInArea(zodiac::NodeHandle &node)
+{
+    qDebug() << "updating story links for" << node.getName();
+    if(node.getPlug("storyOut").isValid())
+    {
+        node.getPlug("storyOut").changeEdgeColor(QColor("#00cc00"));
+    }
+
+    if(node.getPlug("reqIn").isValid())
+    {
+        QList<zodiac::PlugHandle> connectedPlugs = node.getPlug("reqIn").getConnectedPlugs();
+        foreach (zodiac::PlugHandle plug, connectedPlugs)
+        {
+            showClearerStoryLinksInArea(plug.getNode());
+        }
+    }
 }
 
 void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)

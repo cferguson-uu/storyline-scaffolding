@@ -8,6 +8,14 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+enum SpatialNodeType
+{
+    TYPE_LOCO,
+    TYPE_TRIGGER,
+    TYPE_ARTIFACT,
+    TYPE_LOGIC
+};
+
 struct _HintsSubResult
         {
         public:
@@ -39,22 +47,28 @@ public:
     Lostness();
 
     float getLostnessValue(int minSteps, int totalSteps, int uniqueSteps);
-    float getLostnessForObjective(const QString &startNode, const QString &endNode, const int &totalSteps, const int &uniqueSteps, int &minSteps);
+    float getLostnessForObjective(const QString &startNode, const QString &endNode, int &totalSteps, const int &uniqueSteps, int &minSteps);
 
-    bool loadSpatialGraph();
+    bool loadEdges();
+    bool loadNodes();
 
     int getNumEdges(){return m_edges.count();}
+    int getNumNodes(){return m_nodes.count();}
 
 private:
 
     void addEdge(QString left, QString right);
 
+    void addNode(QString name, QString type);
+
     //void getShortestPath(QString firstNode, QString lastNode);
 
     int shortestPath(QString start, QString end);
-    HintsSearchResult shortestPath(QString start, QString end, QVector<QString>& path);
+    int shortestPath(QString start, QString end, QVector<QString>& path);
 
     QHash<QString, QVector<QString>> m_edges;
+
+    QHash<QString, SpatialNodeType> m_nodes;
 };
 
 #endif // LOSTNESS_H

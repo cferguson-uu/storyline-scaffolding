@@ -206,8 +206,18 @@ public: // methods
     ///
     SceneHandle getScene() const;
 
-    //get the edges of the plug
+    ///
+    /// \brief Get the edges of the plug
+    ///
+    /// \return Edges
+    ///
     QSet<PlugEdge*> getEdges();
+
+    ///
+    /// \brief change color of edges
+    ///
+    ///
+    void changeEdgeColor(const QColor edgeColor);
 
 public slots:
 

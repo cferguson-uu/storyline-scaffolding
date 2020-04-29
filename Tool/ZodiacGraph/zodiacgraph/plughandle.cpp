@@ -145,6 +145,19 @@ QList<PlugHandle> PlugHandle::getConnectedPlugs() const
     return result;
 }
 
+void PlugHandle::changeEdgeColor(const QColor edgeColor)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+#endif
+   QSet<PlugEdge*> edges = m_plug->getEdges();
+
+   foreach (PlugEdge* edge, edges) {
+    edge->setBaseColor(edgeColor);
+    edge->updateStyle();
+   }
+}
+
 bool PlugHandle::connectPlug(PlugHandle other, QColor edgeColor)
 {
 #ifdef QT_DEBUG

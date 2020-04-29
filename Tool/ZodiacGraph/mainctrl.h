@@ -291,6 +291,10 @@ private: // members
 
     void saveNarrativeNode(zodiac::NodeHandle &node);
 
+    void showClearerStoryLinksInArea(zodiac::NodeHandle &node);
+
+    void getNarrativeGroupParent(zodiac::NodeHandle &node);
+
 private: // static members
 
     ///
