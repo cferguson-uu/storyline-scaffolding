@@ -60,7 +60,7 @@ public: // methods
     ///  \param [in] fromNode   Start Node of this edge.
     ///  \param [in] toNode     End Node of this edge.
     ///
-    explicit StraightDoubleEdge(Scene* scene, EdgeGroupInterface* group, Node* fromNode, Node* toNode, QColor color);
+    explicit StraightDoubleEdge(Scene* scene, EdgeGroupInterface* group, Node* fromNode, Node* toNode, QColor color, bool useArrow);
 
     ///
     /// \brief Generates and updates the text for the EdgeLabel of this edge.

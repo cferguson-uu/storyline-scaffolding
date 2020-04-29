@@ -70,7 +70,7 @@ public: // methods
     /// \param [in] toNode      Target Node of the PlugEdge%s in this group.
     /// \param [in] pair        EdgeGroupPair owning this EdgeGroup.
     ///
-    explicit EdgeGroup(Scene* scene, Node* fromNode, Node* toNode, EdgeGroupPair* pair);
+    explicit EdgeGroup(Scene* scene, Node* fromNode, Node* toNode, EdgeGroupPair* pair, bool useArrow);
 
     ///
     /// \brief Destuctor.

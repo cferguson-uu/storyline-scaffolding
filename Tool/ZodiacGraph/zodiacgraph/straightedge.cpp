@@ -10,8 +10,8 @@
 
 namespace zodiac {
 
-StraightEdge::StraightEdge(Scene* scene, EdgeGroupInterface* group, Node* fromNode, Node* toNode, QColor color)
-    : BaseEdge(scene, color)
+StraightEdge::StraightEdge(Scene* scene, EdgeGroupInterface* group, Node* fromNode, Node* toNode, QColor color, bool useArrow)
+    : BaseEdge(scene, color, useArrow)
     , m_group(group)
     , m_fromNode(fromNode)
     , m_toNode(toNode)

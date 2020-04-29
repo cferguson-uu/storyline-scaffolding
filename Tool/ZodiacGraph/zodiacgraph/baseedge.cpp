@@ -10,14 +10,14 @@
 
 namespace zodiac {
 
-BaseEdge::BaseEdge(Scene* scene, QColor color)
+BaseEdge::BaseEdge(Scene* scene, QColor color, bool useArrow)
     : QGraphicsObject(nullptr)
     , m_scene(scene)
     , m_arrow(nullptr)
     , m_path(QPainterPath())
     , m_secondaryOpacity(0.)
-    , m_label(nullptr)
     , m_color(color)
+    , m_label(nullptr)
 {
     m_scene->addItem(this);
 
@@ -39,7 +39,10 @@ BaseEdge::BaseEdge(Scene* scene, QColor color)
     setAcceptHoverEvents(true);
 
     // construct edge arrow
-    m_arrow = new EdgeArrow(this);
+    if(useArrow)
+        m_arrow = new EdgeArrow(this, color);
+    else
+        m_arrow = new EdgeArrow(this, QColor("transparent"));
 
     // set up animations
     m_secondaryFadeIn.setTargetObject(this);
@@ -141,5 +144,13 @@ void BaseEdge::updateSecondaryOpacity(qreal opacity)
         m_label->setOpacity(opacity);
     }
     m_secondaryOpacity=opacity;
+}
+
+void BaseEdge::setBaseColor(const QColor& color)
+{
+    m_color=color;
+    m_pen.setColor(color);
+    if(m_arrow->getArrowColor() != QColor("transparent"))
+        m_arrow->setArrowColor(color);
 }
 } // namespace zodiac

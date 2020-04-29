@@ -12,7 +12,7 @@ namespace zodiac {
 
 EdgeGroup::EdgeGroup(Scene* scene,
                      Node* fromNode, Node* toNode,
-                     EdgeGroupPair* pair)
+                     EdgeGroupPair* pair, bool useArrow)
     : QObject(nullptr)
     , EdgeGroupInterface()
     , m_scene(scene)
@@ -24,7 +24,7 @@ EdgeGroup::EdgeGroup(Scene* scene,
     , m_bentEdgesCount(0)
 {
     // create an invisible StraightEdge
-    m_straightEdge = new StraightEdge(m_scene, this, fromNode, toNode, QColor("#cc5d4e"));
+    m_straightEdge = new StraightEdge(m_scene, this, fromNode, toNode, QColor("#cc5d4e"), useArrow);
     m_straightEdge->setVisible(false);
 
     // let the StraightEdge request removal of this group

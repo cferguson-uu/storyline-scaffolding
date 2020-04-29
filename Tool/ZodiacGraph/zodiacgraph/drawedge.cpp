@@ -5,8 +5,8 @@
 
 namespace zodiac {
 
-DrawEdge::DrawEdge(Scene* scene, QColor color)
-    : BezierEdge(scene, color)
+DrawEdge::DrawEdge(Scene* scene, QColor color, bool useArrow)
+    : BezierEdge(scene, color, useArrow)
     , m_isReverse(false)
 {
     // the draw edge is always in front of the nodes

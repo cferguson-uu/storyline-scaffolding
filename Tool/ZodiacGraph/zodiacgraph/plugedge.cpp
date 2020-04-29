@@ -11,8 +11,8 @@
 
 namespace zodiac {
 
-PlugEdge::PlugEdge(Scene* scene, Plug* startPlug, Plug* endPlug, EdgeGroup* edgeGroup, QColor color)
-    :BezierEdge(scene, color)
+PlugEdge::PlugEdge(Scene* scene, Plug* startPlug, Plug* endPlug, EdgeGroup* edgeGroup, QColor color, bool useArrow)
+    :BezierEdge(scene, color, useArrow)
     , m_startPlug(startPlug)
     , m_endPlug(endPlug)
     , m_group(edgeGroup)

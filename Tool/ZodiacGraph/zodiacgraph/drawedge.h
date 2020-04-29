@@ -58,7 +58,7 @@ public:
     ///
     /// \param [in] scene   Scene containing this DrawEdge.
     ///
-    explicit DrawEdge(Scene* scene, QColor color);
+    explicit DrawEdge(Scene* scene, QColor color, bool useArrow);
 
     ///
     /// \brief Reverses the display of the DrawEdge to accomodate drawing from an \ref zodiac::PlugDirection::IN

@@ -86,7 +86,7 @@ public: // methods
     ///
     /// \param [in] scene   Scene containing this BaseEdge.
     ///
-    explicit BaseEdge(Scene* scene, QColor color/* = QColor("#cc5d4e")*/);
+    explicit BaseEdge(Scene* scene, QColor color, bool useArrow);
 
     ///
     /// \brief Destructor.
@@ -154,7 +154,7 @@ public: // methods
     ///
     /// \param [in] color    New edge color.
     ///
-    inline void setBaseColor(const QColor& color) {m_color=color; m_pen.setColor(color);}
+    void setBaseColor(const QColor& color);
 
     ///
     /// \brief Duration of the secondary edge items to fade-in when the mouse enters the edge.

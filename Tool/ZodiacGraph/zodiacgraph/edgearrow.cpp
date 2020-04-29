@@ -12,7 +12,7 @@ namespace zodiac {
 qreal EdgeArrow::s_doubleGap = 2.5; // same as BaseEdge::s_width
 qreal EdgeArrow::s_arrowHalfLength = 7.5;
 qreal EdgeArrow::s_arrowHalfWidth = 6.;
-QColor EdgeArrow::s_arrowColor = QColor("#cc5d4e");
+//QColor EdgeArrow::s_arrowColor = QColor("#cc5d4e");
 QPolygonF EdgeArrow::s_originalArrow = QPolygonF()
         << QPointF(s_arrowHalfLength, 0.)
         << QPointF(-s_arrowHalfLength, -s_arrowHalfWidth)
@@ -27,12 +27,13 @@ QPolygonF EdgeArrow::s_originalDoubleArrow = QPolygonF()
         << QPointF(s_arrowHalfLength, -s_doubleGap)
         << QPointF(-s_arrowHalfLength, -s_doubleGap);
 
-EdgeArrow::EdgeArrow(BaseEdge* edge)
+EdgeArrow::EdgeArrow(BaseEdge* edge, QColor color)
     : QGraphicsObject(edge)
     , m_edge(edge)
     , m_arrowPolygon(QPolygonF())
     , m_kind(ArrowKind::SINGLE)
     , m_label(nullptr)
+    , m_arrowColor(color)
 {
     // doesn't do anything with it but needs this flag in order to pass the event on to the edge
     setAcceptHoverEvents(true);
@@ -102,7 +103,7 @@ void EdgeArrow::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 {
     painter->setClipRect(option->exposedRect);
     painter->setPen(Qt::NoPen);
-    painter->setBrush(QBrush(s_arrowColor));
+    painter->setBrush(QBrush(m_arrowColor));
     painter->drawConvexPolygon(m_arrowPolygon);
 }
 

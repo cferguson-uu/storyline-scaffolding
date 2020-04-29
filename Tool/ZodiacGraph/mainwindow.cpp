@@ -278,10 +278,10 @@ void MainWindow::readSettings()
     zodiac::BaseEdge::setBaseColor(settings.value("color", "#cc5d4e").toString());
     settings.endGroup();*/
 
-    settings.beginGroup("edgeArrow");
+    /*settings.beginGroup("edgeArrow");
     zodiac::EdgeArrow::defineArrow(settings.value("length", 12).toReal(), settings.value("width", 15).toReal());
     zodiac::EdgeArrow::setArrowColor(settings.value("color", "#cc5d4e").toString());
-    settings.endGroup();
+    settings.endGroup();*/
 
     settings.beginGroup("edgeLabel");
     zodiac::EdgeLabel::setFontFamily(settings.value("fontFamily", "DejaVu Sans Mono").toString());
@@ -379,11 +379,11 @@ void MainWindow::writeSettings()
     settings.setValue("color", zodiac::BaseEdge::getBaseColor().name());
     settings.endGroup();*/
 
-    settings.beginGroup("edgeArrow");
+    /*settings.beginGroup("edgeArrow");
     settings.setValue("width", zodiac::EdgeArrow::getArrowWidth());
     settings.setValue("length", zodiac::EdgeArrow::getArrowLength());
     settings.setValue("color", zodiac::EdgeArrow::getArrowColor().name());
-    settings.endGroup();
+    settings.endGroup();*/
 
     settings.beginGroup("edgeLabel");
     settings.setValue("fontFamily", zodiac::EdgeLabel::getFontFamily());

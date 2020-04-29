@@ -11,8 +11,8 @@ namespace zodiac {
 qreal BezierEdge::s_maxCtrlDistance = 150.;
 qreal BezierEdge::s_ctrlExpansionFactor = 0.4;
 
-BezierEdge::BezierEdge(Scene* scene, QColor color)
-    : BaseEdge(scene, color)
+BezierEdge::BezierEdge(Scene* scene, QColor color, bool useArrow)
+    : BaseEdge(scene, color, useArrow)
     , m_startPoint(QPointF())
     , m_ctrlPoint1(QPointF())
     , m_ctrlPoint2(QPointF())

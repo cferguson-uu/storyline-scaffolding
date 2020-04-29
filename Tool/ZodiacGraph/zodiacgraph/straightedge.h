@@ -61,7 +61,7 @@ public: // methods
     /// \param [in] fromNode   Start Node of this edge.
     /// \param [in] toNode     End Node of this edge.
     ///
-    explicit StraightEdge(Scene* scene, EdgeGroupInterface* group, Node* fromNode, Node* toNode, QColor color);
+    explicit StraightEdge(Scene* scene, EdgeGroupInterface* group, Node* fromNode, Node* toNode, QColor color, bool useArrow);
 
     ///
     /// \brief Is called from a Node to notify a connected StraightEdge of a change in position.

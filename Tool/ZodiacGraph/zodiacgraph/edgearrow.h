@@ -66,7 +66,7 @@ public: // methods
     ///
     /// \brief Constructor.
     ///
-    explicit EdgeArrow(BaseEdge* edge);
+    explicit EdgeArrow(BaseEdge* edge, QColor color);
 
     ///
     /// \brief Sets the transformation of this arrow.
@@ -128,14 +128,14 @@ public: // static methods
     ///
     /// \return The arrow's fill color.
     ///
-    inline static QColor getArrowColor() {return s_arrowColor;}
+    inline QColor getArrowColor() {return m_arrowColor;}
 
     ///
     /// \brief Sets a new color for all EdgeArrow%s.
     ///
     /// \param [in] color   New arrow fill color.
     ///
-    inline static void setArrowColor(const QColor& color) {s_arrowColor=color;}
+    inline void setArrowColor(const QColor& color) {m_arrowColor=color;}
 
 protected: // methods
 
@@ -213,7 +213,7 @@ private: // static members
     ///
     /// \brief Fill color of the edge arrow.
     ///
-    static QColor s_arrowColor;
+    QColor m_arrowColor;
 
     ///
     /// \brief Original \ref zodiac::ArrowKind::SINGLE "single" arrow.

@@ -22,7 +22,7 @@ Scene::Scene(QObject *parent)
     , m_edgeGroupPairs(QSet<EdgeGroupPair*>())
 {
     // add the draw edge to the scene
-    m_drawEdge = new DrawEdge(this, QColor("#cc5d4e"));
+    m_drawEdge = new DrawEdge(this, QColor("#cc5d4e"), true);
     m_drawEdge->setVisible(false);
 }
 
@@ -109,6 +109,12 @@ PlugEdge* Scene::createEdge(Plug* fromPlug, Plug* toPlug, QColor edgeColor)
         return nullptr;
     }*/
 
+    bool useArrow;
+    if(fromPlug->getName() == "storyOut" && toPlug->getName() == "narrativeIn")
+        useArrow = false;
+    else
+        useArrow = true;
+
     // find the edge group for this edge, if it exists
     uint edgeGroupHash = EdgeGroup::getHashOf(fromNode, toNode);
     EdgeGroup* edgeGroup;
@@ -117,7 +123,7 @@ PlugEdge* Scene::createEdge(Plug* fromPlug, Plug* toPlug, QColor edgeColor)
     } else {
 
         // ... or create a new edge group pair for it
-        EdgeGroupPair* newGroupPair = new EdgeGroupPair(this, fromNode, toNode, edgeColor);
+        EdgeGroupPair* newGroupPair = new EdgeGroupPair(this, fromNode, toNode, edgeColor, useArrow);
         m_edgeGroupPairs.insert(newGroupPair);
 
         edgeGroup = newGroupPair->getFirstGroup();
@@ -128,7 +134,8 @@ PlugEdge* Scene::createEdge(Plug* fromPlug, Plug* toPlug, QColor edgeColor)
     }
 
     // create the new edge
-    PlugEdge* newEdge = new PlugEdge(this, fromPlug, toPlug, edgeGroup, edgeColor);
+    PlugEdge* newEdge = new PlugEdge(this, fromPlug, toPlug, edgeGroup, edgeColor, useArrow);
+
     m_edges.insert(QPair<Plug*, Plug*>(fromPlug, toPlug), newEdge);
 
     // emit signals

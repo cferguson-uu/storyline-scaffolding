@@ -8,8 +8,8 @@
 namespace zodiac {
 
 StraightDoubleEdge::StraightDoubleEdge(Scene* scene, EdgeGroupInterface* group,
-                       Node* fromNode, Node* toNode, QColor color)
-    : StraightEdge(scene, group, fromNode, toNode, color)
+                       Node* fromNode, Node* toNode, QColor color, bool useArrow)
+    : StraightEdge(scene, group, fromNode, toNode, color, useArrow)
 {
     m_arrow->setKind(ArrowKind::DOUBLE);
 

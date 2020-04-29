@@ -60,7 +60,7 @@ public: // methods
     /// \param [in] endPlug     Plug into which this PlugEdge flows.
     /// \param [in] edgeGroup   EdgeGroup that this PlugEdge belongs to.
     ///
-    explicit PlugEdge(Scene* scene, Plug* startPlug, Plug* endPlug, EdgeGroup* edgeGroup, QColor color);
+    explicit PlugEdge(Scene* scene, Plug* startPlug, Plug* endPlug, EdgeGroup* edgeGroup, QColor color, bool useArrow);
 
     ///
     /// \brief Is called by a plug to notify the edge of a change in its state.

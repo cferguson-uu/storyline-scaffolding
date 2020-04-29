@@ -124,7 +124,7 @@ protected: // methods
     ///
     /// \param [in] scene   Scene containing this edge.
     ///
-    explicit BezierEdge(Scene *scene, QColor color);
+    explicit BezierEdge(Scene *scene, QColor color, bool useArrow);
 
     ///
     /// \brief Updates the shape of this edge.

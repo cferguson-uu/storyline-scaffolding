@@ -12,12 +12,12 @@
 
 namespace zodiac {
 
-EdgeGroupPair::EdgeGroupPair(Scene* scene, Node* nodeA, Node* nodeB, QColor color)
+EdgeGroupPair::EdgeGroupPair(Scene* scene, Node* nodeA, Node* nodeB, QColor color, bool useArrow)
     : EdgeGroupInterface()
     , m_scene(scene)
-    , m_firstGroup(new EdgeGroup(scene, nodeA, nodeB, this))
-    , m_secondGroup(new EdgeGroup(scene, nodeB, nodeA, this))
-    , m_edge(new StraightDoubleEdge(m_scene, this, nodeA, nodeB, color))
+    , m_firstGroup(new EdgeGroup(scene, nodeA, nodeB, this, useArrow))
+    , m_secondGroup(new EdgeGroup(scene, nodeB, nodeA, this, useArrow))
+    , m_edge(new StraightDoubleEdge(m_scene, this, nodeA, nodeB, color, useArrow))
 {
     // upon creation, the PlugEdge creating the first EdgeGroup is still bent and visible.
     m_edge->setVisible(false);

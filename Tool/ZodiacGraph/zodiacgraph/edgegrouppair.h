@@ -59,7 +59,7 @@ public: // methods
     /// \param [in] nodeA   One Node in the group.
     /// \param [in] nodeB   The other Node in the group (direction does not matter).
     ///
-    explicit EdgeGroupPair(Scene* scene, Node* nodeA, Node* nodeB, QColor color);
+    explicit EdgeGroupPair(Scene* scene, Node* nodeA, Node* nodeB, QColor color, bool useArrow);
 
     ///
     /// \brief Destructor.
