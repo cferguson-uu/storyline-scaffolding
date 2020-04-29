@@ -77,7 +77,6 @@ Node::Node(Scene* scene, const QString &displayName, const QString &description,
     , m_scene(scene)
     , m_displayName(displayName)
     , m_displayDescription(description)
-    , m_nodeType(nodeType)
     , m_uniqueId(uuid.isNull() ? QUuid::createUuid() : uuid)
     , m_outgoingExpansionFactor(0.)
     , m_incomingExpansionFactor(0.)
@@ -89,13 +88,14 @@ Node::Node(Scene* scene, const QString &displayName, const QString &description,
     , m_label(nullptr)
     , m_expansionState(NodeExpansion::NONE)
     , m_lastExpansionState(NodeExpansion::NONE)
+    , m_nodeType(nodeType)
     , m_idleColor(idleColor)
     , m_selectedColor(selectedColor)
     , m_outlineColor(outlineColor)
 {    
-    setIdleColor(QColor("#4b77a7"));
-    setSelectedColor(QColor("#62abfa"));
-    setOutlineColor(QColor("#cdcdcd"));
+    //setIdleColor(QColor("#4b77a7"));
+   // setSelectedColor(QColor("#62abfa"));
+    //setOutlineColor(QColor("#cdcdcd"));
     setOutlineWidth(3);
     m_linePen = QPen(QBrush("#cdcdcd"), s_outlineWidth);
 
@@ -981,6 +981,7 @@ StoryNode::StoryNode(Scene* scene, const QString& displayName, const QString &de
           QColor labelBackgroundColor, QColor labelTextColor, QColor labelLineColor)
     : Node(scene, displayName, description, nodeType, uuid, idleColor, selectedColor, outlineColor, labelBackgroundColor, labelTextColor, labelLineColor)
       , m_storyNodeType(storyType)
+      ,m_allChildrenLinked(false)
 {
     if(!load)
         if(m_storyNodeType == STORY_PLOT_EPISODE|| m_storyNodeType == STORY_PLOT_SUBEPISODE)
@@ -1028,6 +1029,90 @@ QString StoryNode::getStoryNodePrefix()
         default:
             return "";
     }
+}
+
+void StoryNode::setGreenIfAllChildrenLinked()
+{
+    qDebug() << "checking children of parent node are linked:" << getDisplayName();
+    Plug* storyOutPlug = nullptr;
+    storyOutPlug = getPlug("storyOut");
+    if(storyOutPlug)
+    {
+        QList<Plug*> connectedPlugs = storyOutPlug->getConnectedPlugs();
+
+         qDebug() << "Connected nodes:";
+
+        foreach (Plug *connectedPlug, connectedPlugs)
+        {
+            qDebug() << connectedPlug->getNode()->getDisplayName();
+        }
+
+        if(connectedPlugs.size() == 0)
+        {
+            m_allChildrenLinked = false;
+            setLabelBackgroundColor(QColor("#F84B28"));
+            return;
+        }
+
+        foreach (Plug *connectedPlug, connectedPlugs)
+        {
+            Node *node = connectedPlug->getNode();
+
+            if(node->getType() == zodiac::NODE_STORY)
+            {
+                 StoryNode *sNode = static_cast<StoryNode*>(node);
+
+                 if(!sNode->isLinked())
+                 {
+                     m_allChildrenLinked = false;
+                     setLabelBackgroundColor(QColor("#F84B28"));
+                     return;
+                 }
+            }
+        }
+    }
+
+    m_allChildrenLinked = true;
+    setLabelBackgroundColor(QColor("#03ca00"));
+
+    //code below is horribly inefficient, parent will be called multiple times to check here.
+    Plug* storyInPlug = nullptr;
+    storyInPlug = getPlug("storyIn");
+    if(storyInPlug)
+    {
+        QList<Plug*> connectedPlugs = storyInPlug->getConnectedPlugs();
+
+        foreach (Plug *connectedPlug, connectedPlugs)  //should only be one
+        {
+            Node *node = connectedPlug->getNode();
+
+            if(node->getType() == zodiac::NODE_STORY)
+            {
+                 StoryNode *sNode = static_cast<StoryNode*>(node);
+
+                 sNode->setGreenIfAllChildrenLinked();
+            }
+        }
+    }
+}
+
+bool StoryNode::isLinked()
+{
+    qDebug() << "checking node is linked:" << getDisplayName();
+
+    Plug* narInPlug = nullptr;
+    narInPlug = getPlug("narrativeIn");
+
+    if(narInPlug)
+    {
+        QList<Plug*> connectedPlugs = narInPlug->getConnectedPlugs();
+
+        return ((connectedPlugs.size() > 0) || m_allChildrenLinked);
+    }
+    else
+        return false;
+
+
 }
 
 void StoryNode::contextMenuEvent(QContextMenuEvent *event)

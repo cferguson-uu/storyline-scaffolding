@@ -7,9 +7,30 @@
 #include "propertyeditor.h"
 #include "zodiacgraph/nodehandle.h"
 
-QColor storyLinkColor("#cc5d4e");
+QColor storyLinkColor("#00a2ff");
 QColor narrativeLinkColor("#4286f4");
 QColor storyNarrativeLinkColor("#00b80d");
+
+QColor unlinkedStoryNodeLabelColor("#F84B28");
+QColor linkedStoryNodeLabelColor("#03ca00");
+
+QColor narrativeUnselectedColor("#4b77a7");
+QColor narrativeSelectedColor("#5686ba");
+
+QColor narrativeDecoratorUnselectedColor("#ffcc00");
+QColor narrativeDecoratorSelectedColor("#ff9900");
+
+QColor storyUnselectedColor("#00aeff");
+QColor storySelectedColor("#00ddff");
+
+QColor lockedNodeUnselectedColor("#ff1800");
+QColor lockedNodeSelectedColor("#ff331e");
+
+QColor unlockedNodeUnselectedColor("#00cc00");
+QColor unlockedNodeSelectedColor("#5bff5b");
+
+QColor unlockableNodeUnselectedColor("#3333cc");
+QColor unlockableNodeSelectedColor("#4949cc");
 
 
 QString MainCtrl::s_defaultName = "Node ";
@@ -881,6 +902,8 @@ void MainCtrl::loadNarrativeGraph()
         QList<NarNode> narrativeNodes = m_saveAndLoadManager.GetNarrativeNodes();
         QList<NodeCtrl*> newNarSceneNodes;
 
+        QSet<zodiac::NodeHandle> storyNodeParents;
+
         foreach (NarNode nNode, narrativeNodes)
         {
             NodeCtrl* newNarNode = createNode(zodiac::STORY_NONE, nNode.id, nNode.comments);
@@ -888,9 +911,14 @@ void MainCtrl::loadNarrativeGraph()
 
             loadNarrativeCommands(nNode, newNarNode);
 
-            loadStoryTags(newNarNode, nNode.storyTags);
+            loadStoryTags(newNarNode, nNode.storyTags, storyNodeParents);
 
             newNarSceneNodes.push_back(newNarNode);
+        }
+
+        foreach (zodiac::NodeHandle parent, storyNodeParents)
+        {
+            parent.setGreenIfAllChildrenLinked();
         }
 
         //loop again for the requirements (necessary in case nodes aren't loaded in chronological order)
@@ -1027,20 +1055,14 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
     else
     {
         if(requirements.type == REQ_SEQ)
-        {
            //qDebug() << "Type: SEQ";
            newRequirementNode = createNode(zodiac::STORY_NONE, "SEQ", "Requirements Sequence");
-           newRequirementNode->setIdleColor(QColor(255, 204, 0));
-           newRequirementNode->setSelectedColor(QColor(255, 153, 0));
-        }
         else
             if(requirements.type == REQ_INV)
-            {
-                //qDebug() << "Type: INV";
                 newRequirementNode = createNode(zodiac::STORY_NONE, "INV", "Inverse Requirements");
-                newRequirementNode->setIdleColor(QColor(255, 204, 0));
-                newRequirementNode->setSelectedColor(QColor(255, 153, 0));
-            }
+
+        newRequirementNode->setIdleColor(narrativeDecoratorUnselectedColor);
+        newRequirementNode->setSelectedColor(narrativeDecoratorSelectedColor);
 
         //connect narrative node to new requirements node
         zodiac::PlugHandle reqInPlug;
@@ -1120,7 +1142,7 @@ void MainCtrl::loadRequirements(NarRequirements &requirements, zodiac::PlugHandl
     }
 }
 
-void MainCtrl::loadStoryTags(NodeCtrl* narrativeNode, QList<QString> storyTags)
+void MainCtrl::loadStoryTags(NodeCtrl* narrativeNode, QList<QString> &storyTags, QSet<zodiac::NodeHandle> &storyNodeParents)
 {
     QList<zodiac::NodeHandle> nodes = m_scene.getNodes();
 
@@ -1134,7 +1156,13 @@ void MainCtrl::loadStoryTags(NodeCtrl* narrativeNode, QList<QString> storyTags)
                 {
                     narrativeNode->getNodeHandle().getPlug("storyOut").connectPlug(storyNode.getPlug("narrativeIn"), storyNarrativeLinkColor);
 
-                    storyNode.setLabelBackgroundColor(QColor(2, 202, 0));
+                    storyNode.setLabelBackgroundColor(linkedStoryNodeLabelColor);
+
+                   QList<zodiac::PlugHandle> parentPlugs = storyNode.getPlug("storyIn").getConnectedPlugs();
+
+                    foreach (zodiac::PlugHandle parentPlug, parentPlugs)    //should only be one
+                        if(!storyNodeParents.contains(parentPlug.getNode()))
+                            storyNodeParents.insert(parentPlug.getNode());
                 }
             }
         }
@@ -1419,9 +1447,8 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
                 }
 
                 nodePtr = &createNode(zodiac::STORY_NONE, "SEQ", "")->getNodeHandle();
-                nodePtr->setIdleColor(QColor(255, 204, 0));
-                nodePtr->setSelectedColor(QColor(255, 153, 0));
-
+                nodePtr->setIdleColor(narrativeDecoratorSelectedColor);
+                nodePtr->setSelectedColor(narrativeDecoratorSelectedColor);
                 node.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
 
                 foreach(zodiac::NodeHandle connectedNode, connectedNodes)   //disconnect from previous node and connect to new sequence node
@@ -1485,8 +1512,8 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
                 oldNodePtr = nodePtr;
 
                 nodePtr = &createNode(zodiac::STORY_NONE, "SEQ", "")->getNodeHandle();
-                nodePtr->setIdleColor(QColor(255, 204, 0));
-                nodePtr->setSelectedColor(QColor(255, 153, 0));
+                nodePtr->setIdleColor(narrativeDecoratorUnselectedColor);
+                nodePtr->setSelectedColor(narrativeDecoratorSelectedColor);
 
                 node.getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
 
@@ -1503,8 +1530,8 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
         if(nodePtr->getName() != "INV")
         {
             nodePtr = &createNode(zodiac::STORY_NONE, "INV", "")->getNodeHandle();
-            nodePtr->setIdleColor(QColor(255, 204, 0));
-            nodePtr->setSelectedColor(QColor(255, 153, 0));
+            nodePtr->setIdleColor(narrativeDecoratorUnselectedColor);
+            nodePtr->setSelectedColor(narrativeDecoratorSelectedColor);
 
             oldNodePtr->getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
         }
@@ -1526,8 +1553,8 @@ void MainCtrl::linkNarrativeNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHa
             oldNodePtr = nodePtr;
 
             nodePtr = &createNode(zodiac::STORY_NONE, "SEQ", "")->getNodeHandle();
-            nodePtr->setIdleColor(QColor(255, 204, 0));
-            nodePtr->setSelectedColor(QColor(255, 153, 0));
+            nodePtr->setIdleColor(narrativeDecoratorUnselectedColor);
+            nodePtr->setSelectedColor(narrativeDecoratorSelectedColor);
 
             oldNodePtr->getPlug("reqIn").connectPlug(nodePtr->getPlug("reqOut"), narrativeLinkColor);
 
@@ -1565,7 +1592,7 @@ void MainCtrl::linkStoryNodes(zodiac::NodeHandle &node, QList<zodiac::NodeHandle
 
             node.getPlug("storyOut").connectPlug(nodeToLink.getPlug("narrativeIn"), storyNarrativeLinkColor); //connect nodes
 
-            nodeToLink.setLabelBackgroundColor(QColor(2, 202, 0));
+            nodeToLink.setLabelBackgroundColor(linkedStoryNodeLabelColor);
         }
 
         m_propertyEditor->UpdateLinkerValues(m_scene.getNodes());
@@ -1593,20 +1620,20 @@ void MainCtrl::lockAllNodes()
             if(cNode.getPlug("reqOut").connectionCount() == 0)    //unlockable if no requirements
             {
                 cNode.setLockedStatus(zodiac::UNLOCKABLE);
-                cNode.setIdleColor(QColor("#3333cc"));
-                cNode.setIdleColor(QColor("#4949cc"));
+                cNode.setIdleColor(unlockableNodeUnselectedColor);
+                cNode.setSelectedColor(unlockableNodeUnselectedColor);
             }
             else
             {
                 cNode.setLockedStatus(zodiac::LOCKED);
-                cNode.setIdleColor(QColor("#ff1800"));
-                cNode.setSelectedColor(QColor("#ff331e"));
+                cNode.setIdleColor(lockedNodeUnselectedColor);
+                cNode.setSelectedColor(lockedNodeUnselectedColor);
             }
         }
         else
         {
-            cNode.setIdleColor(QColor("#ff1800"));
-            cNode.setSelectedColor(QColor("#ff331e"));
+            cNode.setIdleColor(lockedNodeUnselectedColor);
+            cNode.setSelectedColor(lockedNodeUnselectedColor);
         }
     }
 
@@ -1636,14 +1663,14 @@ void MainCtrl::lockAllNodes()
                         if(areAllNodesUnlocked(seqInNodes))
                         {
                             iNode.setLockedStatus(zodiac::LOCKED);
-                            iNode.setIdleColor(QColor("#ff1800"));
-                            iNode.setSelectedColor(QColor("#ff331e"));
+                            iNode.setIdleColor(lockedNodeUnselectedColor);
+                            iNode.setSelectedColor(lockedNodeSelectedColor);
                         }
                         else
                         {
                             iNode.setLockedStatus(zodiac::UNLOCKABLE);
-                            iNode.setIdleColor(QColor("#3333cc"));
-                            iNode.setIdleColor(QColor("#4949cc"));
+                            iNode.setIdleColor(unlockableNodeUnselectedColor);
+                            iNode.setSelectedColor(unlockableNodeSelectedColor);
                         }
                     }
                 }
@@ -1652,14 +1679,14 @@ void MainCtrl::lockAllNodes()
                     if(iInPlug.getNode().getLockedStatus())
                     {
                         iNode.setLockedStatus(zodiac::UNLOCKABLE);
-                        iNode.setIdleColor(QColor("#3333cc"));    //node locked, unlockable
-                        iNode.setIdleColor(QColor("#4949cc"));
+                        iNode.setIdleColor(unlockableNodeUnselectedColor);    //node locked, unlockable
+                        iNode.setSelectedColor(unlockableNodeSelectedColor);
                     }
                     else
                     {
                         iNode.setLockedStatus(zodiac::LOCKED);
-                        iNode.setIdleColor(QColor("#ff1800"));        //node unlocked, locked
-                        iNode.setSelectedColor(QColor("#ff331e"));
+                        iNode.setIdleColor(lockedNodeUnselectedColor);        //node unlocked, locked
+                        iNode.setSelectedColor(lockedNodeSelectedColor);
                     }
                 }
             }
@@ -1675,17 +1702,10 @@ void MainCtrl::resetAllNodes()
     foreach(zodiac::NodeHandle cNode, currentNodes)
     {
         if(cNode.getType() == zodiac::NODE_NARRATIVE)
-        {
-            cNode.setIdleColor(QColor("#4b77a7"));
-            cNode.setSelectedColor(QColor("#62abfa"));
             cNode.setLockedStatus(zodiac::LOCKED);
-        }
-        else
-            if(cNode.getType() == zodiac::NODE_STORY)
-            {
-                cNode.setIdleColor(QColor("#4b77a7"));
-                cNode.setSelectedColor(QColor("#62abfa"));
-            }
+
+        cNode.setIdleColor(lockedNodeUnselectedColor);
+        cNode.setSelectedColor(lockedNodeSelectedColor);
     }
 }
 
@@ -1702,8 +1722,8 @@ void MainCtrl::unlockNode(QString nodeName)
 
             //unlocked change colour of node to green to show unlocked
             cNode.setLockedStatus(zodiac::UNLOCKED);
-            cNode.setIdleColor(QColor("#00cc00"));
-            cNode.setSelectedColor(QColor("#5bff5b"));
+            cNode.setIdleColor(unlockedNodeUnselectedColor);
+            cNode.setSelectedColor(unlockedNodeSelectedColor);
 
             //change colour of story nodes to green as now unlocked
             if(cNode.getPlug("storyOut").isValid())
@@ -1712,8 +1732,8 @@ void MainCtrl::unlockNode(QString nodeName)
 
                 foreach(zodiac::PlugHandle outPlug, storyOutPlugs)
                 {
-                    outPlug.getNode().setIdleColor(QColor("#00cc00"));
-                    cNode.setSelectedColor(QColor("#5bff5b"));
+                    outPlug.getNode().setIdleColor(unlockedNodeUnselectedColor);
+                    cNode.setSelectedColor(unlockedNodeSelectedColor);
                 }
             }
 
@@ -1800,22 +1820,22 @@ void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
                                 if(areAllNodesUnlocked(seqInNodes))
                                 {
                                     rNode.setLockedStatus(zodiac::LOCKED);
-                                    rNode.setIdleColor(QColor("#ff1800"));
-                                    rNode.setSelectedColor(QColor("#ff331e"));
+                                    rNode.setIdleColor(lockedNodeUnselectedColor);
+                                    rNode.setSelectedColor(lockedNodeSelectedColor);
                                 }
                                 else
                                 {
                                     rNode.setLockedStatus(zodiac::UNLOCKABLE);
-                                    rNode.setIdleColor(QColor("#3333cc"));    //unlockable
-                                    rNode.setIdleColor(QColor("#4949cc"));
+                                    rNode.setIdleColor(unlockableNodeUnselectedColor);    //unlockable
+                                    rNode.setIdleColor(unlockableNodeSelectedColor);
                                 }
                             }
                         }
                         else
                         {
                             rNode.setLockedStatus(zodiac::LOCKED);
-                            rNode.setIdleColor(QColor("#ff1800"));    //lock it
-                            rNode.setSelectedColor(QColor("#ff331e"));
+                            rNode.setIdleColor(lockedNodeUnselectedColor);    //lock it
+                            rNode.setSelectedColor(lockedNodeSelectedColor);
                         }
                     }
                 }
@@ -1824,8 +1844,8 @@ void MainCtrl::showUnlockableNodes(QList<zodiac::NodeHandle> &nodes)
             else
             {
                 rNode.setLockedStatus(zodiac::UNLOCKABLE);
-                rNode.setIdleColor(QColor("#3333cc"));
-                rNode.setIdleColor(QColor("#4949cc"));
+                rNode.setIdleColor(unlockableNodeUnselectedColor);
+                rNode.setIdleColor(unlockableNodeSelectedColor);
             }
     }
 }

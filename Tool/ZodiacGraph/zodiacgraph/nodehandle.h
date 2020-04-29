@@ -407,6 +407,11 @@ public: // methods
     ///
     bool isNodeDecorator();
 
+    ///
+    /// \brief Makes a parent story node's label green if all children are linked
+    ///
+    void setGreenIfAllChildrenLinked();
+
 signals:
 
     ///
@@ -430,7 +435,7 @@ signals:
     ///
     /// \brief Emitted, when context menu is used to create another story node
     ///
-    void createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&);
+    void createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint);
 
     ///
     /// \brief Emitted, when context menu is used to clink narrative nodes

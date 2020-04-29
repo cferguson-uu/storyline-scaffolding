@@ -1073,7 +1073,7 @@ class NarrativeNode: public Node
 {
     Q_OBJECT
 public:
-    NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load = false, const QUuid& uuid = QUuid(), QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
+    NarrativeNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, bool load = false, const QUuid& uuid = QUuid(), QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#5686ba"), QColor outlineColor = QColor("#cdcdcd"),
                   QColor labelBackgroundColor = QColor("#426998"), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"));
 
     ///
@@ -1231,7 +1231,7 @@ class StoryNode: public Node
     Q_OBJECT
 public:
     StoryNode(Scene* scene, const QString& displayName, const QString &description, NodeType nodeType, StoryNodeType storyType, bool load = false, const QUuid& uuid = QUuid(),
-              QColor idleColor = QColor("#4b77a7"), QColor selectedColor = QColor("#62abfa"), QColor outlineColor = QColor("#cdcdcd"),
+              QColor idleColor = QColor("#00aeff"), QColor selectedColor = QColor("#00ddff"), QColor outlineColor = QColor("#cdcdcd"),
               QColor labelBackgroundColor = QColor("#F84B28" /*"#426998"*/), QColor labelTextColor = QColor("#ffffff"), QColor labelLineColor = QColor("#cdcdcd"));
 
     ///
@@ -1254,6 +1254,10 @@ public:
     ///
     void contextMenuEvent(QContextMenuEvent *event);
 
+    void setGreenIfAllChildrenLinked();
+
+    bool isLinked();
+
 private:
     ///
     /// \brief Type of story node that this node is
@@ -1267,11 +1271,13 @@ private:
     ///
     bool doesStoryChildExist(QString nodeName);
 
+    bool m_allChildrenLinked;
+
 signals:
     ///
     /// \brief Emitted, when context menu is used to create another story node
     ///
-    void createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&);
+    void createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint);
 
 };
 

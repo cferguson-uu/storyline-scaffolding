@@ -21,8 +21,8 @@ NodeCtrl::NodeCtrl(MainCtrl* manager,  zodiac::NodeHandle node)
     connect(&m_node, SIGNAL(outputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)),
             this, SLOT(outputDisconnected(zodiac::PlugHandle, zodiac::PlugHandle)));
 
-    connect(&m_node, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)),
-            this, SLOT(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)));
+    connect(&m_node, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint)),
+            this, SLOT(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint)));
 
     connect(&m_node, SIGNAL(openLinker()), this, SLOT(openLinker()));
 }
@@ -287,7 +287,7 @@ bool NodeCtrl::remove()
     return m_manager->deleteNode(this);
 }
 
-void NodeCtrl::createStoryChild(zodiac::StoryNodeType type, QString name, QString description, QPoint &relativePos)
+void NodeCtrl::createStoryChild(zodiac::StoryNodeType type, QString name, QString description, QPoint relativePos)
 {
     m_manager->createStoryNode(this, type, name, description, relativePos);
 }

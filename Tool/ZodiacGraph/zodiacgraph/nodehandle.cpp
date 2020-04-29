@@ -826,7 +826,7 @@ void NodeHandle::connectSignals()
     if(m_node->getType() == NODE_STORY)
     {
         StoryNode *sNode = static_cast<StoryNode*>(m_node);
-        connect(sNode, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)), this, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint&)));
+        connect(sNode, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint)), this, SIGNAL(createStoryChild(zodiac::StoryNodeType, QString, QString, QPoint)));
     }
     else
         if(m_node->getType() == NODE_NARRATIVE)
@@ -888,6 +888,20 @@ bool NodeHandle::isNodeDecorator()
     }
 #endif
     return m_node->isNodeDecorator();
+}
+
+void NodeHandle::setGreenIfAllChildrenLinked()
+{
+    StoryNode *sNode = static_cast<StoryNode*>(m_node);
+#ifdef QT_DEBUG
+    Q_ASSERT(m_isValid);
+    Q_ASSERT(sNode);
+#else
+    if(!m_isValid || !sNode){
+        return;
+    }
+#endif
+    sNode->setGreenIfAllChildrenLinked();
 }
 
 } // namespace zodiac
