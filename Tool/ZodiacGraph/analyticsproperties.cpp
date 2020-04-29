@@ -8,11 +8,11 @@
 
 static const QString kName_StoryNodesWithConnection = "Number of Story Nodes With Connections: ";
 static const QString kName_StoryNodesWithoutConnection = "Number of Story Nodes Without Connections: ";
-static const QString kName_StoryNodesAverageConnection = "Average Number of Narrative Connections: ";
-static const QString kName_NarrativeNodesWithConnection = "Number of Narrative Nodes With Connections: ";
-static const QString kName_NarrativeNodesWithoutConnection = "Number of Narrative Nodes Without Connections: ";
+static const QString kName_StoryNodesAverageConnection = "Average Number of Gameplay Connections: ";
+static const QString kName_NarrativeNodesWithConnection = "Number of Gameplay Nodes With Connections: ";
+static const QString kName_NarrativeNodesWithoutConnection = "Number of Gameplay Nodes Without Connections: ";
 static const QString kName_NarrativeNodesAverageConnection = "Average Number of Story Connections: ";
-static const QString kName_NumConnection = "Total Number of Narrative-Story Connections: ";
+static const QString kName_NumConnection = "Total Number of Gameplay-Story Connections: ";
 
 static float maxLostness = sqrt(2);
 

@@ -69,9 +69,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(showStoryLinks, &QAction::toggled, [=](bool checked) {m_mainCtrl->changeStoryVisibility(checked, zodiac::NODE_STORY);});
 
     //create menu for narrative graph functions
-    QMenu *narrativeMenu = menuBar()->addMenu(tr("&Narrative Graph"));
-    QAction* saveNarrative = new QAction(tr("&Save Narrative"), this);
-    QAction* loadNarrative = new QAction(tr("&Load Narrative"), this);
+    QMenu *narrativeMenu = menuBar()->addMenu(tr("&Gameplay Graph"));
+    QAction* saveNarrative = new QAction(tr("&Save Gameplay Graph"), this);
+    QAction* loadNarrative = new QAction(tr("&Load Gameplay Graph"), this);
     QAction* showRequirementsLinks = new QAction(tr("&Show Requirements Links"), this);
     QAction* showNarStoryLinks = new QAction(tr("&Show Story Links"), this);
     showRequirementsLinks->setCheckable(true);
@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //create menu for analytics functions
     QMenu *analyticsMenu = menuBar()->addMenu(tr("&Analytics"));
-    QAction *lostnessEdit = new QAction(tr("&Edit Lostness Values"), this);
+    QAction *lostnessEdit = new QAction(tr("&Add/Edit Tasks"), this);
     QAction *analyticsConnect = new QAction(tr("&Connect"), this);
     QAction *analyticsDisconnect = new QAction(tr("&Disconnect"), this);
     QAction *analyticsLoad = new QAction(tr("&Load Log File"), this);
@@ -141,7 +141,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_secondSplitter->setSizes({900, 100});
 
     // create global actions
-    QAction* newNarrativeNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Narrative Node"), this);
+    QAction* newNarrativeNodeAction = new QAction(QIcon(":/icons/plus.svg"), tr("&Add Gameplay Node"), this);
     newNarrativeNodeAction->setShortcuts(QKeySequence::New);
     newNarrativeNodeAction->setStatusTip(tr("Create a new Narrative Node"));
     mainToolBar->addAction(newNarrativeNodeAction);

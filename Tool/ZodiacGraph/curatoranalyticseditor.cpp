@@ -22,17 +22,17 @@ CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
     setWindowTitle(tr("Curator Labels"));
     resize(QSize(400,400));
 
-    m_saveCuratorBtn = new QPushButton("Save Curator Labels");
-    m_loadCuratorBtn = new QPushButton("Load Curator Labels");
+    m_saveCuratorBtn = new QPushButton("Save Tasks");
+    m_loadCuratorBtn = new QPushButton("Load Tasks");
     m_saveCuratorBtn->setMaximumSize(100, 25);
     m_loadCuratorBtn->setMaximumSize(100, 25);
 
-    m_saveEdgesBtn = new QPushButton("Save Edges");
-    m_loadEdgesBtn = new QPushButton("Load Edges");
+    m_saveEdgesBtn = new QPushButton("Save Spatial Graph");
+    m_loadEdgesBtn = new QPushButton("Load Spatial Graph");
     m_saveEdgesBtn->setMaximumSize(100, 25);
     m_loadEdgesBtn->setMaximumSize(100, 25);
 
-    m_loadedLabel = new QLabel("No edges or curator labels loaded");
+    m_loadedLabel = new QLabel("");
 
     m_startNodeLabel = new QLabel("Starting Node:");
     m_startNodeInput = new QLineEdit();

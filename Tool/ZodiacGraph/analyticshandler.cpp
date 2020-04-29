@@ -91,6 +91,7 @@ void AnalyticsHandler::connected()
     m_disconnectAction->setEnabled(true);
     m_clearAnalyticsAction->setEnabled(false);
     m_pProperties->ConnectedtoServer(m_tcpSocket->getAddressAndPort());
+    m_curatorAnalyticsEditor->setFirstNodeToStartNode();
 }
 
 void AnalyticsHandler::disconnected()
