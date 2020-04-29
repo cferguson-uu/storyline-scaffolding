@@ -145,7 +145,7 @@ void AnalyticsProperties::StartAnalyticsMode(QList<CuratorLabel*> curatorLabels)
     m_fullGameProgressLabel = new QLabel("Game Progress", this);
     m_fullGameProgressBar = new QProgressBar(this);
     m_fullGameProgressBar->setValue(0);
-    m_localLostnessLabel = new QLabel("Local Lostness", this);
+    m_localLostnessLabel = new QLabel("Game Lostness", this);
     m_localLostnessBar = new QProgressBar(this);
     m_curatorLabelLayoutLabel = new QLabel("<b>Curator Labels</b>", this);
     m_curatorLayout->setContentsMargins(0, 8, 0, 0);   // leave space between the plug list and the name
@@ -289,9 +289,9 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     , m_progressBar(new QProgressBar())
     , m_dependencies(dependenciesList)
     , m_startDependency(startDependency)
-    , m_fullLostnessLabel(new QLabel("Full Lostness:"))
-    , m_dependenciesLostnessLabel(new QLabel("Objectives Lostness:"))
-    , m_startDependencyLostnessLabel(new QLabel("Starting Objective Lostness:"))
+    , m_fullLostnessLabel(new QLabel("Lostness:"))
+    , m_dependenciesLostnessLabel(new QLabel("Objectives:"))
+    , m_startDependencyLostnessLabel(new QLabel("Starting Point:"))
     , m_lostnessBar(new QProgressBar())
     , m_started(false)
     , m_completed(false)
@@ -302,15 +302,15 @@ CuratorRow::CuratorRow(AnalyticsProperties *editor, QLabel *nameLabel, QGridLayo
     m_rowLayout->addWidget(m_progressLabel, row, 0, 1, 1, Qt::AlignLeft);
     m_rowLayout->addWidget(m_progressBar, row, 1, 1, 5, Qt::AlignRight);
 
+    m_rowLayout->addWidget(m_fullLostnessLabel, ++row, 0, 1, 1, Qt::AlignLeft);
+    m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
+
     m_rowLayout->addWidget(m_startDependencyLostnessLabel, ++row, 0, 1, 5, Qt::AlignLeft);
     m_startDependency->updateLayout(m_rowLayout);
     ++row;
 
     m_rowLayout->addWidget(m_dependenciesLostnessLabel, ++row, 0, 1, 1, Qt::AlignLeft);
     m_rowLayout->addLayout(m_dependencyRowLayout,++row, 0, 1, 0, Qt::AlignRight);
-
-    m_rowLayout->addWidget(m_fullLostnessLabel, ++row, 0, 1, 1, Qt::AlignLeft);
-    m_rowLayout->addWidget(m_lostnessBar, row, 1, 1, 5, Qt::AlignRight);
 
     //make labels minimum size to fit text
     m_progressLabel->setMaximumSize(m_progressLabel->fontMetrics().width(m_progressLabel->text()), m_progressLabel->fontMetrics().height());

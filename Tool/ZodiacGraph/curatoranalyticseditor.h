@@ -15,6 +15,7 @@
 #include <QScrollArea>
 #include <QSpinBox>
 #include <QCheckBox>
+#include <QRadioButton>>
 
 #include "lostness.h"
 
@@ -110,6 +111,10 @@ public:
 
     void setFirstNodeToStartNode(){m_firstNode = m_startNodeInput->text();}
 
+private slots:
+    void onLocalSelected(bool checked);
+    void onGlobalSelected(bool checked);
+
 private:
     void showCuratorLabels();
     void hideCuratorLabels();
@@ -144,6 +149,9 @@ private:
     QString m_lastLocomotionNode;
     int m_totalNodes;
     QList<QPair<QString, QString>> m_uniqueNodes;
+    QRadioButton *m_useLocalLostness;
+    QRadioButton *m_useGlobalLostness;
+    QRadioButton *m_useNoLostness;
 };
 
 #endif // CuratorAnalyticsEditor_H

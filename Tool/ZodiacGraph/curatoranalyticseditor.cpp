@@ -22,6 +22,8 @@ CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
     setWindowTitle(tr("Curator Labels"));
     resize(QSize(400,400));
 
+    m_loadedLabel = new QLabel("No tasks loaded");
+
     m_saveCuratorBtn = new QPushButton("Save Tasks");
     m_loadCuratorBtn = new QPushButton("Load Tasks");
     m_saveCuratorBtn->setMaximumSize(100, 25);
@@ -32,32 +34,66 @@ CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
     m_saveEdgesBtn->setMaximumSize(100, 25);
     m_loadEdgesBtn->setMaximumSize(100, 25);
 
-    m_loadedLabel = new QLabel("");
+    m_saveEdgesBtn->setVisible(false);
+    m_loadEdgesBtn->setVisible(false);
 
     m_startNodeLabel = new QLabel("Starting Node:");
     m_startNodeInput = new QLineEdit();
+
+    m_startNodeLabel->setVisible(false);
+    m_startNodeInput->setVisible(false);
+
+    m_useGlobalLostness = new QRadioButton(tr("&Use Global Lostness"));;
+    m_useLocalLostness = new QRadioButton(tr("&Use Local Lostness"));;
+    m_useNoLostness = new QRadioButton(tr("&No Lostness"));;
+    m_useNoLostness->setChecked(true);
 
     connect(m_saveCuratorBtn, &QPushButton::released, [=]{saveCuratorLabels();});
     connect(m_loadCuratorBtn, &QPushButton::released, [=]{loadCuratorLabels();});
 
     connect(m_loadEdgesBtn, &QPushButton::released, [=]{loadSpatialGraph();});
 
+    connect(m_useGlobalLostness, &QRadioButton::toggled, [=](bool checked){onGlobalSelected(checked);});
+    connect(m_useLocalLostness, &QRadioButton::toggled, [=](bool checked){onLocalSelected(checked);});
+
     m_saveCuratorBtn->setEnabled(false);
     m_saveEdgesBtn->setEnabled(false);
     m_startNodeInput->setEnabled(false);
 
-    m_mainLayout->addWidget(m_saveCuratorBtn, 0, 0);
-    m_mainLayout->addWidget(m_loadCuratorBtn, 0, 1);
+    m_mainLayout->addWidget(m_loadedLabel, 0, 0);
 
-    m_mainLayout->addWidget(m_saveEdgesBtn, 1, 0);
-    m_mainLayout->addWidget(m_loadEdgesBtn, 1, 1);
+    m_mainLayout->addWidget(m_useGlobalLostness, 1, 0);
+    m_mainLayout->addWidget(m_useLocalLostness, 1, 1);
+    m_mainLayout->addWidget(m_useNoLostness, 1, 2);
 
-    m_mainLayout->addWidget(m_loadedLabel, 2, 0);
+    m_mainLayout->addWidget(m_saveCuratorBtn, 2, 0);
+    m_mainLayout->addWidget(m_loadCuratorBtn, 2, 1);
 
-    m_mainLayout->addWidget(m_startNodeLabel, 3, 0);
-    m_mainLayout->addWidget(m_startNodeInput, 3, 1);
+    m_mainLayout->addWidget(m_saveEdgesBtn, 3, 0);
+    m_mainLayout->addWidget(m_loadEdgesBtn, 3, 1);
+
+    m_mainLayout->addWidget(m_startNodeLabel, 4, 0);
+    m_mainLayout->addWidget(m_startNodeInput, 4, 1);
 
     m_mainLayout->setAlignment(Qt::AlignLeft);
+}
+
+void CuratorAnalyticsEditor::onLocalSelected(bool checked)
+{
+    m_saveEdgesBtn->setVisible(checked);
+    m_loadEdgesBtn->setVisible(checked);
+
+    m_startNodeLabel->setVisible(checked);
+    m_startNodeInput->setVisible(checked);
+}
+
+void CuratorAnalyticsEditor::onGlobalSelected(bool checked)
+{
+    foreach (CuratorLabel* curatorLabel, m_curatorLabelsList)
+    {
+        curatorLabel->minStepsLabel->setVisible(checked);
+        curatorLabel->minSteps->setVisible(checked);
+    }
 }
 
 void CuratorAnalyticsEditor::showWindow()
@@ -181,6 +217,9 @@ void CuratorAnalyticsEditor::loadCuratorLabels()
                     }
                     m_curatorLabelsHash.insert(mainObj["text_id"].toString(), curatorLabel);
                     m_curatorLabelsList.append(curatorLabel);
+
+                    curatorLabel->minStepsLabel->setVisible(m_useGlobalLostness->isChecked());
+                    curatorLabel->minSteps->setVisible(m_useGlobalLostness->isChecked());
                 }
             }
 
