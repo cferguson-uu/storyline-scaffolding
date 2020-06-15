@@ -494,7 +494,7 @@ To link a gameplay node to another node, story or gameplay, the gameplay node wh
 
 Clicking the option to link this node to other nodes, shows a dialog window. This window contains separate tabs that list gameplay and story nodes respectively.
 
-![Linking Story Nodes](./images/gstory_link_dialog.png) ![Linking Gameplay Nodes](./images/gameplay_link_dialog.png)
+![Linking Story Nodes](./images/story_link_dialog.png) ![Linking Gameplay Nodes](./images/gameplay_link_dialog.png)
 
 Checking the boxes for story nodes will result in simple links being made to story nodes and checking the three-state boxes for other gameplay nodes will result in requirements links being made between these nodes; this includes adding a sequence decorator if more than one node has been checked to show that this node requires a sequence of nodes to be unlocked or an inverter if the third (negative) state of the checkbox is selected.
 
