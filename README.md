@@ -56,7 +56,7 @@ Full Doxygen documentation to come soon.
 
 The SSD&#39;s representation of a story is based on Story Grammar Theory [Thorndyke, 1977, DOI: [https://doi.org/10.1016/0010-0285(77)90005-6](https://doi.org/10.1016/0010-0285(77)90005-6)], which defines a story into four main parts: setting, theme, plot, and resolution. Subsequently, these parts can be rewritten into more sections using 10 available rules, as shown in the figure below.
 
-![](RackMultipart20200612-4-pevdq5_html_a8186eb3ac2601a2.png)
+![Story Grammar Theory](./images/story_grammar_theory.png)
 
 For example, settings consists of characters, location, and time and the plot consists of episodes that contain attempts, outcomes, and a subgoal. For example, in The Chantry, an event is &quot;smallpox is a horrifying disease&quot; and an outcome of one episode is &quot;James developed a mild fever, but quickly recovered&quot;. These rules provide a hierarchical representation of the story, known as the story graph, providing a mental schema of how a story unfolds. The graph will be explained in detail using parts of the story in the Example subsection.
 
@@ -66,23 +66,23 @@ For example, settings consists of characters, location, and time and the plot co
 
 To create a story within the tool, first select the &quot;Add Story Graph&quot; option.
 
-![](RackMultipart20200612-4-pevdq5_html_3718c7a10fa5d17a.png)
+![Creating a Story Graph](./images/add_story_graph.png)
 
 #### Adding Nodes
 
 This will create the base of a Story Graph (setting, theme, plot, and resolution), more nodes are added by right-clicking on a node to and selecting an option to create a child.
 
-![](RackMultipart20200612-4-pevdq5_html_ece6f8bc961ba509.png)
+![Adding Story Nodes](./images/add_story_nodes.png)
 
 This can be done for all nodes that accept children as defined in the schema.
 
-![](RackMultipart20200612-4-pevdq5_html_bc5e097995cfd4d5.png) ![](RackMultipart20200612-4-pevdq5_html_6876b30c8e2993cf.png) ![](RackMultipart20200612-4-pevdq5_html_94b09798fba5d58b.png) ![](RackMultipart20200612-4-pevdq5_html_627944e0e03f870a.png)
+![Events and Goals](./images/add_events_goals.png) ![Events and States](./images/add_event_state.png) ![Attempts and Sub Episodes](./images/add_attempt_subep.png) ![Episodes](./images/add_ep.png)
 
 #### Editing Node Names and Descriptions
 
 When a node is clicked on, it can be edited in the sidebar, as shown below. The name (ID) of the node and description (story sentence) can be edited in the sidebar. This is not possible for the prefix. This also shows the parent and children of the node, as well as links to gameplay nodes (see the linking section). A node name change in the sidebar will be reflected in the graph.
 
-![](RackMultipart20200612-4-pevdq5_html_f24ee35120e08788.png)
+![Editing a Story Node](./images/edit_story_node.png)
 
 #### Removing Nodes
 
@@ -95,25 +95,23 @@ If a node has no children and is not mandatory, it can be removed. This can be d
 
 To save the story graph, select the &quot;Story Graph&quot; menu and select &quot;Save Story&quot;.
 
-![](RackMultipart20200612-4-pevdq5_html_f71bcd32b5c5d7ba.png)
+![Saving Story Graph Option](./images/save_story.png)
 
 The story will be saved as a JSON file in the location chosen through the dialog box.
 
-![](RackMultipart20200612-4-pevdq5_html_ea1e3397a0fd538a.png)
+![Saving Story Graph Dialog](./images/save_story_dialog.png)
 
 #### Loading a Story Graph
 
 To load the story graph, select the &quot;Story Graph&quot; menu and select &quot;Load Story&quot;.
 
-![](RackMultipart20200612-4-pevdq5_html_45300a04f2cf8a4a.png)
+![Loading Story Graph ](./images/load_story.png)
 
 A dialog box will appear to load the story graph.
 
-![](RackMultipart20200612-4-pevdq5_html_14c39eebc611f7bd.png)
+![Loading Story Graph Dialog](./images/load_story_dialog.png)
 
 Once selected, this will load the story graph into the tool.
-
-![](RackMultipart20200612-4-pevdq5_html_b11e995af88184b8.png)
 
 #### JSON Schema
 
@@ -181,7 +179,7 @@ Once selected, this will load the story graph into the tool.
 
 #### Story Graph
 
-![](RackMultipart20200612-4-pevdq5_html_f2c155f59506ee53.png)
+![Story Graph](./images/story_graph.png)
 
 ##### Setting
 
@@ -284,13 +282,13 @@ Multiple game graphs can be created, saved and loaded within the tool. This is s
 
 To create a gameplay node within the tool, first select the &quot;Add Gameplay Node&quot; option.
 
-![](RackMultipart20200612-4-pevdq5_html_d76063ff6919a4a0.png)
+![Gameplay Graph](./images/add_gameplay_graph.png)
 
 #### Editing a Gameplay Node
 
 When a node is clicked on, it can be edited in the sidebar, as shown below. The name (ID) of the node and (optional) description can be edited in the sidebar and the three possible command paths (node is locked, being unlocked or already unlocked) can be added to or changed. The filename that the node will be saved to, along with other gameplay nodes with the same filename, can also be set. The links to story nodes and dependencies (see Linking section) are also visible.
 
-![](RackMultipart20200612-4-pevdq5_html_cb751a6ab76c797a.png)
+![Editing a Gameplay Node](./images/edit_gameplay_node.png)
 
 For each of the three options for triggering commands:
 
@@ -306,27 +304,28 @@ These commands and parameters are set in the &quot;commandsandparams.json&quot; 
 
 To load gameplay graphs, select the &quot;Gameplay Graph&quot; menu and select &quot;Load Gameplay Graph&quot;.
 
-![](RackMultipart20200612-4-pevdq5_html_18391b7b7d7f15b5.png)
+![Loading a Gameplay Graph](./images/load_gameplay.png)
 
 A dialog box will appear to load the gameplay graphs.
 
-![](RackMultipart20200612-4-pevdq5_html_25c0ec36610daf99.png)
+![Gameplay Graph Dialog](./images/load_gameplay_dialog.png)
 
-When loading, the user will need to place these graphs in the desired order. ![](RackMultipart20200612-4-pevdq5_html_cb1fdb3d320396ef.png)
+When loading, the user will need to place these graphs in the desired order. 
+![Sort Gameplay Graph Files](./images/sort_gameplay.png)
 
 The graphs will then show in the tool.
 
-![](RackMultipart20200612-4-pevdq5_html_221a2ae71a4cce99.png)
+![Gameplay Graph](./images/show_gameplay.png)
 
 #### Saving Gameplay Graphs
 
 To save gameplay graphs, select the &quot;Gameplay Graph&quot; menu and select &quot;Load Gameplay Graph&quot;.
 
-![](RackMultipart20200612-4-pevdq5_html_48cb0455f69bd649.png)
+![Saving a Gameplay Graph](./images/save_gameplay.png)
 
 The gameplay graphs will be saved as JSON files in the location chosen through the dialog box.
 
-![](RackMultipart20200612-4-pevdq5_html_2d68d05c7569ba2b.png)
+![Saving Graph Dialog](./images/save_gameplay_dialog.png)
 
 #### Commands and Parameters File
 
@@ -364,7 +363,7 @@ The &quot;Chantry&quot; gameplay graph is a gameplay graph for a task in &quot;T
 
 #### Graph
 
-![](RackMultipart20200612-4-pevdq5_html_2c50f0a3b1d98ba3.png)
+![Gameplay Graph](./images/gameplay_graph.png)
 
 #### JSON Snippet
 
@@ -650,11 +649,11 @@ To meet the key aim of the tool: being able to structure and visualize the story
 
 To link a gameplay node to another node, story or gameplay, the gameplay node which needs to be linked to a story node or needs a requirements list to be created must be right-clicked on.
 
-![](RackMultipart20200612-4-pevdq5_html_47e0800a2d5a3302.png)
+![Linking a Graph](./images/linking.png)
 
 Clicking the option to link this node to other nodes, shows a dialog window. This window contains separate tabs that list gameplay and story nodes respectively.
 
-![](RackMultipart20200612-4-pevdq5_html_f654db904d7d0904.png) ![](RackMultipart20200612-4-pevdq5_html_835baec3174947b4.png)
+![Linking Story Nodes](./images/gstory_link_dialog.png) ![Linking Gameplay Nodes](./images/gameplay_link_dialog.png)
 
 Checking the boxes for story nodes will result in simple links being made to story nodes and checking the three-state boxes for other gameplay nodes will result in requirements links being made between these nodes; this includes adding a sequence decorator if more than one node has been checked to show that this node requires a sequence of nodes to be unlocked or an inverter if the third (negative) state of the checkbox is selected.
 
@@ -662,7 +661,7 @@ Checking the boxes for story nodes will result in simple links being made to sto
 
 To provide feedback to the user, story nodes that are not referenced in the gameplay graph will have red-colored labels, rather than green labels, to show that this part of the story is missing from the game.
 
-![](RackMultipart20200612-4-pevdq5_html_b5bb7b2b01323c2.png)
+![Linked Story Graph](./images/linked_graph.png)
 
 On top of this, the sidebar shows calculations of story completeness:
 
@@ -674,7 +673,7 @@ On top of this, the sidebar shows calculations of story completeness:
 - Average Number of Story Connections
 - Total Number of Gameplay-Story Connections
 
-![](RackMultipart20200612-4-pevdq5_html_7805504dd8d70069.png)
+![Quantatative Linking Data](./images/quantatative_link_data.png)
 
 These two aspects make it makes visible and computable how complete –and where – the story is represented in the gameplay layer.
 
@@ -708,19 +707,19 @@ The tool accepts a JSON file that contains these elements:
 
 Go to the analytics menu and select &quot;Add/Edit Tasks&quot;.
 
-![](RackMultipart20200612-4-pevdq5_html_252d98438a7f5f21.png)
+![Adding Tasks](./images/load_tasks.png)
 
 A dialog box will appear giving options to load and save a task, along with options for spatial graph and a starting node (see spatial graph subsection in the lostness section).
 
-![](RackMultipart20200612-4-pevdq5_html_de51198e78e2abcd.png)
+![Empty Task Dialog](./images/tasks_empty_dialog.png)
 
 Tasks are loaded through a file dialog.
 
-![](RackMultipart20200612-4-pevdq5_html_6ab11d3750a47ee3.png)
+![Load Tasks Dialog](./images/load_tasks_dialog.png)
 
 And result in the necessary variables for tasks being loaded into the tool (calculate lostness and the minimum step variables are explained in the lostness section).
 
-![](RackMultipart20200612-4-pevdq5_html_9dbea49d59c1b8dc.png)
+![Loaded Task Dialog](./images/tasks_loaded_dialog.png)
 
 These tasks can then be used for real-time analytics.
 
@@ -808,11 +807,11 @@ The SSD must connect to a TCP server, as a client, that will send JSON interacti
 
 To connect to a server, click &quot;Enable Analytics Mode&quot;, then, from the &quot;Analytics&quot; menu, select &quot;Connect to server&quot;.
 
-![](RackMultipart20200612-4-pevdq5_html_f61060f9a05b7350.png)
+![Connecting to a Server](./images/connect.png)
 
 This dialog will appear for an IP and port number (domains are also accepted).
 
-![](RackMultipart20200612-4-pevdq5_html_9653a9ed963a4cf9.png)
+![Connect Dialog](./images/connect_dialog.png)
 
 A dialog will appear showing if the connection is successful. Connection issues are not detailed here.
 
@@ -863,7 +862,7 @@ Additionally, the SSD allows an optional &quot;lostness&quot; variable for an &q
 
 When the JSON data is received from the server, this is logged in full to a text file to be examined in full at a later time if necessary. This will contain all events in case different types of analytics or in-depth examination of the gameplay data if necessary. In addition to this, a log widget is available at the bottom of the tool which shows human-readable sentences derived from the JSON data. Through this, a teacher or researcher can see the current progress of a player in the game in text format.
 
-![](RackMultipart20200612-4-pevdq5_html_3d6aa21d1f69a922.png)
+![Log Window](./images/logging.png)
 
 ## &quot;Lighting-Up&quot;
 
@@ -873,17 +872,17 @@ In addition to the primitive text logger, the JSON data is also used to &quot;li
 - Blue – Node can be unlocked
 - Green – Node unlocked
 
-![](RackMultipart20200612-4-pevdq5_html_20b6aa8acb15184f.png)
+![Real-time Visual Analytics in the Gameplay Graph](./images/realtime_gameplay_graph.png)
 
 In addition, story nodes attached to these nodes will also be highlighted when these have been accessed. These will simply be red when they have not been accessed and green when they have. This shows the gameplay events that the player has interacted with and the story information/educational content they have been exposed to and, hopefully, learned.
 
-![](RackMultipart20200612-4-pevdq5_html_32a84209064943b0.png)
+![Real-time Visual Analytics in the Story Graph](./images/realtime_story_graph.png)
 
 ## Sidebar
 
 When the user enters analytics mode. Tasks populate in the sidebar. Progress bars are used to show the progress the player has made through the task as well as the local lostness for the starting objective, other objectives and the full task (local or global as defined by the user). Tasks that have been completed have green text, in-progress have yellow text, and tasks that have not been started have red text. Similarly, objectives that have been found are green and red if not found. This gives a full view of player progress and performance through the game.
 
-![](RackMultipart20200612-4-pevdq5_html_5b5e6cbd3791fa77.png)
+![Real-time Visual Analytics in the Sidebar](./images/realtime_sidebar.png)
 
 # Additional Notes
 
