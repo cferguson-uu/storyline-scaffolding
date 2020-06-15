@@ -19,7 +19,7 @@ CuratorAnalyticsEditor::CuratorAnalyticsEditor(QWidget *parent)
     parentLayout->addWidget(scrollArea);
     setLayout(parentLayout);
 
-    setWindowTitle(tr("Curator Labels"));
+    setWindowTitle(tr("In-Game Tasks"));
     resize(QSize(400,400));
 
     m_loadedLabel = new QLabel("No tasks loaded");
@@ -326,7 +326,7 @@ void CuratorAnalyticsEditor::hideCuratorLabels()
 
 void CuratorAnalyticsEditor::loadSpatialGraph()
 {
-    if(m_lostnessHandler.loadSpatialGraph())
+    if(m_lostnessHandler.loadEdges())
     {
         m_loadedLabel->setText(QString::number(m_lostnessHandler.getNumEdges()) + " edges loaded");
         m_startNodeInput->setEnabled(true);
