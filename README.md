@@ -115,7 +115,7 @@ Once selected, this will load the story graph into the tool.
 
 #### JSON Schema
 
-**TO BE WRITTEN LATER**
+Coming soon.
 
 ### Example
 
@@ -201,55 +201,32 @@ The resolution is the end of the story and consists of events and states. The ev
 
 #### JSON Snippet
 
-&quot;episodes&quot;: [
-
+```json
 {
+    "episodes": [{
+            "attempts": [{
+                "description": "Jenner was working at the time of the Napoleonic Wars between Britain and France",
+                "id": "ATT_WARS"
+            }],
+            "description": "Napoleonic Wars",
+            "id": "EP_NAPOLEON",
+            "outcomes": [{
+                    "description": "who spent thousands of francs promoting vaccination throughout his empire",
+                    "id": "OUT_EMPIRE"
+                },
+                {
+                    "description": "and was held in high regard by Napoleon",
+                    "id": "OUT_HIGHREGARD"
+                }
+            ],
+            "subGoal": {
+                "description": "but still helped the French people",
+                "id": "SUBG_HELPED"
+            }
+        }
 
-&quot;attempts&quot;: [
-
-{
-
-&quot;description&quot;: &quot;Jenner was working at the time of the Napoleonic Wars between Britain and France&quot;,
-
-&quot;id&quot;: &quot;ATT\_WARS&quot;
-
-}
-
-],
-
-&quot;description&quot;: &quot;Napoleonic Wars&quot;,
-
-&quot;id&quot;: &quot;EP\_NAPOLEON&quot;,
-
-&quot;outcomes&quot;: [
-
-{
-
-&quot;description&quot;: &quot;who spent thousands of francs promoting vaccination throughout his empire&quot;,
-
-&quot;id&quot;: &quot;OUT\_EMPIRE&quot;
-
-},
-
-{
-
-&quot;description&quot;: &quot;and was held in high regard by Napoleon&quot;,
-
-&quot;id&quot;: &quot;OUT\_HIGHREGARD&quot;
-
-}
-
-],
-
-&quot;subGoal&quot;: {
-
-&quot;description&quot;: &quot;but still helped the French people&quot;,
-
-&quot;id&quot;: &quot;SUBG\_HELPED&quot;
-
-}
-
-}
+    }
+```
 
 ## Gameplay Graph
 
@@ -333,27 +310,30 @@ As mentioned at the beginning of this guide, the &quot;commandsandparams.json&qu
 
 This file contains an array of possible parameters, such as the &quot;Time&quot; parameter (how many seconds to wait before triggering a command):
 
+```json
 {
- &quot;label&quot;: &quot;Time&quot;,
- &quot;id\_name&quot;: &quot;time&quot;,
- &quot;type&quot;: &quot;float&quot;
- }
+    "label": "Time",
+    "id_name": "time",
+    "type": "float"
+}
+```
 
 As shown above, this object consists of a label that is shown in the tool, the id for the JSON file and the type of value that is accepted.
 
 A separate array contains the commands, such as the &quot;Add Subtitle&quot; command:
 
+```json
 {
- &quot;label&quot;: &quot;Add Subtitle&quot;,
- &quot;id\_name&quot;: &quot;add\_subtitle&quot;,
- &quot;params&quot;: [&quot;time&quot;, &quot;text\_id&quot;]
- }
-
+    "label": "Add Subtitle",
+    "id_name": "add_subtitle ",
+    "params": ["time", "text_id"]
+}
+```
 As shown above, this object consists of a label that is shown in the tool, id for the JSON file and the parameters that it uses.
 
 #### JSON Schema
 
-**TO BE WRITTEN LATER**
+Coming soon
 
 ### Example
 
@@ -367,281 +347,142 @@ The &quot;Chantry&quot; gameplay graph is a gameplay graph for a task in &quot;T
 
 #### JSON Snippet
 
+```json
 [
-
-{
-
-&quot;id&quot;: &quot;Act2\_JHH\_DiningDoor&quot;,
-
-&quot;on\_unlock&quot;: [
-
-{
-
-&quot;cmd&quot;: &quot;focus\_screen&quot;,
-
-&quot;time&quot;: 0
-
+    {
+        "id": "Act2_JHH_DiningDoor",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+    },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+    },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_DiningDoor",
+                "time": 0
+    }],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+    },
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_CHANTRY",
+                "time": 0
+    }],
+        "story_tags": [
+        "LOC_CHANTRY"
+    ]
 },
-
-{
-
-&quot;cmd&quot;: &quot;add\_subtitle&quot;,
-
-&quot;time&quot;: 0
-
+    {
+        "id": "Act2_JHH_CastlePictureEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+    },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+    },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_CastlePictureEarly",
+                "time": 0
+    }],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+    }],
+        "requirements":
+        {
+            "id": "Act2_JHH_DiningDoor",
+            "type": "LEAF"
+        }
 },
-
-{
-
-&quot;cmd&quot;: &quot;play\_sound&quot;,
-
-&quot;id&quot;: &quot;narr/Act2\_JHH\_DiningDoor&quot;,
-
-&quot;time&quot;: 0
-
+    {
+        "id": "Act2_JB_CastlePicture",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+    },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JB_CastlePicture",
+                "time": 0
+    },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+    }],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act2_JB_CastlePicture_on_unlock",
+                "time": 0
+    }],
+        "requirements":
+        {
+            "id": "Act2_JHH_DiningDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+        "DET_CASTLE"
+    ]
+},
+    {
+        "id": "Act2_JHH_ChantryComplete",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+    },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+    },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+    },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "DiningRoom_Door_Interaction_Logic",
+                "time": 0
+    },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "DiningRoom_Door_Logic",
+                "time": 0
+    },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_ChantryComplete",
+                "time": 0
+    }],
+        "requirements":
+        {
+            "id": "Act2_JB_CastlePicture",
+            "type": "LEAF"
+        },
+        "story_tags": [
+        "DET_PRIESTS"
+    ]
 }
-
-],
-
-&quot;on\_unlocked&quot;: [
-
-{
-
-&quot;cmd&quot;: &quot;play\_commands&quot;,
-
-&quot;id&quot;: &quot;door\_barred\_gen&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;show\_cl\_progress&quot;,
-
-&quot;id&quot;: &quot;LS\_CL\_CHANTRY&quot;,
-
-&quot;time&quot;: 0
-
-}
-
-],
-
-&quot;story\_tags&quot;: [
-
-&quot;LOC\_CHANTRY&quot;
-
 ]
-
-},
-
-{
-
-&quot;id&quot;: &quot;Act2\_JHH\_CastlePictureEarly&quot;,
-
-&quot;on\_fail&quot;: [
-
-{
-
-&quot;cmd&quot;: &quot;add\_subtitle&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;focus\_screen&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;play\_sound&quot;,
-
-&quot;id&quot;: &quot;narr/Act2\_JHH\_CastlePictureEarly&quot;,
-
-&quot;time&quot;: 0
-
-}
-
-],
-
-&quot;on\_unlock&quot;: [
-
-{
-
-&quot;cmd&quot;: &quot;play\_commands&quot;,
-
-&quot;id&quot;: &quot;closer\_look\_gen&quot;,
-
-&quot;time&quot;: 0
-
-}
-
-],
-
-&quot;requirements&quot;: {
-
-&quot;id&quot;: &quot;Act2\_JHH\_DiningDoor&quot;,
-
-&quot;type&quot;: &quot;LEAF&quot;
-
-}
-
-},
-
-{
-
-&quot;id&quot;: &quot;Act2\_JB\_CastlePicture&quot;,
-
-&quot;on\_unlock&quot;: [
-
-{
-
-&quot;cmd&quot;: &quot;focus\_screen&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;play\_sound&quot;,
-
-&quot;id&quot;: &quot;narr/Act2\_JB\_CastlePicture&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;add\_subtitle&quot;,
-
-&quot;time&quot;: 0
-
-}
-
-],
-
-&quot;on\_unlocked&quot;: [
-
-{
-
-&quot;cmd&quot;: &quot;play\_commands&quot;,
-
-&quot;id&quot;: &quot;@Act2\_JB\_CastlePicture\_on\_unlock&quot;,
-
-&quot;time&quot;: 0
-
-}
-
-],
-
-&quot;requirements&quot;: {
-
-&quot;id&quot;: &quot;Act2\_JHH\_DiningDoor&quot;,
-
-&quot;type&quot;: &quot;LEAF&quot;
-
-},
-
-&quot;story\_tags&quot;: [
-
-&quot;DET\_CASTLE&quot;
-
-]
-
-},
-
-{
-
-&quot;id&quot;: &quot;Act2\_JHH\_ChantryComplete&quot;,
-
-&quot;on\_unlock&quot;: [
-
-{
-
-&quot;cmd&quot;: &quot;focus\_screen&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;play\_commands&quot;,
-
-&quot;id&quot;: &quot;door\_creak\_gen&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;add\_subtitle&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;try\_close\_logic\_node&quot;,
-
-&quot;duration&quot;: 0,
-
-&quot;id&quot;: &quot;DiningRoom\_Door\_Interaction\_Logic&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;try\_open\_logic\_node&quot;,
-
-&quot;duration&quot;: 1.5,
-
-&quot;id&quot;: &quot;DiningRoom\_Door\_Logic&quot;,
-
-&quot;time&quot;: 0
-
-},
-
-{
-
-&quot;cmd&quot;: &quot;play\_sound&quot;,
-
-&quot;id&quot;: &quot;narr/Act2\_JHH\_ChantryComplete&quot;,
-
-&quot;time&quot;: 0
-
-}
-
-],
-
-&quot;requirements&quot;: {
-
-&quot;id&quot;: &quot;Act2\_JB\_CastlePicture&quot;,
-
-&quot;type&quot;: &quot;LEAF&quot;
-
-},
-
-&quot;story\_tags&quot;: [
-
-&quot;DET\_PRIESTS&quot;
-
-]
-
-}
-
-]
+```
 
 ## Linking
 
@@ -727,35 +568,23 @@ These tasks can then be used for real-time analytics.
 
 (Shortened to remove variables used in the game)
 
+```json
 {
-
-&quot;narrative\_deps&quot;: [
-
-{
-
-&quot;narr\_id&quot;: &quot;Act2\_JHH\_CountyMap&quot;,
-
-},
-
-{
-
-&quot;narr\_id&quot;: &quot;Act2\_EJ\_LastLetter&quot;,
-
-&quot;subtitle&quot;: &quot;LS\_CL\_GLOUCESTERSHIRE\_LASTLETTER&quot;,
-
-&quot;decal\_id&quot;: &quot;Act2\_EJ\_LastLetter\_Decal&quot;
-
+    "narrative_deps": [
+        {
+            "narr_id": "Act2_JHH_CountyMap",
+      },
+        {
+            "narr_id": "Act2_EJ_LastLetter",
+            "subtitle": "LS_CL_GLOUCESTERSHIRE_LASTLETTER",
+            "decal_id": "Act2_EJ_LastLetter_Decal"
+      }
+    ],
+    "text_id": "LS_CL_GLOUCESTERSHIRE",
+    "begin_dep": "Act2_JHH_BreakfastDoor",
+    "complete_dep": "Act2_JHH_HomeComplete"
 }
-
-],
-
-&quot;text\_id&quot;: &quot;LS\_CL\_GLOUCESTERSHIRE&quot;,
-
-&quot;begin\_dep&quot;: &quot;Act2\_JHH\_BreakfastDoor&quot;,
-
-&quot;complete\_dep&quot;: &quot;Act2\_JHH\_HomeComplete&quot;
-
-}
+```
 
 ##### JSON Schema
 
@@ -765,23 +594,29 @@ To Follow
 
 To assess how well a player has completed tasks, the lostness measure is used within the tool. This measure is originally from hypertext and used to identify disorientation. It has shown to be successful in predicting success in information-seeking tasks in hypertext. It is possible to implement in games if tasks/objectives can be defined in a minimum number of steps and steps a player has taken can be logged. The values needed are:
 
-- The minimum number of steps needed to complete a task/objective (R)
-- The total number of steps taken (S)
-- The unique number of steps taken (N)
+- The minimum number of steps needed to complete a task/objective (*R*)
+- The total number of steps taken (*S*)
+- The unique number of steps taken (*N*)
 
-For a given task, the lostness (L) is defined as follows:
+For a given task, the lostness (*L*) is defined as follows:
 
-**,**
+![Lostness](./images/lostness.png)
 
-This returns a value between 0 and √2, which is converted to a percentage in the SSD. A player with a 0% lostness value has taken the perfect path and a value close to 100% indicates that a player is completely lost and highly disoriented.
+This returns a value between 0 and √2, which is converted to a percentage in the SSD. A player with a 0% lostness value has taken the perfect path and a value close to 100% indicates that a player is completely lost and highly disoriented. The \SSD provides two lostness implementations, based on two types of information-searching tasks: i) global gathering activities, where target information is spread and must be combined and ii) local fact-finding activities in case information is located in a single place [Puerta Melguizo et al., 2012, DOI: [https://doi.org/10.1016/0010-0285(77)90005-6](https://doi.org/10.1080/0144929X.2011.602425)].
 
 #### Global Lostness
 
-Manually defined, tasks
+Global lostness compares the steps made by the player (*S* and *N*) during a task with user-defined minimum steps (*R*). This provides a value of lostness for each task (see formula in Lostness section). These values are scaled for the full game using a weighted average, using the number of objectives to reflect the complexity of each task. Weighted global lostness for the full game is defined as:
+
+![Lostness](./images/global_lostness.png)
+
+where *t* represents task and *x* is the total number of objectives within a task.
 
 #### Local Lostness
 
-Pathfinding, objectives
+Local lostness compares the steps taken by a player ($S$ and $N$) to each objective with the minimum steps (*R*) calculated through a path-finding algorithm. This effectively follows the complete path of the player through the game so, rather than using a weighted mean, the *R*, *S*, and *N* values from each objective can simply be summarized and fed into the lostness equation (see formula in Lostness section).
+
+![Lostness](./images/local_lostness.png)
 
 #### Calculation Options
 
@@ -795,7 +630,7 @@ For global lostness, the tool uses the minimum steps value in the tasks dialog. 
 
 ##### Spatial Graphs and Pathfinding
 
-How it works etc.
+Additional information coming soon.
 
 ## Network
 
@@ -823,7 +658,7 @@ The SSD uses the Serious Games Interactions Model (SGIM). This consists of:
 - Action (verb)
 - Object
 - Timestamp (ISO 8601)
-- Optional value (result)
+- Optional value ()
 
 Common verbs used in the SSD are
 
@@ -840,23 +675,18 @@ Additionally, the SSD allows an optional &quot;lostness&quot; variable for an &q
 
 #### Example Interaction
 
+```json
 {
-
-&quot;actor&quot;: &quot;Player 1&quot;,
-
-&quot;object&quot;: &quot;Act1\_EJ\_BerkleyHome&quot;,
-
-&quot;result&quot;: {
-
-&quot;result&quot;: &quot;unlock&quot;
-
-},
-
-&quot;timestamp&quot;: &quot;2019-10-26T14:57:44Z&quot;,
-
-&quot;verb&quot;: &quot;attempted&quot;
-
+    "actor": "Player 1",
+    "object": "Act1_EJ_BerkleyHome",
+    "result":
+    {
+        "result": "unlock"
+    },
+    "timestamp": "2019-10-26T14:57:44Z",
+    "verb": "attempted"
 }
+```
 
 ## Logging
 
