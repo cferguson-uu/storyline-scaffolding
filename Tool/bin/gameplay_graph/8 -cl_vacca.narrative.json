@@ -1,0 +1,305 @@
+[
+    {
+        "id": "Act7_JHH_LibraryShutters",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JHH_LibraryShutters",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_VACCA",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "CHAR_JENNER"
+        ]
+    },
+    {
+        "id": "Act7_JHH_CowPictureEarly",
+        "on_fail": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JHH_CowPictureEarly",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act7_JHH_LibraryShutters",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act7_JHH_HandPictureEarly",
+        "on_fail": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JHH_HandPictureEarly",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act7_JHH_LibraryShutters",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act7_EaJ_VariolationLancetNeedle",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_EaJ_VariolationLancetNeedle",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act7_EaJ_VariolationLancetNeedle_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act7_JHH_LibraryShutters",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "OUT_INFECTED"
+        ]
+    },
+    {
+        "id": "Act7_JHH_VaccaComplete",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Changed2_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JHH_VaccaComplete",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1,
+                "id": "Library_VaccaShutters_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act7_JB_CowPicture",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act7_EJ_HandPicture",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act7_EaJ_VariolationLancetNeedle",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        },
+        "story_tags": [
+            "SUBG_PROTECTED",
+            "OUT_NODISEASE"
+        ]
+    },
+    {
+        "id": "Act7_JB_PhippsHat",
+        "on_unlock": [
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Library_Act7_JB_PhippsHat_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "@Act7_JB_PhippsHat_on_unlocked",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JB_PhippsHat",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act7_JHH_LibraryShutters",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "OUT_RECOVERED"
+        ]
+    },
+    {
+        "id": "Act7_JHH_VariolationLancetEarly",
+        "on_fail": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JHH_VariolationLancetEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act7_JHH_LibraryShutters",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act7_JB_CowPicture",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JB_CowPicture",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act7_JB_CowPicture_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act7_JHH_LibraryShutters",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TGO_PROTECTED",
+            "TGO_ATTENTION"
+        ]
+    },
+    {
+        "id": "Act7_EJ_HandPicture",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_EJ_HandPicture",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act7_EJ_HandPicture_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act7_JHH_LibraryShutters",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "DET_MILKMAID",
+            "TGO_MILD",
+            "CHAR_NELMES"
+        ]
+    }
+]

@@ -1,0 +1,138 @@
+[
+    {
+        "id": "Act2_JHH_DiningDoor",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_DiningDoor",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            },
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_CHANTRY",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "LOC_CHANTRY"
+        ]
+    },
+    {
+        "id": "Act2_JHH_CastlePictureEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_CastlePictureEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act2_JHH_DiningDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act2_JB_CastlePicture",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JB_CastlePicture",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act2_JB_CastlePicture_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act2_JHH_DiningDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "DET_CASTLE"
+        ]
+    },
+    {
+        "id": "Act2_JHH_ChantryComplete",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "DiningRoom_Door_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "DiningRoom_Door_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_ChantryComplete",
+                "time": 0
+            }
+        ],
+        "requirements": {
+			"id": "Act2_JB_CastlePicture",
+			"type": "LEAF"
+        },
+        "story_tags": [
+            "DET_PRIESTS"
+        ]
+    }
+]

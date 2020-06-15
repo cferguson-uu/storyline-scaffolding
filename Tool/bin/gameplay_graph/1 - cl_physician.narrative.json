@@ -1,0 +1,156 @@
+[
+    {
+        "id": "Act1_JHH_FrontDoor",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act1_JHH_FrontDoor",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "try_unlock_narrative",
+                "id": "Tutorial_Artifact_Complete",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Act1_JHH_RememberDoctor_Logic",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            },
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_PHYSICIAN",
+                "time": 0
+            }
+        ]
+    },
+    {
+        "id": "Act1_JHH_RememberDoctor",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "try_unlock_narrative",
+                "id": "Tutorial_Examine_Complete",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act1_JHH_RememberDoctor",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act1_JHH_RememberDoctor_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act1_JHH_FrontDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "DET_PHYSICIAN"
+        ]
+    },
+    {
+        "id": "Act1_JHH_LetterBack",
+        "on_fail": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act1_JHH_LetterBack",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "try_unlock_narrative",
+                "id": "Tutorial_Examine_Complete",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "Act1_JHH_FrontDoor_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "FrontGarden_Door_Logic",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act1_JHH_RememberDoctor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act1_EJ_BerkleyHome",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "try_unlock_narrative",
+                "id": "Tutorial_Examine_Begin",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act1_EJ_BerkleyHome",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act1_JHH_FrontDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "DET_BERKELEY"
+        ]
+    }
+]

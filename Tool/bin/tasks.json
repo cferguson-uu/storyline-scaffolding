@@ -1,0 +1,328 @@
+[
+    {
+        "begin_dep": "Act1_JHH_FrontDoor",
+        "complete_dep": "Act1_JHH_LetterBack",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act1_JHH_RememberDoctor_Decal",
+                "narr_id": "Act1_JHH_RememberDoctor",
+                "subtitle": "LS_CL_REMEMBER_DOCTOR"
+            }
+        ],
+        "screen_id": "CLS_PHYSICIAN",
+        "subtitle": "LS_CL_PHYSICIAN_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_PHYSICIAN"
+    },
+    {
+        "begin_dep": "Act2_JHH_BreakfastDoor",
+        "complete_dep": "Act2_JHH_HomeComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act2_JHH_CountyMap_Decal",
+                "narr_id": "Act2_JHH_CountyMap",
+                "subtitle": "LS_CL_GLOUCESTERSHIRE_VALE"
+            },
+            {
+                "decal_id": "Act2_EJ_LastLetter_Decal",
+                "narr_id": "Act2_EJ_LastLetter",
+                "subtitle": "LS_CL_GLOUCESTERSHIRE_LASTLETTER"
+            }
+        ],
+        "screen_id": "CLS_GLOUCESTERSHIRE",
+        "subtitle": "LS_CL_GLOUCESTERSHIRE_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_GLOUCESTERSHIRE"
+    },
+    {
+        "begin_dep": "Act2_JHH_DiningDoor",
+        "complete_dep": "Act2_JHH_ChantryComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act2_JB_CastlePicture_Decal",
+                "narr_id": "Act2_JB_CastlePicture",
+                "subtitle": "LS_CL_PURGATORY"
+            }
+        ],
+        "screen_id": "CLS_CHANTRY",
+        "subtitle": "LS_CL_CHANTRY_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_CHANTRY"
+    },
+    {
+        "begin_dep": "Act3_TBM_MonsterWindow",
+        "complete_dep": "Act3_JHH_MonsterComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act3_JHH_SmallpoxGrave_Decal",
+                "narr_id": "Act3_JHH_SmallpoxGrave",
+                "subtitle": "LS_CL_ANGEL_ONE_IN_FIVE"
+            },
+            {
+                "decal_id": "Act3_JHH_BeethovenBust_Decal",
+                "narr_id": "Act3_JHH_BeethovenBust",
+                "subtitle": "LS_CL_ANGEL_STEALER"
+            },
+            {
+                "decal_id": "Act3_TBM_SilverTray_Decal",
+                "narr_id": "Act3_TBM_SilverTray",
+                "subtitle": "LS_CL_ANGEL_MONSTER"
+            }
+        ],
+        "screen_id": "CLS_ANGEL",
+        "subtitle": "LS_CL_ANGEL_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_ANGEL"
+    },
+    {
+        "begin_dep": "Act5_JB_DressingDoor",
+        "complete_dep": "Act5_JHH_RidiculeComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act4_ABW_InquiryCover_Decal",
+                "narr_id": "Act4_ABW_InquiryCover",
+                "subtitle": "LS_CL_RIDICULE_SCORN"
+            },
+            {
+                "decal_id": "Act4_WW_GilrayCartoon_Decal",
+                "narr_id": "Act4_WW_GilrayCartoon",
+                "subtitle": "LS_CL_RIDICULE_MOCKERY"
+            },
+            {
+                "decal_id": "Act4_EJ_SubjectRidicule_Decal",
+                "narr_id": "Act4_EJ_SubjectRidicule",
+                "subtitle": "LS_CL_RIDICULE_CONTEMPT"
+            }
+        ],
+        "screen_id": "CLS_RIDICULE",
+        "subtitle": "LS_CL_RIDICULE_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_RIDICULE"
+    },
+    {
+        "begin_dep": "Act4_JHH_LibraryDoor",
+        "complete_dep": "Act4_JHH_ExperimentComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act5_DJH_Thermometer_Decal",
+                "narr_id": "Act5_DJH_Thermometer",
+                "subtitle": "LS_CL_EXPERIMENTS_THERMOMETER"
+            },
+            {
+                "decal_id": "Act4_EJ_BloodLetter_Decal",
+                "narr_id": "Act4_EJ_BloodLetter",
+                "subtitle": "LS_CL_EXPERIMENTS_BLOOD"
+            },
+            {
+                "decal_id": "Act4_NR_GloucesterJournal_Decal",
+                "narr_id": "Act4_NR_GloucesterJournal",
+                "subtitle": "LS_CL_EXPERIMENTS_BALLOONS"
+            },
+            {
+                "decal_id": "Act5_EJ_MedicineChest_Decal",
+                "narr_id": "Act5_EJ_MedicineChest",
+                "subtitle": "LS_CL_EXPERIMENTS_PHIPPS"
+            }
+        ],
+        "screen_id": "CLS_EXPERIMENTS",
+        "subtitle": "LS_CL_EXPERIMENTS_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_EXPERIMENTS"
+    },
+    {
+        "begin_dep": "Act7_JHH_LibraryShutters",
+        "complete_dep": "Act7_JHH_VaccaComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act7_JB_CowPicture_Decal",
+                "narr_id": "Act7_JB_CowPicture",
+                "subtitle": "LS_CL_VACCA_IMMUNITY"
+            },
+            {
+                "decal_id": "Act7_EJ_HandPicture_Decal",
+                "narr_id": "Act7_EJ_HandPicture",
+                "subtitle": "LS_CL_VACCA_DAIRYMAID"
+            },
+            {
+                "decal_id": "Act7_EaJ_VariolationLancetNeedle_Decal",
+                "narr_id": "Act7_EaJ_VariolationLancetNeedle",
+                "subtitle": "LS_CL_VACCA_JAMESPHIPPS"
+            }
+        ],
+        "screen_id": "CLS_VACCA",
+        "subtitle": "LS_CL_VACCA_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_VACCA"
+    },
+    {
+        "begin_dep": "Act9_JHH_BackBedroomDoor",
+        "complete_dep": "Act9_JHH_WarComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act8_JB_NapoleonMedal_Decal",
+                "narr_id": "Act8_JB_NapoleonMedal",
+                "subtitle": "LS_CL_WAR_FRENCH_DECREE"
+            },
+            {
+                "decal_id": "Act8_JB_EuropeMap_Decal",
+                "narr_id": "Act8_JB_EuropeMap",
+                "subtitle": "LS_CL_WAR_FRENCH_INFLUENCE"
+            },
+            {
+                "decal_id": "Act8_GI_Sword_Decal",
+                "narr_id": "Act8_GI_Sword",
+                "subtitle": "LS_CL_WAR_FRENCH_ENEMY"
+            }
+        ],
+        "screen_id": "CLS_WAR",
+        "subtitle": "LS_CL_WAR_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_WAR"
+    },
+    {
+        "begin_dep": "Act10_JHH_JennerBedroomDoor",
+        "complete_dep": "Act10_TD_InoculationComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act9_CM_NewspaperSlaves_Decal",
+                "narr_id": "Act9_CM_NewspaperSlaves",
+                "subtitle": "LS_CL_INNOCULATION_AFRICA"
+            },
+            {
+                "decal_id": "Act9_LM_LadyMaryLetter_Decal",
+                "narr_id": "Act9_LM_LadyMaryLetter",
+                "subtitle": "LS_CL_INNOCULATION_TURKEY"
+            },
+            {
+                "decal_id": "Act9_EM_Sermon_Decal",
+                "narr_id": "Act9_EM_Sermon",
+                "subtitle": "LS_CL_INNOCULATION_SINFUL"
+            }
+        ],
+        "screen_id": "CLS_INNOCULATION",
+        "subtitle": "LS_CL_INNOCULATION_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_INNOCULATION"
+    },
+    {
+        "begin_dep": "Act11_JHH_DrawingDoor",
+        "complete_dep": "Act11_JHH_LegacyComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act5_DJH_CuckooPaper_Decal",
+                "narr_id": "Act5_DJH_CuckooPaper",
+                "subtitle": "LS_CL_LEGACY_CUCKOOS"
+            },
+            {
+                "decal_id": "Act7_JB_MigrationPaper_Decal",
+                "narr_id": "Act7_JB_MigrationPaper",
+                "subtitle": "LS_CL_LEGACY_MIGRATION"
+            },
+            {
+                "decal_id": "Act10_JB_InquiryRejection_Decal",
+                "narr_id": "Act10_JB_InquiryRejection",
+                "subtitle": "LS_CL_LEGACY_INQUIRY"
+            },
+            {
+                "decal_id": "Act10_AB_ParliamentGrant_Decal",
+                "narr_id": "Act10_AB_ParliamentGrant",
+                "subtitle": "LS_CL_LEGACY_GRANTS"
+            }
+        ],
+        "screen_id": "CLS_LEGACY",
+        "subtitle": "LS_CL_LEGACY_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_LEGACY"
+    },
+    {
+        "begin_dep": "Act11_JHH_EntertainerStart",
+        "complete_dep": "Act11_JHH_EntertainerComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act11_JB_Flute_Decal",
+                "narr_id": "Act11_JB_Flute",
+                "subtitle": "LS_CL_ENTERTAINER_MUSIC"
+            },
+            {
+                "decal_id": "Act11_JB_CandleFlame_Decal",
+                "narr_id": "Act11_JB_CandleFlame",
+                "subtitle": "LS_CL_ENTERTAINER_DEBATE"
+            },
+            {
+                "decal_id": "Act11_RB_NewsFromTheFarm_Decal",
+                "narr_id": "Act11_RB_NewsFromTheFarm",
+                "subtitle": "LS_CL_ENTERTAINER_POETRY"
+            }
+        ],
+        "screen_id": "CLS_ENTERTAINER",
+        "subtitle": "LS_CL_ENTERTAINER_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_ENTERTAINER"
+    },
+    {
+        "begin_dep": "Act3_TBM_QueenStatue",
+        "complete_dep": "Act2_JHH_ServiceComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act2_CaK_CookeryBook_Decal",
+                "narr_id": "Act2_CaK_CookeryBook",
+                "subtitle": "LS_CL_SERVICE_JOB_INTERVIEW"
+            }
+        ],
+        "screen_id": "CLS_SERVICE",
+        "subtitle": "LS_CL_SERVICE_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_SERVICE"
+    },
+    {
+        "begin_dep": "Act2_JHH_Globe",
+        "complete_dep": "Act2_TBM_CorrespondenceComplete",
+        "element_id": "element_0",
+        "min_steps": 0,
+        "narrative_deps": [
+            {
+                "decal_id": "Act5_EMF_EmpressLetter_Decal",
+                "narr_id": "Act5_EMF_EmpressLetter",
+                "subtitle": "LS_CL_CORRESPONDANCE_EMPRESS"
+            },
+            {
+                "decal_id": "Act10_TJ_JeffersonLetter_Decal",
+                "narr_id": "Act10_TJ_JeffersonLetter",
+                "subtitle": "LS_CL_CORRESPONDANCE_JEFFERSON"
+            },
+            {
+                "decal_id": "Act8_EJ_NapoleonLetter_Decal",
+                "narr_id": "Act8_EJ_NapoleonLetter",
+                "subtitle": "LS_CL_CORRESPONDANCE_NAPOLEAN"
+            }
+        ],
+        "screen_id": "CLS_CORRESPONDANCE",
+        "subtitle": "LS_CL_CORRESPONDANCE_QUESTION",
+        "target_alpha": 0.5,
+        "text_id": "LS_CL_CORRESPONDANCE"
+    }
+]

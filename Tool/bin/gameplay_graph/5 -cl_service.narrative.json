@@ -1,0 +1,135 @@
+[
+    {
+        "id": "Act3_TBM_QueenStatue",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_TBM_QueenStatue",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_SERVICE",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "CHAR_QUEEN",
+            "DET_KILLED"
+        ]
+    },
+    {
+        "id": "Act2_CaK_CookeryBook",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_CaK_CookeryBook",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act2_CaK_CookeryBook_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_QueenStatue",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TGO_SERVANTS"
+        ]
+    },
+    {
+        "id": "Act2_JHH_ServiceComplete",
+        "on_unlock": [
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Graveyard_Act3_JHH_DeskKey_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Graveyard_Act3_JHH_QueenStatue_Plaque_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_ServiceComplete",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act2_CaK_CookeryBook",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        },
+        "story_tags": [
+            "TGO_NOTAGAIN",
+            "TGO_SERVANTS"
+        ]
+    },
+    {
+        "id": "Act2_JHH_CookeryBookEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_CookeryBookEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_QueenStatue",
+            "type": "LEAF"
+        }
+    }
+]

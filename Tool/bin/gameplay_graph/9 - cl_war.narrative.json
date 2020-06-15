@@ -1,0 +1,291 @@
+[
+    {
+        "id": "Act9_JHH_BackBedroomDoor",
+        "on_unlock": [
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "CaptainJennersRoom_Door_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act9_JHH_BackBedroomDoor",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            },
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_WAR",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "ATT_WARS"
+        ]
+    },
+    {
+        "id": "Act8_JHH_SwordEarly",
+        "on_fail": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act8_JHH_SwordEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act9_JHH_BackBedroomDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act8_GI_Sword",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act8_GI_Sword",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act8_GI_Sword_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act9_JHH_BackBedroomDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "ATT_WARS"
+        ]
+    },
+    {
+        "id": "Act9_JHH_WarComplete",
+        "on_unlock": [
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Graveyard_FullAccess_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "BackBedroom_Door_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act9_JHH_WarComplete",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "BackBedroom_Door_Logic",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act8_JB_NapoleonMedal",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act8_GI_Sword",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act8_JB_EuropeMap",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        },
+        "story_tags": [
+            "OUT_HIGHREGARD",
+            "SUBG_HELPED"
+        ]
+    },
+    {
+        "id": "Act8_JB_NapoleonMedal",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act8_JB_NapoleonMedal",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act8_JB_NapoleonMedal_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act9_JHH_BackBedroomDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "OUT_EMPIRE"
+        ]
+    },
+    {
+        "id": "Act8_JHH_NapoleonMedalEarly",
+        "on_fail": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act8_JHH_NapoleonMedalEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act9_JHH_BackBedroomDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act8_JB_EuropeMap",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act8_JB_EuropeMap",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act8_JB_EuropeMap_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act9_JHH_BackBedroomDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "OUT_HIGHREGARD"
+        ]
+    },
+    {
+        "id": "Act8_JHH_EuropeMapEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act8_JHH_EuropeMapEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act9_JHH_BackBedroomDoor",
+            "type": "LEAF"
+        }
+    }
+]

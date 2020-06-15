@@ -1,0 +1,294 @@
+[
+    {
+        "id": "Act3_TBM_MonsterWindow",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_TBM_MonsterWindow",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_ANGEL",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "TEV_SMALLPOX"
+        ]
+    },
+    {
+        "id": "Act3_JHH_SmallpoxGraveEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_JHH_SmallpoxGraveEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_MonsterWindow",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act3_JHH_SmallpoxGrave",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_JHH_SmallpoxGrave",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act3_JHH_SmallpoxGrave_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_MonsterWindow",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TEV_ONEINFIVE"
+        ]
+    },
+    {
+        "id": "Act3_JHH_MonsterComplete",
+        "on_unlock": [
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Changed1_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "BreakfastRoom_AoDShutters_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_JHH_MonsterComplete",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act3_JHH_BeethovenBust",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act3_JHH_SmallpoxGrave",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act3_TBM_SilverTray",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        },
+        "story_tags": [
+            "TEV_TOOKLIFE"
+        ]
+    },
+    {
+        "id": "Act3_JHH_SilverTrayEarly",
+        "on_fail": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_JHH_SilverTrayEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_MonsterWindow",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act3_JHH_BeethovenBust",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_JHH_BeethovenBust",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act3_JHH_BeethovenBust_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_MonsterWindow",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "CHAR_MUSICIANS",
+            "TEV_SCARRED",
+            "DET_SCARRED"
+        ]
+    },
+    {
+        "id": "Act3_JHH_OpenShutters",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "BreakfastRoom_AoDShutters_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_JHH_OpenShutters",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_MonsterWindow",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act3_TBM_SilverTray",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_TBM_SilverTray",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act3_TBM_SilverTray_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_MonsterWindow",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TEV_SCARRED",
+            "TEV_SMALLPOX"
+        ]
+    },
+    {
+        "id": "Act3_JHH_BeethovenBustEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act3_JHH_BeethovenBustEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act3_TBM_MonsterWindow",
+            "type": "LEAF"
+        }
+    }
+]

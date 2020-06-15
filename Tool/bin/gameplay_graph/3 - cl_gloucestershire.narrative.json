@@ -1,0 +1,208 @@
+[
+    {
+        "id": "Act2_JHH_BreakfastDoor",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_BreakfastDoor",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            },
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_GLOUCESTERSHIRE",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "DET_HOUSE"
+        ]
+    },
+    {
+        "id": "Act2_JHH_LastLetterEarly",
+        "on_fail": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_LastLetter",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act2_JHH_BreakfastDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act2_EJ_LastLetter",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_EJ_LastLetter",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act2_EJ_LastLetter_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act2_JHH_BreakfastDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TIM_1823"
+        ]
+    },
+    {
+        "id": "Act2_JHH_HomeComplete",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_HomeComplete",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "BreakfastRoom_Door_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "BreakfastRoom_Door_Interaction_Logic",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act2_EJ_LastLetter",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act2_JHH_CountyMap",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        },
+        "story_tags": [
+            "DET_CHELTENHAM"
+        ]
+    },
+    {
+        "id": "Act2_JHH_CountyMap",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_CountyMap",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act2_JHH_CountyMap_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act2_JHH_BreakfastDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "DET_GLOUCESTERSHIRE"
+        ]
+    },
+    {
+        "id": "Act2_JHH_CountyMapEarly",
+        "on_fail": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act2_JHH_CountyMapEarly",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act2_JHH_BreakfastDoor",
+            "type": "LEAF"
+        }
+    }
+]

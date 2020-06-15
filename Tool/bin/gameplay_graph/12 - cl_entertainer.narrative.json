@@ -1,0 +1,210 @@
+[
+    {
+        "id": "Act11_JHH_EntertainerStart",
+        "on_unlock": [
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Act11_JHH_EntertainerStart_Interaction_Logic",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_ENTERTAINER",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            }
+        ]
+    },
+    {
+        "id": "Act11_RB_NewsFromTheFarm",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act11_RB_NewsFromTheFarm",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act11_RB_NewsFromTheFarm_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_EntertainerStart",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act11_JHH_EntertainerComplete",
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "turn_on_fog",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "FrontGarden_JennerStatue_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "FrontGarden_Access_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "Act11_JHH_EntertainerStart_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "FrontGarden_Door_Logic",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act11_JB_CandleFlame",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act11_JB_Flute",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act11_RB_NewsFromTheFarm",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        }
+    },
+    {
+        "id": "Act11_JB_Flute",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act11_JB_Flute",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act11_JB_Flute_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_EntertainerStart",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act11_JB_CandleFlameEarly",
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_EntertainerStart",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act11_JB_FluteEarly",
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_EntertainerStart",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act11_JB_CandleFlame",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act11_JB_CandleFlame",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act11_JB_CandleFlame_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_EntertainerStart",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act11_RB_NewsFromTheFarmEarly",
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_EntertainerStart",
+            "type": "LEAF"
+        }
+    }
+]

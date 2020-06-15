@@ -1,0 +1,287 @@
+[
+    {
+        "id": "Act10_JHH_JennerBedroomDoor",
+        "on_unlock": [
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 0,
+                "id": "Changed3_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act10_JHH_JennerBedroomDoor",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_INNOCULATION",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "OUT_YOUNGER",
+            "SUBG_IMMUNE"
+        ]
+    },
+    {
+        "id": "Act9_JHH_SermonEarly",
+        "on_fail": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act9_JHH_SermonEarly",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act10_JHH_JennerBedroomDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act9_LM_LadyMaryLetter",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act9_LM_LadyMaryLetter",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act9_LM_LadyMaryLetter_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act10_JHH_JennerBedroomDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "SUBG_FUTURE",
+            "ATT_DELIBERATE",
+            "OUT_SURVIVED",
+            "ATT_AFRICA",
+            "DET_TURKEY",
+            "CHAR_MONTAGU"
+        ]
+    },
+    {
+        "id": "Act10_TD_InoculationComplete",
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "DrJennersRoom_Door_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act10_TD_InoculationComplete",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "DrJennersRoom_Door_Logic",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act9_CM_NewspaperSlaves",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act9_EM_Sermon",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act9_LM_LadyMaryLetter",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        },
+        "story_tags": [
+            "OUT_STEPFURTHER"
+        ]
+    },
+    {
+        "id": "Act9_JHH_NewspaperSlavesEarly",
+        "on_fail": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act9_JHH_NewspaperSlavesEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act10_JHH_JennerBedroomDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act9_JHH_LadyMaryLetterEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act9_JHH_LadyMaryLetterEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act10_JHH_JennerBedroomDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act9_EM_Sermon",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act9_EM_Sermon",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act9_EM_Sermon_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act10_JHH_JennerBedroomDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "ATT_SINFUL"
+        ]
+    },
+    {
+        "id": "Act9_CM_NewspaperSlaves",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act9_CM_NewspaperSlaves",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act9_CM_NewspaperSlaves_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act10_JHH_JennerBedroomDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "DET_SLAVE",
+            "ATT_DELIBERATE",
+            "CHAR_MATHER"
+        ]
+    }
+]

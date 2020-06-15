@@ -1,0 +1,271 @@
+[
+    {
+        "id": "Act5_JB_DressingDoor",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act5_JB_DressingDoor",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            },
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_RIDICULE",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "OUT_RIDICULE"
+        ]
+    },
+    {
+        "id": "Act4_JHH_SubjectRidiculeEarly",
+        "on_fail": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_JHH_SubjectRidiculeEarly",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act5_JB_DressingDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act4_EJ_SubjectRidicule",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_EJ_SubjectRidicule",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act4_EJ_SubjectRidicule_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act5_JB_DressingDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "OUT_RIDICULE",
+            "OUT_MEDICAL"
+        ]
+    },
+    {
+        "id": "Act5_JHH_RidiculeComplete",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act5_JHH_RidiculeComplete",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "DressingRoom_Door_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "DressingRoom_Door_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act4_ABW_InquiryCover",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act4_WW_GilrayCartoon",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act4_EJ_SubjectRidicule",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        }
+    },
+    {
+        "id": "Act4_ABW_InquiryCover",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_ABW_InquiryCover",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act4_ABW_InquiryCover_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act5_JB_DressingDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "OUT_RIDICULE"
+        ]
+    },
+    {
+        "id": "Act4_WW_GilrayCartoon",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_WW_GilrayCartoon",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act4_WW_GilrayCartoon_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act5_JB_DressingDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "OUT_RIDICULE"
+        ]
+    },
+    {
+        "id": "Act4_ABW_InquiryCoverEarly",
+        "on_fail": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_JHH_InquiryCoverEarly",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act5_JB_DressingDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act4_JHH_GilrayCartoonEarly",
+        "on_fail": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_JHH_GilrayCartoonEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act5_JB_DressingDoor",
+            "type": "LEAF"
+        }
+    }
+]

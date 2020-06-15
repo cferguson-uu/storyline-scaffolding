@@ -1,0 +1,86 @@
+[
+    {
+        "id": "Act12_EM_LeaveHouseFront",
+        "on_unlock": [
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 1.5,
+                "id": "FrontGarden_Door_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "REV_ENRICH"
+        ]
+    },
+    {
+        "id": "Act12_WW_JennerGrave",
+        "on_unlock": [
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "FrontGarden_JennerStatueAccess_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act12_WW_JennerGrave",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "FrontGarden_JennerStatue_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act12_EM_LeaveHouseFront",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act12_TBM_JennerGrave",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act12_TBM_JennerGrave",
+                "time": 95.4
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act12_WW_JennerGrave",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "RST_WHO",
+            "RST_ERADICATION",
+            "REV_SAVEDLIVES"
+        ]
+    }
+]

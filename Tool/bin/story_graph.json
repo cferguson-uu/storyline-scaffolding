@@ -1,0 +1,381 @@
+{
+    "plot": {
+        "episodes": [
+            {
+                "attempts": [
+                    {
+                        "description": "Jenner was working at the time of the Napoleonic Wars between Britain and France",
+                        "id": "ATT_WARS"
+                    }
+                ],
+                "description": "Napoleonic Wars",
+                "id": "EP_NAPOLEON",
+                "outcomes": [
+                    {
+                        "description": "who spent thousands of francs promoting vaccination throughout his empire",
+                        "id": "OUT_EMPIRE"
+                    },
+                    {
+                        "description": "and was held in high regard by Napoleon",
+                        "id": "OUT_HIGHREGARD"
+                    }
+                ],
+                "subGoal": {
+                    "description": "but still helped the French people",
+                    "id": "SUBG_HELPED"
+                }
+            },
+            {
+                "description": "Methods of becoming immune to smallpox before Jenner",
+                "id": "EP_IMMUNITY",
+                "outcomes": [
+                    {
+                        "description": "as he went through the process of inoculation when he was younger",
+                        "id": "OUT_YOUNGER"
+                    },
+                    {
+                        "description": "Jenner took the practice one step further by using an inoculant which came from a related non-fatal disease (cowpox)",
+                        "id": "OUT_STEPFURTHER"
+                    }
+					],
+					"attempts": [
+					{
+                        "attempts": [
+                            {
+                                "description": "However, other preachers regarded the process as sinful",
+                                "id": "ATT_SINFUL"
+                            },
+                            {
+                                "description": "Inoculation was used in Africa and Turkey before it came to Europe and America.",
+                                "id": "ATT_AFRICA"
+                            },
+                            {
+                                "description": "Inoculation involved deliberately infecting someone with smallpox by scratching pus from a smallpox scar into their bloodstream",
+                                "id": "ATT_DELIBERATE"
+                            }
+                        ],
+                        "description": "",
+                        "id": "SUBEP_INOCULATION",
+                        "outcomes": [
+                            {
+                                "description": "This induced a milder form of smallpox which most people survived ",
+                                "id": "OUT_SURVIVED"
+                            }
+                        ],
+                        "subGoal": {
+                            "description": "future immunity to the disease",
+                            "id": "SUBG_FUTURE"
+                        }
+                    }
+                ],
+                "subGoal": {
+                    "description": "Jenner was immune to smallpox ",
+                    "id": "SUBG_IMMUNE"
+                }
+            },
+            {
+                "description": "Jenner attempting to publish his work",
+                "id": "EP_PUBLISH",
+                "outcomes": [
+                    {
+                        "description": "Jenner privately commissioned a booklet to publish his “Inquiry”",
+                        "id": "OUT_BOOKLET"
+                    },
+                    {
+                        "description": "but it received a mixed reaction from the medical community",
+                        "id": "OUT_REACTION"
+                    },
+                    {
+                        "description": "Jenner received widespread ridicule",
+                        "id": "OUT_RIDICULE"
+                    },
+                    {
+                        "description": "but it received a mixed reaction from the medical community",
+                        "id": "OUT_MEDICAL"
+                    }
+					],
+					"attempts": [
+                    {
+                        "attempts": [
+                            {
+                                "description": "Jenner submitted a paper describing the experiment to the Royal Society",
+                                "id": "ATT_SUBMITTED"
+                            }
+                        ],
+                        "description": "Submitting a paper to the royal society",
+                        "id": "SUBEP_ROYALSOCIETY",
+                        "outcomes": [
+                            {
+                                "description": "But was rejected",
+                                "id": "OUT_REJECT"
+                            }
+                        ],
+                        "subGoal": {
+                            "description": "To share his work",
+                            "id": "SUBG_SHARE"
+                        }
+                    }
+                ],
+                "subGoal": {
+                    "description": "to show the public",
+                    "id": "SUBG_PUBLIC"
+                }
+            },
+            {
+                "description": "Testing out smallpox immunity on James Phipps",
+                "id": "EP_PHIPPS",
+                "outcomes": [
+                    {
+                        "description": "Eight weeks later Jenner injected James with pus from a fresh smallpox lesion",
+                        "id": "OUT_INFECTED"
+                    },
+                    {
+                        "description": "No disease developed",
+                        "id": "OUT_NODISEASE"
+                    }
+					],
+					"attempts": [
+                    {
+                        "attempts": [
+                            {
+                                "description": "Jenner extracted the pus from cowpox lesions on a milkmaid's arm ",
+                                "id": "ATT_EXTRACTED"
+                            },
+                            {
+                                "description": "and scratched this onto the arm of an 8-year old boy called James Phipps",
+                                "id": "ATT_SCRATCHED"
+                            }
+                        ],
+                        "description": "Infecting James Phipps with cowpox",
+                        "id": "SUBEP_COWPOX",
+                        "outcomes": [
+                            {
+                                "description": "James developed mild fever, but quickly recovered.",
+                                "id": "OUT_RECOVERED"
+                            }
+                        ],
+                        "subGoal": {
+                            "description": "to see if this made him immune to smallpox",
+                            "id": "SUBG_IMMUNECHECK"
+                        }
+                    }
+                ],
+                "subGoal": {
+                    "description": "Phipps was now protected against smallpox",
+                    "id": "SUBG_PROTECTED"
+                }
+            }
+        ]
+    },
+    "resolution": {
+        "events": [
+            {
+                "description": "Despite this, the British Parliament eventually granted Edward Jenner a grant of £10,000 for his smallpox research",
+                "id": "REV_GRANT"
+            },
+            {
+                "description": "Jenner made no personal attempt to enrich himself through his discovery",
+                "id": "REV_ENRICH"
+            },
+            {
+                "description": "which saved many millions of lives worldwide",
+                "id": "REV_SAVEDLIVES"
+            }
+        ],
+        "states": [
+            {
+                "description": "The smallpox virus was finally eradicated in 1980 following a global immunisation campaign led by the World Health Organisation",
+                "id": "RST_WHO"
+            },
+            {
+                "description": "and would eventually lead to the eradication of one of mankind's most horrific diseases",
+                "id": "RST_ERADICATION"
+            }
+        ]
+    },
+    "setting": {
+        "characters": [
+            {
+                "description": "Beethoven and Mozart",
+                "details": [
+                    {
+                        "description": "Left scarred",
+                        "id": "DET_SCARRED"
+                    }
+                ],
+                "id": "CHAR_MUSICIANS"
+            },
+            {
+                "description": "Lady Mary Wortley Montagu ",
+                "details": [
+                    {
+                        "description": "brought the practice of variolation to England ",
+                        "id": "DET_TURKEY"
+                    }
+                ],
+                "id": "CHAR_MONTAGU"
+            },
+            {
+                "description": "Dr. Edward Jenner",
+                "details": [
+                    {
+                        "description": "Jenner also had a second home in Cheltenham",
+                        "id": "DET_CHELTENHAM"
+                    }
+                ],
+                "id": "CHAR_JENNER"
+            },
+            {
+                "description": "Sarah Nelmes",
+                "details": [
+                    {
+                        "description": "A milkmaid",
+                        "id": "DET_MILKMAID"
+                    }
+                ],
+                "id": "CHAR_NELMES"
+            },
+            {
+                "description": "Queen Mary",
+                "details": [
+                    {
+                        "description": "Killed by smallpox",
+                        "id": "DET_KILLED"
+                    }
+                ],
+                "id": "CHAR_QUEEN"
+            },
+            {
+                "description": "The Reverend Cotton Mather ",
+                "details": [
+                    {
+                        "description": "brought inoculation to The Americas after being taught the practice by an African slave",
+                        "id": "DET_SLAVE"
+                    }
+                ],
+                "id": "CHAR_MATHER"
+            }
+        ],
+        "locations": [
+            {
+                "description": "The Chantry",
+                "details": [
+                    {
+                        "description": "is a country house",
+                        "id": "DET_HOUSE"
+                    },
+                    {
+                        "description": "in Berkeley",
+                        "id": "DET_BERKELEY"
+                    },
+                    {
+                        "description": "it was the home to a physician and widower ",
+                        "id": "DET_PHYSICIAN"
+                    },
+                    {
+                        "description": "It stands between Berkeley Castle and the church",
+                        "id": "DET_CASTLE"
+                    },
+                    {
+                        "description": "and was originally built as housing for priests ",
+                        "id": "DET_PRIESTS"
+                    },
+                    {
+                        "description": "near to the River Severn in the county of Gloucestershire, England.",
+                        "id": "DET_GLOUCESTERSHIRE"
+                    }
+                ],
+                "id": "LOC_CHANTRY"
+            }
+        ],
+        "times": [
+            {
+                "description": "In 1796",
+                "id": "TIM_1796"
+            },
+            {
+                "description": "In 1823",
+                "id": "TIM_1823"
+            }
+        ]
+    },
+    "storyName": "Story",
+    "theme": {
+        "events": [
+            {
+                "description": "Jenner’s main work was on birds and cuckoos",
+                "id": "TEV_CUCKOOS"
+            },
+            {
+                "description": "Smallpox is a horrifying disease ",
+                "id": "TEV_SMALLPOX",
+                "subEvents": [
+                    {
+                        "description": "which killed 1 in 5 people who caught it",
+                        "id": "TEV_ONEINFIVE",
+                        "subEvents": [
+                            {
+                                "description": "and scarred and/or blinded many others",
+                                "id": "TEV_SCARRED",
+                                "subEvents": [
+                                    {
+                                        "description": "Some people couldn’t live with the terrible scarring and took their own lives",
+                                        "id": "TEV_TOOKLIFE"
+                                    }
+                                ]
+                            }
+							]
+                    }
+                ]
+            },
+            {
+                "description": "Yet him and his colleagues carried out many interesting experiments",
+                "id": "TEV_EXPERIMENTS",
+                "subEvents": [
+                    {
+                        "description": "which scared a lot of people",
+                        "id": "TEV_SCARED",
+                        "subEvents": [
+                            {
+                                "description": "Including improving grass growth using human blood",
+                                "id": "TEV_BLOOD"
+                            },
+                            {
+                                "description": "And launching balloons",
+                                "id": "TEV_BALLOONS"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+		"goals": [
+			{
+                "description": "Jenner turned his attention to the study of smallpox ",
+                "id": "TGO_ATTENTION",
+                "subGoals": [
+                    {
+                        "description": "after observing that dairymaids appeared to be protected from smallpox after having suffered from cowpox",
+                        "id": "TGO_PROTECTED",
+                        "subGoals": [
+                            {
+                                "description": "Cowpox resembles a mild form of smallpox",
+                                "id": "TGO_MILD"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "description": "Once someone had had smallpox they couldn’t get it again ",
+                "id": "TGO_NOTAGAIN",
+                "subGoals": [
+                    {
+                        "description": "Smallpox scars were an asset to servants seeking employment as it showed they couldn’t bring the disease into a household",
+                        "id": "TGO_SERVANTS"
+                    }
+                ]
+            }
+		]
+    }
+}

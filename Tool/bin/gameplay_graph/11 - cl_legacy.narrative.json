@@ -1,0 +1,340 @@
+[
+    {
+        "id": "Act11_JHH_DrawingDoor",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act11_JHH_DrawingDoor",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_LEGACY",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            }
+        ]
+    },
+    {
+        "id": "Act7_JB_MigrationPaper",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JB_MigrationPaper",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act7_JB_MigrationPaper_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_DrawingDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TEV_CUCKOOS"
+        ]
+    },
+    {
+        "id": "Act11_JHH_LegacyComplete",
+        "on_unlock": [
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "DrawingRoom_Door_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act11_JHH_LegacyComplete",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            },
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "DrawingRoom_Door_Interaction_Logic",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act10_JB_InquiryRejection",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act5_DJH_CuckooPaper",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act7_JB_MigrationPaper",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act10_AB_ParliamentGrant",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        },
+        "story_tags": [
+            "REV_GRANT"
+        ]
+    },
+    {
+        "id": "Act10_JB_InquiryRejection",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act10_JB_InquiryRejection",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act10_JB_InquiryRejection_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_DrawingDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "SUBG_PUBLIC",
+            "OUT_REJECT",
+            "OUT_BOOKLET",
+            "SUBG_SHARE",
+            "OUT_REACTION",
+            "ATT_SUBMITTED"
+        ]
+    },
+    {
+        "id": "Act10_JHH_ParliamentGrantEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act10_JHH_ParliamentGrantEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_DrawingDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act10_JHH_InquiryRejectionEarly",
+        "on_fail": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act10_JHH_InquiryRejectionEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_DrawingDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act10_AB_ParliamentGrant",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act10_AB_ParliamentGrant",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act10_AB_ParliamentGrant_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_DrawingDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "REV_GRANT"
+        ]
+    },
+    {
+        "id": "Act7_JHH_MigrationPaperEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act7_JHH_MigrationPaperEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_DrawingDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act5_DJH_CuckooPaper",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act5_DJH_CuckooPaper",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act5_DJH_CuckooPaper_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_DrawingDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TEV_CUCKOOS"
+        ]
+    },
+    {
+        "id": "Act5_JHH_CuckooPaperEarly",
+        "on_fail": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act5_JHH_CuckooPaperEarly",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act11_JHH_DrawingDoor",
+            "type": "LEAF"
+        }
+    }
+]

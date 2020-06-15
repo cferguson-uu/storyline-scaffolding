@@ -1,0 +1,347 @@
+[
+    {
+        "id": "Act4_JHH_LibraryDoor",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_JHH_LibraryDoor",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "door_barred_gen",
+                "time": 0
+            },
+            {
+                "cmd": "show_cl_progress",
+                "id": "LS_CL_EXPERIMENTS",
+                "time": 0
+            }
+        ],
+        "story_tags": [
+            "TEV_EXPERIMENTS"
+        ]
+    },
+    {
+        "id": "Act4_JHH_GloucesterJournalEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_JHH_GloucesterJournalEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act4_JHH_LibraryDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act4_JHH_BloodLetterEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_JHH_BloodLetterEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act4_JHH_LibraryDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act4_EJ_BloodLetter",
+        "on_unlock": [
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_EJ_BloodLetter",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act4_EJ_BloodLetter_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act4_JHH_LibraryDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TEV_BLOOD"
+        ]
+    },
+    {
+        "id": "Act4_JHH_ExperimentComplete",
+        "on_unlock": [
+            {
+                "cmd": "try_close_logic_node",
+                "duration": 0,
+                "id": "Library_Door_Interaction_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1.5,
+                "id": "Library_Door_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_JHH_ExperimentComplete",
+                "time": 0
+            },
+            {
+                "cmd": "play_commands",
+                "id": "door_creak_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "children": [
+                {
+                    "id": "Act5_EJ_MedicineChest",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act4_NR_GloucesterJournal",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act4_EJ_BloodLetter",
+                    "type": "LEAF"
+                },
+                {
+                    "id": "Act5_DJH_Thermometer",
+                    "type": "LEAF"
+                }
+            ],
+            "type": "SEQ"
+        },
+        "story_tags": [
+            "TEV_SCARED"
+        ]
+    },
+    {
+        "id": "Act5_JHH_ThermometerEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act5_JHH_ThermometerEarly",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act4_JHH_LibraryDoor",
+            "type": "LEAF"
+        }
+    },
+    {
+        "id": "Act4_NR_GloucesterJournal",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act4_NR_GloucesterJournal",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act4_NR_GloucesterJournal_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act4_JHH_LibraryDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TEV_BALLOONS"
+        ]
+    },
+    {
+        "id": "Act5_EJ_MedicineChest",
+        "on_unlock": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "try_open_logic_node",
+                "duration": 1,
+                "id": "Act5_EJ_MedicineChest_Logic",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act5_EJ_MedicineChest",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act5_EJ_MedicineChest_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act4_JHH_LibraryDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TIM_1796",
+            "ATT_SCRATCHED",
+            "SUBG_IMMUNECHECK",
+            "ATT_EXTRACTED"
+        ]
+    },
+    {
+        "id": "Act5_DJH_Thermometer",
+        "on_unlock": [
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            },
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act5_DJH_Thermometer",
+                "time": 0
+            }
+        ],
+        "on_unlocked": [
+            {
+                "cmd": "play_commands",
+                "id": "@Act5_DJH_Thermometer_on_unlock",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act4_JHH_LibraryDoor",
+            "type": "LEAF"
+        },
+        "story_tags": [
+            "TEV_EXPERIMENTS"
+        ]
+    },
+    {
+        "id": "Act5_JHH_MedicineChestEarly",
+        "on_fail": [
+            {
+                "cmd": "add_subtitle",
+                "time": 0
+            },
+            {
+                "cmd": "play_sound",
+                "id": "narr/Act5_JHH_MedicineChestEarly",
+                "time": 0
+            },
+            {
+                "cmd": "focus_screen",
+                "time": 0
+            }
+        ],
+        "on_unlock": [
+            {
+                "cmd": "play_commands",
+                "id": "closer_look_gen",
+                "time": 0
+            }
+        ],
+        "requirements": {
+            "id": "Act4_JHH_LibraryDoor",
+            "type": "LEAF"
+        }
+    }
+]
