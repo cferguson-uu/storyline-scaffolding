@@ -102,11 +102,13 @@ MainWindow::MainWindow(QWidget *parent)
     QAction *analyticsDisconnect = new QAction(tr("&Disconnect"), this);
     QAction *analyticsLoad = new QAction(tr("&Load Log File"), this);
     QAction *analyticsClear = new QAction(tr("&Clear Analytical Data"), this);
+    QAction *lostnessGraph = new QAction(tr("&View Lostness Graph"), this);
     analyticsMenu->addAction(lostnessEdit);
     analyticsMenu->addAction(analyticsConnect);
     analyticsMenu->addAction(analyticsDisconnect);
     analyticsMenu->addAction(analyticsLoad);
     analyticsMenu->addAction(analyticsClear);
+    analyticsMenu->addAction(lostnessGraph);
 
     // create the status bar
     statusBar();
@@ -121,7 +123,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //create the analytics systems
     AnalyticsLogWindow *analyticsLog = new AnalyticsLogWindow(this);
-    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, analyticsLoad, analyticsClear, this);
+    AnalyticsHandler *analyticsHandler = new AnalyticsHandler(analyticsLog, analyticsConnect, analyticsDisconnect, lostnessEdit, analyticsLoad, analyticsClear, lostnessGraph, this);
 
     // create the Main Controller
     //create action early to send to mainctrl so it can be disabled (only 1 story graph can exist)

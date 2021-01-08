@@ -23,7 +23,7 @@
 #    SOFTWARE.
 #
 
-QT          += core gui widgets network
+QT          += core gui widgets network charts
 CONFIG      += c++11 static
 DEFINES     *= QT_USE_QSTRINGBUILDER
 
@@ -78,7 +78,8 @@ SOURCES += main.cpp\
     curatoranalyticseditor.cpp \
     analyticsproperties.cpp \
     narrativefilesorter.cpp \
-    lostness.cpp
+    lostness.cpp \
+    lostnessgraph.cpp
 
 HEADERS  += mainwindow.h \
     collapsible.h \
@@ -120,7 +121,8 @@ HEADERS  += mainwindow.h \
     curatoranalyticseditor.h \
     analyticsproperties.h \
     narrativefilesorter.h \
-    lostness.h
+    lostness.h \
+    lostnessgraph.h
 
 RESOURCES += \
     res/icons.qrc

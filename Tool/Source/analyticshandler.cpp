@@ -26,8 +26,9 @@ static const QString kName_PickedUp = "picked up";
 static const QString kName_Examined = "examined";
 static const QString kName_Found = "found";
 
-AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QObject *parent)
+AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QAction *lostnessGraphAction, QObject *parent)
     : m_curatorAnalyticsEditor(new CuratorAnalyticsEditor(qobject_cast<QWidget*>(parent)))
+    , m_lostnessGraphDialog(new LostnessGraph(qobject_cast<QWidget*>(parent)))
     , m_tcpSocket(new AnalyticsSocket(qobject_cast<QWidget*>(parent)))
     , m_logWindow(logger)
     , m_connectAction(connectAction)
@@ -35,6 +36,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     , m_editLostnessAction(editLostnessAction)
     , m_loadLogFileAction(loadAction)
     , m_clearAnalyticsAction(clearAction)
+    , m_lostnessGraphAction(lostnessGraphAction)
     , m_analyticsEnabled(false)
     , QObject(parent)
 {
@@ -43,6 +45,7 @@ AnalyticsHandler::AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectA
     connect(m_editLostnessAction, &QAction::triggered, [=]{m_curatorAnalyticsEditor->showWindow();});
     connect(m_loadLogFileAction, &QAction::triggered, [=]{loadAnalyticsLog();});
     connect(m_clearAnalyticsAction, &QAction::triggered, [=]{clearAll();});
+    connect(m_lostnessGraphAction, &QAction::triggered, [=]{m_lostnessGraphDialog->showWindow();});
 
     m_disconnectAction->setEnabled(false);
     m_connectAction->setEnabled(false);
@@ -507,4 +510,5 @@ void AnalyticsHandler::clearAll()
     lockAllNodes();
     m_pProperties->resetAllCuratorLabels();
     m_curatorAnalyticsEditor->resetAll();
+    m_lostnessGraphDialog->resetAll();
 }

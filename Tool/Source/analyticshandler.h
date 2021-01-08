@@ -8,13 +8,14 @@
 #include "nodeproperties.h"
 #include "curatoranalyticseditor.h"
 #include "analyticsproperties.h"
+#include "lostnessgraph.h"
 
 class AnalyticsHandler : public QObject
 {
     Q_OBJECT
 
 public:
-    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QObject *parent);
+    AnalyticsHandler(AnalyticsLogWindow *logger, QAction *connectAction, QAction *disconnectAction, QAction *editLostnessAction, QAction *loadAction, QAction *clearAction, QAction *lostnessGraphAction, QObject *parent);
 
     void setAnalyticsProperties(AnalyticsProperties *properties);
     void startAnalyticsMode();
@@ -46,12 +47,14 @@ private:
     AnalyticsSocket *m_tcpSocket;
     AnalyticsLogWindow *m_logWindow;
     CuratorAnalyticsEditor *m_curatorAnalyticsEditor;
+    LostnessGraph *m_lostnessGraphDialog;
 
     QAction *m_connectAction;
     QAction *m_disconnectAction;
     QAction *m_editLostnessAction;
     QAction *m_loadLogFileAction;
     QAction *m_clearAnalyticsAction;
+    QAction *m_lostnessGraphAction;
 
     QList<QString> m_activeTasks;
 
