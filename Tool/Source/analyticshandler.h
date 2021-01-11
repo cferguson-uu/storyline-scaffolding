@@ -63,6 +63,8 @@ private:
     bool m_analyticsEnabled;
 
     QSet<QString> m_lostness_actions;
+
+    QDateTime m_startTime;
 };
 
 #endif // ANALYTICSHANDLER_H

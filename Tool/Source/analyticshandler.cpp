@@ -198,6 +198,10 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
         return;
     }
 
+    //log the start time if first action
+    if(m_logWindow->isEmpty())
+        m_startTime = QDateTime::fromString(jsonObj[kName_Timestamp].toString(), Qt::ISODate);
+
     if(!m_curatorAnalyticsEditor->isEmpty())    //don't need any of this if no tasks to log
     {
         if(jsonObj[kName_Verb].toString() == kName_Started) //add new task to active list and set as started in properties
@@ -296,6 +300,10 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
                                         m_pProperties->updateFullGameProgress(m_curatorAnalyticsEditor->getGameProgress());
                                         m_pProperties->updateProgressOfCuratorLabel(parent, m_curatorAnalyticsEditor->getCuratorLabelProgress(parent));
 
+                                        //send to graph
+                                        QDateTime currentTime = QDateTime::fromString(jsonObj[kName_Timestamp].toString(), Qt::ISODate);
+                                        m_lostnessGraphDialog->addPoint(m_startTime.secsTo(currentTime), lostness);
+
                                         handleTextOutput(jsonObj, updateValues);    //send this out now before doing to found message immediately afterwards
 
                                         //make found message
@@ -378,6 +386,10 @@ void AnalyticsHandler::handleObject(QJsonObject jsonObj, bool updateValues, bool
                                 m_pProperties->updateLocalLostness(m_curatorAnalyticsEditor->getLocalLostness());
                                 m_pProperties->updateFullGameProgress(m_curatorAnalyticsEditor->getGameProgress());
                                 m_pProperties->updateProgressOfCuratorLabel(curatorID, m_curatorAnalyticsEditor->getCuratorLabelProgress(curatorID));
+
+                                //send lostness to graph
+                                QDateTime currentTime = QDateTime::fromString(jsonObj[kName_Timestamp].toString(), Qt::ISODate);
+                                m_lostnessGraphDialog->addPoint(m_startTime.secsTo(currentTime), lostness);
                             }
                         }
     }

@@ -22,6 +22,8 @@ public:
     void appendToLogFile(const QJsonObject& obj);
     void exportToFile();
 
+    bool isEmpty(){return m_jsonEvents.isEmpty();}
+
 private:
     QFile m_logFile;
     QString m_fileName;
